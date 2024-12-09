@@ -9567,7 +9567,7 @@ done:
             StatementSyntax alternative = null;
             while (true)
             {
-                var ifKeyword = this.EatToken(SyntaxKind.IfKeyword);
+                var ifKeyword = this.EatToken();
                 var openParen = this.EatToken(SyntaxKind.OpenParenToken);
                 var condition = this.ParseExpressionCore();
                 var closeParen = this.EatToken(SyntaxKind.CloseParenToken);
