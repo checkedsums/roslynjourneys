@@ -9566,14 +9566,12 @@ done:
             while (true)
             {
                 var ifKeyword = this.EatToken();
-                var openParen = this.EatMissingToken(SyntaxKind.OpenParenToken);
+                var openParen = this.EatToken(SyntaxKind.OpenParenToken);//this.EatMissingToken(SyntaxKind.OpenParenToken);
                 var condition = this.ParseExpressionCore();
-                var closeParen = this.EatMissingToken(SyntaxKind.CloseParenToken);
+                var closeParen = this.EatToken(SyntaxKind.CloseParenToken);//this.ProduceMissingCongener(openParen, SyntaxKind.CloseParenToken);
                 var consequence = this.ParseEmbeddedStatement();
 
-                var elseKeyword = this.CurrentToken.Kind != SyntaxKind.ElseKeyword ?
-                    null :
-                    this.EatToken(SyntaxKind.ElseKeyword);
+                var elseKeyword = this.TryEatToken(SyntaxKind.ElseKeyword);
                 stack.Push((ifKeyword, openParen, condition, closeParen, consequence, elseKeyword));
 
                 if (elseKeyword is null)
