@@ -463,26 +463,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
-        protected SyntaxToken PeekToken(int n)
-        {
-            Debug.Assert(n >= 0);
-            while (_tokenOffset + n >= _tokenCount)
-            {
-                this.AddNewToken();
-            }
+        protected SyntaxToken NextToken => PeekToken(1);
 
-            if (_blendedTokens != null)
-            {
-                return _blendedTokens[_tokenOffset + n].Token;
-            }
-            else
-            {
-                return _lexedTokens[_tokenOffset + n];
-            }
+        protected SyntaxToken PeekToken(int n) // TODO: Remember to make this make *(WAY)* more sense.
+        {
+            while (_tokenOffset + n >= _tokenCount)
+                this.AddNewToken();
+
+            return _blendedTokens?[_tokenOffset + n].Token ?? _lexedTokens[_tokenOffset + n];
         }
 
-        //this method is called very frequently
-        //we should keep it simple so that it can be inlined.
         protected SyntaxToken EatToken()
         {
             var ct = this.CurrentToken;
@@ -505,30 +495,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             if (_blendedTokens != null)
             {
-                _currentNode = default(BlendedNode);
+                _currentNode = default;
             }
 
             _tokenOffset++;
         }
 
-        protected void ForceEndOfFile()
-        {
-            _currentToken = SyntaxFactory.Token(SyntaxKind.EndOfFileToken);
-        }
+        protected void ForceEndOfFile() => _currentToken = SyntaxFactory.Token(SyntaxKind.EndOfFileToken);
 
-        //this method is called very frequently
-        //we should keep it simple so that it can be inlined.
         protected SyntaxToken EatToken(SyntaxKind kind)
         {
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
-
             var ct = this.CurrentToken;
             if (ct.Kind == kind)
             {
                 MoveToNextToken();
                 return ct;
             }
-
             //slow part of EatToken(SyntaxKind kind)
             return CreateMissingToken(kind, this.CurrentToken.Kind, reportError: true);
         }
@@ -553,10 +535,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             // should we eat the current ParseToken's leading trivia?
             var token = SyntaxFactory.MissingToken(expected);
+
             if (reportError)
-            {
                 token = WithAdditionalDiagnostics(token, this.GetExpectedTokenError(expected, actual));
-            }
 
             return token;
         }
@@ -575,44 +556,28 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         protected SyntaxToken EatToken(SyntaxKind kind, bool reportError)
         {
-            if (reportError)
-            {
-                return EatToken(kind);
-            }
+            if (reportError) return EatToken(kind);
 
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
-            if (this.CurrentToken.Kind != kind)
-            {
-                // should we eat the current ParseToken's leading trivia?
+            if (this.CurrentToken.Kind != kind) // should we eat the current ParseToken's leading trivia?
                 return SyntaxFactory.MissingToken(kind);
-            }
             else
-            {
                 return this.EatToken();
-            }
         }
 
         protected SyntaxToken EatToken(SyntaxKind kind, ErrorCode code, bool reportError = true)
         {
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
             if (this.CurrentToken.Kind != kind)
-            {
                 return CreateMissingToken(kind, code, reportError);
-            }
             else
-            {
                 return this.EatToken();
-            }
         }
 
         protected SyntaxToken EatTokenWithPrejudice(SyntaxKind kind)
         {
             var token = this.CurrentToken;
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
+
             if (token.Kind != kind)
-            {
                 token = WithAdditionalDiagnostics(token, this.GetExpectedTokenError(kind, token.Kind));
-            }
 
             this.MoveToNextToken();
             return token;
@@ -627,32 +592,23 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         protected SyntaxToken EatContextualToken(SyntaxKind kind, ErrorCode code, bool reportError = true)
         {
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
-
             if (this.CurrentToken.ContextualKind != kind)
-            {
                 return CreateMissingToken(kind, code, reportError);
-            }
             else
-            {
                 return ConvertToKeyword(this.EatToken());
-            }
         }
 
         protected SyntaxToken EatContextualToken(SyntaxKind kind, bool reportError = true)
         {
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
-
             var contextualKind = this.CurrentToken.ContextualKind;
             if (contextualKind != kind)
-            {
                 return CreateMissingToken(kind, contextualKind, reportError);
-            }
             else
-            {
                 return ConvertToKeyword(this.EatToken());
-            }
         }
+
+        protected SyntaxToken EatMissingToken(SyntaxKind kind)
+            => this.CurrentToken.Kind == kind ? this.CurrentToken : SyntaxFactory.MissingToken(kind);
 
         protected virtual SyntaxDiagnosticInfo GetExpectedTokenError(SyntaxKind expected, SyntaxKind actual, int offset, int width)
         {
