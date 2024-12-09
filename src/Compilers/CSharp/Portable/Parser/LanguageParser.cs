@@ -9560,8 +9560,6 @@ done:
 
         private IfStatementSyntax ParseIfStatement(Attrbs attributes)
         {
-            Debug.Assert(this.CurrentToken.Kind == SyntaxKind.IfKeyword);
-
             var stack = ArrayBuilder<(SyntaxToken, SyntaxToken, ExpressionSyntax, SyntaxToken, StatementSyntax, SyntaxToken)>.GetInstance();
 
             StatementSyntax alternative = null;
