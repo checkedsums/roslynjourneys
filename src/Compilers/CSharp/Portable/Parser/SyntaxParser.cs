@@ -608,7 +608,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         }
 
         protected SyntaxToken EatMissingToken(SyntaxKind kind)
-            => this.CurrentToken.Kind == kind ? this.CurrentToken : SyntaxFactory.MissingToken(kind);
+            => this.CurrentToken.Kind == kind ? this.EatToken(kind) : SyntaxFactory.MissingToken(kind);
 
         protected SyntaxToken ProduceMissingCongener(SyntaxToken bMissingToken, SyntaxKind kind) //inDev function //TODO: Remove, or rename, or refactor to a different concept. Preferably, hardcode congeners.
             => bMissingToken.IsMissing ? SyntaxFactory.MissingToken(kind) : this.EatToken(kind);
