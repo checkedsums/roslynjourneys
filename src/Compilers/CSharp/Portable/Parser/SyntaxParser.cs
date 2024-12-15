@@ -307,7 +307,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             _tokenCount = _tokenOffset; // forget anything after this slot
 
             // erase current state
-            _currentNode = default(BlendedNode);
+            _currentNode = default;
             _currentToken = null;
 
             return result;
