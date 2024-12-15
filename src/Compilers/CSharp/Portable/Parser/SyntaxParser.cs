@@ -313,6 +313,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return result;
         }
 
+        public SyntaxToken NextToken => PeekToken(1);
+
         protected SyntaxToken PeekToken(int n)
         {
             Debug.Assert(n >= 0);
