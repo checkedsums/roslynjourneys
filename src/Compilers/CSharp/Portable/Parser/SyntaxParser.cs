@@ -313,6 +313,24 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return result;
         }
 
+        protected SyntaxToken PeekToken(int n)
+        {
+            Debug.Assert(n >= 0);
+            while (_tokenOffset + n >= _tokenCount)
+            {
+                this.AddNewToken();
+            }
+
+            if (_blendedTokens != null)
+            {
+                return _blendedTokens[_tokenOffset + n].Token;
+            }
+            else
+            {
+                return _lexedTokens[_tokenOffset + n];
+            }
+        }
+
         protected SyntaxToken CurrentToken
         {
             get
@@ -460,24 +478,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 Array.Clear(lexedTokens, 0, _maxWrittenLexedTokenIndex + 1);
 
                 s_lexedTokensPool.Free(lexedTokens);
-            }
-        }
-
-        protected SyntaxToken PeekToken(int n)
-        {
-            Debug.Assert(n >= 0);
-            while (_tokenOffset + n >= _tokenCount)
-            {
-                this.AddNewToken();
-            }
-
-            if (_blendedTokens != null)
-            {
-                return _blendedTokens[_tokenOffset + n].Token;
-            }
-            else
-            {
-                return _lexedTokens[_tokenOffset + n];
             }
         }
 
