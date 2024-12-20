@@ -145,7 +145,91 @@ internal abstract partial class AbstractExtractMethodService<
 
                 return await documentWithUpdatedCallSite.WithSyntaxRootAsync(finalRoot, cancellationToken).ConfigureAwait(false);
 
-                SyntaxNode InsertLocalFunction()
+            // add invocation expression
+            return statements.Concat(
+                (TStatementSyntax)(SyntaxNode)await GetStatementOrInitializerContainingInvocationToExtractedMethodAsync(cancellationToken).ConfigureAwait(false));
+        }
+
+        protected ImmutableArray<TStatementSyntax> AddAssignmentStatementToCallSite(
+            ImmutableArray<TStatementSyntax> statements,
+            CancellationToken cancellationToken)
+        {
+            if (AnalyzerResult.VariablesToUseAsReturnValue.IsEmpty)
+                return statements;
+
+            var variables = AnalyzerResult.VariablesToUseAsReturnValue;
+            if (variables.Any(v => v.ReturnBehavior == ReturnBehavior.Initialization))
+            {
+                var declarationStatement = CreateDeclarationStatement(
+                    variables, CreateCallSignature(), cancellationToken);
+                declarationStatement = declarationStatement.WithAdditionalAnnotations(CallSiteAnnotation);
+
+                return statements.Concat(declarationStatement);
+            }
+
+            return statements.Concat(
+                CreateAssignmentExpressionStatement(variables, CreateCallSignature()).WithAdditionalAnnotations(CallSiteAnnotation));
+        }
+
+        protected ImmutableArray<TStatementSyntax> CreateDeclarationStatements(
+            ImmutableArray<VariableInfo> variables, CancellationToken cancellationToken)
+        {
+            return variables.SelectAsArray(v => CreateDeclarationStatement([v], initialValue: null, cancellationToken));
+        }
+
+        protected ImmutableArray<TStatementSyntax> AddSplitOrMoveDeclarationOutStatementsToCallSite(
+            CancellationToken cancellationToken)
+        {
+            using var _ = ArrayBuilder<TStatementSyntax>.GetInstance(out var list);
+
+            foreach (var variable in AnalyzerResult.GetVariablesToSplitOrMoveOutToCallSite(cancellationToken))
+            {
+                if (variable.UseAsReturnValue)
+                    continue;
+
+                list.Add(CreateDeclarationStatement(
+                    [variable], initialValue: null, cancellationToken: cancellationToken));
+            }
+
+            return list.ToImmutableAndClear();
+        }
+
+        protected ImmutableArray<TStatementSyntax> AppendReturnStatementIfNeeded(ImmutableArray<TStatementSyntax> statements)
+        {
+            if (AnalyzerResult.VariablesToUseAsReturnValue.IsEmpty)
+                return statements;
+
+            return statements.Concat(CreateReturnStatement([.. AnalyzerResult.VariablesToUseAsReturnValue.Select(b => b.Name)]));
+        }
+
+        protected static HashSet<SyntaxAnnotation> CreateVariableDeclarationToRemoveMap(
+            IEnumerable<VariableInfo> variables, CancellationToken cancellationToken)
+        {
+            var annotations = new List<(SyntaxToken, SyntaxAnnotation)>();
+
+            foreach (var variable in variables)
+            {
+                Contract.ThrowIfFalse(variable.GetDeclarationBehavior(cancellationToken) is DeclarationBehavior.MoveOut or
+                                      DeclarationBehavior.MoveIn or
+                                      DeclarationBehavior.Delete);
+
+                variable.AddIdentifierTokenAnnotationPair(annotations, cancellationToken);
+            }
+
+            return [.. annotations.Select(t => t.Item2)];
+        }
+
+        protected ImmutableArray<ITypeParameterSymbol> CreateMethodTypeParameters()
+        {
+            if (AnalyzerResult.MethodTypeParametersInDeclaration.IsEmpty)
+                return [];
+
+            var set = new HashSet<ITypeParameterSymbol>(AnalyzerResult.MethodTypeParametersInConstraintList);
+
+            var typeParameters = ArrayBuilder<ITypeParameterSymbol>.GetInstance();
+            foreach (var parameter in AnalyzerResult.MethodTypeParametersInDeclaration)
+            {
+                if (parameter != null && set.Contains(parameter))
                 {
                     // Now, insert the local function.
                     var info = codeGenerationService.GetInfo(
