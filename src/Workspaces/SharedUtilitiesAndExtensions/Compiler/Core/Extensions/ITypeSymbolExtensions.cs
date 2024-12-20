@@ -448,7 +448,7 @@ internal static partial class ITypeSymbolExtensions
     {
         if (containingType == null)
         {
-            return ImmutableArray<T>.Empty;
+            return [];
         }
 
         return containingType.GetBaseTypesAndThis().SelectAccessibleMembers<T>(memberName, within).ToImmutableArray();
