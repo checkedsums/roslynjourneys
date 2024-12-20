@@ -5120,7 +5120,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return builder.MostCommonValue;
         }
 
-        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<SynthesizedAttributeData> attributes)
+        /// <summary>
+        /// Returns true if the overall nullable context is enabled for constructors and initializers.
+        /// </summary>
+        /// <param name="useStatic">Consider static constructor and fields rather than instance constructors and fields.</param>
+        internal bool IsNullableEnabledForConstructorsAndInitializers(bool useStatic)
+        {
+            var membersAndInitializers = GetMembersAndInitializers();
+            return useStatic ?
+                membersAndInitializers.IsNullableEnabledForStaticConstructorsAndFields :
+                membersAndInitializers.IsNullableEnabledForInstanceConstructorsAndFields;
+        }
+
+        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<CSharpAttributeData> attributes)
         {
             base.AddSynthesizedAttributes(moduleBuilder, ref attributes);
 

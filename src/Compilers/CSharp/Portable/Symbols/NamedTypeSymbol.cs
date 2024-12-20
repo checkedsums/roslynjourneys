@@ -1143,6 +1143,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal abstract bool HasAsyncMethodBuilderAttribute(out TypeSymbol builderArgument);
 
+        internal abstract bool HasCompilerLoweringPreserveAttribute { get; }
+
         /// <summary>
         /// Gets a value indicating whether this type has System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute or not.
         /// </summary>

@@ -89,7 +89,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             VerifyOverridesEqualityContractFromBase(this, diagnostics);
         }
 
-        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<SynthesizedAttributeData> attributes)
+        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<CSharpAttributeData> attributes)
         {
             base.AddSynthesizedAttributes(moduleBuilder, ref attributes);
 
@@ -154,7 +154,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
             }
 
-            internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<SynthesizedAttributeData> attributes)
+            internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<CSharpAttributeData> attributes)
             {
                 base.AddSynthesizedAttributes(moduleBuilder, ref attributes);
 

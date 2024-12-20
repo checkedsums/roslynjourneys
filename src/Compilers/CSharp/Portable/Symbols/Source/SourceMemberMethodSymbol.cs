@@ -892,7 +892,48 @@ done:
                 compilation.EnsureIsReadOnlyAttributeExists(diagnostics, _location, modifyCompilation: true);
             }
         }
-        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<SynthesizedAttributeData> attributes)
+
+        // Consider moving this state to SourceMethodSymbol to emit NullableContextAttributes
+        // on lambdas and local functions (see https://github.com/dotnet/roslyn/issues/36736).
+        internal override byte? GetLocalNullableContextValue()
+        {
+            byte? value;
+            if (!flags.TryGetNullableContext(out value))
+            {
+                value = ComputeNullableContextValue();
+                flags.SetNullableContext(value);
+            }
+            return value;
+        }
+
+        private byte? ComputeNullableContextValue()
+        {
+            var compilation = DeclaringCompilation;
+            if (!compilation.ShouldEmitNullableAttributes(this))
+            {
+                return null;
+            }
+
+            var builder = new MostCommonNullableValueBuilder();
+            foreach (var typeParameter in TypeParameters)
+            {
+                typeParameter.GetCommonNullableValues(compilation, ref builder);
+            }
+            builder.AddValue(ReturnTypeWithAnnotations);
+            foreach (var parameter in Parameters)
+            {
+                parameter.GetCommonNullableValues(compilation, ref builder);
+            }
+            return builder.MostCommonValue;
+        }
+
+        internal override bool IsNullableAnalysisEnabled()
+        {
+            Debug.Assert(!this.IsConstructor()); // Constructors should use IsNullableEnabledForConstructorsAndInitializers() instead.
+            return flags.IsNullableAnalysisEnabled;
+        }
+
+        internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<CSharpAttributeData> attributes)
         {
             base.AddSynthesizedAttributes(moduleBuilder, ref attributes);
 

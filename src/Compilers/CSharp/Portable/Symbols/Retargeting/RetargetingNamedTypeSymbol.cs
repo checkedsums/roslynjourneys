@@ -434,5 +434,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             builderArgument = null;
             return false;
         }
+
+        internal override bool HasCompilerLoweringPreserveAttribute => _underlyingType.HasCompilerLoweringPreserveAttribute;
     }
 }
