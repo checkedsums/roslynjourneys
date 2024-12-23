@@ -387,7 +387,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal void SetTypeWithAnnotations(TypeWithAnnotations newType)
         {
-            Debug.Assert(newType.Type is object);
+            Debug.Assert(newType.Type is not null);
             TypeWithAnnotations? originalType = _type?.Value;
 
             // In the event that we race to set the type of a local, we should

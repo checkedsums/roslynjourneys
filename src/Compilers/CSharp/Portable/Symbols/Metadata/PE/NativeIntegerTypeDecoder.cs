@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 }
                 else if (decoder._index == transformFlags.Length)
                 {
-                    Debug.Assert(result is object);
+                    Debug.Assert(result is not null);
                     return result;
                 }
                 else

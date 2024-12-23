@@ -457,7 +457,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal bool IsTupleElement()
         {
-            return this.CorrespondingTupleField is object;
+            return this.CorrespondingTupleField is not null;
         }
 
         /// <summary>

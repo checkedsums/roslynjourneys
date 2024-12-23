@@ -192,7 +192,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void CheckReferenceToThisOrBase(BoundExpression node)
         {
-            if (_staticLocalOrAnonymousFunction is object)
+            if (_staticLocalOrAnonymousFunction is not null)
             {
                 var diagnostic = _staticLocalOrAnonymousFunction.MethodKind == MethodKind.LocalFunction
                     ? ErrorCode.ERR_StaticLocalFunctionCannotCaptureThis
@@ -207,7 +207,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(symbol.Kind == SymbolKind.Local || symbol.Kind == SymbolKind.Parameter || symbol is LocalFunctionSymbol);
 
-            if (_staticLocalOrAnonymousFunction is object && Symbol.IsCaptured(symbol, _staticLocalOrAnonymousFunction))
+            if (_staticLocalOrAnonymousFunction is not null && Symbol.IsCaptured(symbol, _staticLocalOrAnonymousFunction))
             {
                 var diagnostic = _staticLocalOrAnonymousFunction.MethodKind == MethodKind.LocalFunction
                     ? ErrorCode.ERR_StaticLocalFunctionCannotCaptureVariable

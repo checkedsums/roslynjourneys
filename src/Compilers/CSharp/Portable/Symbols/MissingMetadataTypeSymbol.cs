@@ -98,7 +98,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     // NOTE: this is another case where we would like to base our decision on which compilation
                     // is the "current" compilation, but we don't want to force consumers of the API to specify.
-                    if (containingAssembly is object)
+                    if (containingAssembly is not null)
                     {
                         if (containingAssembly.Dangerous_IsFromSomeCompilation)
                         {

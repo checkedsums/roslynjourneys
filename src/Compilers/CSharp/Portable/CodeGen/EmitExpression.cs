@@ -4030,7 +4030,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             EmitArguments(ptrInvocation.Arguments, method.Parameters, ptrInvocation.ArgumentRefKindsOpt);
             var stackBehavior = GetCallStackBehavior(ptrInvocation.FunctionPointer.Signature, ptrInvocation.Arguments);
 
-            if (temp is object)
+            if (temp is not null)
             {
                 _builder.EmitLocalLoad(temp);
                 FreeTemp(temp);

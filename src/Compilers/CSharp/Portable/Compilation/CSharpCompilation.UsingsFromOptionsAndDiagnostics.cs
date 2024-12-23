@@ -54,7 +54,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
 
                     var directiveDiagnostics = BindingDiagnosticBag.GetInstance();
-                    Debug.Assert(directiveDiagnostics.DiagnosticBag is object);
+                    Debug.Assert(directiveDiagnostics.DiagnosticBag is not null);
                     Debug.Assert(directiveDiagnostics.DependenciesBag is object);
 
                     var imported = usingsBinder.BindNamespaceOrTypeSymbol(qualifiedName, directiveDiagnostics).NamespaceOrTypeSymbol;
@@ -130,7 +130,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 DiagnosticBag semanticDiagnostics = compilation.DeclarationDiagnostics;
                 var diagnostics = BindingDiagnosticBag.GetInstance();
-                Debug.Assert(diagnostics.DiagnosticBag is object);
+                Debug.Assert(diagnostics.DiagnosticBag is not null);
                 Debug.Assert(diagnostics.DependenciesBag is object);
 
                 var corLibrary = compilation.SourceAssembly.CorLibrary;

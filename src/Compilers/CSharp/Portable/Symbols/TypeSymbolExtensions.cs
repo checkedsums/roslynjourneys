@@ -667,7 +667,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static SpecialType GetSpecialTypeSafe(this TypeSymbol? type)
         {
-            return type is object ? type.SpecialType : SpecialType.None;
+            return type is not null ? type.SpecialType : SpecialType.None;
         }
 
         public static bool IsAtLeastAsVisibleAs(this TypeSymbol type, Symbol sym, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
@@ -784,7 +784,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             {
                                 isNestedNamedType = true;
                                 var result = VisitType(default, containingType, typeWithAnnotationsPredicate, typePredicate, arg, canDigThroughNullable, useDefaultType, visitCustomModifiers);
-                                if (result is object)
+                                if (result is not null)
                                 {
                                     return result;
                                 }
@@ -820,7 +820,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             typeWithAnnotationsOpt: default, type: ((CSharpCustomModifier)customModifier).ModifierSymbol,
                             typeWithAnnotationsPredicate, typePredicate, arg,
                             canDigThroughNullable, useDefaultType, visitCustomModifiers);
-                        if (result is object)
+                        if (result is not null)
                         {
                             return result;
                         }
@@ -876,7 +876,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     canDigThroughNullable,
                                     useDefaultType,
                                     visitCustomModifiers);
-                                if (result is object)
+                                if (result is not null)
                                 {
                                     return result;
                                 }
@@ -907,7 +907,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     canDigThroughNullable,
                                     useDefaultType,
                                     visitCustomModifiers);
-                                if (result is object)
+                                if (result is not null)
                                 {
                                     return result;
                                 }
@@ -929,7 +929,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case TypeKind.FunctionPointer:
                         {
                             var result = visitFunctionPointerType((FunctionPointerTypeSymbol)current, typeWithAnnotationsPredicate, typePredicate, arg, useDefaultType, canDigThroughNullable, visitCustomModifiers, out next);
-                            if (result is object)
+                            if (result is not null)
                             {
                                 return result;
                             }
@@ -967,7 +967,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     canDigThroughNullable,
                     useDefaultType,
                     visitCustomModifiers);
-                if (result is object)
+                if (result is not null)
                 {
                     next = default;
                     return result;
@@ -986,7 +986,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         canDigThroughNullable,
                         useDefaultType,
                         visitCustomModifiers);
-                    if (result is object)
+                    if (result is not null)
                     {
                         next = default;
                         return result;
@@ -1197,7 +1197,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static bool ContainsTypeParameter(this TypeSymbol type, TypeParameterSymbol? parameter = null)
         {
             var result = type.VisitType(s_containsTypeParameterPredicate, parameter);
-            return result is object;
+            return result is not null;
         }
 
         private static readonly Func<TypeSymbol, TypeParameterSymbol?, bool, bool> s_containsTypeParameterPredicate =
@@ -1208,7 +1208,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             RoslynDebug.Assert((object)parameterContainer != null);
 
             var result = type.VisitType(s_isTypeParameterWithSpecificContainerPredicate, parameterContainer);
-            return result is object;
+            return result is not null;
         }
 
         private static readonly Func<TypeSymbol, Symbol, bool, bool> s_isTypeParameterWithSpecificContainerPredicate =
@@ -1217,7 +1217,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static bool ContainsTypeParameters(this TypeSymbol type, HashSet<TypeParameterSymbol> parameters)
         {
             var result = type.VisitType(s_containsTypeParametersPredicate, parameters);
-            return result is object;
+            return result is not null;
         }
 
         private static readonly Func<TypeSymbol, HashSet<TypeParameterSymbol>, bool, bool> s_containsTypeParametersPredicate =
@@ -1226,7 +1226,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static bool ContainsMethodTypeParameter(this TypeSymbol type)
         {
             var result = type.VisitType(s_containsMethodTypeParameterPredicate, null);
-            return result is object;
+            return result is not null;
         }
 
         private static readonly Func<TypeSymbol, object?, bool, bool> s_containsMethodTypeParameterPredicate =
@@ -1238,7 +1238,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static bool ContainsDynamic(this TypeSymbol type)
         {
             var result = type.VisitType(s_containsDynamicPredicate, null, canDigThroughNullable: true);
-            return result is object;
+            return result is not null;
         }
 
         private static readonly Func<TypeSymbol, object?, bool, bool> s_containsDynamicPredicate = (type, unused1, unused2) => type.TypeKind == TypeKind.Dynamic;
@@ -1246,7 +1246,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static bool ContainsNativeIntegerWrapperType(this TypeSymbol type)
         {
             var result = type.VisitType((type, unused1, unused2) => type.IsNativeIntegerWrapperType, (object?)null, canDigThroughNullable: true);
-            return result is object;
+            return result is not null;
         }
 
         internal static bool ContainsNativeIntegerWrapperType(this TypeWithAnnotations type)
@@ -1257,29 +1257,29 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static bool ContainsErrorType(this TypeSymbol type)
         {
             var result = type.VisitType((type, unused1, unused2) => type.IsErrorType(), (object?)null, canDigThroughNullable: true);
-            return result is object;
+            return result is not null;
         }
 
         /// <summary>
         /// Return true if the type contains any tuples.
         /// </summary>
         internal static bool ContainsTuple(this TypeSymbol type) =>
-            type.VisitType((TypeSymbol t, object? _1, bool _2) => t.IsTupleType, null) is object;
+            type.VisitType((TypeSymbol t, object? _1, bool _2) => t.IsTupleType, null) is not null;
 
         /// <summary>
         /// Return true if the type contains any tuples with element names.
         /// </summary>
         internal static bool ContainsTupleNames(this TypeSymbol type) =>
-            type.VisitType((TypeSymbol t, object? _1, bool _2) => !t.TupleElementNames.IsDefault, null) is object;
+            type.VisitType((TypeSymbol t, object? _1, bool _2) => !t.TupleElementNames.IsDefault, null) is not null;
 
         /// <summary>
         /// Return true if the type contains any function pointer types.
         /// </summary>
         internal static bool ContainsFunctionPointer(this TypeSymbol type) =>
-            type.VisitType((TypeSymbol t, object? _, bool _) => t.IsFunctionPointer(), null) is object;
+            type.VisitType((TypeSymbol t, object? _, bool _) => t.IsFunctionPointer(), null) is not null;
 
         internal static bool ContainsPointer(this TypeSymbol type) =>
-            type.VisitType((TypeSymbol t, object? _, bool _) => t.TypeKind is TypeKind.Pointer or TypeKind.FunctionPointer, null) is object;
+            type.VisitType((TypeSymbol t, object? _, bool _) => t.TypeKind is TypeKind.Pointer or TypeKind.FunctionPointer, null) is not null;
 
         /// <summary>
         /// Guess the non-error type that the given type was intended to represent.
@@ -1625,7 +1625,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     type = type.ContainingType;
                 }
-                while (type is object && !type.IsDefinition);
+                while (type is not null && !type.IsDefinition);
 
                 return true;
             }
@@ -2135,7 +2135,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static bool IsWellKnownInteropServicesTopLevelType(this TypeSymbol typeSymbol, string name)
         {
-            if (typeSymbol.Name != name || typeSymbol.ContainingType is object)
+            if (typeSymbol.Name != name || typeSymbol.ContainingType is not null)
             {
                 return false;
             }

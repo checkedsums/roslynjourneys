@@ -98,7 +98,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         protected bool Equals(Symbol other, CodeAnalysis.SymbolEqualityComparer equalityComparer)
         {
-            return other is object && UnderlyingSymbol.Equals(other.UnderlyingSymbol, equalityComparer.CompareKind);
+            return other is not null && UnderlyingSymbol.Equals(other.UnderlyingSymbol, equalityComparer.CompareKind);
         }
 
         ImmutableArray<Location> ISymbol.Locations

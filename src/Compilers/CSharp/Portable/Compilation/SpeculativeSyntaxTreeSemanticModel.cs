@@ -36,7 +36,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static SpeculativeSyntaxTreeSemanticModel CreateCore(SyntaxTreeSemanticModel parentSemanticModel, CSharpSyntaxNode root, Binder rootBinder, int position, SpeculativeBindingOption bindingOption)
         {
-            Debug.Assert(parentSemanticModel is SyntaxTreeSemanticModel);
+            Debug.Assert(parentSemanticModel is not null);
             Debug.Assert(root != null);
             Debug.Assert(root is TypeSyntax || root is CrefSyntax);
             Debug.Assert(rootBinder != null);

@@ -278,7 +278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         builder.Add(existingMember);
                     }
                 }
-                Debug.Assert(builder is object);
+                Debug.Assert(builder is not null);
             }
 
             return builder;

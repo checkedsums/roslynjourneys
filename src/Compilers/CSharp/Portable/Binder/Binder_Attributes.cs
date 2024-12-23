@@ -110,7 +110,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // its value depends on the values of conditional symbols, which in turn depends on the source file where the attribute is applied.
 
                     Debug.Assert(!attribute.HasErrors);
-                    Debug.Assert(attribute.AttributeClass is object);
+                    Debug.Assert(attribute.AttributeClass is not null);
                     CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = binder.GetNewCompoundUseSiteInfo(diagnostics);
                     bool isConditionallyOmitted = binder.IsAttributeConditionallyOmitted(attribute.AttributeClass, attributeSyntax.SyntaxTree, ref useSiteInfo);
                     diagnostics.Add(attributeSyntax, useSiteInfo);
@@ -552,7 +552,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // TODO: should we create an entry even if there are binding errors?
             var fieldSymbol = namedArgumentNameSymbol as FieldSymbol;
             BoundExpression lvalue;
-            if (fieldSymbol is object)
+            if (fieldSymbol is not null)
             {
                 var containingAssembly = fieldSymbol.ContainingAssembly as SourceAssemblySymbol;
 
@@ -564,7 +564,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             else
             {
                 var propertySymbol = namedArgumentNameSymbol as PropertySymbol;
-                if (propertySymbol is object)
+                if (propertySymbol is not null)
                 {
                     lvalue = new BoundPropertyAccess(nameSyntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, propertySymbol, autoPropertyAccessorKind: AccessorKind.Unknown, resultKind, namedArgumentType);
                 }
@@ -579,7 +579,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private Symbol BindNamedAttributeArgumentName(AttributeArgumentSyntax namedArgument, NamedTypeSymbol attributeType, BindingDiagnosticBag diagnostics, out bool wasError, out LookupResultKind resultKind)
         {
-            RoslynDebug.Assert(namedArgument.NameEquals is object);
+            RoslynDebug.Assert(namedArgument.NameEquals is not null);
             var identifierName = namedArgument.NameEquals.Name;
             var name = identifierName.Identifier.ValueText;
             LookupResult result = LookupResult.GetInstance();
@@ -643,7 +643,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (invalidNamedArgument)
             {
-                RoslynDebug.Assert(namedArgument.NameEquals is object);
+                RoslynDebug.Assert(namedArgument.NameEquals is not null);
                 return new ExtendedErrorTypeSymbol(attributeType,
                     namedArgumentNameSymbol,
                     LookupResultKind.NotAVariable,
@@ -652,11 +652,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                         namedArgumentNameSymbol.Name));
             }
 
-            RoslynDebug.Assert(namedArgumentType is object);
+            RoslynDebug.Assert(namedArgumentType is not null);
 
             if (!namedArgumentType.IsValidAttributeParameterType(Compilation))
             {
-                RoslynDebug.Assert(namedArgument.NameEquals is object);
+                RoslynDebug.Assert(namedArgument.NameEquals is not null);
                 return new ExtendedErrorTypeSymbol(attributeType,
                     namedArgumentNameSymbol,
                     LookupResultKind.NotAVariable,
@@ -824,7 +824,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 // Validate Statement 1) of the spec comment above.
 
-                RoslynDebug.Assert(node.Type is object);
+                RoslynDebug.Assert(node.Type is not null);
                 var typedConstantKind = node.Type.GetAttributeParameterTypedConstantKind(_binder.Compilation);
 
                 return VisitExpression(node, typedConstantKind, diagnostics, ref attrHasErrors, curArgumentHasErrors || typedConstantKind == TypedConstantKind.Error);
@@ -906,7 +906,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return VisitArrayCollectionExpression(type, (BoundCollectionExpression)operand, diagnostics, ref attrHasErrors, curArgumentHasErrors);
                 }
 
-                if ((object)type != null && operandType is object)
+                if ((object)type != null && operandType is not null)
                 {
                     if (type.SpecialType == SpecialType.System_Object ||
                         operandType.IsArray() && type.IsArray() &&
@@ -929,7 +929,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 //  (b) closed constructed type
                 // typeof argument cannot be an open type
 
-                if (typeOfArgument is object) // skip this if the argument was an alias symbol
+                if (typeOfArgument is not null) // skip this if the argument was an alias symbol
                 {
                     var isValidArgument = true;
                     switch (typeOfArgument.Kind)
@@ -1001,7 +1001,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 object? simpleValue = null, ImmutableArray<TypedConstant> arrayValue = default(ImmutableArray<TypedConstant>))
             {
                 var type = node.Type;
-                RoslynDebug.Assert(type is object);
+                RoslynDebug.Assert(type is not null);
 
                 if (typedConstantKind != TypedConstantKind.Error && type.ContainsTypeParameter())
                 {

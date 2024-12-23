@@ -38,10 +38,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             ModuleSymbol containingModule,
             NamedTypeSymbol baseType)
         {
-            Debug.Assert(name is object);
-            Debug.Assert(containingNamespace is object);
-            Debug.Assert(containingModule is object);
-            Debug.Assert(baseType is object);
+            Debug.Assert(name is not null);
+            Debug.Assert(containingNamespace is not null);
+            Debug.Assert(containingModule is not null);
+            Debug.Assert(baseType is not null);
 
             _name = name;
             _namespace = containingNamespace;

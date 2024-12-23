@@ -313,7 +313,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (local.RefKind != RefKind.None)
                 {
                     Debug.Assert(local.SynthesizedKind == SynthesizedLocalKind.Spill ||
-                                 (local.SynthesizedKind == SynthesizedLocalKind.ForEachArray && local.Type.HasInlineArrayAttribute(out _) && local.Type.TryGetInlineArrayElementField() is object));
+                                 (local.SynthesizedKind == SynthesizedLocalKind.ForEachArray && local.Type.HasInlineArrayAttribute(out _) && local.Type.TryGetInlineArrayElementField() is not null));
                     continue;
                 }
 
@@ -508,7 +508,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundExpression HoistRefInitialization(SynthesizedLocal local, BoundAssignmentOperator node)
         {
             Debug.Assert(local.SynthesizedKind == SynthesizedLocalKind.Spill ||
-                         (local.SynthesizedKind == SynthesizedLocalKind.ForEachArray && local.Type.HasInlineArrayAttribute(out _) && local.Type.TryGetInlineArrayElementField() is object));
+                         (local.SynthesizedKind == SynthesizedLocalKind.ForEachArray && local.Type.HasInlineArrayAttribute(out _) && local.Type.TryGetInlineArrayElementField() is not null));
             Debug.Assert(local.SyntaxOpt != null);
 #pragma warning disable format
             Debug.Assert(local.SynthesizedKind switch
@@ -851,7 +851,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // being used in any other way.
 
             Debug.Assert(leftLocal.SynthesizedKind == SynthesizedLocalKind.Spill ||
-                         (leftLocal.SynthesizedKind == SynthesizedLocalKind.ForEachArray && leftLocal.Type.HasInlineArrayAttribute(out _) && leftLocal.Type.TryGetInlineArrayElementField() is object));
+                         (leftLocal.SynthesizedKind == SynthesizedLocalKind.ForEachArray && leftLocal.Type.HasInlineArrayAttribute(out _) && leftLocal.Type.TryGetInlineArrayElementField() is not null));
             Debug.Assert(node.IsRef);
 
             // We have an assignment to a variable that has not yet been assigned a proxy.

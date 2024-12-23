@@ -57,7 +57,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                  isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
                  MakeModifiersAndFlags(containingType, location, syntax, methodKind, diagnostics, out bool hasExplicitAccessMod))
         {
-            Debug.Assert(diagnostics.DiagnosticBag is object);
+            Debug.Assert(diagnostics.DiagnosticBag is not null);
 
             this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
 
@@ -629,7 +629,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             MethodSymbol? overriddenOrExplicitlyImplementedMethod = MethodChecks(returnType, parameters, diagnostics);
 
-            if (!declaredConstraints.IsDefault && overriddenOrExplicitlyImplementedMethod is object)
+            if (!declaredConstraints.IsDefault && overriddenOrExplicitlyImplementedMethod is not null)
             {
                 for (int i = 0; i < declaredConstraints.Length; i++)
                 {

@@ -285,7 +285,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal AliasSymbolFromSyntax(SourceNamespaceSymbol containingSymbol, UsingDirectiveSyntax syntax)
             : base(syntax.Alias!.Name.Identifier.ValueText, containingSymbol, ImmutableArray.Create(syntax.Alias!.Name.Identifier.GetLocation()), isExtern: false)
         {
-            Debug.Assert(syntax.Alias is object);
+            Debug.Assert(syntax.Alias is not null);
 
             _directive = syntax.GetReference();
         }
@@ -361,7 +361,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 diagnostics.Add(ErrorCode.ERR_BadExternAlias, GetFirstLocation(), Name);
             }
 
-            RoslynDebug.Assert(target is object);
+            RoslynDebug.Assert(target is not null);
             RoslynDebug.Assert(target.IsGlobalNamespace);
 
             return target;

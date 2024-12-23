@@ -14,7 +14,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         public SourceAssemblySymbol(Symbols.SourceAssemblySymbol underlying)
         {
-            Debug.Assert(underlying is object);
+            Debug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

@@ -197,12 +197,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 if (interfaces.Length == 1)
                 {
-                    Debug.Assert(interfaces[0] is NamedTypeSymbol); // IList<T>
+                    Debug.Assert(interfaces[0] is not null); // IList<T>
                     interfaces = ImmutableArray.Create<NamedTypeSymbol>(SubstituteNamedType(interfaces[0]));
                 }
                 else if (interfaces.Length == 2)
                 {
-                    Debug.Assert(interfaces[0] is NamedTypeSymbol); // IList<T>
+                    Debug.Assert(interfaces[0] is not null); // IList<T>
                     interfaces = ImmutableArray.Create<NamedTypeSymbol>(SubstituteNamedType(interfaces[0]), SubstituteNamedType(interfaces[1]));
                 }
                 else if (interfaces.Length != 0)

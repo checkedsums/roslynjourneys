@@ -503,7 +503,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             if (ReferenceEquals(_lazyDeclaredBaseType, ErrorTypeSymbol.UnknownResultType))
             {
                 var baseType = MakeDeclaredBaseType();
-                if (baseType is object)
+                if (baseType is not null)
                 {
                     if (skipTransformsIfNecessary)
                     {
@@ -1401,7 +1401,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                     members = MakeSynthesizedTupleMembers(peMembers);
                     membersCount += members.Count; // account for added tuple error fields
                     members.AddRange(peMembers);
-                    Debug.Assert(members is object);
+                    Debug.Assert(members is not null);
                 }
 
                 var membersInDeclarationOrder = members.ToImmutable();

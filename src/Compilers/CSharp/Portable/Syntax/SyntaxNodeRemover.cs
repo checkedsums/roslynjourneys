@@ -323,7 +323,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
             private void AddTrivia(SyntaxToken token, SyntaxNode node)
             {
-                Debug.Assert(node.Parent is object);
+                Debug.Assert(node.Parent is not null);
                 if ((_options & SyntaxRemoveOptions.KeepLeadingTrivia) != 0)
                 {
                     this.AddResidualTrivia(token.LeadingTrivia);
@@ -363,7 +363,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
             private void AddTrivia(SyntaxNode node, SyntaxToken token)
             {
-                Debug.Assert(node.Parent is object);
+                Debug.Assert(node.Parent is not null);
                 if ((_options & SyntaxRemoveOptions.KeepLeadingTrivia) != 0)
                 {
                     this.AddResidualTrivia(node.GetLeadingTrivia());

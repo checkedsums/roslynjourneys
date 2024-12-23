@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -25,20 +24,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private ImmutableArray<Symbol> BindCrefInternal(CrefSyntax syntax, out Symbol? ambiguityWinner, BindingDiagnosticBag diagnostics)
         {
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                case SyntaxKind.TypeCref:
-                    return BindTypeCref((TypeCrefSyntax)syntax, out ambiguityWinner, diagnostics);
-                case SyntaxKind.QualifiedCref:
-                    return BindQualifiedCref((QualifiedCrefSyntax)syntax, out ambiguityWinner, diagnostics);
-                case SyntaxKind.NameMemberCref:
-                case SyntaxKind.IndexerMemberCref:
-                case SyntaxKind.OperatorMemberCref:
-                case SyntaxKind.ConversionOperatorMemberCref:
-                    return BindMemberCref((MemberCrefSyntax)syntax, containerOpt: null, ambiguityWinner: out ambiguityWinner, diagnostics: diagnostics);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(syntax.Kind());
-            }
+                SyntaxKind.TypeCref => BindTypeCref((TypeCrefSyntax)syntax, out ambiguityWinner, diagnostics),
+                SyntaxKind.QualifiedCref => BindQualifiedCref((QualifiedCrefSyntax)syntax, out ambiguityWinner, diagnostics),
+                SyntaxKind.NameMemberCref or SyntaxKind.IndexerMemberCref or SyntaxKind.OperatorMemberCref or SyntaxKind.ConversionOperatorMemberCref => BindMemberCref((MemberCrefSyntax)syntax, containerOpt: null, ambiguityWinner: out ambiguityWinner, diagnostics: diagnostics),
+                _ => throw ExceptionUtilities.UnexpectedValue(syntax.Kind()),
+            };
         }
 
         private ImmutableArray<Symbol> BindTypeCref(TypeCrefSyntax syntax, out Symbol? ambiguityWinner, BindingDiagnosticBag diagnostics)
@@ -57,7 +49,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // We'll never have more than one type, but it is conceivable that result could
             // be an ExtendedErrorTypeSymbol with multiple candidates.
             ambiguityWinner = null;
-            return ImmutableArray.Create<Symbol>(result);
+            return [result];
         }
 
         private ImmutableArray<Symbol> BindQualifiedCref(QualifiedCrefSyntax syntax, out Symbol? ambiguityWinner, BindingDiagnosticBag diagnostics)
@@ -110,25 +102,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return [];
             }
 
-            ImmutableArray<Symbol> result;
-            switch (syntax.Kind())
+            var result = syntax.Kind() switch
             {
-                case SyntaxKind.NameMemberCref:
-                    result = BindNameMemberCref((NameMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics);
-                    break;
-                case SyntaxKind.IndexerMemberCref:
-                    result = BindIndexerMemberCref((IndexerMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics);
-                    break;
-                case SyntaxKind.OperatorMemberCref:
-                    result = BindOperatorMemberCref((OperatorMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics);
-                    break;
-                case SyntaxKind.ConversionOperatorMemberCref:
-                    result = BindConversionOperatorMemberCref((ConversionOperatorMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics);
-                    break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(syntax.Kind());
-            }
-
+                SyntaxKind.NameMemberCref => BindNameMemberCref((NameMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics),
+                SyntaxKind.IndexerMemberCref => BindIndexerMemberCref((IndexerMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics),
+                SyntaxKind.OperatorMemberCref => BindOperatorMemberCref((OperatorMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics),
+                SyntaxKind.ConversionOperatorMemberCref => BindConversionOperatorMemberCref((ConversionOperatorMemberCrefSyntax)syntax, containerOpt, out ambiguityWinner, diagnostics),
+                _ => throw ExceptionUtilities.UnexpectedValue(syntax.Kind()),
+            };
             if (!result.Any())
             {
                 CrefSyntax crefSyntax = GetRootCrefSyntax(syntax);
@@ -697,8 +678,7 @@ Break:
                     unwrappedSymbols.Add(UnwrapAliasNoDiagnostics(wrapped));
                 }
 
-                BestSymbolInfo secondBest;
-                BestSymbolInfo best = GetBestSymbolInfo(unwrappedSymbols, out secondBest);
+                BestSymbolInfo best = GetBestSymbolInfo(unwrappedSymbols, out BestSymbolInfo secondBest);
 
                 Debug.Assert(!best.IsNone);
                 Debug.Assert(!secondBest.IsNone);
@@ -735,7 +715,7 @@ Break:
             }
 
             ambiguityWinner = null;
-            return ImmutableArray.Create<Symbol>(ConstructWithCrefTypeParameters(arity, typeArgumentListSyntax, symbol));
+            return [ConstructWithCrefTypeParameters(arity, typeArgumentListSyntax, symbol)];
         }
 
         /// <summary>
@@ -895,14 +875,14 @@ Break:
         {
             if (arity > 0)
             {
-                Debug.Assert(typeArgumentListSyntax is object);
+                Debug.Assert(typeArgumentListSyntax is not null);
                 SeparatedSyntaxList<TypeSyntax> typeArgumentSyntaxes = typeArgumentListSyntax.Arguments;
                 var typeArgumentsWithAnnotations = ArrayBuilder<TypeWithAnnotations>.GetInstance(arity);
 
                 var unusedDiagnostics =
 #if DEBUG
                     BindingDiagnosticBag.GetInstance(withDiagnostics: true, withDependencies: false);
-                Debug.Assert(unusedDiagnostics.DiagnosticBag is object);
+                Debug.Assert(unusedDiagnostics.DiagnosticBag is not null);
 #else
                     BindingDiagnosticBag.Discarded;
 #endif
@@ -951,7 +931,7 @@ Break:
                     refKind = RefKind.RefReadOnlyParameter;
                 }
 
-                Debug.Assert(parameterListSyntax.Parent is object);
+                Debug.Assert(parameterListSyntax.Parent is not null);
                 TypeSymbol type = BindCrefParameterOrReturnType(parameter.Type, (MemberCrefSyntax)parameterListSyntax.Parent, diagnostics);
 
                 parameterBuilder.Add(new SignatureOnlyParameterSymbol(TypeWithAnnotations.Create(type), [], isParamsArray: false, isParamsCollection: false, refKind: refKind));
@@ -981,7 +961,7 @@ Break:
 
             var localDiagnostics = BindingDiagnosticBag.GetInstance(withDiagnostics: true, // Examined, but not reported.
                                                                     withDependencies: diagnostics.AccumulatesDependencies);
-            Debug.Assert(localDiagnostics.DiagnosticBag is object);
+            Debug.Assert(localDiagnostics.DiagnosticBag is not null);
 
             TypeSymbol type = parameterOrReturnTypeBinder.BindType(typeSyntax, localDiagnostics).Type;
 
@@ -989,7 +969,7 @@ Break:
             {
                 if (HasNonObsoleteError(localDiagnostics.DiagnosticBag))
                 {
-                    Debug.Assert(typeSyntax.Parent is object);
+                    Debug.Assert(typeSyntax.Parent is not null);
                     CrefSyntax crefSyntax = GetRootCrefSyntax(memberCrefSyntax);
                     if (typeSyntax.Parent.Kind() == SyntaxKind.ConversionOperatorMemberCref)
                     {

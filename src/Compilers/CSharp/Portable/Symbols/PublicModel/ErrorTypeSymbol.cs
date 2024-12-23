@@ -15,7 +15,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
         public ErrorTypeSymbol(Symbols.ErrorTypeSymbol underlying, CodeAnalysis.NullableAnnotation nullableAnnotation)
             : base(nullableAnnotation)
         {
-            RoslynDebug.Assert(underlying is object);
+            RoslynDebug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

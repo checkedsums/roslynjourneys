@@ -164,7 +164,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal virtual Binder? GetBinder(SyntaxNode node)
         {
-            RoslynDebug.Assert(Next is object);
+            RoslynDebug.Assert(Next is not null);
             return this.Next.GetBinder(node);
         }
 
@@ -175,7 +175,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal Binder GetRequiredBinder(SyntaxNode node)
         {
             var binder = GetBinder(node);
-            RoslynDebug.Assert(binder is object);
+            RoslynDebug.Assert(binder is not null);
             return binder;
         }
 
@@ -184,7 +184,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal virtual ImmutableArray<LocalSymbol> GetDeclaredLocalsForScope(SyntaxNode scopeDesignator)
         {
-            RoslynDebug.Assert(Next is object);
+            RoslynDebug.Assert(Next is not null);
             return this.Next.GetDeclaredLocalsForScope(scopeDesignator);
         }
 
@@ -193,7 +193,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal virtual ImmutableArray<LocalFunctionSymbol> GetDeclaredLocalFunctionsForScope(CSharpSyntaxNode scopeDesignator)
         {
-            RoslynDebug.Assert(Next is object);
+            RoslynDebug.Assert(Next is not null);
             return this.Next.GetDeclaredLocalFunctionsForScope(scopeDesignator);
         }
 
@@ -241,7 +241,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.ContainingMemberOrLambda;
             }
         }
@@ -257,7 +257,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.IsInMethodBody;
             }
         }
@@ -272,7 +272,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.IsDirectlyInIterator;
             }
         }
@@ -288,7 +288,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.IsIndirectlyInIterator;
             }
         }
@@ -302,7 +302,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.BreakLabel;
             }
         }
@@ -316,7 +316,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.ContinueLabel;
             }
         }
@@ -327,7 +327,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns>Element type of the current iterator, or an error type.</returns>
         internal virtual TypeWithAnnotations GetIteratorElementType()
         {
-            RoslynDebug.Assert(Next is object);
+            RoslynDebug.Assert(Next is not null);
             return Next.GetIteratorElementType();
         }
 
@@ -339,7 +339,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.ImportChain;
             }
         }
@@ -352,7 +352,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.QuickAttributeChecker;
             }
         }
@@ -361,7 +361,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return Next.InExecutableBinder;
             }
         }
@@ -412,7 +412,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return this.Next.ConstantFieldsInProgress;
             }
         }
@@ -421,7 +421,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return this.Next.FieldsBeingBound;
             }
         }
@@ -430,7 +430,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return this.Next.LocalInProgress;
             }
         }
@@ -443,7 +443,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                RoslynDebug.Assert(Next is object);
+                RoslynDebug.Assert(Next is not null);
                 return this.Next.ConditionalReceiverExpression;
             }
         }
@@ -509,14 +509,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static void Error(BindingDiagnosticBag diagnostics, ErrorCode code, SyntaxNodeOrToken syntax)
         {
             var location = syntax.GetLocation();
-            RoslynDebug.Assert(location is object);
+            RoslynDebug.Assert(location is not null);
             Error(diagnostics, code, location);
         }
 
         internal static void Error(BindingDiagnosticBag diagnostics, ErrorCode code, SyntaxNodeOrToken syntax, params object[] args)
         {
             var location = syntax.GetLocation();
-            RoslynDebug.Assert(location is object);
+            RoslynDebug.Assert(location is not null);
             Error(diagnostics, code, location, args);
         }
 
@@ -565,7 +565,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal void ReportDiagnosticsIfObsolete(BindingDiagnosticBag diagnostics, Symbol symbol, SyntaxNodeOrToken node, bool hasBaseReceiver)
         {
-            if (diagnostics.DiagnosticBag is object)
+            if (diagnostics.DiagnosticBag is not null)
             {
                 ReportDiagnosticsIfObsolete(diagnostics.DiagnosticBag, symbol, node, hasBaseReceiver);
             }
@@ -573,7 +573,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal void ReportDiagnosticsIfObsolete(BindingDiagnosticBag diagnostics, Conversion conversion, SyntaxNodeOrToken node, bool hasBaseReceiver)
         {
-            if (conversion.IsValid && conversion.Method is object)
+            if (conversion.IsValid && conversion.Method is not null)
             {
                 ReportDiagnosticsIfObsolete(diagnostics, conversion.Method, node, hasBaseReceiver);
             }
@@ -588,7 +588,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             NamedTypeSymbol? containingType,
             BinderFlags location)
         {
-            RoslynDebug.Assert(symbol is object);
+            RoslynDebug.Assert(symbol is not null);
 
             RoslynDebug.Assert(symbol.Kind == SymbolKind.NamedType ||
                          symbol.Kind == SymbolKind.Field ||
@@ -654,7 +654,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             NamedTypeSymbol? containingType,
             BinderFlags location)
         {
-            if (diagnostics.DiagnosticBag is object)
+            if (diagnostics.DiagnosticBag is not null)
             {
                 ReportDiagnosticsIfObsolete(diagnostics.DiagnosticBag, symbol, node, hasBaseReceiver, containingMember, containingType, location);
             }
@@ -693,7 +693,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal static void ReportDiagnosticsIfObsoleteInternal(BindingDiagnosticBag diagnostics, Symbol symbol, SyntaxNodeOrToken node, Symbol containingMember, BinderFlags location)
         {
-            if (diagnostics.DiagnosticBag is object)
+            if (diagnostics.DiagnosticBag is not null)
             {
                 ReportDiagnosticsIfObsoleteInternal(diagnostics.DiagnosticBag, symbol, node, containingMember, location);
             }
@@ -813,7 +813,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             TypeSymbol getType()
             {
-                RoslynDebug.Assert(expression.Type is object);
+                RoslynDebug.Assert(expression.Type is not null);
                 return expression.Type;
             }
         }
@@ -880,7 +880,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     current = new TreeDumperNode(description, null, sub);
                 }
 
-                RoslynDebug.Assert(current is object);
+                RoslynDebug.Assert(current is not null);
                 return current;
             }
 

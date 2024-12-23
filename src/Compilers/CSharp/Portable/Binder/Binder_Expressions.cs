@@ -2543,7 +2543,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     memberOpt = WellKnownMember.System_Range__StartAt;
                 }
 
-                if (memberOpt is object)
+                if (memberOpt is not null)
                 {
                     symbolOpt = (MethodSymbol)GetWellKnownTypeMember(
                         memberOpt.GetValueOrDefault(),
@@ -3507,7 +3507,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 arguments[firstParamsArgument] = collection;
 
-                if (argsToParamsBuilder is object)
+                if (argsToParamsBuilder is not null)
                 {
                     argsToParamsOpt = argsToParamsBuilder.ToImmutableOrNull();
                     argsToParamsBuilder.Free();
@@ -7481,7 +7481,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BoundKind.NamespaceExpression:
                         {
                             result = tryBindMemberAccessWithBoundNamespaceLeft(((BoundNamespaceExpression)boundLeft).NamespaceSymbol, node, boundLeft, right, diagnostics, lookupResult, options, typeArgumentsSyntax, typeArguments, rightName, rightArity);
-                            if (result is object)
+                            if (result is not null)
                             {
                                 return result;
                             }
@@ -7491,7 +7491,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BoundKind.TypeExpression:
                         {
                             result = tryBindMemberAccessWithBoundTypeLeft(node, boundLeft, right, invoked, indexed, diagnostics, leftType, lookupResult, options, typeArgumentsSyntax, typeArguments, rightName, rightArity);
-                            if (result is object)
+                            if (result is not null)
                             {
                                 return result;
                             }
@@ -8786,7 +8786,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (convertedIndex is null)
                     {
                         convertedIndex = TryImplicitConversionToArrayIndex(index, WellKnownType.System_Range, node, diagnostics);
-                        if (convertedIndex is object)
+                        if (convertedIndex is not null)
                         {
                             indexOrRangeWellknownType = WellKnownType.System_Range;
                         }
@@ -9121,7 +9121,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (result is null)
                 {
                     result = TryImplicitConversionToArrayIndex(index, WellKnownType.System_Range, node, diagnostics);
-                    if (result is object)
+                    if (result is not null)
                     {
                         indexOrRangeWellknownType = WellKnownType.System_Range;
                         // This member is needed for lowering and should produce an error if not present
@@ -9171,7 +9171,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var attemptDiagnostics = BindingDiagnosticBag.GetInstance(diagnostics);
             var result = TryImplicitConversionToArrayIndex(expr, type, node, attemptDiagnostics);
-            if (result is object)
+            if (result is not null)
             {
                 diagnostics.Add(node, useSiteInfo);
                 diagnostics.AddRange(attemptDiagnostics);
@@ -9188,7 +9188,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var result = TryImplicitConversionToArrayIndex(expr, type, node, attemptDiagnostics);
 
-            if (result is object)
+            if (result is not null)
             {
                 diagnostics.AddRange(attemptDiagnostics);
             }
@@ -9760,7 +9760,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Debug.Assert(!argIsIndex);
                     // Look for Substring
                     var substring = (MethodSymbol)GetSpecialTypeMember(SpecialMember.System_String__Substring, diagnostics, syntax);
-                    if (substring is object)
+                    if (substring is not null)
                     {
                         makeCall(syntax, receiver, substring, out indexerOrSliceAccess, out argumentPlaceholders);
                         lookupResult.Free();

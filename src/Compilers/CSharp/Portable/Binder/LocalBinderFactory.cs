@@ -173,7 +173,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void VisitTypeDeclaration(TypeDeclarationSyntax node)
         {
-            Debug.Assert(node.ParameterList is object);
+            Debug.Assert(node.ParameterList is not null);
             Debug.Assert(node.Kind() is SyntaxKind.RecordDeclaration or SyntaxKind.ClassDeclaration);
 
             Visit(node.PrimaryConstructorBaseTypeIfClass);

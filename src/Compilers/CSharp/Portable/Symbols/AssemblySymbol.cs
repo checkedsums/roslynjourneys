@@ -797,7 +797,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             // ignore any types of the same name that might be in referenced assemblies (prefer the current assembly):
-            if (result is object || !includeReferences)
+            if (result is not null || !includeReferences)
             {
                 return result;
             }
@@ -855,7 +855,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 Debug.Assert(!TypeSymbol.Equals(candidate, result, TypeCompareKind.ConsiderEverything));
 
-                if (result is object)
+                if (result is not null)
                 {
                     // duplicate
                     if (ignoreCorLibraryDuplicatedTypes)

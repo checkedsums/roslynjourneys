@@ -1653,7 +1653,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             VariableIdentifier variable = variableBySlot[containingSlot];
             TypeSymbol structType = variable.Symbol.GetTypeOrReturnType().Type;
 
-            if (structType.HasInlineArrayAttribute(out int length) && length > 1 && structType.TryGetPossiblyUnsupportedByLanguageInlineArrayElementField() is object)
+            if (structType.HasInlineArrayAttribute(out int length) && length > 1 && structType.TryGetPossiblyUnsupportedByLanguageInlineArrayElementField() is not null)
             {
                 // An inline array of length > 1 cannot be considered fully initialized judging only based on fields.
                 return false;

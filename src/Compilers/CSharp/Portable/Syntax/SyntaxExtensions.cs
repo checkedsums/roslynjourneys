@@ -130,7 +130,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal static XmlNameAttributeElementKind GetElementKind(this XmlNameAttributeSyntax attributeSyntax)
         {
-            Debug.Assert(attributeSyntax.Parent is object);
+            Debug.Assert(attributeSyntax.Parent is not null);
             CSharpSyntaxNode parentSyntax = attributeSyntax.Parent;
             SyntaxKind parentKind = parentSyntax.Kind();
 
@@ -440,7 +440,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         for (int i = functionPointerTypeSyntax.ParameterList.Parameters.Count - 1; i >= 0; i--)
                         {
                             TypeSyntax? paramType = functionPointerTypeSyntax.ParameterList.Parameters[i].Type;
-                            Debug.Assert(paramType is object);
+                            Debug.Assert(paramType is not null);
                             stack.Push(paramType);
                         }
                         break;

@@ -790,7 +790,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         internal bool ShouldDecodeNullableAttributes(Symbol symbol)
         {
-            Debug.Assert(symbol is object);
+            Debug.Assert(symbol is not null);
             Debug.Assert(symbol.IsDefinition);
             Debug.Assert((object)symbol.ContainingModule == this);
 

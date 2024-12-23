@@ -71,7 +71,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             ImmutableArray<NamedTypeSymbol> additionalTypes)
             : base((SourceModuleSymbol)sourceAssembly.Modules[0], emitOptions, outputKind, serializationProperties, manifestResources)
         {
-            Debug.Assert(sourceAssembly is object);
+            Debug.Assert(sourceAssembly is not null);
 
             _sourceAssembly = sourceAssembly;
             _additionalTypes = additionalTypes.NullToEmpty();

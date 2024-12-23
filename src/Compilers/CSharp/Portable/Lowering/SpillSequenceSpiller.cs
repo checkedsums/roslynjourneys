@@ -919,7 +919,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var generateDummyFieldAccess = false;
                 if (!field.FieldSymbol.IsStatic)
                 {
-                    Debug.Assert(field.ReceiverOpt is object);
+                    Debug.Assert(field.ReceiverOpt is not null);
                     BoundExpression receiver;
                     if (field.FieldSymbol.ContainingType.IsReferenceType)
                     {

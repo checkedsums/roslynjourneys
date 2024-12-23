@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal void AddDependencies(Symbol? symbol)
         {
-            if (symbol is object && DependenciesBag is object)
+            if (symbol is not null && DependenciesBag is object)
             {
                 AddDependencies(symbol.GetUseSiteInfo());
             }
@@ -107,7 +107,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal bool ReportUseSite<TData>(Symbol? symbol, Func<TData, Location> getLocation, TData data)
         {
-            if (symbol is object)
+            if (symbol is not null)
             {
                 return Add(symbol.GetUseSiteInfo(), getLocation, data);
             }
@@ -180,7 +180,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal void Add(DiagnosticInfo? info, Location location)
         {
-            if (info is object)
+            if (info is not null)
             {
                 DiagnosticBag?.Add(info, location);
             }

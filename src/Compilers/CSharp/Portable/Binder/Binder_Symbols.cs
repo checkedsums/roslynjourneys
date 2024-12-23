@@ -432,7 +432,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         var @delegate = functionPointerTypeSyntax.DelegateKeyword;
                         var asterisk = functionPointerTypeSyntax.AsteriskToken;
-                        RoslynDebug.Assert(@delegate.SyntaxTree is object);
+                        RoslynDebug.Assert(@delegate.SyntaxTree is not null);
                         diagnostics.Add(info, Location.Create(@delegate.SyntaxTree, TextSpan.FromBounds(@delegate.SpanStart, asterisk.Span.End)));
                     }
 
@@ -1811,7 +1811,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (suppressUseSiteDiagnostics && diagnostics.DependenciesBag is object)
                 {
                     AssemblySymbol container = symbol.ContainingAssembly;
-                    if (container is object && container != Compilation.Assembly && container != Compilation.Assembly.CorLibrary)
+                    if (container is not null && container != Compilation.Assembly && container != Compilation.Assembly.CorLibrary)
                     {
                         diagnostics.AddDependency(container);
                     }
@@ -2153,7 +2153,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 ((SourceModuleSymbol)this.Compilation.SourceModule).AnyReferencedAssembliesAreLinked)
                             {
                                 // Complain about unembeddable types from linked assemblies.
-                                if (diagnostics.DiagnosticBag is object)
+                                if (diagnostics.DiagnosticBag is not null)
                                 {
                                     Emit.NoPia.EmbeddedTypesManager.IsValidEmbeddableType((NamedTypeSymbol)singleResult, where, diagnostics.DiagnosticBag);
                                 }

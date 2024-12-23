@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         public NamespaceSymbol(Symbols.NamespaceSymbol underlying)
         {
-            Debug.Assert(underlying is object);
+            Debug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

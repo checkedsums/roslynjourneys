@@ -147,7 +147,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             case SyntaxKind.EventDeclaration:
                                 return ((EventDeclarationSyntax)syntax).AttributeLists;
                             case SyntaxKind.VariableDeclarator:
-                                Debug.Assert(syntax.Parent!.Parent is object);
+                                Debug.Assert(syntax.Parent!.Parent is not null);
                                 return ((EventFieldDeclarationSyntax)syntax.Parent.Parent).AttributeLists;
                             default:
                                 throw ExceptionUtilities.UnexpectedValue(syntax.Kind());
@@ -756,7 +756,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             EventSymbol? explicitlyImplementedEvent = ExplicitInterfaceImplementations.FirstOrDefault();
 
-            if (explicitlyImplementedEvent is object)
+            if (explicitlyImplementedEvent is not null)
             {
                 CheckExplicitImplementationAccessor(AddMethod, explicitlyImplementedEvent.AddMethod, explicitlyImplementedEvent, diagnostics);
                 CheckExplicitImplementationAccessor(RemoveMethod, explicitlyImplementedEvent.RemoveMethod, explicitlyImplementedEvent, diagnostics);
@@ -765,7 +765,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void CheckExplicitImplementationAccessor(MethodSymbol? thisAccessor, MethodSymbol? otherAccessor, EventSymbol explicitlyImplementedEvent, BindingDiagnosticBag diagnostics)
         {
-            if (!otherAccessor.IsImplementable() && thisAccessor is object)
+            if (!otherAccessor.IsImplementable() && thisAccessor is not null)
             {
                 diagnostics.Add(ErrorCode.ERR_ExplicitPropertyAddingAccessor, thisAccessor.GetFirstLocation(), thisAccessor, explicitlyImplementedEvent);
             }

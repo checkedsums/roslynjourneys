@@ -351,7 +351,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             : base(container, type, ordinal, refKind, scope, name)
         {
             Debug.Assert(!refCustomModifiers.IsDefault);
-            Debug.Assert(isParams || !refCustomModifiers.IsEmpty || baseParameterForAttributes is object || defaultValue is not null || hasUnscopedRefAttribute);
+            Debug.Assert(isParams || !refCustomModifiers.IsEmpty || baseParameterForAttributes is not null || defaultValue is not null || hasUnscopedRefAttribute);
             Debug.Assert(baseParameterForAttributes is null || baseParameterForAttributes.ExplicitDefaultConstantValue == defaultValue);
 
             _refCustomModifiers = refCustomModifiers;

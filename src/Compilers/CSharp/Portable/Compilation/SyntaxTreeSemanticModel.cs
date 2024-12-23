@@ -181,7 +181,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case AccessorDeclarationSyntax accessor:
                     model = (accessor.Body != null || accessor.ExpressionBody != null) ? GetOrAddModel(node) : null;
                     break;
-                case TypeDeclarationSyntax { ParameterList: { }, PrimaryConstructorBaseTypeIfClass: { } } typeDeclaration when TryGetSynthesizedPrimaryConstructor(typeDeclaration) is SynthesizedPrimaryConstructor:
+                case TypeDeclarationSyntax { ParameterList: { }, PrimaryConstructorBaseTypeIfClass: { } } typeDeclaration when TryGetSynthesizedPrimaryConstructor(typeDeclaration) is not null:
                     model = GetOrAddModel(typeDeclaration);
                     break;
                 default:
@@ -748,7 +748,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 position = CheckAndAdjustPosition(position);
                 var model = GetMemberModel(position);
-                if (model is object)
+                if (model is not null)
                 {
                     return model.GetSpeculativelyBoundExpression(position, expression, bindingOption, out binder, out crefSymbols);
                 }
@@ -861,7 +861,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SyntaxKind.RecordDeclaration:
                         {
                             var typeDecl = (TypeDeclarationSyntax)memberDecl;
-                            return typeDecl.ParameterList is object &&
+                            return typeDecl.ParameterList is not null &&
                                    typeDecl.PrimaryConstructorBaseTypeIfClass is PrimaryConstructorBaseTypeSyntax baseWithArguments &&
                                    (node == baseWithArguments || baseWithArguments.ArgumentList.FullSpan.Contains(span)) ? GetOrAddModel(memberDecl) : null;
                         }
@@ -931,7 +931,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return GetOrAddModel(memberDecl);
 
                     case SyntaxKind.CompilationUnit:
-                        if (SynthesizedSimpleProgramEntryPointSymbol.GetSimpleProgramEntryPoint(Compilation, (CompilationUnitSyntax)memberDecl, fallbackToMainEntryPoint: false) is object)
+                        if (SynthesizedSimpleProgramEntryPointSymbol.GetSimpleProgramEntryPoint(Compilation, (CompilationUnitSyntax)memberDecl, fallbackToMainEntryPoint: false) is not null)
                         {
                             return GetOrAddModel(memberDecl);
                         }

@@ -185,7 +185,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             // wrap all global statements in a compilation unit into a simple program type:
-            if (firstGlobalStatement is object)
+            if (firstGlobalStatement is not null)
             {
                 var diagnostics = ImmutableArray<Diagnostic>.Empty;
 

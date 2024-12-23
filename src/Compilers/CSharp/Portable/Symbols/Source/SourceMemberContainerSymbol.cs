@@ -1685,7 +1685,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var declared = Volatile.Read(ref _lazyDeclaredMembersAndInitializers);
                 RoslynDebug.AssertOrFailFast(declared != DeclaredMembersAndInitializers.UninitializedSentinel);
 
-                if (declared is object)
+                if (declared is not null)
                 {
                     if (declared.NonTypeMembers.Contains(m => m == (object)member) || declared.PrimaryConstructor == (object)member)
                     {
@@ -1696,7 +1696,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     // It looks like there was a race and we need to check _lazyMembersAndInitializers again
                     membersAndInitializers = Volatile.Read(ref _lazyMembersAndInitializers);
-                    RoslynDebug.AssertOrFailFast(membersAndInitializers is object);
+                    RoslynDebug.AssertOrFailFast(membersAndInitializers is not null);
 
                     if (isMemberInCompleteMemberList(membersAndInitializers, member))
                     {
@@ -1862,7 +1862,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var resultType = type.VisitType(
                     predicate: (t, a, b) => !t.TupleElementNames.IsDefaultOrEmpty && !t.IsErrorType(),
                     arg: (object?)null);
-                return resultType is object;
+                return resultType is not null;
             }
         }
 
@@ -1988,7 +1988,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     //   following a field of the same name, or a field and a nested type of the same name.
                     //
 
-                    if (lastSym is object)
+                    if (lastSym is not null)
                     {
                         if (symbol.Kind != SymbolKind.Method || lastSym.Kind != SymbolKind.Method)
                         {
@@ -2803,7 +2803,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // Most types don't have indexers.  If this is one of those types,
             // just reuse the dictionary we build for early attribute decoding.
             // For tuples, we also need to take the slow path.
-            if (!membersAndInitializers.HaveIndexers && !this.IsTupleType && _lazyEarlyAttributeDecodingMembersDictionary is object)
+            if (!membersAndInitializers.HaveIndexers && !this.IsTupleType && _lazyEarlyAttributeDecodingMembersDictionary is not null)
             {
                 membersByName = _lazyEarlyAttributeDecodingMembersDictionary;
             }
@@ -2908,7 +2908,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 AssertInitializers(instanceInitializers, compilation);
 
                 Debug.Assert(!nonTypeMembers.Any(static s => s is TypeSymbol));
-                Debug.Assert(declarationWithParameters is object == primaryConstructor is object);
+                Debug.Assert(declarationWithParameters is not null == primaryConstructor is not null);
 
                 this.NonTypeMembers = nonTypeMembers;
                 this.StaticInitializers = staticInitializers;
@@ -2980,8 +2980,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> mergeInitializers()
                 {
                     Debug.Assert(InstanceInitializersForPositionalMembers.Count != 0);
-                    Debug.Assert(declaredMembers.PrimaryConstructor is object);
-                    Debug.Assert(declaredMembers.DeclarationWithParameters is object);
+                    Debug.Assert(declaredMembers.PrimaryConstructor is not null);
+                    Debug.Assert(declaredMembers.DeclarationWithParameters is not null);
                     Debug.Assert(declaredMembers.DeclarationWithParameters.SyntaxTree == InstanceInitializersForPositionalMembers[0].Syntax.SyntaxTree);
                     Debug.Assert(declaredMembers.DeclarationWithParameters.Span.Contains(InstanceInitializersForPositionalMembers[0].Syntax.Span.Start));
 
@@ -3271,7 +3271,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     result = GetMembersAndInitializers().PrimaryConstructor;
                 }
 
-                Debug.Assert(result is object);
+                Debug.Assert(result is not null);
                 return result;
             }
         }
@@ -4084,7 +4084,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // primary ctor
                 var ctor = declaredMembersAndInitializers.PrimaryConstructor;
-                Debug.Assert(ctor is object);
+                Debug.Assert(ctor is not null);
 
                 members.Add(ctor);
                 members.AddRange(ctor.GetBackingFields());
@@ -4130,11 +4130,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool primaryAndCopyCtorAmbiguity = false;
             if (!(paramList is null))
             {
-                Debug.Assert(declaredMembersAndInitializers.DeclarationWithParameters is object);
+                Debug.Assert(declaredMembersAndInitializers.DeclarationWithParameters is not null);
 
                 // primary ctor
                 var ctor = declaredMembersAndInitializers.PrimaryConstructor;
-                Debug.Assert(ctor is object);
+                Debug.Assert(ctor is not null);
                 members.Add(ctor);
 
                 if (ctor.ParameterCount != 0)
@@ -4462,12 +4462,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     {
                         existingOrAddedMembers.Add(property);
                         members.Add(property);
-                        Debug.Assert(property.GetMethod is object);
-                        Debug.Assert(property.SetMethod is object);
+                        Debug.Assert(property.GetMethod is not null);
+                        Debug.Assert(property.SetMethod is not null);
                         members.Add(property.GetMethod);
                         members.Add(property.SetMethod);
                         var backingField = property.DeclaredBackingField;
-                        Debug.Assert(backingField is object);
+                        Debug.Assert(backingField is not null);
                         members.Add(backingField);
 
                         builder.AddInstanceInitializerForPositionalMembers(new FieldOrPropertyInitializer(property.BackingField, paramList.Parameters[param.Ordinal]));
@@ -5152,7 +5152,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             var builder = new MostCommonNullableValueBuilder();
             var baseType = BaseTypeNoUseSiteDiagnostics;
-            if (baseType is object)
+            if (baseType is not null)
             {
                 builder.AddValue(TypeWithAnnotations.Create(baseType));
             }
@@ -5179,7 +5179,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var compilation = DeclaringCompilation;
             NamedTypeSymbol baseType = this.BaseTypeNoUseSiteDiagnostics;
 
-            if (baseType is object)
+            if (baseType is not null)
             {
                 if (baseType.ContainsDynamic())
                 {

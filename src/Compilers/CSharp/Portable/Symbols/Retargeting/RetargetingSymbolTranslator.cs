@@ -1065,7 +1065,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
                         containingType = containingType.ContainingType;
                         retargetedContainingType = retargetedContainingType.ContainingType;
                     }
-                    while (containingType is object);
+                    while (containingType is not null);
 
                     throw ExceptionUtilities.Unreachable();
                 }

@@ -126,7 +126,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         diagnostics.Add(ErrorCode.ERR_BadRecordBase, baseLocation);
                     }
                 }
-                else if (SynthesizedRecordClone.FindValidCloneMethod(localBase, ref useSiteInfo) is object)
+                else if (SynthesizedRecordClone.FindValidCloneMethod(localBase, ref useSiteInfo) is not null)
                 {
                     diagnostics.Add(ErrorCode.ERR_BadInheritanceFromRecord, baseLocation);
                 }

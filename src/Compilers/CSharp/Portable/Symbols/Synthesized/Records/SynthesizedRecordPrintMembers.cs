@@ -106,7 +106,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             var overridden = OverriddenMethod;
 
-            if (overridden is object &&
+            if (overridden is not null &&
                 !overridden.ContainingType.Equals(ContainingType.BaseTypeNoUseSiteDiagnostics, TypeCompareKind.AllIgnoreOptions))
             {
                 diagnostics.Add(ErrorCode.ERR_DoesNotOverrideBaseMethod, GetFirstLocation(), this, ContainingType.BaseTypeNoUseSiteDiagnostics);
@@ -278,7 +278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var overridden = overriding.OverriddenMethod;
 
-                if (overridden is object &&
+                if (overridden is not null &&
                     !overridden.ContainingType.Equals(baseType, TypeCompareKind.AllIgnoreOptions))
                 {
                     reportAnError = true;

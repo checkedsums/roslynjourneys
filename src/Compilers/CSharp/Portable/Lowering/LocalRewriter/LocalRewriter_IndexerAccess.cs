@@ -200,8 +200,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(_factory.ModuleBuilderOpt is { });
             Debug.Assert(_diagnostics.DiagnosticBag is { });
-            Debug.Assert(node.Expression.Type is object);
-            Debug.Assert(node.Argument.Type is object);
+            Debug.Assert(node.Expression.Type is not null);
+            Debug.Assert(node.Argument.Type is not null);
 
             var rewrittenReceiver = VisitExpression(node.Expression);
             BoundAssignmentOperator? receiverStore = null;
@@ -213,7 +213,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var getItemOrSliceHelper = (MethodSymbol?)_compilation.GetWellKnownTypeMember(node.GetItemOrSliceHelper);
-            Debug.Assert(getItemOrSliceHelper is object);
+            Debug.Assert(getItemOrSliceHelper is not null);
 
             BoundExpression result;
             _ = node.Expression.Type.HasInlineArrayAttribute(out int length);
@@ -320,7 +320,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             MethodSymbol getCreateSpanHelper(BoundInlineArrayAccess node, NamedTypeSymbol spanType, NamedTypeSymbol intType)
             {
-                Debug.Assert(node.Expression.Type is object);
+                Debug.Assert(node.Expression.Type is not null);
 
                 MethodSymbol createSpan;
                 if (node.GetItemOrSliceHelper is WellKnownMember.System_ReadOnlySpan_T__Slice_Int_Int or WellKnownMember.System_ReadOnlySpan_T__get_Item)
@@ -337,7 +337,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             BoundExpression getElementRef(BoundInlineArrayAccess node, BoundExpression rewrittenReceiver, BoundExpression index, MethodSymbol getItemOrSliceHelper, int length)
             {
-                Debug.Assert(node.Expression.Type is object);
+                Debug.Assert(node.Expression.Type is not null);
                 Debug.Assert(index.Type?.SpecialType == SpecialType.System_Int32);
 
                 var intType = (NamedTypeSymbol)index.Type;
@@ -514,7 +514,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         BoundAssignmentOperator? extraRefInitialization;
                         ReferToTempIfReferenceTypeReceiver(receiverLocal, ref receiverStore, out extraRefInitialization, locals);
 
-                        if (extraRefInitialization is object)
+                        if (extraRefInitialization is not null)
                         {
                             sideeffects.Add(extraRefInitialization);
                         }
@@ -834,7 +834,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         BoundAssignmentOperator? extraRefInitialization;
                         ReferToTempIfReferenceTypeReceiver(receiverLocal, ref receiverStore, out extraRefInitialization, localsBuilder);
 
-                        if (extraRefInitialization is object)
+                        if (extraRefInitialization is not null)
                         {
                             sideEffectsBuilder.Add(extraRefInitialization);
                         }

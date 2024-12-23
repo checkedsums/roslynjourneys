@@ -625,7 +625,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Collection a = /*node.Expression*/;
             BoundStatement arrayVarDecl = MakeLocalDeclaration(forEachSyntax, collectionTemp, rewrittenExpression);
 
-            if (collectionVarInitializationPreamble is object)
+            if (collectionVarInitializationPreamble is not null)
             {
                 arrayVarDecl = new BoundStatementList(arrayVarDecl.Syntax, ImmutableArray.Create(collectionVarInitializationPreamble, arrayVarDecl)).MakeCompilerGenerated();
             }

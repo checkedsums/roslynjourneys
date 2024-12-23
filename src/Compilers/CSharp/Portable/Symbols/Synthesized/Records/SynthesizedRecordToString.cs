@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                   memberOffset,
                   isReadOnly: printMethod.IsEffectivelyReadOnly)
         {
-            Debug.Assert(printMethod is object);
+            Debug.Assert(printMethod is not null);
             _printMethod = printMethod;
         }
 

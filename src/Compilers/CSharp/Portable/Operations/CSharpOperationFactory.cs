@@ -1033,7 +1033,7 @@ namespace Microsoft.CodeAnalysis.Operations
 
                 if (boundConversion.Type is FunctionPointerTypeSymbol)
                 {
-                    Debug.Assert(boundConversion.SymbolOpt is object);
+                    Debug.Assert(boundConversion.SymbolOpt is not null);
                     return new AddressOfOperation(
                         CreateBoundMethodGroupSingleMethodOperation((BoundMethodGroup)boundConversion.Operand, boundConversion.SymbolOpt, suppressVirtualCalls: false),
                         _semanticModel, syntax, type, boundConversion.WasCompilerGenerated);
@@ -1918,7 +1918,7 @@ namespace Microsoft.CodeAnalysis.Operations
                                                     BoundNode.GetConversion(boundForEachStatement.ElementConversion, boundForEachStatement.ElementPlaceholder),
                                                     getEnumeratorArguments: createArgumentOperations(enumeratorInfoOpt.GetEnumeratorInfo),
                                                     moveNextArguments: createArgumentOperations(enumeratorInfoOpt.MoveNextInfo),
-                                                    disposeArguments: enumeratorInfoOpt.PatternDisposeInfo is object
+                                                    disposeArguments: enumeratorInfoOpt.PatternDisposeInfo is not null
                                                         ? CreateDisposeArguments(enumeratorInfoOpt.PatternDisposeInfo)
                                                         : default);
             }
@@ -2029,12 +2029,12 @@ namespace Microsoft.CodeAnalysis.Operations
         private IUsingOperation CreateBoundUsingStatementOperation(BoundUsingStatement boundUsingStatement)
         {
             Debug.Assert((boundUsingStatement.DeclarationsOpt == null) != (boundUsingStatement.ExpressionOpt == null));
-            Debug.Assert(boundUsingStatement.ExpressionOpt is object || boundUsingStatement.Locals.Length > 0);
+            Debug.Assert(boundUsingStatement.ExpressionOpt is not null || boundUsingStatement.Locals.Length > 0);
             IOperation resources = Create(boundUsingStatement.DeclarationsOpt ?? (BoundNode)boundUsingStatement.ExpressionOpt!);
             IOperation body = Create(boundUsingStatement.Body);
             ImmutableArray<ILocalSymbol> locals = boundUsingStatement.Locals.GetPublicSymbols();
             bool isAsynchronous = boundUsingStatement.AwaitOpt != null;
-            DisposeOperationInfo disposeOperationInfo = boundUsingStatement.PatternDisposeInfoOpt is object
+            DisposeOperationInfo disposeOperationInfo = boundUsingStatement.PatternDisposeInfoOpt is not null
                                                          ? new DisposeOperationInfo(
                                                                  disposeMethod: boundUsingStatement.PatternDisposeInfoOpt.Method.GetPublicSymbol(),
                                                                  disposeArguments: CreateDisposeArguments(boundUsingStatement.PatternDisposeInfoOpt))
@@ -2172,8 +2172,8 @@ namespace Microsoft.CodeAnalysis.Operations
             {
                 return new UsingDeclarationOperation(
                     variableDeclaration,
-                    isAsynchronous: usingDecl.AwaitOpt is object,
-                    disposeInfo: usingDecl.PatternDisposeInfoOpt is object
+                    isAsynchronous: usingDecl.AwaitOpt is not null,
+                    disposeInfo: usingDecl.PatternDisposeInfoOpt is not null
                                    ? new DisposeOperationInfo(
                                            disposeMethod: usingDecl.PatternDisposeInfoOpt.Method.GetPublicSymbol(),
                                            disposeArguments: CreateDisposeArguments(usingDecl.PatternDisposeInfoOpt))

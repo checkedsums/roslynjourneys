@@ -1511,7 +1511,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 return GetCachedUseSiteInfo();
             }
 
-            if (useSiteInfo.DiagnosticInfo is object || !useSiteInfo.SecondaryDependencies.IsNullOrEmpty())
+            if (useSiteInfo.DiagnosticInfo is not null || !useSiteInfo.SecondaryDependencies.IsNullOrEmpty())
             {
                 useSiteInfo = AccessUncommonFields()._lazyCachedUseSiteInfo.InterlockedInitializeFromDefault(PrimaryDependency, useSiteInfo);
             }

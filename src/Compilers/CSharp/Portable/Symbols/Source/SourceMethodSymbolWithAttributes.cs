@@ -802,7 +802,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 #nullable enable
         private void DecodeDllImportAttribute(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            RoslynDebug.Assert(arguments.AttributeSyntaxOpt?.ArgumentList is object);
+            RoslynDebug.Assert(arguments.AttributeSyntaxOpt?.ArgumentList is not null);
 
             var attribute = arguments.Attribute;
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
@@ -817,7 +817,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             var isAnyNestedMethodGeneric = false;
-            for (MethodSymbol? current = this; current is object; current = current.ContainingSymbol as MethodSymbol)
+            for (MethodSymbol? current = this; current is not null; current = current.ContainingSymbol as MethodSymbol)
             {
                 if (current.IsGenericMethod)
                 {
@@ -927,7 +927,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void DecodeModuleInitializerAttribute(DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert(arguments.AttributeSyntaxOpt is object);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
 
             if (MethodKind != MethodKind.Ordinary)
@@ -936,7 +936,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return;
             }
 
-            Debug.Assert(ContainingType is object);
+            Debug.Assert(ContainingType is not null);
             var hasError = false;
 
             var useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, ContainingAssembly);
@@ -1154,7 +1154,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
             var attributeSyntax = arguments.AttributeSyntaxOpt;
-            Debug.Assert(attributeSyntax is object);
+            Debug.Assert(attributeSyntax is not null);
             var attributeLocation = attributeSyntax.Location;
             diagnostics.Add(ErrorCode.WRN_InterceptsLocationAttributeUnsupportedSignature, attributeLocation);
 
@@ -1563,7 +1563,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 var iAsyncEnumerableType = DeclaringCompilation.GetWellKnownType(WellKnownType.System_Collections_Generic_IAsyncEnumerable_T);
                 if (ReturnType.OriginalDefinition.Equals(iAsyncEnumerableType) &&
-                    GetInMethodSyntaxNode() is object)
+                    GetInMethodSyntaxNode() is not null)
                 {
                     var cancellationTokenType = DeclaringCompilation.GetWellKnownType(WellKnownType.System_Threading_CancellationToken);
                     var enumeratorCancellationCount = Parameters.Count(p => p.IsSourceParameterWithEnumeratorCancellationAttribute());

@@ -1866,7 +1866,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 nullableInitialState = getInitializerState(null);
             }
 
-            if (method.IsConstructor() && method.IsImplicitlyDeclared && nullableInitialState is object)
+            if (method.IsConstructor() && method.IsImplicitlyDeclared && nullableInitialState is not null)
             {
                 Debug.Assert(diagnostics.AccumulatesDiagnostics);
                 NullableWalker.Analyze(

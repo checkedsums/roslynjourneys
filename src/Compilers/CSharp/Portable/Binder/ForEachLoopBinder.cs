@@ -1150,7 +1150,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var receiver = new BoundDisposableValuePlaceholder(syntax, enumeratorType);
                 BindingDiagnosticBag patternDiagnostics = BindingDiagnosticBag.GetInstance(diagnostics);
                 MethodSymbol patternDisposeMethod = TryFindDisposePatternMethod(receiver, syntax, isAsync, patternDiagnostics, out bool expanded);
-                if (patternDisposeMethod is object)
+                if (patternDisposeMethod is not null)
                 {
                     Debug.Assert(!patternDisposeMethod.IsExtensionMethod);
                     Debug.Assert(patternDisposeMethod.ParameterRefKinds.IsDefaultOrEmpty ||

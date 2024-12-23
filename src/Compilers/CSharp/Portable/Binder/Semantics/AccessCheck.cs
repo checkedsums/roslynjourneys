@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static bool IsEffectivelyPublicOrInternal(Symbol symbol, out bool isInternal)
         {
-            Debug.Assert(symbol is object);
+            Debug.Assert(symbol is not null);
 
             switch (symbol.Kind)
             {
@@ -105,7 +105,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 symbol = symbol.ContainingType;
             }
-            while (symbol is object);
+            while (symbol is not null);
 
             return true;
         }

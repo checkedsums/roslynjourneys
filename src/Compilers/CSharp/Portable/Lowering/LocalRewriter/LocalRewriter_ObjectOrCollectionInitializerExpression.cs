@@ -660,7 +660,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool isRhsNestedInitializer)
         {
             var memberSymbol = rewrittenLeft.MemberSymbol;
-            Debug.Assert(memberSymbol is object);
+            Debug.Assert(memberSymbol is not null);
 
 #if DEBUG
             var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;

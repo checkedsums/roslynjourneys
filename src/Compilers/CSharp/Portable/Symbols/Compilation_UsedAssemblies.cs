@@ -37,7 +37,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (reference.Properties.Kind == MetadataImageKind.Assembly)
                 {
                     Symbol? symbol = GetBoundReferenceManager().GetReferencedAssemblySymbol(reference);
-                    if (symbol is object && usedAssemblies.Contains((AssemblySymbol)symbol) &&
+                    if (symbol is not null && usedAssemblies.Contains((AssemblySymbol)symbol) &&
                         setOfReferences.Add(reference) &&
                         mergedAssemblyReferencesMap.TryGetValue(reference, out ImmutableArray<MetadataReference> merged))
                     {
@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!_usedAssemblyReferencesFrozen && !Volatile.Read(ref _usedAssemblyReferencesFrozen))
             {
                 var diagnostics = BindingDiagnosticBag.GetConcurrentInstance();
-                RoslynDebug.Assert(diagnostics.DiagnosticBag is object);
+                RoslynDebug.Assert(diagnostics.DiagnosticBag is not null);
 
                 GetDiagnosticsWithoutSeverityFiltering(CompilationStage.Declare, includeEarlierStages: true, diagnostics, symbolFilter: null, cancellationToken);
 
@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     // Assume that all assemblies used by the used assemblies are also used
                     // This, for example, takes care of including facade assemblies that forward types around.
-                    if (_lazyUsedAssemblyReferences is object)
+                    if (_lazyUsedAssemblyReferences is not null)
                     {
                         lock (_lazyUsedAssemblyReferences)
                         {
@@ -168,7 +168,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                         // would be to attempt to emit and get the exact set of emitted references
                                         // in case of success. This might be too slow though.
                                         usedAssemblies = sourceAssembly.DeclaringCompilation.GetCompleteSetOfUsedAssemblies(cancellationToken);
-                                        if (usedAssemblies is object)
+                                        if (usedAssemblies is not null)
                                         {
                                             foreach (AssemblySymbol dependency in usedAssemblies)
                                             {
@@ -180,7 +180,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                                     case RetargetingAssemblySymbol retargetingAssembly:
                                         usedAssemblies = retargetingAssembly.UnderlyingAssembly.DeclaringCompilation.GetCompleteSetOfUsedAssemblies(cancellationToken);
-                                        if (usedAssemblies is object)
+                                        if (usedAssemblies is not null)
                                         {
                                             foreach (AssemblySymbol underlyingDependency in retargetingAssembly.UnderlyingAssembly.SourceModule.ReferencedAssemblySymbols)
                                             {
@@ -211,7 +211,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                     }
 
-                    if (SourceAssembly.CorLibrary is object)
+                    if (SourceAssembly.CorLibrary is not null)
                     {
                         // Add core library
                         AddUsedAssembly(SourceAssembly.CorLibrary);

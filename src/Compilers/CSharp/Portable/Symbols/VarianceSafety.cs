@@ -69,7 +69,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             NamedTypeSymbol container = GetEnclosingVariantInterface(member);
 
-            if (container is object)
+            if (container is not null)
             {
                 Debug.Assert(container.IsInterfaceType());
                 Debug.Assert(container.TypeParameters.Any(static tp => tp.Variance != VarianceKind.None));
@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static NamedTypeSymbol GetEnclosingVariantInterface(Symbol member)
         {
-            for (var container = member.ContainingType; container is object; container = container.ContainingType)
+            for (var container = member.ContainingType; container is not null; container = container.ContainingType)
             {
                 if (!container.IsInterfaceType())
                 {

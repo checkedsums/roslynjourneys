@@ -115,7 +115,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var overridden = overriding.OverriddenProperty;
 
-                if (overridden is object &&
+                if (overridden is not null &&
                     !overridden.ContainingType.Equals(overriding.ContainingType.BaseTypeNoUseSiteDiagnostics, TypeCompareKind.AllIgnoreOptions))
                 {
                     reportAnError = true;

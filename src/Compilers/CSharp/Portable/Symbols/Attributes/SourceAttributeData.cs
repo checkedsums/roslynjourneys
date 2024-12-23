@@ -38,14 +38,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool hasErrors,
             bool isConditionallyOmitted)
         {
-            Debug.Assert(compilation is object);
-            Debug.Assert(applicationNode is object);
-            Debug.Assert(!isConditionallyOmitted || attributeClass is object && attributeClass.IsConditional);
+            Debug.Assert(compilation is not null);
+            Debug.Assert(applicationNode is not null);
+            Debug.Assert(!isConditionallyOmitted || attributeClass is not null && attributeClass.IsConditional);
             Debug.Assert(!constructorArguments.IsDefault);
             Debug.Assert(!namedArguments.IsDefault);
             Debug.Assert(constructorArgumentsSourceIndices.IsDefault ||
                 constructorArgumentsSourceIndices.Any() && constructorArgumentsSourceIndices.Length == constructorArguments.Length);
-            Debug.Assert(attributeConstructor is object || hasErrors);
+            Debug.Assert(attributeConstructor is not null || hasErrors);
 
             _compilation = compilation;
             _attributeClass = attributeClass;
@@ -127,7 +127,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             // This method is only called when decoding (non-erroneous) well-known attributes.
             Debug.Assert(!this.HasErrors);
-            Debug.Assert(this.AttributeConstructor is object);
+            Debug.Assert(this.AttributeConstructor is not null);
             Debug.Assert(parameterIndex >= 0);
             Debug.Assert(parameterIndex < this.AttributeConstructor.ParameterCount);
 
@@ -472,7 +472,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static bool IsTargetAttribute(NamedTypeSymbol attributeClass, string namespaceName, string typeName)
         {
-            Debug.Assert(attributeClass is object);
+            Debug.Assert(attributeClass is not null);
 
             if (!attributeClass.Name.Equals(typeName))
             {

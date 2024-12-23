@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         public ParameterSymbol(Symbols.ParameterSymbol underlying)
         {
-            Debug.Assert(underlying is object);
+            Debug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

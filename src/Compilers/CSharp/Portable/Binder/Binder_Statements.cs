@@ -301,7 +301,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private BoundExpression BindThrownExpression(ExpressionSyntax exprSyntax, BindingDiagnosticBag diagnostics, ref bool hasErrors) => 
+        private BoundExpression BindThrownExpression(ExpressionSyntax exprSyntax, BindingDiagnosticBag diagnostics, ref bool hasErrors) =>
             GenerateConversionForAssignment(
                 GetWellKnownType(WellKnownType.System_Exception, diagnostics, exprSyntax),
                 BindValue(exprSyntax, diagnostics, BindValueKind.RValue), diagnostics);
@@ -613,8 +613,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns>The <see cref="MethodSymbol"/> of the Dispose method if one is found, otherwise null.</returns>
         internal MethodSymbol TryFindDisposePatternMethod(BoundExpression expr, SyntaxNode syntaxNode, bool hasAwait, BindingDiagnosticBag diagnostics, out bool isExpanded)
         {
-            Debug.Assert(expr is object);
-            Debug.Assert(expr.Type is object);
+            Debug.Assert(expr is not null);
+            Debug.Assert(expr.Type is not null);
             Debug.Assert(expr.Type.IsRefLikeType || hasAwait); // pattern dispose lookup is only valid on ref structs or asynchronous usings
 
             var result = PerformPatternMethodLookup(expr,
@@ -3486,7 +3486,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundNode BindPrimaryConstructorBody(TypeDeclarationSyntax typeDecl, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert(typeDecl.ParameterList is object);
+            Debug.Assert(typeDecl.ParameterList is not null);
             Debug.Assert(typeDecl.Kind() is SyntaxKind.RecordDeclaration or SyntaxKind.ClassDeclaration or SyntaxKind.RecordStructDeclaration or SyntaxKind.StructDeclaration);
 
             BoundExpressionStatement initializer;

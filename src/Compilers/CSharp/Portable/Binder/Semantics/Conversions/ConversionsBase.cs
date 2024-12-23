@@ -80,7 +80,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal AssemblySymbol CorLibrary { get { return corLibrary; } }
 
-
         /// <summary>
         /// Derived types should provide non-null value for proper classification of conversions from expression.
         /// </summary>
@@ -1447,7 +1446,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var sourceConstantValue = source.ConstantValueOpt;
             return sourceConstantValue != null &&
-                source.Type is object &&
+                source.Type is not null &&
                 IsNumericType(source.Type) &&
                 IsConstantNumericZero(sourceConstantValue);
         }
@@ -1867,7 +1866,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool IsPossiblyNullableTypeTypeParameter(in TypeWithAnnotations typeWithAnnotations)
         {
             var type = typeWithAnnotations.Type;
-            return type is object &&
+            return type is not null &&
                 (type.IsPossiblyNullableReferenceTypeTypeParameter() || type.IsNullableTypeOrTypeParameter());
         }
 

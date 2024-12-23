@@ -50,7 +50,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxNode GetLambda(SyntaxNode lambdaBody)
         {
-            Debug.Assert(lambdaBody.Parent is object);
+            Debug.Assert(lambdaBody.Parent is not null);
             var lambda = lambdaBody.Parent;
             if (lambda.IsKind(SyntaxKind.ArrowExpressionClause))
             {
@@ -70,7 +70,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static SyntaxNode? TryGetCorrespondingLambdaBody(SyntaxNode oldBody, SyntaxNode newLambda)
         {
-            Debug.Assert(oldBody.Parent is object);
+            Debug.Assert(oldBody.Parent is not null);
 
             switch (newLambda.Kind())
             {
@@ -225,7 +225,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxToken sourceIdentifier;
             QueryBodySyntax containingBody;
 
-            Debug.Assert(selectOrGroupClause.Parent!.Parent is object);
+            Debug.Assert(selectOrGroupClause.Parent!.Parent is not null);
             var containingQueryOrContinuation = selectOrGroupClause.Parent.Parent;
             if (containingQueryOrContinuation.IsKind(SyntaxKind.QueryExpression))
             {

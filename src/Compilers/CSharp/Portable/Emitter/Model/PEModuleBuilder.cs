@@ -746,7 +746,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                 // Hashset enumeration is not guaranteed to be deterministic. Emitting in the order of fully qualified names.
                 IEnumerable<NamedTypeSymbol> orderedForwardedTypes = wellKnownAttributeData.ForwardedTypes;
 
-                if (builder is object)
+                if (builder is not null)
                 {
                     orderedForwardedTypes = orderedForwardedTypes.OrderBy(t => t.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.QualifiedNameArityFormat));
                 }
@@ -760,7 +760,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                     // level, we need to de-dup the original definitions before emitting.
                     if (!seenTopLevelTypes.Add(originalDefinition)) continue;
 
-                    if (builder is object)
+                    if (builder is not null)
                     {
                         // Return all nested types.
                         // Note the order: depth first, children in reverse order (to match dev10, not a requirement).

@@ -233,7 +233,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal void ComputeReturnType()
         {
-            if (_lazyReturnType is object)
+            if (_lazyReturnType is not null)
             {
                 return;
             }
@@ -250,7 +250,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             // Skip some diagnostics when the local function is not associated with a compilation
             // (specifically, local functions nested in expressions in the EE).
-            if (compilation is object)
+            if (compilation is not null)
             {
                 Location? location = null;
                 if (_refKind == RefKind.RefReadOnly)
@@ -283,7 +283,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             lock (_declarationDiagnostics)
             {
-                if (_lazyReturnType is object)
+                if (_lazyReturnType is not null)
                 {
                     diagnostics.Free();
                     return;

@@ -14,7 +14,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
         public FunctionPointerTypeSymbol(Symbols.FunctionPointerTypeSymbol underlying, CodeAnalysis.NullableAnnotation nullableAnnotation)
             : base(nullableAnnotation)
         {
-            RoslynDebug.Assert(underlying is object);
+            RoslynDebug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

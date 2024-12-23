@@ -210,7 +210,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             protected override BoundStatement InitializeParameterField(MethodSymbol getEnumeratorMethod, ParameterSymbol parameter, BoundExpression resultParameter, BoundExpression parameterProxy)
             {
                 BoundStatement result;
-                if (_combinedTokensField is object &&
+                if (_combinedTokensField is not null &&
                     parameter.IsSourceParameterWithEnumeratorCancellationAttribute() &&
                     parameter.Type.Equals(F.Compilation.GetWellKnownType(WellKnownType.System_Threading_CancellationToken), TypeCompareKind.ConsiderEverything))
                 {

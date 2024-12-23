@@ -46,7 +46,7 @@ internal partial class CodeGenerator
         bool peVerifyCompatEnabled,
         HashSet<LocalSymbol> stackLocalsOpt)
     {
-        Debug.Assert(containingSymbol is object);
+        Debug.Assert(containingSymbol is not null);
 
         switch (expression.Kind)
         {
@@ -175,7 +175,7 @@ internal partial class CodeGenerator
         bool peVerifyCompatEnabled,
         HashSet<LocalSymbol> stackLocalsOpt)
     {
-        Debug.Assert(containingSymbol is object);
+        Debug.Assert(containingSymbol is not null);
 
         FieldSymbol field = fieldAccess.FieldSymbol;
 

@@ -115,7 +115,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (Arguments.TouchedFilesPath != null)
             {
-                Debug.Assert(touchedFilesLogger is object);
+                Debug.Assert(touchedFilesLogger is not null);
                 foreach (var path in uniqueFilePaths)
                 {
                     touchedFilesLogger.AddRead(path);
@@ -235,7 +235,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         protected override string GetOutputFileName(Compilation compilation, CancellationToken cancellationToken)
         {
-            if (Arguments.OutputFileName is object)
+            if (Arguments.OutputFileName is not null)
             {
                 return Arguments.OutputFileName;
             }
@@ -248,7 +248,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (entryPoint is null)
             {
                 var method = comp.GetEntryPoint(cancellationToken);
-                if (method is object)
+                if (method is not null)
                 {
                     entryPoint = method.PartialImplementationPart ?? method;
                 }

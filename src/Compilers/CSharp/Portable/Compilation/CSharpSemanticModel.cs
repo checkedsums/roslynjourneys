@@ -1314,7 +1314,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // skip zero-width tokens to get the position, but never get past the end of the node
             SyntaxToken firstToken = node.GetFirstToken(includeZeroWidth: false);
-            if (firstToken.Node is object)
+            if (firstToken.Node is not null)
             {
                 int betterPosition = firstToken.SpanStart;
                 if (betterPosition < node.Span.End)
@@ -1833,7 +1833,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public bool IsEventUsableAsField(int position, EventSymbol symbol)
         {
-            return symbol is object && symbol.HasAssociatedField && this.IsAccessible(position, symbol.AssociatedField); //calls CheckAndAdjustPosition
+            return symbol is not null && symbol.HasAssociatedField && this.IsAccessible(position, symbol.AssociatedField); //calls CheckAndAdjustPosition
         }
 
         private bool IsInTypeofExpression(int position)

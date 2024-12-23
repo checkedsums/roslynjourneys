@@ -15,7 +15,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         public EventSymbol(Symbols.EventSymbol underlying)
         {
-            RoslynDebug.Assert(underlying is object);
+            RoslynDebug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

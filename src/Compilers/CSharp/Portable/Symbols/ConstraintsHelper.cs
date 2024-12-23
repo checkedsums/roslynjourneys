@@ -693,7 +693,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool CheckConstraints(this NamedTypeSymbol type, in CheckConstraintsArgs args)
         {
-            Debug.Assert(args.CurrentCompilation is object);
+            Debug.Assert(args.CurrentCompilation is not null);
 
             if (!RequiresChecking(type))
             {

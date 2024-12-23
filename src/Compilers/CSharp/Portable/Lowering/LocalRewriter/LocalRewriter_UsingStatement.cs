@@ -472,7 +472,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 disposeCall = MakeCallWithNoExplicitArgument(disposeInfo, resourceSyntax, disposedExpression, firstRewrittenArgument: null);
 
-                if (awaitOpt is object)
+                if (awaitOpt is not null)
                 {
                     // await local.DisposeAsync()
                     _sawAwaitInExceptionHandler = true;

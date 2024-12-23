@@ -725,7 +725,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             foreach (var pair in constraintFailure.Result.ConstraintFailureDiagnostics)
             {
-                if (pair.UseSiteInfo.DiagnosticInfo is object)
+                if (pair.UseSiteInfo.DiagnosticInfo is not null)
                 {
                     diagnostics.Add(new CSDiagnostic(pair.UseSiteInfo.DiagnosticInfo, location));
                 }

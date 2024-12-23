@@ -176,7 +176,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // Pattern-based binding
                 // If this is a ref struct, or we're in a valid asynchronous using, try binding via pattern.
-                if (type is object && (type.IsRefLikeType || hasAwait))
+                if (type is not null && (type.IsRefLikeType || hasAwait))
                 {
                     BoundExpression? receiver = fromExpression
                                                ? expression

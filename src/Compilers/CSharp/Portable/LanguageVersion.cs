@@ -32,18 +32,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             };
     }
 
-    internal class CSharpRequiredLanguageVersion : RequiredLanguageVersion
-    {
-        internal LanguageVersion Version { get; }
-
-        internal CSharpRequiredLanguageVersion(LanguageVersion version)
-        {
-            Version = version;
-        }
-
-        public override string ToString() => Version.ToDisplayString();
-    }
-
     public static class LanguageVersionFacts
     {
         internal const LanguageVersion CSharpNext = LanguageVersion.Preview;

@@ -215,7 +215,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 if (expression.HasExpressionType())
                 {
-                    RoslynDebug.Assert(expressionType is object);
+                    RoslynDebug.Assert(expressionType is not null);
                     if (expressionType.IsVoidType())
                     {
                         errorArg = expressionType;

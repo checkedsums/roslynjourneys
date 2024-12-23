@@ -664,7 +664,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(argumentRefKindsOpt.IsDefault || argumentRefKindsOpt.Length == arguments.Length);
             var requiresInstanceReceiver = methodOrIndexer.RequiresInstanceReceiver() && methodOrIndexer is not MethodSymbol { MethodKind: MethodKind.Constructor } and not FunctionPointerMethodSymbol;
             Debug.Assert(!requiresInstanceReceiver || rewrittenReceiver != null || _inExpressionLambda);
-            Debug.Assert(captureReceiverMode == ReceiverCaptureMode.Default || (requiresInstanceReceiver && rewrittenReceiver != null && storesOpt is object));
+            Debug.Assert(captureReceiverMode == ReceiverCaptureMode.Default || (requiresInstanceReceiver && rewrittenReceiver != null && storesOpt is not null));
 
             BoundLocal? receiverTemp = null;
             BoundAssignmentOperator? assignmentToTemp = null;
@@ -673,7 +673,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 (requiresInstanceReceiver && arguments.Any(a => usesReceiver(a))))
             {
                 Debug.Assert(!_inExpressionLambda);
-                Debug.Assert(rewrittenReceiver is object);
+                Debug.Assert(rewrittenReceiver is not null);
                 Debug.Assert(rewrittenReceiver.Type is { });
 
                 RefKind refKind;
@@ -770,15 +770,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
 #if DEBUG
-                Debug.Assert(saveTempsOpt is object || tempsOpt?.Count is null or > 0);
+                Debug.Assert(saveTempsOpt is not null || tempsOpt?.Count is null or > 0);
 #endif
                 rewrittenArguments = visitedArgumentsBuilder.ToImmutableAndFree();
             }
 
-            if (receiverTemp is object)
+            if (receiverTemp is not null)
             {
-                Debug.Assert(assignmentToTemp is object);
-                Debug.Assert(tempsOpt is object);
+                Debug.Assert(assignmentToTemp is not null);
+                Debug.Assert(tempsOpt is not null);
 
                 BoundAssignmentOperator? extraRefInitialization = null;
 
@@ -791,9 +791,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     ReferToTempIfReferenceTypeReceiver(receiverTemp, ref assignmentToTemp, out extraRefInitialization, tempsOpt);
                 }
 
-                if (storesOpt is object)
+                if (storesOpt is not null)
                 {
-                    if (extraRefInitialization is object)
+                    if (extraRefInitialization is not null)
                     {
                         storesOpt.Add(extraRefInitialization);
                     }
@@ -805,7 +805,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     rewrittenReceiver = _factory.Sequence(
                         ImmutableArray<LocalSymbol>.Empty,
-                        extraRefInitialization is object ? ImmutableArray.Create<BoundExpression>(extraRefInitialization, assignmentToTemp) : ImmutableArray.Create<BoundExpression>(assignmentToTemp),
+                        extraRefInitialization is not null ? ImmutableArray.Create<BoundExpression>(extraRefInitialization, assignmentToTemp) : ImmutableArray.Create<BoundExpression>(assignmentToTemp),
                         receiverTemp);
                 }
             }
@@ -860,7 +860,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 case BoundInterpolatedStringArgumentPlaceholder.InstanceParameter:
                                     Debug.Assert(usesReceiver(argument));
                                     Debug.Assert(requiresInstanceReceiver);
-                                    Debug.Assert(receiverTemp is object);
+                                    Debug.Assert(receiverTemp is not null);
                                     local = receiverTemp;
                                     break;
 
@@ -932,7 +932,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(assignmentToTemp.IsRef);
 
             var receiverType = receiverTemp.Type;
-            Debug.Assert(receiverType is object);
+            Debug.Assert(receiverType is not null);
 
             // A case where T is actually a class must be handled specially.
             // Taking a reference to a class instance is fragile because the value behind the 

@@ -439,7 +439,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                          // For simplicity we do not perform precise analysis whether this would
                          // definitely be the case. If we are in a variant interface, we always force
                          // creation of a display class.
-                         VarianceSafety.GetEnclosingVariantInterface(_topLevelMethod) is object)
+                         VarianceSafety.GetEnclosingVariantInterface(_topLevelMethod) is not null)
                 {
                     translatedLambdaContainer = containerAsFrame = GetStaticFrame(Diagnostics, syntax);
                     closureKind = ClosureKind.Singleton;

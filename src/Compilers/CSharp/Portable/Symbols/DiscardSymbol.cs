@@ -12,7 +12,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         public DiscardSymbol(TypeWithAnnotations typeWithAnnotations)
         {
-            Debug.Assert(typeWithAnnotations.Type is object);
+            Debug.Assert(typeWithAnnotations.Type is not null);
             TypeWithAnnotations = typeWithAnnotations;
         }
 

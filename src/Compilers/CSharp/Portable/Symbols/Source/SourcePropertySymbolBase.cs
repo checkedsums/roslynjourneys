@@ -910,13 +910,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             if (!IsExpressionBodied)
             {
-                bool hasGetAccessor = GetMethod is object;
-                bool hasSetAccessor = SetMethod is object;
+                bool hasGetAccessor = GetMethod is not null;
+                bool hasSetAccessor = SetMethod is not null;
 
                 if (hasGetAccessor && hasSetAccessor)
                 {
-                    Debug.Assert(_getMethod is object);
-                    Debug.Assert(_setMethod is object);
+                    Debug.Assert(_getMethod is not null);
+                    Debug.Assert(_setMethod is not null);
 
                     if (_refKind != RefKind.None)
                     {
@@ -963,7 +963,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     if (!this.IsOverride)
                     {
                         var accessor = _getMethod ?? _setMethod;
-                        if (accessor is object)
+                        if (accessor is not null)
                         {
                             // Check accessibility is not set on the one accessor.
                             if (accessor.LocalAccessibility != Accessibility.NotApplicable)
@@ -987,7 +987,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             PropertySymbol? explicitlyImplementedProperty = ExplicitInterfaceImplementations.FirstOrDefault();
 
-            if (explicitlyImplementedProperty is object)
+            if (explicitlyImplementedProperty is not null)
             {
                 CheckExplicitImplementationAccessor(GetMethod, explicitlyImplementedProperty.GetMethod, explicitlyImplementedProperty, diagnostics);
                 CheckExplicitImplementationAccessor(SetMethod, explicitlyImplementedProperty.SetMethod, explicitlyImplementedProperty, diagnostics);
@@ -1011,7 +1011,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 _explicitInterfaceType.CheckAllConstraints(compilation, conversions, new SourceLocation(explicitInterfaceSpecifier.Name), diagnostics);
 
                 // Note: we delayed nullable-related checks that could pull on NonNullTypes
-                if (explicitlyImplementedProperty is object)
+                if (explicitlyImplementedProperty is not null)
                 {
                     TypeSymbol.CheckModifierMismatchOnImplementingMember(this.ContainingType, this, explicitlyImplementedProperty, isExplicit: true, diagnostics);
                 }
@@ -1197,8 +1197,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                bool hasGetter = GetMethod is object;
-                bool hasSetter = SetMethod is object;
+                bool hasGetter = GetMethod is not null;
+                bool hasSetter = SetMethod is not null;
                 if (!this.IsSealed || (hasGetter && hasSetter))
                 {
                     return null;
@@ -1222,13 +1222,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(this.IsSealed && (GetMethod is null || SetMethod is null));
 
-            if (GetMethod is object)
+            if (GetMethod is not null)
             {
                 // need to synthesize setter
                 MethodSymbol overriddenAccessor = this.GetOwnOrInheritedSetMethod();
                 return (object)overriddenAccessor == null ? null : new SynthesizedSealedPropertyAccessor(this, overriddenAccessor);
             }
-            else if (SetMethod is object)
+            else if (SetMethod is not null)
             {
                 // need to synthesize getter
                 MethodSymbol overriddenAccessor = this.GetOwnOrInheritedGetMethod();
@@ -1489,7 +1489,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(arguments.AttributeSyntaxOpt != null);
 
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
-            Debug.Assert(diagnostics.DiagnosticBag is object);
+            Debug.Assert(diagnostics.DiagnosticBag is not null);
 
             var attribute = arguments.Attribute;
             Debug.Assert(!attribute.HasErrors);

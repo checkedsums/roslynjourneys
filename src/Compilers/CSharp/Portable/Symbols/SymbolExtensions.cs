@@ -144,7 +144,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static Symbol? ContainingNonLambdaMember(this Symbol? containingMember)
         {
-            while (containingMember is object && containingMember.Kind == SymbolKind.Method)
+            while (containingMember is not null && containingMember.Kind == SymbolKind.Method)
             {
                 var method = (MethodSymbol)containingMember;
                 if (method.MethodKind != MethodKind.AnonymousFunction && method.MethodKind != MethodKind.LocalFunction) break;
@@ -342,7 +342,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static int GetArity(this Symbol? symbol)
         {
-            if (symbol is object)
+            if (symbol is not null)
             {
                 switch (symbol.Kind)
                 {
@@ -358,7 +358,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static CSharpSyntaxNode GetNonNullSyntaxNode(this Symbol? symbol)
         {
-            if (symbol is object)
+            if (symbol is not null)
             {
                 SyntaxReference? reference = symbol.DeclaringSyntaxReferences.FirstOrDefault();
 

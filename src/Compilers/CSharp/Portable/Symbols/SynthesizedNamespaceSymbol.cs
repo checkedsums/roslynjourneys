@@ -23,8 +23,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public SynthesizedNamespaceSymbol(NamespaceSymbol containingNamespace, string name)
         {
-            Debug.Assert(containingNamespace is object);
-            Debug.Assert(name is object);
+            Debug.Assert(containingNamespace is not null);
+            Debug.Assert(name is not null);
 
             _containingSymbol = containingNamespace;
             _name = name;
@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return true;
             }
 
-            return other is object && _name.Equals(other._name) && _containingSymbol.Equals(other._containingSymbol);
+            return other is not null && _name.Equals(other._name) && _containingSymbol.Equals(other._containingSymbol);
         }
 
         internal override NamespaceExtent Extent

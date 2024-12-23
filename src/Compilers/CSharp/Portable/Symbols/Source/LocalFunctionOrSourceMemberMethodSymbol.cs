@@ -42,6 +42,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        internal sealed override bool IsIterator => _lazyIteratorElementType is object;
+        internal sealed override bool IsIterator => _lazyIteratorElementType is not null;
     }
 }

@@ -1132,7 +1132,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static void Error(BindingDiagnosticBag diagnostics, ErrorCode code, SyntaxNodeOrToken syntax, params object[] args)
         {
             var location = syntax.GetLocation();
-            RoslynDebug.Assert(location is object);
+            RoslynDebug.Assert(location is not null);
             Error(diagnostics, code, location, args);
         }
 

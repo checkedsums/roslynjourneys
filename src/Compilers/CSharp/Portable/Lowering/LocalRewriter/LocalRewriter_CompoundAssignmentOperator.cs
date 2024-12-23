@@ -213,7 +213,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 BoundAssignmentOperator? extraRefInitialization;
                 ReferToTempIfReferenceTypeReceiver(receiverTemp, ref assignmentToTemp, out extraRefInitialization, temps);
 
-                if (extraRefInitialization is object)
+                if (extraRefInitialization is not null)
                 {
                     stores.Add(extraRefInitialization);
                 }
@@ -307,7 +307,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 stores,
                 ref temps!);
 
-            Debug.Assert(temps is object);
+            Debug.Assert(temps is not null);
 
             return TransformIndexerAccessContinued(indexerAccess, transformedReceiver, rewrittenArguments, stores, temps);
         }

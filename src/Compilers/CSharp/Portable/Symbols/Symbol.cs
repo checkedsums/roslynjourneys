@@ -536,7 +536,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                     }
 
-                    if (found is object)
+                    if (found is not null)
                     {
                         builder.Add(found.GetReference());
                     }
@@ -796,7 +796,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // the condition is expected to be folded when inlining "someSymbol != null"
             if (right is null)
             {
-                return left is object;
+                return left is not null;
             }
 
             // this part is expected to disappear when inlining "someSymbol != null"
@@ -1066,7 +1066,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             get
             {
                 AssemblySymbol dependency = this.ContainingAssembly;
-                if (dependency is object && dependency.CorLibrary == dependency)
+                if (dependency is not null && dependency.CorLibrary == dependency)
                 {
                     return null;
                 }

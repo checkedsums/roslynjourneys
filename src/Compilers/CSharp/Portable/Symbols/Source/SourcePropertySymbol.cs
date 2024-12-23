@@ -617,7 +617,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     diagnostics.Add(ErrorCode.ERR_FileTypeDisallowedInSignature, Location, param.Type, this.ContainingType);
                 }
-                else if (SetMethod is object && param.Name == ParameterSymbol.ValueParameterName)
+                else if (SetMethod is not null && param.Name == ParameterSymbol.ValueParameterName)
                 {
                     diagnostics.Add(ErrorCode.ERR_DuplicateGeneratedName, param.TryGetFirstLocation() ?? Location, param.Name);
                 }

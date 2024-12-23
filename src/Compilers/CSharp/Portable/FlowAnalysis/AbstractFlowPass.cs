@@ -1436,7 +1436,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 WriteArgument(receiverOpt, RefKind.Ref, method: null);
             }
             else if (method.TryGetThisParameter(out var thisParameter)
-                && thisParameter is object
+                && thisParameter is not null
                 && !TypeIsImmutable(thisParameter.Type))
             {
                 var thisRefKind = thisParameter.RefKind;
@@ -2627,7 +2627,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             static bool isKnownNullOrNotNull(BoundExpression expr)
             {
-                return expr.ConstantValueOpt is object
+                return expr.ConstantValueOpt is not null
                     || (expr is BoundConversion { ConversionKind: ConversionKind.ExplicitNullable or ConversionKind.ImplicitNullable } conv
                         && conv.Operand.Type!.IsNonNullableValueType());
             }
@@ -3009,7 +3009,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var method = conversion.Method;
-            Debug.Assert(method is object);
+            Debug.Assert(method is not null);
             Debug.Assert(method.ParameterCount is 1);
             var param = method.Parameters[0];
             return param.Type.IsNonNullableValueType();
@@ -3093,7 +3093,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Join(ref savedState, ref State);
                 }
 
-                Debug.Assert(expr is BoundExpression);
+                Debug.Assert(expr is not null);
                 VisitRvalue(expr);
 
                 stateWhenNotNull = State;

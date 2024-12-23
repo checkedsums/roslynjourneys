@@ -144,7 +144,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (IsTupleType)
             {
                 var result = MakeSynthesizedTupleMembers(ImmutableArray<Symbol>.Empty);
-                RoslynDebug.Assert(result is object);
+                RoslynDebug.Assert(result is not null);
                 return result.ToImmutableAndFree();
             }
 

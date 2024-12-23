@@ -156,7 +156,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected override bool ShouldBindAttributes(AttributeListSyntax attributeDeclarationSyntax, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert(attributeDeclarationSyntax.Target is object);
+            Debug.Assert(attributeDeclarationSyntax.Target is not null);
 
             if (!base.ShouldBindAttributes(attributeDeclarationSyntax, diagnostics))
             {

@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             DiagnosticInfo? info = null;
             var containingMemberOrLambda = this.ContainingMemberOrLambda;
-            if (containingMemberOrLambda is object)
+            if (containingMemberOrLambda is not null)
             {
                 switch (containingMemberOrLambda.Kind)
                 {
@@ -303,7 +303,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         private bool GetGetAwaiterMethod(BoundExpression expression, SyntaxNode node, BindingDiagnosticBag diagnostics, [NotNullWhen(true)] out BoundExpression? getAwaiterCall)
         {
-            RoslynDebug.Assert(expression.Type is object);
+            RoslynDebug.Assert(expression.Type is not null);
             if (expression.Type.IsVoidType())
             {
                 Error(diagnostics, ErrorCode.ERR_BadAwaitArgVoidCall, node);
@@ -424,7 +424,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            RoslynDebug.Assert(awaiterType is object);
+            RoslynDebug.Assert(awaiterType is not null);
             if (getAwaiterGetResultCall.Kind != BoundKind.Call)
             {
                 Error(diagnostics, ErrorCode.ERR_NoSuchMember, node, awaiterType, WellKnownMemberNames.GetResult);

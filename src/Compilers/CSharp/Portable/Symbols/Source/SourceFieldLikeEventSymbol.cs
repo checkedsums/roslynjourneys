@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             : base(containingType, declaratorSyntax, modifiers, isFieldLike: true, interfaceSpecifierSyntaxOpt: null,
                    nameTokenSyntax: declaratorSyntax.Identifier, diagnostics: diagnostics)
         {
-            Debug.Assert(declaratorSyntax.Parent is object);
+            Debug.Assert(declaratorSyntax.Parent is not null);
 
             _name = declaratorSyntax.Identifier.ValueText;
 

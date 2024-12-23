@@ -117,7 +117,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // identity tuple and switch conversions result in a converted expression
                     // to indicate that such conversions are no longer applicable.
                     source = BindToNaturalType(source, diagnostics);
-                    RoslynDebug.Assert(source.Type is object);
+                    RoslynDebug.Assert(source.Type is not null);
 
                     // We need to preserve any conversion that changes the type (even identity conversions, like object->dynamic),
                     // or that was explicitly written in code (so that GetSemanticInfo can find the syntax in the bound tree).
@@ -406,7 +406,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             void checkConstraintLanguageVersionAndRuntimeSupportForConversion(SyntaxNode syntax, Conversion conversion, BoundExpression source, TypeSymbol destination, BindingDiagnosticBag diagnostics)
             {
-                Debug.Assert(syntax.SyntaxTree is object);
+                Debug.Assert(syntax.SyntaxTree is not null);
 
                 if (!conversion.IsUserDefined && conversion.IsInlineArray)
                 {
@@ -2004,7 +2004,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             //
             // And thereby skip the unnecessary nullable conversion.
 
-            Debug.Assert(conversion.BestUserDefinedConversionAnalysis is object); // All valid user-defined conversions have this populated
+            Debug.Assert(conversion.BestUserDefinedConversionAnalysis is not null); // All valid user-defined conversions have this populated
 
             // Original expression --> conversion's "from" type
             BoundExpression convertedOperand = CreateConversion(
@@ -2630,7 +2630,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         {
                             if (receiverOpt.Kind == BoundKind.QueryClause)
                             {
-                                RoslynDebug.Assert(receiverOpt.Type is object);
+                                RoslynDebug.Assert(receiverOpt.Type is not null);
                                 // Could not find an implementation of the query pattern for source type '{0}'.  '{1}' not found.
                                 diagnostics.Add(ErrorCode.ERR_QueryNoProvider, node.Location, receiverOpt.Type, memberSymbol.Name);
                             }
@@ -2650,7 +2650,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         else if (node.Kind() == SyntaxKind.AwaitExpression && memberSymbol.Name == WellKnownMemberNames.GetAwaiter)
                         {
-                            RoslynDebug.Assert(receiverOpt.Type is object);
+                            RoslynDebug.Assert(receiverOpt.Type is not null);
                             diagnostics.Add(ErrorCode.ERR_BadAwaitArg, node.Location, receiverOpt.Type);
                         }
                         else
@@ -2691,7 +2691,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var containingType = this.ContainingType;
-            if (containingType is object)
+            if (containingType is not null)
             {
                 CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
                 bool isAccessible = this.IsSymbolAccessibleConditional(memberSymbol.GetTypeOrReturnType().Type, containingType, ref useSiteInfo);
@@ -2948,7 +2948,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;
             Debug.Assert(Conversions.IsAssignableFromMulticastDelegate(delegateOrFuncPtrType, ref discardedUseSiteInfo) || delegateOrFuncPtrType.TypeKind == TypeKind.Delegate || delegateOrFuncPtrType.TypeKind == TypeKind.FunctionPointer);
-            Debug.Assert(conversion.Method is object);
+            Debug.Assert(conversion.Method is not null);
             MethodSymbol selectedMethod = conversion.Method;
 
             if (!Conversions.IsAssignableFromMulticastDelegate(delegateOrFuncPtrType, ref discardedUseSiteInfo))
@@ -2968,7 +2968,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var sourceMethod = selectedMethod.OriginalDefinition as SourceOrdinaryMethodSymbol;
-            if (sourceMethod is object && sourceMethod.IsPartialWithoutImplementation)
+            if (sourceMethod is not null && sourceMethod.IsPartialWithoutImplementation)
             {
                 // CS0762: Cannot create delegate from method '{0}' because it is a partial method without an implementing declaration
                 Error(diagnostics, ErrorCode.ERR_PartialMethodToDelegate, syntax.Location, selectedMethod);

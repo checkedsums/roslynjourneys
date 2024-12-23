@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
         public TypeParameterSymbol(Symbols.TypeParameterSymbol underlying, CodeAnalysis.NullableAnnotation nullableAnnotation)
             : base(nullableAnnotation)
         {
-            Debug.Assert(underlying is object);
+            Debug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

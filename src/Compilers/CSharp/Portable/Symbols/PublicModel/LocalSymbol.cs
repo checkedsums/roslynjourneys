@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         public LocalSymbol(Symbols.LocalSymbol underlying)
         {
-            Debug.Assert(underlying is object);
+            Debug.Assert(underlying is not null);
             _underlying = underlying;
         }
 

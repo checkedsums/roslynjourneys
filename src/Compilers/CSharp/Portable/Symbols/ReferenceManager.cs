@@ -91,7 +91,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 var result = new AssemblyDataForCompilation(csReference.Compilation, csReference.Properties.EmbedInteropTypes);
-                Debug.Assert(csReference.Compilation._lazyAssemblySymbol is object);
+                Debug.Assert(csReference.Compilation._lazyAssemblySymbol is not null);
                 return result;
             }
 
@@ -210,7 +210,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 AssertBound();
-                Debug.Assert(compilation._lazyAssemblySymbol is object);
+                Debug.Assert(compilation._lazyAssemblySymbol is not null);
             }
 
             /// <summary>
@@ -258,7 +258,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 var assembly = metadata.GetAssembly();
-                Debug.Assert(assembly is object);
+                Debug.Assert(assembly is not null);
                 var peReferences = assembly.AssemblyReferences.SelectAsArray(MapAssemblyIdentityToResolvedSymbol, referencedAssembliesByIdentity);
 
                 assemblyReferenceIdentityMap = GetAssemblyReferenceIdentityBaselineMap(peReferences, assembly.AssemblyReferences);
@@ -569,8 +569,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 foreach (int i in newSymbols)
                 {
                     ref BoundInputAssembly currentBindingResult = ref bindingResult[i];
-                    Debug.Assert(currentBindingResult.AssemblySymbol is object);
-                    Debug.Assert(currentBindingResult.ReferenceBinding is object);
+                    Debug.Assert(currentBindingResult.AssemblySymbol is not null);
+                    Debug.Assert(currentBindingResult.ReferenceBinding is not null);
 
                     if (assemblies[i].ContainsNoPiaLocalTypes)
                     {
@@ -591,7 +591,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             assemblies[referenceBinding.DefinitionIndex].IsLinked)
                         {
                             var linkedAssemblySymbol = bindingResult[referenceBinding.DefinitionIndex].AssemblySymbol;
-                            Debug.Assert(linkedAssemblySymbol is object);
+                            Debug.Assert(linkedAssemblySymbol is not null);
                             linkedReferencedAssembliesBuilder.Add(linkedAssemblySymbol);
                         }
                     }
@@ -622,7 +622,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 foreach (int i in newSymbols)
                 {
                     ref BoundInputAssembly current = ref bindingResult[i];
-                    Debug.Assert(current.AssemblySymbol is object);
+                    Debug.Assert(current.AssemblySymbol is not null);
 
                     var compilationData = assemblies[i] as AssemblyDataForCompilation;
                     if (compilationData != null)
@@ -643,8 +643,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 ref Dictionary<AssemblyIdentity, MissingAssemblySymbol>? missingAssemblies,
                 SourceAssemblySymbol sourceAssemblyDebugOnly)
             {
-                Debug.Assert(currentBindingResult.AssemblySymbol is object);
-                Debug.Assert(currentBindingResult.ReferenceBinding is object);
+                Debug.Assert(currentBindingResult.AssemblySymbol is not null);
+                Debug.Assert(currentBindingResult.ReferenceBinding is not null);
                 var retargetingAssemblySymbol = (RetargetingAssemblySymbol)currentBindingResult.AssemblySymbol;
                 ImmutableArray<ModuleSymbol> modules = retargetingAssemblySymbol.Modules;
                 int moduleCount = modules.Length;
@@ -720,8 +720,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 ref Dictionary<AssemblyIdentity, MissingAssemblySymbol>? missingAssemblies,
                 SourceAssemblySymbol sourceAssemblyDebugOnly)
             {
-                Debug.Assert(currentBindingResult.AssemblySymbol is object);
-                Debug.Assert(currentBindingResult.ReferenceBinding is object);
+                Debug.Assert(currentBindingResult.AssemblySymbol is not null);
+                Debug.Assert(currentBindingResult.ReferenceBinding is not null);
                 var portableExecutableAssemblySymbol = (PEAssemblySymbol)currentBindingResult.AssemblySymbol;
 
                 ImmutableArray<ModuleSymbol> modules = portableExecutableAssemblySymbol.Modules;
@@ -782,9 +782,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     for (int k = 0; k < refsCount; k++)
                     {
-                        Debug.Assert(bindingResult[0].ReferenceBinding is object);
+                        Debug.Assert(bindingResult[0].ReferenceBinding is not null);
                         var boundReference = bindingResult[0].ReferenceBinding![refsUsed + k];
-                        Debug.Assert(boundReference.ReferenceIdentity is object);
+                        Debug.Assert(boundReference.ReferenceIdentity is not null);
 
                         if (boundReference.IsBound)
                         {
@@ -822,9 +822,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 ref ArrayBuilder<UnifiedAssembly<AssemblySymbol>>? unifiedAssemblies)
             {
                 Debug.Assert(referenceBinding.IsBound);
-                Debug.Assert(referenceBinding.ReferenceIdentity is object);
+                Debug.Assert(referenceBinding.ReferenceIdentity is not null);
                 var assembly = bindingResult[referenceBinding.DefinitionIndex].AssemblySymbol;
-                Debug.Assert(assembly is object);
+                Debug.Assert(assembly is not null);
 
                 if (referenceBinding.VersionDifference != 0)
                 {
@@ -1151,7 +1151,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var retargeting = candidateAssembly as RetargetingAssemblySymbol;
                     AssemblySymbol? asm;
 
-                    if (retargeting is object)
+                    if (retargeting is not null)
                     {
                         asm = retargeting.UnderlyingAssembly;
                     }
@@ -1189,7 +1189,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             /// </summary>
             internal static bool IsSourceAssemblySymbolCreated(CSharpCompilation compilation)
             {
-                return compilation._lazyAssemblySymbol is object;
+                return compilation._lazyAssemblySymbol is not null;
             }
 
             /// <summary>

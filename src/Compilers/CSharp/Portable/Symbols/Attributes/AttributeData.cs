@@ -109,7 +109,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // NOTE:    We will follow the specification.
                 // NOTE:    See Devdiv Bug #13762 "Custom security attributes deriving from SecurityAttribute are not treated as security attributes" for details.
 
-                if (AttributeClass is object)
+                if (AttributeClass is not null)
                 {
                     // Well-known type SecurityAttribute is optional.
                     // Native compiler doesn't generate a use-site error if it is not found, we do the same.
@@ -134,7 +134,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// <returns>A <see cref="System.String"/> that represents the current AttributeData.</returns>
         public override string? ToString()
         {
-            if (this.AttributeClass is object)
+            if (this.AttributeClass is not null)
             {
                 string className = this.AttributeClass.ToDisplayString(SymbolDisplayFormat.TestFormat);
 
@@ -244,7 +244,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             arguments.GetOrCreateData<T>().HasSkipLocalsInitAttribute = true;
             if (!compilation.Options.AllowUnsafe)
             {
-                Debug.Assert(arguments.AttributeSyntaxOpt is object);
+                Debug.Assert(arguments.AttributeSyntaxOpt is not null);
                 ((BindingDiagnosticBag)arguments.Diagnostics).Add(ErrorCode.ERR_IllegalUnsafe, arguments.AttributeSyntaxOpt.Location);
             }
         }
@@ -261,7 +261,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (value.Kind != TypedConstantKind.Array)
             {
                 string? memberName = value.DecodeValue<string>(SpecialType.System_String);
-                if (memberName is object)
+                if (memberName is not null)
                 {
                     arguments.GetOrCreateData<T>().AddNotNullMember(memberName);
                     ReportBadNotNullMemberIfNeeded(type, arguments, memberName);
@@ -273,7 +273,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 foreach (var member in value.Values)
                 {
                     var memberName = member.DecodeValue<string>(SpecialType.System_String);
-                    if (memberName is object)
+                    if (memberName is not null)
                     {
                         builder.Add(memberName);
                         ReportBadNotNullMemberIfNeeded(type, arguments, memberName);
@@ -295,7 +295,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            Debug.Assert(arguments.AttributeSyntaxOpt is object);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
             ((BindingDiagnosticBag)arguments.Diagnostics).Add(ErrorCode.WRN_MemberNotNullBadMember, arguments.AttributeSyntaxOpt.Location, memberName);
         }
 
@@ -312,7 +312,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (value.Kind != TypedConstantKind.Array)
             {
                 var memberName = value.DecodeValue<string>(SpecialType.System_String);
-                if (memberName is object)
+                if (memberName is not null)
                 {
                     arguments.GetOrCreateData<T>().AddNotNullWhenMember(sense, memberName);
                     ReportBadNotNullMemberIfNeeded(type, arguments, memberName);
@@ -324,7 +324,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 foreach (var member in value.Values)
                 {
                     var memberName = member.DecodeValue<string>(SpecialType.System_String);
-                    if (memberName is object)
+                    if (memberName is not null)
                     {
                         builder.Add(memberName);
                         ReportBadNotNullMemberIfNeeded(type, arguments, memberName);
@@ -367,7 +367,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 TypedConstant firstArg = ctorArgs.First();
                 var firstArgType = (TypeSymbol?)firstArg.TypeInternal;
-                if (firstArgType is object && firstArgType.Equals(compilation.GetWellKnownType(WellKnownType.System_Security_Permissions_SecurityAction)))
+                if (firstArgType is not null && firstArgType.Equals(compilation.GetWellKnownType(WellKnownType.System_Security_Permissions_SecurityAction)))
                 {
                     return DecodeSecurityAction(firstArg, targetSymbol, nodeOpt, diagnostics, out hasErrors);
                 }
@@ -383,7 +383,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert((object)targetSymbol != null);
             Debug.Assert(targetSymbol.Kind == SymbolKind.Assembly || targetSymbol.Kind == SymbolKind.NamedType || targetSymbol.Kind == SymbolKind.Method);
-            Debug.Assert(typedValue.ValueInternal is object);
+            Debug.Assert(typedValue.ValueInternal is not null);
 
             int securityAction = (int)typedValue.ValueInternal;
             bool isPermissionRequestAction;
@@ -515,7 +515,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (namedArgs.Length == 1)
             {
                 var namedArg = namedArgs[0];
-                Debug.Assert(AttributeClass is object);
+                Debug.Assert(AttributeClass is not null);
                 NamedTypeSymbol attrType = this.AttributeClass;
                 string filePropName = PermissionSetAttributeWithFileReference.FilePropertyName;
                 string hexPropName = PermissionSetAttributeWithFileReference.HexPropertyName;
@@ -648,7 +648,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private protected sealed override bool IsStringProperty(string memberName)
         {
-            if (AttributeClass is object)
+            if (AttributeClass is not null)
             {
                 foreach (var member in AttributeClass.GetMembers(memberName))
                 {

@@ -175,7 +175,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                 }
 
-                if (Interlocked.CompareExchange(ref _lazyWellKnownTypes[index], result, null) is object)
+                if (Interlocked.CompareExchange(ref _lazyWellKnownTypes[index], result, null) is not null)
                 {
                     Debug.Assert(
                         TypeSymbol.Equals(result, _lazyWellKnownTypes[index], TypeCompareKind.ConsiderEverything2) || (_lazyWellKnownTypes[index]!.IsErrorType() && result.IsErrorType())
@@ -293,7 +293,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 if (member.Kind != targetSymbolKind || member.IsStatic != isStatic ||
-                    !(member.DeclaredAccessibility == Accessibility.Public || (accessWithinOpt is object && Symbol.IsSymbolAccessible(member, accessWithinOpt))))
+                    !(member.DeclaredAccessibility == Accessibility.Public || (accessWithinOpt is not null && Symbol.IsSymbolAccessible(member, accessWithinOpt))))
                 {
                     continue;
                 }
@@ -354,7 +354,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 // ambiguity
-                if (result is object)
+                if (result is not null)
                 {
                     result = null;
                     break;

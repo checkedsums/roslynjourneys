@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     int leadingWidthAlreadyCounted = node.IsToken ? node.GetLeadingTriviaWidth() : 0;
 
                     // don't produce locations outside of tree span
-                    Debug.Assert(_syntaxTree is object);
+                    Debug.Assert(_syntaxTree is not null);
                     var length = _syntaxTree.GetRoot().FullSpan.Length;
                     var spanStart = Math.Min(_position - leadingWidthAlreadyCounted + sdi.Offset, length);
                     var spanWidth = Math.Min(spanStart + sdi.Width, length) - spanStart;
@@ -108,7 +108,7 @@ tryAgain:
         /// </summary>
         public Diagnostic Current
         {
-            get { Debug.Assert(_current is object); return _current; }
+            get { Debug.Assert(_current is not null); return _current; }
         }
 
         private struct NodeIteration

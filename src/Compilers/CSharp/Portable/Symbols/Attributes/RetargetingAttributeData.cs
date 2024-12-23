@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments)
         {
             Debug.Assert(underlying is SourceAttributeData or SynthesizedAttributeData);
-            Debug.Assert(attributeClass is object || underlying.HasErrors);
+            Debug.Assert(attributeClass is not null || underlying.HasErrors);
 
             _underlying = underlying;
             _attributeClass = attributeClass;
@@ -51,7 +51,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                Debug.Assert(AttributeClass is object || _underlying.HasErrors);
+                Debug.Assert(AttributeClass is not null || _underlying.HasErrors);
 
                 if (_underlying.HasErrors)
                 {

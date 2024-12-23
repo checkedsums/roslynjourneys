@@ -346,7 +346,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         }
 
                         // Report a conflict between global using aliases and extern aliases from other compilation units
-                        if (haveExternAliases && mergedAliases is object)
+                        if (haveExternAliases && mergedAliases is not null)
                         {
                             foreach (var singleDeclaration in _mergedDeclaration.Declarations)
                             {
@@ -738,7 +738,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             }
 
                             var directiveDiagnostics = BindingDiagnosticBag.GetInstance();
-                            Debug.Assert(directiveDiagnostics.DiagnosticBag is object);
+                            Debug.Assert(directiveDiagnostics.DiagnosticBag is not null);
                             Debug.Assert(directiveDiagnostics.DependenciesBag is object);
 
                             declarationBinder ??= compilation.GetBinderFactory(declarationSyntax.SyntaxTree).GetBinder(usingDirective.NamespaceOrType).WithAdditionalFlags(flags);
@@ -945,10 +945,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 // Check constraints within named aliases.
                 var diagnostics = BindingDiagnosticBag.GetInstance();
-                Debug.Assert(diagnostics.DiagnosticBag is object);
+                Debug.Assert(diagnostics.DiagnosticBag is not null);
                 Debug.Assert(diagnostics.DependenciesBag is object);
 
-                if (usingsAndDiagnostics.UsingAliasesMap is object)
+                if (usingsAndDiagnostics.UsingAliasesMap is not null)
                 {
                     // Force resolution of named aliases.
                     foreach (var (_, alias) in usingsAndDiagnostics.UsingAliasesMap)

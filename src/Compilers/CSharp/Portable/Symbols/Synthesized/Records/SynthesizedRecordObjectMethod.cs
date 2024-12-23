@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var overridden = overriding.OverriddenMethod?.OriginalDefinition;
 
-                if (overridden is object && !(overridden.ContainingType is SourceMemberContainerTypeSymbol { IsRecord: true } && overridden.ContainingModule == overriding.ContainingModule))
+                if (overridden is not null && !(overridden.ContainingType is SourceMemberContainerTypeSymbol { IsRecord: true } && overridden.ContainingModule == overriding.ContainingModule))
                 {
                     MethodSymbol leastOverridden = overriding.GetLeastOverriddenMethod(accessingTypeOpt: null);
 

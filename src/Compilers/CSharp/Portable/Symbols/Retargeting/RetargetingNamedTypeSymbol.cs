@@ -400,7 +400,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
                 var newBody = this.RetargetingTranslator.Retarget(body, MemberSignatureComparer.RetargetedExplicitImplementationComparer);
                 var newImplemented = this.RetargetingTranslator.Retarget(implemented, MemberSignatureComparer.RetargetedExplicitImplementationComparer);
 
-                if (newBody is object && newImplemented is object)
+                if (newBody is not null && newImplemented is not null)
                 {
                     yield return (newBody, newImplemented);
                 }

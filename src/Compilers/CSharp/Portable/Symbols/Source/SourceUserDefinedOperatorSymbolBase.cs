@@ -259,7 +259,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected sealed override MethodSymbol FindExplicitlyImplementedMethod(BindingDiagnosticBag diagnostics)
         {
-            if (_explicitInterfaceType is object)
+            if (_explicitInterfaceType is not null)
             {
                 string interfaceMethodName;
                 ExplicitInterfaceSpecifierSyntax explicitInterfaceSpecifier;

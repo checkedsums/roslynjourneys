@@ -761,7 +761,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             state.fromExpression = MakeQueryClause(let, invocation, y, invocation);
         }
 
-        private BoundBlock CreateLambdaBlockForQueryClause(ExpressionSyntax expression, BoundExpression result, BindingDiagnosticBag diagnostics) 
+        private BoundBlock CreateLambdaBlockForQueryClause(ExpressionSyntax expression, BoundExpression result, BindingDiagnosticBag diagnostics)
             => this.CreateBlockFromExpression(expression, this.GetDeclaredLocalsForScope(expression), RefKind.None, result, expression, diagnostics);
 
         private BoundQueryClause MakeQueryClause(
@@ -889,7 +889,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 ultimateReceiver = ((BoundQueryClause)ultimateReceiver).Value;
             }
-            Debug.Assert(receiver.Type is object || ultimateReceiver.Type is null);
+            Debug.Assert(receiver.Type is not null || ultimateReceiver.Type is null);
             if ((object?)ultimateReceiver.Type == null)
             {
                 if (ultimateReceiver.HasAnyErrors || node.HasErrors)

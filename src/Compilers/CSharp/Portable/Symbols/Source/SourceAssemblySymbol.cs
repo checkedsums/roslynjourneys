@@ -2215,7 +2215,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             UseSiteInfo<AssemblySymbol> useSiteInfo = forwardedType.GetUseSiteInfo();
             if (useSiteInfo.DiagnosticInfo?.Code != (int)ErrorCode.ERR_UnexpectedUnboundGenericName &&
-                diagnostics.Add(useSiteInfo, useSiteInfo.DiagnosticInfo is object ? GetAssemblyAttributeLocationForDiagnostic(arguments.AttributeSyntaxOpt) : Location.None))
+                diagnostics.Add(useSiteInfo, useSiteInfo.DiagnosticInfo is not null ? GetAssemblyAttributeLocationForDiagnostic(arguments.AttributeSyntaxOpt) : Location.None))
             {
                 return;
             }
