@@ -974,9 +974,7 @@ internal static class UseCollectionExpressionHelpers
                 // Runtime needs to support inline arrays in order for this to be ok.  Otherwise compiler will change the
                 // stack alloc to a heap alloc, which could be very bad for user perf.
 
-                if (arguments.Count == 1 &&
-                    compilation.SupportsRuntimeCapability(RuntimeCapability.InlineArrayTypes) &&
-                    originalCreateMethod.Parameters is [
+                if (arguments.Count == 1 && originalCreateMethod.Parameters is [
                     {
                         Type: INamedTypeSymbol
                         {

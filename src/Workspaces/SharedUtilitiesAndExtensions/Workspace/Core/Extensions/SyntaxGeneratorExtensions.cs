@@ -438,11 +438,8 @@ internal static partial class SyntaxGeneratorExtensions
             fieldAccess,
             factory.CoalesceExpression(
                 factory.IdentifierName(parameter.Name),
-                factory.CreateThrowArgumentNullExpression(compilation, parameter))));
+                factory.ThrowExpression(CreateNewArgumentNullException(factory, compilation, parameter)))));
     }
-
-    public static SyntaxNode CreateThrowArgumentNullExpression(this SyntaxGenerator factory, Compilation compilation, IParameterSymbol parameter)
-        => factory.ThrowExpression(CreateNewArgumentNullException(factory, compilation, parameter));
 
     private static SyntaxNode CreateNewArgumentNullException(SyntaxGenerator factory, Compilation compilation, IParameterSymbol parameter)
     {
@@ -459,21 +456,17 @@ internal static partial class SyntaxGeneratorExtensions
         SemanticModel semanticModel,
         IParameterSymbol parameter)
     {
-        var condition = factory.CreateNullCheckExpression(generatorInternal, semanticModel, parameter.Name);
+        var condition = factory.CreateNullCheckExpression(generatorInternal, parameter.Name);
         var throwStatement = factory.CreateThrowArgumentNullExceptionStatement(semanticModel.Compilation, parameter);
 
         // generates: if (s is null) { throw new ArgumentNullException(nameof(s)); }
         return factory.IfStatement(condition, [throwStatement]);
     }
-    public static SyntaxNode CreateNullCheckExpression(
-        this SyntaxGenerator factory, SyntaxGeneratorInternal generatorInternal, SemanticModel semanticModel, string identifierName)
+    public static SyntaxNode CreateNullCheckExpression(this SyntaxGenerator factory, SyntaxGeneratorInternal generatorInternal, string identifierName)
     {
         var identifier = factory.IdentifierName(identifierName);
         var nullExpr = factory.NullLiteralExpression();
-        var condition = generatorInternal.SupportsPatterns(semanticModel.SyntaxTree.Options)
-            ? generatorInternal.IsPatternExpression(identifier, generatorInternal.ConstantPattern(nullExpr))
-            : factory.ReferenceEqualsExpression(identifier, nullExpr);
-        return condition;
+        return generatorInternal.IsPatternExpression(identifier, generatorInternal.ConstantPattern(nullExpr));
     }
 
     public static SyntaxNode CreateThrowArgumentNullExceptionStatement(this SyntaxGenerator factory, Compilation compilation, IParameterSymbol parameter)

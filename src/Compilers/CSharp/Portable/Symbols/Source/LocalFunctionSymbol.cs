@@ -48,7 +48,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             _declarationModifiers =
                 DeclarationModifiers.Private |
-                syntax.Modifiers.ToDeclarationModifiers(isForTypeDeclaration: false, diagnostics: _declarationDiagnostics);
+                syntax.Modifiers.ToDeclarationModifiers(diagnostics: _declarationDiagnostics);
 
             var diagnostics = BindingDiagnosticBag.GetInstance();
             Debug.Assert(diagnostics.DiagnosticBag is { });
@@ -74,11 +74,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (IsExtensionMethod)
             {
                 _declarationDiagnostics.Add(ErrorCode.ERR_BadExtensionAgg, GetFirstLocation());
-            }
-
-            foreach (var param in syntax.ParameterList.Parameters)
-            {
-                ReportAttributesDisallowed(param.AttributeLists, diagnostics);
             }
 
             syntax.ReturnType.SkipRefInLocalOrReturn(diagnostics, out _refKind);
@@ -263,13 +258,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     compilation.EnsureIsReadOnlyAttributeExists(diagnostics, location ??= returnTypeSyntax.Location, modifyCompilation: false);
                 }
 
-                if (compilation.ShouldEmitNativeIntegerAttributes(returnType.Type))
+                if (returnType.Type.ContainsNativeIntegerWrapperType())
                 {
                     compilation.EnsureNativeIntegerAttributeExists(diagnostics, location ??= returnTypeSyntax.Location, modifyCompilation: false);
                 }
 
-                if (compilation.ShouldEmitNullableAttributes(this) &&
-                    returnType.NeedsNullableAttribute())
+                if (compilation.ShouldEmitNullableAttributes(this))
                 {
                     compilation.EnsureNullableAttributeExists(diagnostics, location ??= returnTypeSyntax.Location, modifyCompilation: false);
                     // Note: we don't need to warn on annotations used in #nullable disable context for local functions, as this is handled in binding already
@@ -392,18 +386,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return true;
         }
 
-        private void ReportAttributesDisallowed(SyntaxList<AttributeListSyntax> attributes, BindingDiagnosticBag diagnostics)
-        {
-            var diagnosticInfo = MessageID.IDS_FeatureLocalFunctionAttributes.GetFeatureAvailabilityDiagnosticInfo((CSharpParseOptions)syntaxReferenceOpt.SyntaxTree.Options);
-            if (diagnosticInfo is object)
-            {
-                foreach (var attrList in attributes)
-                {
-                    diagnostics.Add(diagnosticInfo, attrList.Location);
-                }
-            }
-        }
-
         private ImmutableArray<SourceMethodTypeParameterSymbol> MakeTypeParameters(BindingDiagnosticBag diagnostics)
         {
             var result = ArrayBuilder<SourceMethodTypeParameterSymbol>.GetInstance();
@@ -415,8 +397,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     diagnostics.Add(ErrorCode.ERR_IllegalVarianceSyntax, parameter.VarianceKeyword.GetLocation());
                 }
-
-                ReportAttributesDisallowed(parameter.AttributeLists, diagnostics);
 
                 var identifier = parameter.Identifier;
                 var location = identifier.GetLocation();
@@ -431,10 +411,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
                 }
 
-                SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, this.DeclaringCompilation, diagnostics.DiagnosticBag, location);
-
                 var tpEnclosing = ContainingSymbol.FindEnclosingTypeParameter(name);
-                if ((object?)tpEnclosing != null)
+                if (tpEnclosing is not null)
                 {
                     ErrorCode typeError;
                     if (tpEnclosing.ContainingSymbol.Kind == SymbolKind.Method)
@@ -512,8 +490,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             return _lazyTypeParameterConstraintKinds;
         }
-
-        internal override bool IsNullableAnalysisEnabled() => throw ExceptionUtilities.Unreachable();
 
         public override int GetHashCode()
         {

@@ -230,8 +230,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 binder = new TypeofBinder(expression, binder);
             }
 
-            binder = new WithNullableContextBinder(SyntaxTree, position, binder);
-
             return new ExecutableCodeBinder(expression, binder.ContainingMemberOrLambda, binder).GetBinder(expression);
         }
 
@@ -5434,35 +5432,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected sealed override bool IsEventUsableAsFieldCore(int position, IEventSymbol symbol)
         {
             return this.IsEventUsableAsField(position, symbol.EnsureCSharpSymbolOrNull(nameof(symbol)));
-        }
-
-        public sealed override NullableContext GetNullableContext(int position)
-        {
-            var syntaxTree = (CSharpSyntaxTree)Root.SyntaxTree;
-
-            NullableContextOptions? lazyDefaultState = null;
-            NullableContextState contextState = syntaxTree.GetNullableContextState(position);
-
-            return contextState.AnnotationsState switch
-            {
-                NullableContextState.State.Enabled => NullableContext.AnnotationsEnabled,
-                NullableContextState.State.Disabled => NullableContext.Disabled,
-                _ when getDefaultState().AnnotationsEnabled() => NullableContext.AnnotationsContextInherited | NullableContext.AnnotationsEnabled,
-                _ => NullableContext.AnnotationsContextInherited,
-            }
-            | contextState.WarningsState switch
-            {
-                NullableContextState.State.Enabled => NullableContext.WarningsEnabled,
-                NullableContextState.State.Disabled => NullableContext.Disabled,
-                _ when getDefaultState().WarningsEnabled() => NullableContext.WarningsContextInherited | NullableContext.WarningsEnabled,
-                _ => NullableContext.WarningsContextInherited,
-            };
-
-            // IsGeneratedCode might be slow, only call it when needed:
-            NullableContextOptions getDefaultState()
-                => lazyDefaultState ??= syntaxTree.IsGeneratedCode(Compilation.Options.SyntaxTreeOptionsProvider, CancellationToken.None)
-                    ? NullableContextOptions.Disable
-                    : Compilation.Options.NullableContextOptions;
         }
 
         #endregion

@@ -34,12 +34,8 @@ internal sealed class ConvertToTopLevelStatementsDiagnosticAnalyzer : AbstractBu
     {
         context.RegisterCompilationStartAction(context =>
         {
-            // can only suggest moving to top level statement on c# 9 or above.
-            if (context.Compilation.LanguageVersion() < LanguageVersion.CSharp9 ||
-                !IsApplication(context.Compilation))
-            {
+            if (!IsApplication(context.Compilation))
                 return;
-            }
 
             context.RegisterSyntaxNodeAction(ProcessCompilationUnit, SyntaxKind.CompilationUnit);
         });
@@ -76,9 +72,8 @@ internal sealed class ConvertToTopLevelStatementsDiagnosticAnalyzer : AbstractBu
                         this.Descriptor,
                         GetUseTopLevelStatementsDiagnosticLocation(
                             methodDeclaration, isHidden: option.Notification.Severity.WithDefaultSeverity(DiagnosticSeverity.Hidden) == ReportDiagnostic.Hidden),
-                        option.Notification,
-                        context.Options,
-                        ImmutableArray.Create(methodDeclaration.GetLocation()),
+                        option.Notification, context.Options,
+                        [methodDeclaration.GetLocation()],
                         ImmutableDictionary<string, string?>.Empty));
                 }
 

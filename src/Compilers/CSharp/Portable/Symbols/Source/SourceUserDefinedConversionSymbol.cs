@@ -17,7 +17,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             SourceMemberContainerTypeSymbol containingType,
             Binder bodyBinder,
             ConversionOperatorDeclarationSyntax syntax,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics)
         {
             // Dev11 includes the explicit/implicit keyword, but we don't have a good way to include
@@ -25,26 +24,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var location = syntax.Type.Location;
             string name = OperatorFacts.OperatorNameFromDeclaration(syntax);
 
-            if (name == WellKnownMemberNames.CheckedExplicitConversionName)
-            {
-                MessageID.IDS_FeatureCheckedUserDefinedOperators.CheckFeatureAvailability(diagnostics, syntax.CheckedKeyword);
-            }
-            else if (syntax.CheckedKeyword.IsKind(SyntaxKind.CheckedKeyword))
+            if (name != WellKnownMemberNames.CheckedExplicitConversionName && syntax.CheckedKeyword.IsKind(SyntaxKind.CheckedKeyword))
             {
                 diagnostics.Add(ErrorCode.ERR_ImplicitConversionOperatorCantBeChecked, syntax.CheckedKeyword.GetLocation());
             }
 
             var interfaceSpecifier = syntax.ExplicitInterfaceSpecifier;
 
-            TypeSymbol explicitInterfaceType;
-            name = ExplicitInterfaceHelpers.GetMemberNameAndInterfaceSymbol(bodyBinder, interfaceSpecifier, name, diagnostics, out explicitInterfaceType, aliasQualifierOpt: out _);
+            name = ExplicitInterfaceHelpers.GetMemberNameAndInterfaceSymbol(bodyBinder, interfaceSpecifier, name, diagnostics, out TypeSymbol explicitInterfaceType, aliasQualifierOpt: out _);
 
             var methodKind = interfaceSpecifier == null
                 ? MethodKind.Conversion
                 : MethodKind.ExplicitInterfaceImplementation;
 
             return new SourceUserDefinedConversionSymbol(
-                methodKind, containingType, explicitInterfaceType, name, location, syntax, isNullableAnalysisEnabled, diagnostics);
+                methodKind, containingType, explicitInterfaceType, name, location, syntax, diagnostics);
         }
 
         // NOTE: no need to call WithUnsafeRegionIfNecessary, since the signature
@@ -57,7 +51,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             string name,
             Location location,
             ConversionOperatorDeclarationSyntax syntax,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics) :
             base(
                 methodKind,
@@ -70,7 +63,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasAnyBody: syntax.HasAnyBody(),
                 isExpressionBodied: syntax.IsExpressionBodied(),
                 isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
-                isNullableAnalysisEnabled: isNullableAnalysisEnabled,
                 diagnostics)
         {
             CheckForBlockAndExpressionBody(
@@ -80,14 +72,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 diagnostics.Add(ErrorCode.ERR_OvlUnaryOperatorExpected, syntax.ParameterList.GetLocation());
             }
-
-            if (IsStatic && (IsAbstract || IsVirtual))
-            {
-                CheckFeatureAvailabilityAndRuntimeSupport(syntax, location, hasBody: syntax.Body != null || syntax.ExpressionBody != null, diagnostics: diagnostics);
-            }
-
-            if (syntax.ExplicitInterfaceSpecifier != null)
-                MessageID.IDS_FeatureStaticAbstractMembersInInterfaces.CheckFeatureAvailability(diagnostics, syntax.ExplicitInterfaceSpecifier);
         }
 
         internal ConversionOperatorDeclarationSyntax GetSyntax()

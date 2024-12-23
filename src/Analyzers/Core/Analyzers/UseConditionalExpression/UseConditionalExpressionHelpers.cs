@@ -76,9 +76,7 @@ internal static partial class UseConditionalExpressionHelpers
         return false;
     }
 
-    public static bool HasInconvertibleThrowStatement(
-        ISyntaxFacts syntaxFacts, bool isRef,
-        IThrowOperation? trueThrow, IThrowOperation? falseThrow)
+    public static bool HasInconvertibleThrowStatement(bool isRef, IThrowOperation? trueThrow, IThrowOperation? falseThrow)
     {
         // Can't convert to `x ? throw ... : throw ...` as there's no best common type between the two (even when
         // throwing the same exception type).
@@ -87,16 +85,8 @@ internal static partial class UseConditionalExpressionHelpers
 
         var anyThrow = trueThrow ?? falseThrow;
 
-        if (anyThrow != null)
-        {
-            // can only convert to a conditional expression if the lang supports throw-exprs.
-            if (!syntaxFacts.SupportsThrowExpression(anyThrow.Syntax.SyntaxTree.Options))
-                return true;
-
-            // `ref` can't be used with `throw`.
-            if (isRef)
-                return true;
-        }
+        if (anyThrow != null && isRef)
+            return true;
 
         return false;
     }

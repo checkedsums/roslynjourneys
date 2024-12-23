@@ -46,14 +46,12 @@ internal sealed partial class CSharpAsAndNullCheckCodeFixProvider() : SyntaxEdit
         var tree = await document.GetRequiredSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
         var semanticModel = await document.GetRequiredSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 
-        var languageVersion = tree.Options.LanguageVersion();
-
         foreach (var diagnostic in diagnostics)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             if (declaratorLocations.Add(diagnostic.AdditionalLocations[0]))
-                AddEdits(editor, semanticModel, diagnostic, languageVersion, RemoveStatement, cancellationToken);
+                AddEdits(editor, semanticModel, diagnostic, RemoveStatement, cancellationToken);
         }
 
         foreach (var parentScope in statementParentScopes)
@@ -83,7 +81,6 @@ internal sealed partial class CSharpAsAndNullCheckCodeFixProvider() : SyntaxEdit
         SyntaxEditor editor,
         SemanticModel semanticModel,
         Diagnostic diagnostic,
-        LanguageVersion languageVersion,
         Action<StatementSyntax> removeStatement,
         CancellationToken cancellationToken)
     {
@@ -105,7 +102,7 @@ internal sealed partial class CSharpAsAndNullCheckCodeFixProvider() : SyntaxEdit
             GetPatternType().WithoutTrivia().WithTrailingTrivia(ElasticMarker),
             SingleVariableDesignation(newIdentifier));
 
-        var condition = GetCondition(languageVersion, comparison, asExpression, declarationPattern);
+        var condition = GetCondition(comparison, asExpression, declarationPattern);
 
         if (declarator.Parent is VariableDeclarationSyntax declaration &&
             declaration.Parent is LocalDeclarationStatementSyntax localDeclaration &&
@@ -158,7 +155,6 @@ internal sealed partial class CSharpAsAndNullCheckCodeFixProvider() : SyntaxEdit
     }
 
     private static ExpressionSyntax GetCondition(
-        LanguageVersion languageVersion,
         ExpressionSyntax comparison,
         BinaryExpressionSyntax asExpression,
         DeclarationPatternSyntax declarationPattern)
@@ -169,14 +165,7 @@ internal sealed partial class CSharpAsAndNullCheckCodeFixProvider() : SyntaxEdit
         if (comparison.Kind() is not (SyntaxKind.EqualsExpression or SyntaxKind.IsPatternExpression))
             return isPatternExpression;
 
-        if (languageVersion >= LanguageVersion.CSharp9)
-        {
-            // In C# 9 and higher, convert to `x is not string s`.
-            return isPatternExpression.WithPattern(
-                UnaryPattern(NotKeyword, isPatternExpression.Pattern));
-        }
-
-        // In C# 8 and lower, convert to `!(x is string s)`
-        return PrefixUnaryExpression(SyntaxKind.LogicalNotExpression, isPatternExpression.Parenthesize());
+        return isPatternExpression.WithPattern(
+            UnaryPattern(NotKeyword, isPatternExpression.Pattern));
     }
 }

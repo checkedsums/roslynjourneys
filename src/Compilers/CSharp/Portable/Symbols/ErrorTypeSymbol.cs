@@ -540,8 +540,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get { throw ExceptionUtilities.Unreachable(); }
         }
 
-        internal override NamedTypeSymbol AsNativeInteger() => throw ExceptionUtilities.Unreachable();
-
         internal override NamedTypeSymbol? NativeIntegerUnderlyingType => null;
 
         protected sealed override ISymbol CreateISymbol()

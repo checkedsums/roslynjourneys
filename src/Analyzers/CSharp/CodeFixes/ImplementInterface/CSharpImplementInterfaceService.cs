@@ -36,7 +36,7 @@ internal sealed class CSharpImplementInterfaceService() : AbstractImplementInter
         => SymbolDisplay.ToDisplayString(disposeImplMethod, format);
 
     protected override bool AllowDelegateAndEnumConstraints(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp7_3;
+        => true;
 
     protected override bool TryInitializeState(
         Document document, SemanticModel model, SyntaxNode node, CancellationToken cancellationToken,

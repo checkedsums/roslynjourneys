@@ -60,7 +60,7 @@ internal abstract class AbstractCSharpSimplifier<TSyntax, TSimplifiedSyntax>
         if (kind != SyntaxKind.None)
             return SyntaxFactory.Token(kind);
 
-        if (specialType is SpecialType.System_IntPtr or SpecialType.System_UIntPtr && semanticModel.UnifiesNativeIntegers())
+        if (specialType is SpecialType.System_IntPtr or SpecialType.System_UIntPtr)
             return SyntaxFactory.Identifier(specialType == SpecialType.System_IntPtr ? "nint" : "nuint");
 
         return null;

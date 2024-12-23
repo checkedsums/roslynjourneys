@@ -185,8 +185,7 @@ internal static class MethodGenerator
     {
         if (methodDeclaration.ExpressionBody == null)
         {
-            if (methodDeclaration.Body?.TryConvertToArrowExpressionBody(
-                methodDeclaration.Kind(), info.LanguageVersion, info.Options.PreferExpressionBodiedMethods.Value, cancellationToken,
+            if (methodDeclaration.Body?.TryConvertToArrowExpressionBody(info.Options.PreferExpressionBodiedMethods.Value, cancellationToken,
                 out var expressionBody, out var semicolonToken) == true)
             {
                 return methodDeclaration.WithBody(null)
@@ -203,8 +202,7 @@ internal static class MethodGenerator
     {
         if (localFunctionDeclaration.ExpressionBody == null)
         {
-            if (localFunctionDeclaration.Body?.TryConvertToArrowExpressionBody(
-                localFunctionDeclaration.Kind(), info.LanguageVersion, info.Options.PreferExpressionBodiedLocalFunctions.Value, cancellationToken,
+            if (localFunctionDeclaration.Body?.TryConvertToArrowExpressionBody(info.Options.PreferExpressionBodiedLocalFunctions.Value, cancellationToken,
                 out var expressionBody, out var semicolonToken) == true)
             {
                 return localFunctionDeclaration.WithBody(null)

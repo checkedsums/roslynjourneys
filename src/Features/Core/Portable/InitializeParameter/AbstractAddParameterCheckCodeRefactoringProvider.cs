@@ -384,7 +384,7 @@ internal abstract class AbstractAddParameterCheckCodeRefactoringProvider<
 
     private TStatementSyntax CreateNullCheckStatement(SemanticModel semanticModel, SyntaxGenerator generator, IParameterSymbol parameter, TSimplifierOptions options)
         => CreateParameterCheckIfStatement(
-            (TExpressionSyntax)generator.CreateNullCheckExpression(generator.SyntaxGeneratorInternal, semanticModel, parameter.Name),
+            (TExpressionSyntax)generator.CreateNullCheckExpression(generator.SyntaxGeneratorInternal, parameter.Name),
             (TStatementSyntax)generator.CreateThrowArgumentNullExceptionStatement(semanticModel.Compilation, parameter),
             options);
 
@@ -493,11 +493,6 @@ internal abstract class AbstractAddParameterCheckCodeRefactoringProvider<
         // preference that they like throw-expressions.
 
         if (blockStatement == null)
-            return null;
-
-        var syntaxTree = await document.GetRequiredSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
-        var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
-        if (!syntaxFacts.SupportsThrowExpression(syntaxTree.Options))
             return null;
 
         if (!PrefersThrowExpression(options))

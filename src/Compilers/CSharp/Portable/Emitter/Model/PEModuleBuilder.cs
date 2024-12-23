@@ -1580,7 +1580,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                     var value = flagsBuilder.SelectAsArray((flag, byteType) => new TypedConstant(byteType, TypedConstantKind.Primitive, flag), byteType);
                     attribute = SynthesizeNullableAttribute(
                         WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorTransformFlags,
-                        ImmutableArray.Create(new TypedConstant(byteArrayType, value)));
+                        [new TypedConstant(byteArrayType, value)]);
                 }
             }
 
@@ -1599,7 +1599,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             NamedTypeSymbol byteType = Compilation.GetSpecialType(SpecialType.System_Byte);
             return SynthesizeNullableAttribute(
                 WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorByte,
-                ImmutableArray.Create(new TypedConstant(byteType, TypedConstantKind.Primitive, nullableValue)));
+                [new TypedConstant(byteType, TypedConstantKind.Primitive, nullableValue)]);
         }
 
         internal virtual SynthesizedAttributeData SynthesizeNullableAttribute(WellKnownMember member, ImmutableArray<TypedConstant> arguments)
@@ -1609,77 +1609,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             return Compilation.TrySynthesizeAttribute(member, arguments, isOptionalUse: true);
         }
 
-        internal SynthesizedAttributeData SynthesizeNullableContextAttribute(Symbol symbol, byte value)
-        {
-            var module = Compilation.SourceModule;
-            if ((object)module != symbol && (object)module != symbol.ContainingModule)
-            {
-                // For symbols that are not defined in the same compilation (like NoPia), don't synthesize this attribute.
-                return null;
-            }
-
-            return SynthesizeNullableContextAttribute(
-                ImmutableArray.Create(new TypedConstant(Compilation.GetSpecialType(SpecialType.System_Byte), TypedConstantKind.Primitive, value)));
-        }
-
-        internal virtual SynthesizedAttributeData SynthesizeNullableContextAttribute(ImmutableArray<TypedConstant> arguments)
-        {
-            // For modules, this attribute should be present. Only assemblies generate and embed this type.
-            // https://github.com/dotnet/roslyn/issues/30062 Should not be optional.
-            return Compilation.TrySynthesizeAttribute(WellKnownMember.System_Runtime_CompilerServices_NullableContextAttribute__ctor, arguments, isOptionalUse: true);
-        }
-
         internal SynthesizedAttributeData SynthesizePreserveBaseOverridesAttribute()
         {
             return Compilation.TrySynthesizeAttribute(SpecialMember.System_Runtime_CompilerServices_PreserveBaseOverridesAttribute__ctor, isOptionalUse: true);
         }
-
-        internal SynthesizedAttributeData SynthesizeNativeIntegerAttribute(Symbol symbol, TypeSymbol type)
-        {
-            Debug.Assert((object)type != null);
-            Debug.Assert(type.ContainsNativeIntegerWrapperType());
-            Debug.Assert(Compilation.ShouldEmitNativeIntegerAttributes());
-
-            if ((object)Compilation.SourceModule != symbol.ContainingModule)
-            {
-                // For symbols that are not defined in the same compilation (like NoPia), don't synthesize this attribute.
-                return null;
-            }
-
-            var builder = ArrayBuilder<bool>.GetInstance();
-            CSharpCompilation.NativeIntegerTransformsEncoder.Encode(builder, type);
-
-            Debug.Assert(builder.Any());
-            Debug.Assert(builder.Contains(true));
-
-            SynthesizedAttributeData attribute;
-            if (builder.Count == 1 && builder[0])
-            {
-                attribute = SynthesizeNativeIntegerAttribute(WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctor, ImmutableArray<TypedConstant>.Empty);
-            }
-            else
-            {
-                NamedTypeSymbol booleanType = Compilation.GetSpecialType(SpecialType.System_Boolean);
-                Debug.Assert((object)booleanType != null);
-                var transformFlags = builder.SelectAsArray((flag, constantType) => new TypedConstant(constantType, TypedConstantKind.Primitive, flag), booleanType);
-                var boolArray = ArrayTypeSymbol.CreateSZArray(booleanType.ContainingAssembly, TypeWithAnnotations.Create(booleanType));
-                var arguments = ImmutableArray.Create(new TypedConstant(boolArray, transformFlags));
-                attribute = SynthesizeNativeIntegerAttribute(WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctorTransformFlags, arguments);
-            }
-
-            builder.Free();
-            return attribute;
-        }
-
-        internal virtual SynthesizedAttributeData SynthesizeNativeIntegerAttribute(WellKnownMember member, ImmutableArray<TypedConstant> arguments)
-        {
-            Debug.Assert(Compilation.ShouldEmitNativeIntegerAttributes());
-
-            // For modules, this attribute should be present. Only assemblies generate and embed this type.
-            // https://github.com/dotnet/roslyn/issues/30062 Should not be optional.
-            return Compilation.TrySynthesizeAttribute(member, arguments, isOptionalUse: true);
-        }
-
         internal SynthesizedAttributeData SynthesizeScopedRefAttribute(ParameterSymbol symbol, ScopedKind scope)
         {
             Debug.Assert(scope != ScopedKind.None);
@@ -1707,19 +1640,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             // For modules, this attribute should be present. Only assemblies generate and embed this type.
             // https://github.com/dotnet/roslyn/issues/30062 Should not be optional.
             return Compilation.TrySynthesizeAttribute(WellKnownMember.System_Runtime_CompilerServices_RefSafetyRulesAttribute__ctor, arguments, isOptionalUse: true);
-        }
-
-        internal bool ShouldEmitNullablePublicOnlyAttribute()
-        {
-            // No need to look at this.GetNeedsGeneratedAttributes() since those bits are
-            // only set for members generated by the rewriter which are not public.
-            return Compilation.GetUsesNullableAttributes() && Compilation.EmitNullablePublicOnly;
-        }
-
-        internal virtual SynthesizedAttributeData SynthesizeNullablePublicOnlyAttribute(ImmutableArray<TypedConstant> arguments)
-        {
-            // For modules, this attribute should be present. Only assemblies generate and embed this type.
-            return Compilation.TrySynthesizeAttribute(WellKnownMember.System_Runtime_CompilerServices_NullablePublicOnlyAttribute__ctor, arguments);
         }
 
         protected virtual SynthesizedAttributeData TrySynthesizeIsReadOnlyAttribute()
@@ -1796,14 +1716,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             EnsureEmbeddableAttributeExists(EmbeddableAttributes.NullableAttribute);
         }
 
-        internal void EnsureNullableContextAttributeExists()
-        {
-            EnsureEmbeddableAttributeExists(EmbeddableAttributes.NullableContextAttribute);
-        }
-
         internal void EnsureNativeIntegerAttributeExists()
         {
-            Debug.Assert(Compilation.ShouldEmitNativeIntegerAttributes());
             EnsureEmbeddableAttributeExists(EmbeddableAttributes.NativeIntegerAttribute);
         }
 
@@ -1920,7 +1834,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         internal NamedTypeSymbol EnsureInlineArrayTypeExists(SyntaxNode syntaxNode, SyntheticBoundNodeFactory factory, int arrayLength, DiagnosticBag diagnostics)
         {
-            Debug.Assert(Compilation.Assembly.RuntimeSupportsInlineArrayTypes);
             Debug.Assert(arrayLength > 0);
 
             string typeName = GeneratedNames.MakeSynthesizedInlineArrayName(arrayLength, CurrentGenerationOrdinal);

@@ -1163,11 +1163,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 AddSynthesizedAttribute(ref attributes, compilation.SynthesizeDynamicAttribute(type.Type, type.CustomModifiers.Length + this.RefCustomModifiers.Length, this.RefKind));
             }
 
-            if (compilation.ShouldEmitNativeIntegerAttributes(type.Type))
-            {
-                AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNativeIntegerAttribute(this, type.Type));
-            }
-
             if (type.Type.ContainsTupleNames() && compilation.HasTupleNamesAttributes(BindingDiagnosticBag.Discarded, Location.None))
             {
                 AddSynthesizedAttribute(ref attributes, compilation.SynthesizeTupleNamesAttribute(type.Type));
@@ -1183,8 +1178,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// Returns true if locals are to be initialized
         /// </summary>
         public abstract bool AreLocalsZeroed { get; }
-
-        internal abstract bool IsNullableAnalysisEnabled();
 
         /// <summary>
         /// Gets the resolution priority of this method, 0 if not set.

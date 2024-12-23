@@ -451,8 +451,6 @@ getOperation:
                 return;
             }
 
-            Assert.True(compilation.IsNullableAnalysisEnabledIn((CSharpSyntaxTree)tree, new TextSpan(0, tree.Length)));
-
             var root = tree.GetRoot();
             var allAnnotations = getAnnotations();
             if (allAnnotations.IsEmpty)

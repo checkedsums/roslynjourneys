@@ -47,8 +47,6 @@ internal abstract partial class AbstractMetadataAsSourceService : IMetadataAsSou
             CreateCodeGenerationSymbol(document, symbol),
             cancellationToken).ConfigureAwait(false);
 
-        document = await AddNullableRegionsAsync(document, cancellationToken).ConfigureAwait(false);
-
         var docCommentFormattingService = document.GetRequiredLanguageService<IDocumentationCommentFormattingService>();
         var docWithDocComments = await ConvertDocCommentsToRegularCommentsAsync(document, docCommentFormattingService, cancellationToken).ConfigureAwait(false);
 
@@ -65,8 +63,6 @@ internal abstract partial class AbstractMetadataAsSourceService : IMetadataAsSou
         var reducers = GetReducers();
         return await Simplifier.ReduceAsync(formattedDoc, reducers, cancellationToken).ConfigureAwait(false);
     }
-
-    protected abstract Task<Document> AddNullableRegionsAsync(Document document, CancellationToken cancellationToken);
 
     /// <summary>
     /// provide formatting rules to be used when formatting MAS file

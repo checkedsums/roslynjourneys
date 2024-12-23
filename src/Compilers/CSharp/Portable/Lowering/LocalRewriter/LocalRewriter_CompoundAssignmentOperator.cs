@@ -770,7 +770,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 Conversion.Boxing,
                 memberContainingType,
                 @checked: false,
-                constantValueOpt: rewrittenReceiver.ConstantValueOpt);
+                constantValue: rewrittenReceiver.ConstantValueOpt);
         }
 
         private BoundExpression SpillArrayElementAccess(

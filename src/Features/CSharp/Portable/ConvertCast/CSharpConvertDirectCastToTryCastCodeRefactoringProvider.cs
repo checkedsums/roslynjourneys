@@ -24,7 +24,6 @@ internal sealed partial class CSharpConvertDirectCastToTryCastCodeRefactoringPro
     : AbstractConvertCastCodeRefactoringProvider<TypeSyntax, CastExpressionSyntax, BinaryExpressionSyntax>
 {
     [ImportingConstructor]
-    [SuppressMessage("RoslynDiagnosticsReliability", "RS0033:Importing constructor should be [Obsolete]", Justification = "Used in test code: https://github.com/dotnet/roslyn/issues/42814")]
     public CSharpConvertDirectCastToTryCastCodeRefactoringProvider()
     {
     }
@@ -37,7 +36,7 @@ internal sealed partial class CSharpConvertDirectCastToTryCastCodeRefactoringPro
     protected override TypeSyntax GetTypeNode(CastExpressionSyntax from)
         => from.Type;
 
-    protected override BinaryExpressionSyntax ConvertExpression(CastExpressionSyntax castExpression, NullableContext nullableContext, bool isReferenceType)
+    protected override BinaryExpressionSyntax ConvertExpression(CastExpressionSyntax castExpression, bool isReferenceType)
     {
         var typeNode = castExpression.Type;
         var expression = castExpression.Expression;

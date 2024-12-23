@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             ImmutableArray<Symbol> symbols = BindCrefInternal(syntax, out ambiguityWinner, diagnostics);
             Debug.Assert(!symbols.IsDefault, "Prefer empty to null.");
-            Debug.Assert((symbols.Length > 1) == ((object?)ambiguityWinner != null), "ambiguityWinner should be set iff more than one symbol is returned.");
+            Debug.Assert((symbols.Length > 1) == (ambiguityWinner is not null), "ambiguityWinner should be set iff more than one symbol is returned.");
             return symbols;
         }
 
@@ -92,13 +92,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             // an umbrella diagnostic if the result is an error type.
             NamespaceOrTypeSymbol namespaceOrTypeSymbol = BindNamespaceOrTypeSymbol(syntax, BindingDiagnosticBag.Discarded).NamespaceOrTypeSymbol;
 
-            Debug.Assert((object)namespaceOrTypeSymbol != null);
+            Debug.Assert(namespaceOrTypeSymbol is not null);
             return namespaceOrTypeSymbol;
         }
 
         private ImmutableArray<Symbol> BindMemberCref(MemberCrefSyntax syntax, NamespaceOrTypeSymbol? containerOpt, out Symbol? ambiguityWinner, BindingDiagnosticBag diagnostics)
         {
-            if ((object?)containerOpt != null && containerOpt.Kind == SymbolKind.TypeParameter)
+            if (containerOpt is not null && containerOpt.Kind == SymbolKind.TypeParameter)
             {
                 // As in normal lookup (see CreateErrorIfLookupOnTypeParameter), you can't dot into a type parameter
                 // (though you can dot into an expression of type parameter type).
@@ -107,7 +107,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics.Add(ErrorCode.WRN_BadXMLRef, crefSyntax.Location, noTrivia.ToFullString());
 
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             ImmutableArray<Symbol> result;
@@ -157,7 +157,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 // If the name isn't a SimpleNameSyntax, then we must have a type name followed by a parameter list.
                 // Thus, we're looking for a constructor.
-                Debug.Assert((object?)containerOpt == null);
+                Debug.Assert(containerOpt is null);
 
                 // Could be an error type, but we'll just lookup fail below.
                 containerOpt = BindNamespaceOrTypeSymbolInCref(syntax.Name);
@@ -169,7 +169,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (string.IsNullOrEmpty(memberName))
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             ImmutableArray<Symbol> sortedSymbols = ComputeSortedCrefMembers(syntax, containerOpt, memberName, memberNameText, arity, syntax.Parameters != null, diagnostics);
@@ -177,7 +177,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (sortedSymbols.IsEmpty)
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             return ProcessCrefMemberLookupResults(
@@ -199,7 +199,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (sortedSymbols.IsEmpty)
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             // Since only indexers are named WellKnownMemberNames.Indexer.
@@ -239,7 +239,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 (isChecked && !syntax.OperatorToken.IsMissing && !SyntaxFacts.IsCheckedOperator(memberName))) // the operator cannot be checked
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             ImmutableArray<Symbol> sortedSymbols = ComputeSortedCrefMembers(syntax, containerOpt, memberName, memberNameText: memberName, arity, syntax.Parameters != null, diagnostics);
@@ -247,7 +247,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (sortedSymbols.IsEmpty)
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             return ProcessCrefMemberLookupResults(
@@ -274,7 +274,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     // checked form is not supported
                     ambiguityWinner = null;
-                    return ImmutableArray<Symbol>.Empty;
+                    return [];
                 }
 
                 memberName = WellKnownMemberNames.ImplicitConversionName;
@@ -293,7 +293,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (sortedSymbols.IsEmpty)
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             TypeSymbol returnType = BindCrefParameterOrReturnType(syntax.Type, syntax, diagnostics);
@@ -305,7 +305,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!sortedSymbols.Any())
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             return ProcessCrefMemberLookupResults(
@@ -361,98 +361,111 @@ namespace Microsoft.CodeAnalysis.CSharp
                     builder.AddRange(result.Symbols);
                     result.Free();
                 }
-                else if (memberNameText is "nint" or "nuint"
-                    && containerOpt is null
-                    && arity == 0
-                    && !hasParameterList)
-                {
-                    result.Free(); // Won't be using this.
-                    Debug.Assert(memberName == memberNameText);
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureNativeInt, diagnostics);
-                    builder = ArrayBuilder<Symbol>.GetInstance();
-                    builder.Add(this.GetSpecialType(memberName == "nint" ? SpecialType.System_IntPtr : SpecialType.System_UIntPtr, diagnostics, syntax).AsNativeInteger());
-                }
                 else
                 {
-                    result.Free(); // Won't be using this.
-
-                    // Dev11 has a complicated two-stage process for determining when a cref is really referring to a constructor.
-                    // Under two sets of conditions, XmlDocCommentBinder::bindXMLReferenceName will decide that a name refers
-                    // to a constructor and under one set of conditions, the calling method, XmlDocCommentBinder::bindXMLReference,
-                    // will roll back that decision and return null.
-
-                    // In XmlDocCommentBinder::bindXMLReferenceName:
-                    //   1) If an unqualified, non-generic name didn't bind to anything and the name matches the name of the type
-                    //      to which the doc comment is applied, then bind to a constructor.
-                    //   2) If a qualified, non-generic name didn't bind to anything and the LHS of the qualified name is a type
-                    //      with the same name, then bind to a constructor.
-
-                    // Quoted from XmlDocCommentBinder::bindXMLReference:
-                    //   Filtering out the case where specifying the name of a generic type without specifying
-                    //   any arity returns a constructor. This case shouldn't return anything. Note that
-                    //   returning the constructors was a fix for the wonky constructor behavior, but in order
-                    //   to not introduce a regression and breaking change we return NULL in this case.
-                    //   e.g.
-                    //   
-                    //   /// <see cref="Goo"/>
-                    //   class Goo<T> { }
-                    //   
-                    //   This cref used not to bind to anything, because before it was looking for a type and
-                    //   since there was no arity, it didn't find Goo<T>. Now however, it finds Goo<T>.ctor,
-                    //   which is arguably correct, but would be a breaking change (albeit with minimal impact)
-                    //   so we catch this case and chuck out the symbol found.
-
-                    // In Roslyn, we're doing everything in one pass, rather than guessing and rolling back.  
-
-                    // As in the native compiler, we treat this as a fallback case - something that actually has the
-                    // specified name is preferred.
-
-                    NamedTypeSymbol? constructorType = null;
-
-                    if (arity == 0) // Member arity
+                    switch (memberNameText)
                     {
-                        NamedTypeSymbol? containerType = containerOpt as NamedTypeSymbol;
-                        if ((object?)containerType != null)
-                        {
-                            // Case 1: If the name is qualified by a type with the same name, then we want a 
-                            // constructor (unless the type is generic, the cref is on/in the type (but not 
-                            // on/in a nested type), and there were no parens after the member name).
-
-                            if (containerType.Name == memberName && (hasParameterList || containerType.Arity == 0 || !TypeSymbol.Equals(this.ContainingType, containerType.OriginalDefinition, TypeCompareKind.ConsiderEverything2)))
-                            {
-                                constructorType = containerType;
-                            }
-                        }
-                        else if ((object?)containerOpt == null && hasParameterList)
-                        {
-                            // Case 2: If the name is not qualified by anything, but we're in the scope
-                            // of a type with the same name (regardless of arity), then we want a constructor,
-                            // as long as there were parens after the member name.
-
-                            NamedTypeSymbol? binderContainingType = this.ContainingType;
-                            if ((object?)binderContainingType != null && memberName == binderContainingType.Name)
-                            {
-                                constructorType = binderContainingType;
-                            }
-                        }
+                        case "nint":
+                        case "nuint":
+                            break;
+                        default:
+                            goto Break;
                     }
 
-                    if ((object?)constructorType != null)
+                    if (containerOpt is null
+                        && arity == 0
+                        && !hasParameterList)
                     {
-                        ImmutableArray<MethodSymbol> instanceConstructors = constructorType.InstanceConstructors;
-                        int numInstanceConstructors = instanceConstructors.Length;
-
-                        if (numInstanceConstructors == 0)
-                        {
-                            return ImmutableArray<Symbol>.Empty;
-                        }
-
-                        builder = ArrayBuilder<Symbol>.GetInstance(numInstanceConstructors);
-                        builder.AddRange(instanceConstructors);
+                        result.Free(); // Won't be using this.
+                        Debug.Assert(memberName == memberNameText);
+                        (builder = ArrayBuilder<Symbol>.GetInstance()).Add(this.GetSpecialType(
+                            memberName == "nint" ? SpecialType.System_IntPtr : SpecialType.System_UIntPtr, diagnostics, syntax));
                     }
                     else
+                        goto Break;
+
+Break:
                     {
-                        return ImmutableArray<Symbol>.Empty;
+                        result.Free(); // Won't be using this.
+
+                        // Dev11 has a complicated two-stage process for determining when a cref is really referring to a constructor.
+                        // Under two sets of conditions, XmlDocCommentBinder::bindXMLReferenceName will decide that a name refers
+                        // to a constructor and under one set of conditions, the calling method, XmlDocCommentBinder::bindXMLReference,
+                        // will roll back that decision and return null.
+
+                        // In XmlDocCommentBinder::bindXMLReferenceName:
+                        //   1) If an unqualified, non-generic name didn't bind to anything and the name matches the name of the type
+                        //      to which the doc comment is applied, then bind to a constructor.
+                        //   2) If a qualified, non-generic name didn't bind to anything and the LHS of the qualified name is a type
+                        //      with the same name, then bind to a constructor.
+
+                        // Quoted from XmlDocCommentBinder::bindXMLReference:
+                        //   Filtering out the case where specifying the name of a generic type without specifying
+                        //   any arity returns a constructor. This case shouldn't return anything. Note that
+                        //   returning the constructors was a fix for the wonky constructor behavior, but in order
+                        //   to not introduce a regression and breaking change we return NULL in this case.
+                        //   e.g.
+                        //   
+                        //   /// <see cref="Goo"/>
+                        //   class Goo<T> { }
+                        //   
+                        //   This cref used not to bind to anything, because before it was looking for a type and
+                        //   since there was no arity, it didn't find Goo<T>. Now however, it finds Goo<T>.ctor,
+                        //   which is arguably correct, but would be a breaking change (albeit with minimal impact)
+                        //   so we catch this case and chuck out the symbol found.
+
+                        // In Roslyn, we're doing everything in one pass, rather than guessing and rolling back.  
+
+                        // As in the native compiler, we treat this as a fallback case - something that actually has the
+                        // specified name is preferred.
+
+                        NamedTypeSymbol? constructorType = null;
+
+                        if (arity == 0) // Member arity
+                        {
+                            NamedTypeSymbol? containerType = containerOpt as NamedTypeSymbol;
+                            if (containerType is not null)
+                            {
+                                // Case 1: If the name is qualified by a type with the same name, then we want a 
+                                // constructor (unless the type is generic, the cref is on/in the type (but not 
+                                // on/in a nested type), and there were no parens after the member name).
+
+                                if (containerType.Name == memberName && (hasParameterList || containerType.Arity == 0 || !TypeSymbol.Equals(this.ContainingType, containerType.OriginalDefinition, TypeCompareKind.ConsiderEverything2)))
+                                {
+                                    constructorType = containerType;
+                                }
+                            }
+                            else if (containerOpt is null && hasParameterList)
+                            {
+                                // Case 2: If the name is not qualified by anything, but we're in the scope
+                                // of a type with the same name (regardless of arity), then we want a constructor,
+                                // as long as there were parens after the member name.
+
+                                NamedTypeSymbol? binderContainingType = this.ContainingType;
+                                if (binderContainingType is not null && memberName == binderContainingType.Name)
+                                {
+                                    constructorType = binderContainingType;
+                                }
+                            }
+                        }
+
+                        if (constructorType is not null)
+                        {
+                            ImmutableArray<MethodSymbol> instanceConstructors = constructorType.InstanceConstructors;
+                            int numInstanceConstructors = instanceConstructors.Length;
+
+                            if (numInstanceConstructors == 0)
+                            {
+                                return [];
+                            }
+
+                            builder = ArrayBuilder<Symbol>.GetInstance(numInstanceConstructors);
+                            builder.AddRange(instanceConstructors);
+                        }
+                        else
+                        {
+                            return [];
+                        }
                     }
                 }
             }
@@ -605,7 +618,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool IsNestedTypeOfUnconstructedGenericType(NamedTypeSymbol type)
         {
             NamedTypeSymbol containing = type.ContainingType;
-            while ((object)containing != null)
+            while (containing is not null)
             {
                 if (containing.Arity > 0 && containing.IsDefinition)
                 {
@@ -735,7 +748,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 Symbol constructedCandidate = ConstructWithCrefTypeParameters(arity, typeArgumentListSyntax, candidate);
                 NamedTypeSymbol? constructedCandidateType = constructedCandidate as NamedTypeSymbol;
-                if ((object?)constructedCandidateType == null)
+                if (constructedCandidateType is null)
                 {
                     // Construct before overload resolution so the signatures will match.
                     candidates.Add(constructedCandidate);
@@ -795,8 +808,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 isInitOnly: false,
                                 isStatic: false,
                                 returnType: default,
-                                refCustomModifiers: ImmutableArray<CustomModifier>.Empty,
-                                explicitInterfaceImplementations: ImmutableArray<MethodSymbol>.Empty);
+                                refCustomModifiers: [],
+                                explicitInterfaceImplementations: []);
                             break;
                         }
 
@@ -810,9 +823,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 name: null,
                                 refKind: RefKind.None,
                                 type: default,
-                                refCustomModifiers: ImmutableArray<CustomModifier>.Empty,
+                                refCustomModifiers: [],
                                 isStatic: false,
-                                explicitInterfaceImplementations: ImmutableArray<PropertySymbol>.Empty);
+                                explicitInterfaceImplementations: []);
                             break;
                         }
 
@@ -858,7 +871,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (viable == null)
             {
                 ambiguityWinner = null;
-                return ImmutableArray<Symbol>.Empty;
+                return [];
             }
 
             if (viable.Count > 1)
@@ -935,14 +948,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 RefKind refKind = parameter.RefKindKeyword.Kind().GetRefKind();
                 if (refKind == RefKind.Ref && parameter.ReadOnlyKeyword.IsKind(SyntaxKind.ReadOnlyKeyword))
                 {
-                    CheckFeatureAvailability(parameter.ReadOnlyKeyword, MessageID.IDS_FeatureRefReadonlyParameters, diagnostics, forceWarning: true);
                     refKind = RefKind.RefReadOnlyParameter;
                 }
 
                 Debug.Assert(parameterListSyntax.Parent is object);
                 TypeSymbol type = BindCrefParameterOrReturnType(parameter.Type, (MemberCrefSyntax)parameterListSyntax.Parent, diagnostics);
 
-                parameterBuilder.Add(new SignatureOnlyParameterSymbol(TypeWithAnnotations.Create(type), ImmutableArray<CustomModifier>.Empty, isParamsArray: false, isParamsCollection: false, refKind: refKind));
+                parameterBuilder.Add(new SignatureOnlyParameterSymbol(TypeWithAnnotations.Create(type), [], isParamsArray: false, isParamsCollection: false, refKind: refKind));
             }
 
             return parameterBuilder.ToImmutableAndFree();

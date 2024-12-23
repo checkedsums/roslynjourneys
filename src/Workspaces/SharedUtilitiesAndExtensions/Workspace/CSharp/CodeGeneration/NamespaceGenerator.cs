@@ -106,8 +106,7 @@ internal static class NamespaceGenerator
             return CompilationUnit().WithUsings(usings);
 
         if (destination == CodeGenerationDestination.CompilationUnit &&
-            info.Options.NamespaceDeclarations.Value == NamespaceDeclarationPreference.FileScoped &&
-            info.LanguageVersion >= LanguageVersion.CSharp10)
+            info.Options.NamespaceDeclarations.Value == NamespaceDeclarationPreference.FileScoped)
         {
             return FileScopedNamespaceDeclaration(ParseName(name)).WithUsings(usings);
         }

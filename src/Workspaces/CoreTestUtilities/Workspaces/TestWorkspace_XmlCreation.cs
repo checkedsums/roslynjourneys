@@ -175,11 +175,6 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
                 element.SetAttributeValue(OutputKindName, options.OutputKind);
             }
 
-            if (options.NullableContextOptions != NullableContextOptions.Disable)
-            {
-                element.SetAttributeValue(NullableAttributeName, options.NullableContextOptions);
-            }
-
             return element;
         }
 

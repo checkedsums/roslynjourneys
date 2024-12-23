@@ -150,7 +150,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                        MethodKind.PropertyGet,
                        usesInit: false,
                        isAutoPropertyAccessor: false,
-                       isNullableAnalysisEnabled: false,
                        diagnostics)
             {
             }

@@ -38,11 +38,6 @@ internal class CSharpUseImplicitObjectCreationDiagnosticAnalyzer : AbstractBuilt
     {
         var cancellationToken = context.CancellationToken;
         var semanticModel = context.SemanticModel;
-        var syntaxTree = context.Node.SyntaxTree;
-
-        // Not available prior to C# 9.
-        if (syntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp9)
-            return;
 
         var styleOption = context.GetCSharpAnalyzerOptions().ImplicitObjectCreationWhenTypeIsApparent;
         if (!styleOption.Value || ShouldSkipAnalysis(context, styleOption.Notification))
@@ -60,7 +55,7 @@ internal class CSharpUseImplicitObjectCreationDiagnosticAnalyzer : AbstractBuilt
             objectCreation.Type.GetLocation(),
             styleOption.Notification,
             context.Options,
-            ImmutableArray.Create(objectCreation.GetLocation()),
+            [objectCreation.GetLocation()],
             properties: null));
     }
 

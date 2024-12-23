@@ -60,10 +60,6 @@ internal sealed partial class CSharpUseIndexOperatorDiagnosticAnalyzer : Abstrac
         {
             var compilation = (CSharpCompilation)context.Compilation;
 
-            // Only supported on C# 8 and above.
-            if (compilation.LanguageVersion < LanguageVersion.CSharp8)
-                return;
-
             // We're going to be checking every property-reference and invocation in the
             // compilation. Cache information we compute in this object so we don't have to
             // continually recompute it.

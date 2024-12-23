@@ -34,7 +34,6 @@ internal sealed partial class CSharpSimplificationService()
             new CSharpVarReducer(),
             new CSharpCastReducer(),
             new CSharpNameReducer(),
-            new CSharpNullableAnnotationReducer(),
             new CSharpExtensionMethodReducer(),
             new CSharpParenthesizedExpressionReducer(),
             new CSharpParenthesizedPatternReducer(),

@@ -88,18 +88,16 @@ internal abstract partial class AbstractConvertTupleToStructCodeRefactoringProvi
         var syntaxTree = await document.GetRequiredSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
 
         var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
-        if (syntaxFacts.SupportsRecordStruct(syntaxTree.Options))
+
+        var recordChildActions = CreateChildActions(document, textSpan, tupleExprOrTypeNode, fields, capturedTypeParameters, isRecord: true);
+        if (recordChildActions.Length > 0)
         {
-            var recordChildActions = CreateChildActions(document, textSpan, tupleExprOrTypeNode, fields, capturedTypeParameters, isRecord: true);
-            if (recordChildActions.Length > 0)
-            {
-                context.RegisterRefactoring(
-                    CodeAction.Create(
-                        FeaturesResources.Convert_to_record_struct,
-                        recordChildActions,
-                        isInlinable: false),
-                    tupleExprOrTypeNode.Span);
-            }
+            context.RegisterRefactoring(
+                CodeAction.Create(
+                    FeaturesResources.Convert_to_record_struct,
+                    recordChildActions,
+                    isInlinable: false),
+                tupleExprOrTypeNode.Span);
         }
 
         var childActions = CreateChildActions(document, textSpan, tupleExprOrTypeNode, fields, capturedTypeParameters, isRecord: false);

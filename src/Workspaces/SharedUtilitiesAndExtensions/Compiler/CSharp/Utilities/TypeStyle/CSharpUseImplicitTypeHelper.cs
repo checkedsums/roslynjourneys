@@ -315,7 +315,7 @@ internal sealed class CSharpUseImplicitTypeHelper : CSharpTypeStyleHelper
 
         // This also applies to a lambda assigned to a variable.  This will have no conversion, but can be converted as
         // long as the type is Func<> or Action<> as that's what the language will infer here.
-        if (!conversion.Exists && expression is LambdaExpressionSyntax && semanticModel.Compilation.LanguageVersion() >= LanguageVersion.CSharp10)
+        if (!conversion.Exists && expression is LambdaExpressionSyntax)
         {
             var initializerType = semanticModel.GetTypeInfo(expression, cancellationToken).Type;
             return declaredType.Equals(initializerType) &&

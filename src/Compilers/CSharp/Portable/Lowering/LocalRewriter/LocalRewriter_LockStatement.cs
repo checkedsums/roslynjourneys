@@ -93,7 +93,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Conversion.Boxing,
                     argumentType,
                     @checked: false,
-                    constantValueOpt: rewrittenArgument.ConstantValueOpt);
+                    constantValue: rewrittenArgument.ConstantValueOpt);
             }
 
             BoundAssignmentOperator assignmentToLockTemp;

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp.CodeStyle;
-using Microsoft.CodeAnalysis.CSharp.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -47,13 +46,6 @@ internal class InvokeDelegateWithConditionalAccessAnalyzer : AbstractBuiltInCode
 
         // look for the form "if (a != null)" or "if (null != a)"
         var ifStatement = (IfStatementSyntax)syntaxContext.Node;
-
-        // ?. is only available in C# 6.0 and above.  Don't offer this refactoring
-        // in projects targeting a lesser version.
-        if (ifStatement.SyntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp6)
-        {
-            return;
-        }
 
         if (!ifStatement.Condition.IsKind(SyntaxKind.NotEqualsExpression))
         {

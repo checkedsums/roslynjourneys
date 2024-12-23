@@ -47,10 +47,6 @@ internal class CSharpIsAndCastCheckDiagnosticAnalyzer : AbstractBuiltInCodeStyle
     {
         context.RegisterCompilationStartAction(context =>
         {
-            // "x is Type y" is only available in C# 7.0 and above.  Don't offer this refactoring
-            // in projects targeting a lesser version.
-            if (context.Compilation.LanguageVersion() < LanguageVersion.CSharp7)
-                return;
 
             // We wrap the SyntaxNodeAction within a CodeBlockStartAction, which allows us to
             // get callbacks for 'is' expression nodes, but analyze nodes across the entire code block

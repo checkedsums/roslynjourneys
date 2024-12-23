@@ -24,7 +24,6 @@ internal sealed partial class CSharpUseRangeOperatorDiagnosticAnalyzer
         /// The <see cref="T:System.Range"/> type.  Needed so that we only fixup code if we see the type
         /// we're using has an indexer that takes a <see cref="T:System.Range"/>.
         /// </summary>
-        [SuppressMessage("Documentation", "CA1200:Avoid using cref tags with a prefix", Justification = "Required to avoid ambiguous reference warnings.")]
         public readonly INamedTypeSymbol RangeType;
         public readonly INamedTypeSymbol? ExpressionOfTType;
 

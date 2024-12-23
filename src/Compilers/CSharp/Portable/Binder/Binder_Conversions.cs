@@ -408,41 +408,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 Debug.Assert(syntax.SyntaxTree is object);
 
-                if (conversion.IsUserDefined)
+                if (!conversion.IsUserDefined && conversion.IsInlineArray)
                 {
-                    if (conversion.Method is MethodSymbol method && method.IsStatic)
-                    {
-                        if (method.IsAbstract || method.IsVirtual)
-                        {
-                            Debug.Assert(conversion.ConstrainedToTypeOpt is TypeParameterSymbol);
-
-                            if (Compilation.SourceModule != method.ContainingModule)
-                            {
-                                CheckFeatureAvailability(syntax, MessageID.IDS_FeatureStaticAbstractMembersInInterfaces, diagnostics);
-
-                                if (!Compilation.Assembly.RuntimeSupportsStaticAbstractMembersInInterfaces)
-                                {
-                                    Error(diagnostics, ErrorCode.ERR_RuntimeDoesNotSupportStaticAbstractMembersInInterfaces, syntax);
-                                }
-                            }
-                        }
-
-                        if (SyntaxFacts.IsCheckedOperator(method.Name) &&
-                            Compilation.SourceModule != method.ContainingModule)
-                        {
-                            CheckFeatureAvailability(syntax, MessageID.IDS_FeatureCheckedUserDefinedOperators, diagnostics);
-                        }
-                    }
-                }
-                else if (conversion.IsInlineArray)
-                {
-                    if (!Compilation.Assembly.RuntimeSupportsInlineArrayTypes)
-                    {
-                        Error(diagnostics, ErrorCode.ERR_RuntimeDoesNotSupportInlineArrayTypes, syntax);
-                    }
-
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureInlineArrays, diagnostics);
-
                     Debug.Assert(source.Type is { });
 
                     FieldSymbol? elementField = source.Type.TryGetInlineArrayElementField();
@@ -484,8 +451,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     Debug.Assert(source.Type is not null);
                     Debug.Assert(destination.IsSpan() || destination.IsReadOnlySpan());
-
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureFirstClassSpan, diagnostics);
 
                     // NOTE: We cannot use well-known members because per the spec
                     // the Span types involved in the Span conversions can be any that match the type name.
@@ -1945,16 +1910,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             conversion.MarkUnderlyingConversionsChecked();
             var constantValue = FoldConditionalOperator(condition, trueExpr, falseExpr);
             hasErrors |= constantValue?.IsBad == true;
-            if (targetTyped && !destination.IsErrorType() && !Compilation.IsFeatureEnabled(MessageID.IDS_FeatureTargetTypedConditional))
-            {
-                diagnostics.Add(
-                    ErrorCode.ERR_NoImplicitConvTargetTypedConditional,
-                    source.Syntax.Location,
-                    Compilation.LanguageVersion.ToDisplayString(),
-                    source.Consequence.Display,
-                    source.Alternative.Display,
-                    new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureTargetTypedConditional.RequiredVersion()));
-            }
 
             return new BoundConditionalOperator(source.Syntax, isRef: false, condition, trueExpr, falseExpr, constantValue, source.Type, wasTargetTyped: targetTyped, destination, hasErrors)
                 .WithSuppression(source.IsSuppressed);
@@ -2165,7 +2120,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(conversion.Kind == ConversionKind.FunctionType);
             Debug.Assert(source.Kind is BoundKind.MethodGroup or BoundKind.UnboundLambda);
-            Debug.Assert(syntax.IsFeatureEnabled(MessageID.IDS_FeatureInferredDelegateType));
 
             CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
             var delegateType = source.GetInferredDelegateType(ref useSiteInfo);
@@ -2409,7 +2363,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     stackAllocType = new PointerTypeSymbol(TypeWithAnnotations.Create(elementType));
                     break;
                 case ConversionKind.StackAllocToSpanType:
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureRefStructs, diagnostics);
                     stackAllocType = Compilation.GetWellKnownType(WellKnownType.System_Span_T).Construct(elementType);
                     break;
                 default:

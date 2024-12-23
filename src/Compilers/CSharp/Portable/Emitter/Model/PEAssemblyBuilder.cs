@@ -39,8 +39,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         private SynthesizedEmbeddedAttributeSymbol _lazyIsByRefLikeAttribute;
         private SynthesizedEmbeddedAttributeSymbol _lazyIsUnmanagedAttribute;
         private SynthesizedEmbeddedNullableAttributeSymbol _lazyNullableAttribute;
-        private SynthesizedEmbeddedNullableContextAttributeSymbol _lazyNullableContextAttribute;
-        private SynthesizedEmbeddedNullablePublicOnlyAttributeSymbol _lazyNullablePublicOnlyAttribute;
         private SynthesizedEmbeddedNativeIntegerAttributeSymbol _lazyNativeIntegerAttribute;
         private SynthesizedEmbeddedScopedRefAttributeSymbol _lazyScopedRefAttribute;
         private SynthesizedEmbeddedRefSafetyRulesAttributeSymbol _lazyRefSafetyRulesAttribute;
@@ -101,8 +99,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             builder.AddIfNotNull(_lazyIsUnmanagedAttribute);
             builder.AddIfNotNull(_lazyIsByRefLikeAttribute);
             builder.AddIfNotNull(_lazyNullableAttribute);
-            builder.AddIfNotNull(_lazyNullableContextAttribute);
-            builder.AddIfNotNull(_lazyNullablePublicOnlyAttribute);
             builder.AddIfNotNull(_lazyNativeIntegerAttribute);
             builder.AddIfNotNull(_lazyScopedRefAttribute);
             builder.AddIfNotNull(_lazyRefSafetyRulesAttribute);
@@ -219,49 +215,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             return base.SynthesizeNullableAttribute(member, arguments);
         }
 
-        internal override SynthesizedAttributeData SynthesizeNullableContextAttribute(ImmutableArray<TypedConstant> arguments)
-        {
-            if ((object)_lazyNullableContextAttribute != null)
-            {
-                return SynthesizedAttributeData.Create(
-                    Compilation,
-                    _lazyNullableContextAttribute.Constructors[0],
-                    arguments,
-                    ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty);
-            }
-
-            return base.SynthesizeNullableContextAttribute(arguments);
-        }
-
-        internal override SynthesizedAttributeData SynthesizeNullablePublicOnlyAttribute(ImmutableArray<TypedConstant> arguments)
-        {
-            if ((object)_lazyNullablePublicOnlyAttribute != null)
-            {
-                return SynthesizedAttributeData.Create(
-                    Compilation,
-                    _lazyNullablePublicOnlyAttribute.Constructors[0],
-                    arguments,
-                    ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty);
-            }
-
-            return base.SynthesizeNullablePublicOnlyAttribute(arguments);
-        }
-
-        internal override SynthesizedAttributeData SynthesizeNativeIntegerAttribute(WellKnownMember member, ImmutableArray<TypedConstant> arguments)
-        {
-            if ((object)_lazyNativeIntegerAttribute != null)
-            {
-                var constructorIndex = (member == WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctorTransformFlags) ? 1 : 0;
-                return SynthesizedAttributeData.Create(
-                    Compilation,
-                    _lazyNativeIntegerAttribute.Constructors[constructorIndex],
-                    arguments,
-                    ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty);
-            }
-
-            return base.SynthesizeNativeIntegerAttribute(member, arguments);
-        }
-
         internal override SynthesizedAttributeData SynthesizeScopedRefAttribute(WellKnownMember member)
         {
             if ((object)_lazyScopedRefAttribute != null)
@@ -364,12 +317,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         {
             EmbeddableAttributes needsAttributes = GetNeedsGeneratedAttributes();
 
-            if (ShouldEmitNullablePublicOnlyAttribute() &&
-                Compilation.CheckIfAttributeShouldBeEmbedded(EmbeddableAttributes.NullablePublicOnlyAttribute, diagnostics, Location.None))
-            {
-                needsAttributes |= EmbeddableAttributes.NullablePublicOnlyAttribute;
-            }
-
             if (((SourceModuleSymbol)Compilation.SourceModule).RequiresRefSafetyRulesAttribute() &&
                 Compilation.CheckIfAttributeShouldBeEmbedded(EmbeddableAttributes.RefSafetyRulesAttribute, diagnostics, Location.None))
             {
@@ -443,27 +390,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                     CreateNullableAttributeSymbol);
             }
 
-            if ((needsAttributes & EmbeddableAttributes.NullableContextAttribute) != 0)
-            {
-                CreateAttributeIfNeeded(
-                    ref _lazyNullableContextAttribute,
-                    diagnostics,
-                    AttributeDescription.NullableContextAttribute,
-                    CreateNullableContextAttributeSymbol);
-            }
-
-            if ((needsAttributes & EmbeddableAttributes.NullablePublicOnlyAttribute) != 0)
-            {
-                CreateAttributeIfNeeded(
-                    ref _lazyNullablePublicOnlyAttribute,
-                    diagnostics,
-                    AttributeDescription.NullablePublicOnlyAttribute,
-                    CreateNullablePublicOnlyAttributeSymbol);
-            }
-
             if ((needsAttributes & EmbeddableAttributes.NativeIntegerAttribute) != 0)
             {
-                Debug.Assert(Compilation.ShouldEmitNativeIntegerAttributes());
                 CreateAttributeIfNeeded(
                     ref _lazyNativeIntegerAttribute,
                     diagnostics,
@@ -504,22 +432,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                     SourceModule,
                     GetWellKnownType(WellKnownType.System_Attribute, diagnostics),
                     GetSpecialType(SpecialType.System_Byte, diagnostics));
-
-        private SynthesizedEmbeddedNullableContextAttributeSymbol CreateNullableContextAttributeSymbol(string name, NamespaceSymbol containingNamespace, BindingDiagnosticBag diagnostics)
-            => new SynthesizedEmbeddedNullableContextAttributeSymbol(
-                    name,
-                    containingNamespace,
-                    SourceModule,
-                    GetWellKnownType(WellKnownType.System_Attribute, diagnostics),
-                    GetSpecialType(SpecialType.System_Byte, diagnostics));
-
-        private SynthesizedEmbeddedNullablePublicOnlyAttributeSymbol CreateNullablePublicOnlyAttributeSymbol(string name, NamespaceSymbol containingNamespace, BindingDiagnosticBag diagnostics)
-            => new SynthesizedEmbeddedNullablePublicOnlyAttributeSymbol(
-                    name,
-                    containingNamespace,
-                    SourceModule,
-                    GetWellKnownType(WellKnownType.System_Attribute, diagnostics),
-                    GetSpecialType(SpecialType.System_Boolean, diagnostics));
 
         private SynthesizedEmbeddedNativeIntegerAttributeSymbol CreateNativeIntegerAttributeSymbol(string name, NamespaceSymbol containingNamespace, BindingDiagnosticBag diagnostics)
             => new SynthesizedEmbeddedNativeIntegerAttributeSymbol(

@@ -14,8 +14,6 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private BoundExpression BindWithExpression(WithExpressionSyntax syntax, BindingDiagnosticBag diagnostics)
         {
-            MessageID.IDS_FeatureRecords.CheckFeatureAvailability(diagnostics, syntax.WithKeyword);
-
             var receiver = BindRValueWithoutTargetType(syntax.Expression, diagnostics);
             var receiverType = receiver.Type;
             bool hasErrors = false;
@@ -27,15 +25,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             MethodSymbol? cloneMethod = null;
-            if (receiverType.IsValueType && !receiverType.IsPointerOrFunctionPointer())
-            {
-                CheckFeatureAvailability(syntax, MessageID.IDS_FeatureWithOnStructs, diagnostics);
-            }
-            else if (receiverType.IsAnonymousType && !receiverType.IsDelegateType())
-            {
-                CheckFeatureAvailability(syntax, MessageID.IDS_FeatureWithOnAnonymousTypes, diagnostics);
-            }
-            else if (!receiverType.IsErrorType())
+
+            if (!(receiverType.IsValueType && !receiverType.IsPointerOrFunctionPointer() || receiverType.IsAnonymousType && !receiverType.IsDelegateType())
+                && (!receiverType.IsErrorType()))
             {
                 CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
 

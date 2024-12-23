@@ -518,7 +518,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 SetNeedsGeneratedAttributes(attribute);
             }
 
-            if ((attribute & (EmbeddableAttributes.NullableAttribute | EmbeddableAttributes.NullableContextAttribute)) != 0 &&
+            if ((attribute & EmbeddableAttributes.NullableAttribute) != 0 &&
                 modifyCompilation)
             {
                 SetUsesNullableAttributes();
@@ -555,14 +555,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             EnsureEmbeddableAttributeExists(EmbeddableAttributes.NullableAttribute, diagnostics, location, modifyCompilation);
         }
 
-        internal void EnsureNullableContextAttributeExists(BindingDiagnosticBag? diagnostics, Location location, bool modifyCompilation)
-        {
-            EnsureEmbeddableAttributeExists(EmbeddableAttributes.NullableContextAttribute, diagnostics, location, modifyCompilation);
-        }
-
         internal void EnsureNativeIntegerAttributeExists(BindingDiagnosticBag? diagnostics, Location location, bool modifyCompilation)
         {
-            Debug.Assert(ShouldEmitNativeIntegerAttributes());
             EnsureEmbeddableAttributeExists(EmbeddableAttributes.NativeIntegerAttribute, diagnostics, location, modifyCompilation);
         }
 
@@ -605,23 +599,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                         WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorByte,
                         WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorTransformFlags);
 
-                case EmbeddableAttributes.NullableContextAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_NullableContextAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_NullableContextAttribute__ctor);
-
-                case EmbeddableAttributes.NullablePublicOnlyAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_NullablePublicOnlyAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_NullablePublicOnlyAttribute__ctor);
-
                 case EmbeddableAttributes.NativeIntegerAttribute:
                     // If the type exists, we'll check both constructors, regardless of which one(s) we'll eventually need.
-                    Debug.Assert(ShouldEmitNativeIntegerAttributes());
                     return CheckIfAttributeShouldBeEmbedded(
                         diagnosticsOpt,
                         locationOpt,
@@ -1033,28 +1012,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 // Native compiler encodes an extra transforms flag, always false, for each custom modifier.
                 transformFlagsBuilder.AddMany(false, customModifiersCount);
-            }
-        }
-
-        internal static class NativeIntegerTransformsEncoder
-        {
-            internal static void Encode(ArrayBuilder<bool> builder, TypeSymbol type)
-            {
-                Debug.Assert(type.ContainingAssembly?.RuntimeSupportsNumericIntPtr != true);
-                type.VisitType((typeSymbol, builder, isNested) => AddFlags(typeSymbol, builder), builder);
-            }
-
-            private static bool AddFlags(TypeSymbol type, ArrayBuilder<bool> builder)
-            {
-                switch (type.SpecialType)
-                {
-                    case SpecialType.System_IntPtr:
-                    case SpecialType.System_UIntPtr:
-                        builder.Add(type.IsNativeIntegerWrapperType);
-                        break;
-                }
-                // Continue walking types
-                return false;
             }
         }
 

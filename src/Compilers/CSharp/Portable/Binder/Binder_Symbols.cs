@@ -110,11 +110,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var symbol = BindTypeOrAliasOrKeyword((IdentifierNameSyntax)syntax, diagnostics, out isVar);
 
-                if (isVar)
-                {
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureImplicitLocal, diagnostics);
-                }
-
                 return symbol;
             }
             else
@@ -151,21 +146,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var identifierSyntax = (IdentifierNameSyntax)syntax;
                 var symbol = BindTypeOrAliasOrKeyword(identifierSyntax, diagnostics, out bool isKeyword);
 
-                if (isKeyword)
-                {
-                    switch (keyword)
-                    {
-                        case ConstraintContextualKeyword.Unmanaged:
-                            CheckFeatureAvailability(syntax, MessageID.IDS_FeatureUnmanagedGenericTypeConstraint, diagnostics);
-                            break;
-                        case ConstraintContextualKeyword.NotNull:
-                            CheckFeatureAvailability(identifierSyntax, MessageID.IDS_FeatureNotNullGenericTypeConstraint, diagnostics);
-                            break;
-                        default:
-                            throw ExceptionUtilities.UnexpectedValue(keyword);
-                    }
-                }
-                else
+                if (!isKeyword)
                 {
                     keyword = ConstraintContextualKeyword.None;
                 }
@@ -293,7 +274,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             lookupResult.Free();
 
-            return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(AreNullableAnnotationsEnabled(identifier), symbol);
+            return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(symbol);
         }
 
         // Binds the given expression syntax as Type.
@@ -446,7 +427,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case SyntaxKind.FunctionPointerType:
                     var functionPointerTypeSyntax = (FunctionPointerTypeSyntax)syntax;
-                    MessageID.IDS_FeatureFunctionPointers.CheckFeatureAvailability(diagnostics, functionPointerTypeSyntax.DelegateKeyword);
 
                     if (GetUnsafeDiagnosticInfo(sizeOfTypeOpt: null) is CSDiagnosticInfo info)
                     {
@@ -472,7 +452,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.TupleType:
                     {
                         var tupleTypeSyntax = (TupleTypeSyntax)syntax;
-                        return TypeWithAnnotations.Create(AreNullableAnnotationsEnabled(tupleTypeSyntax.CloseParenToken), BindTupleType(tupleTypeSyntax, diagnostics, basesBeingResolved));
+                        return TypeWithAnnotations.Create(true, BindTupleType(tupleTypeSyntax, diagnostics, basesBeingResolved));
                     }
 
                 case SyntaxKind.RefType:
@@ -518,32 +498,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
             }
 
-            void reportNullableReferenceTypesIfNeeded(SyntaxToken questionToken, TypeWithAnnotations typeArgument = default)
-            {
-                if (diagnostics.DiagnosticBag is DiagnosticBag diagnosticBag)
-                {
-                    // Inside a method body or other executable code, we can question IsValueType without causing cycles.
-                    if (typeArgument.HasType && !ShouldCheckConstraints)
-                    {
-                        LazyMissingNonNullTypesContextDiagnosticInfo.AddAll(this, questionToken, typeArgument, diagnosticBag);
-                    }
-                    else if (LazyMissingNonNullTypesContextDiagnosticInfo.IsNullableReference(typeArgument.Type))
-                    {
-                        LazyMissingNonNullTypesContextDiagnosticInfo.AddAll(this, questionToken, type: null, diagnosticBag);
-                    }
-                }
-            }
-
             NamespaceOrTypeOrAliasSymbolWithAnnotations bindNullable()
             {
                 var nullableSyntax = (NullableTypeSyntax)syntax;
-                MessageID.IDS_FeatureNullable.CheckFeatureAvailability(diagnostics, nullableSyntax.QuestionToken);
 
                 TypeSyntax typeArgumentSyntax = nullableSyntax.ElementType;
                 TypeWithAnnotations typeArgument = BindType(typeArgumentSyntax, diagnostics, basesBeingResolved);
                 TypeWithAnnotations constructedType = typeArgument.SetIsAnnotated(Compilation);
-
-                reportNullableReferenceTypesIfNeeded(nullableSyntax.QuestionToken, typeArgument);
 
                 if (!ShouldCheckConstraints)
                 {
@@ -556,10 +517,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var location = syntax.Location;
                     type.CheckConstraints(new ConstraintsHelper.CheckConstraintsArgs(this.Compilation, this.Conversions, includeNullability: true, location, diagnostics));
                 }
-                else if (GetNullableUnconstrainedTypeParameterDiagnosticIfNecessary(Compilation.LanguageVersion, constructedType) is { } diagnosticInfo)
-                {
-                    diagnostics.Add(diagnosticInfo, syntax.Location);
-                }
 
                 return constructedType;
             }
@@ -568,13 +525,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var predefinedType = (PredefinedTypeSyntax)syntax;
                 var type = BindPredefinedTypeSymbol(predefinedType, diagnostics);
-                return TypeWithAnnotations.Create(AreNullableAnnotationsEnabled(predefinedType.Keyword), type);
+                return TypeWithAnnotations.Create(true, type);
             }
 
             NamespaceOrTypeOrAliasSymbolWithAnnotations bindAlias()
             {
                 var node = (AliasQualifiedNameSyntax)syntax;
-                MessageID.IDS_FeatureGlobalNamespace.CheckFeatureAvailability(diagnostics, node.Alias);
 
                 var bindingResult = BindNamespaceAliasSymbol(node.Alias, diagnostics);
                 NamespaceOrTypeSymbol left = bindingResult is AliasSymbol alias ? alias.Target : (NamespaceOrTypeSymbol)bindingResult;
@@ -606,21 +562,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics.Add(ErrorCode.ERR_TypeExpected, syntax.GetLocation());
                 return TypeWithAnnotations.Create(CreateErrorType());
             }
-        }
-
-        internal static CSDiagnosticInfo? GetNullableUnconstrainedTypeParameterDiagnosticIfNecessary(LanguageVersion languageVersion, in TypeWithAnnotations type)
-        {
-            if (type.Type.IsTypeParameterDisallowingAnnotationInCSharp8())
-            {
-                // Check IDS_FeatureDefaultTypeParameterConstraint feature since `T?` and `where ... : default`
-                // are treated as a single feature, even though the errors reported for the two cases are distinct.
-                var requiredVersion = MessageID.IDS_FeatureDefaultTypeParameterConstraint.RequiredVersion();
-                if (requiredVersion > languageVersion)
-                {
-                    return new CSDiagnosticInfo(ErrorCode.ERR_NullableUnconstrainedTypeParameter, new CSharpRequiredLanguageVersion(requiredVersion));
-                }
-            }
-            return null;
         }
 #nullable disable
 
@@ -667,7 +608,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 var array = ArrayTypeSymbol.CreateCSharpArray(this.Compilation.Assembly, type, rankSpecifier.Rank);
-                type = TypeWithAnnotations.Create(AreNullableAnnotationsEnabled(rankSpecifier.CloseBracketToken), array);
+                type = TypeWithAnnotations.Create(true, array);
             }
 
             return type;
@@ -675,8 +616,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private TypeSymbol BindTupleType(TupleTypeSyntax syntax, BindingDiagnosticBag diagnostics, ConsList<TypeSymbol> basesBeingResolved)
         {
-            MessageID.IDS_FeatureTuples.CheckFeatureAvailability(diagnostics, syntax);
-
             int numElements = syntax.Elements.Count;
             var types = ArrayBuilder<TypeWithAnnotations>.GetInstance(numElements);
             var locations = ArrayBuilder<Location>.GetInstance(numElements);
@@ -729,18 +668,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 throw ExceptionUtilities.UnexpectedValue(typesArray.Length);
             }
-
-            bool includeNullability = Compilation.IsFeatureEnabled(MessageID.IDS_FeatureNullableReferenceTypes);
             return NamedTypeSymbol.CreateTuple(syntax.Location,
                                           typesArray,
                                           locationsArray,
-                                          elementNames == null ?
-                                            default(ImmutableArray<string>) :
-                                            elementNames.ToImmutableAndFree(),
+                                          elementNames == null ? [] : elementNames.ToImmutableAndFree(),
                                           this.Compilation,
-                                          this.ShouldCheckConstraints,
-                                          includeNullability: this.ShouldCheckConstraints && includeNullability,
-                                          errorPositions: default(ImmutableArray<bool>),
+                                          this.ShouldCheckConstraints, includeNullability: this.ShouldCheckConstraints,
+                                          errorPositions: [],
                                           syntax: syntax,
                                           diagnostics: diagnostics);
         }
@@ -924,13 +858,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             result.Free();
-            return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(AreNullableAnnotationsEnabled(node.Identifier), bindingResult);
+            return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(bindingResult);
 
             bool dynamicAllowed()
             {
-                if (Compilation.LanguageVersion < MessageID.IDS_FeatureDynamic.RequiredVersion())
-                    return false;
-
                 if (node.Parent == null)
                     return true;
 
@@ -939,10 +870,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return false;
 
                 if (SyntaxFacts.IsInTypeOnlyContext(node))
-                    return true;
-
-                // using X = dynamic; is legal.
-                if (node.Parent is UsingDirectiveSyntax { Alias: not null })
                     return true;
 
                 return false;
@@ -1018,9 +945,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // Don't bind nameof(nint) or nameof(nuint) so that ERR_NameNotInContext is reported.
                     return null;
             }
-
-            CheckFeatureAvailability(node, MessageID.IDS_FeatureNativeInt, diagnostics);
-            return this.GetSpecialType(specialType, diagnostics, node).AsNativeInteger();
+            return this.GetSpecialType(specialType, diagnostics, node);
         }
 
         private void ReportUseSiteDiagnosticForDynamic(BindingDiagnosticBag diagnostics, IdentifierNameSyntax node)
@@ -1096,7 +1021,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (symbol.IsAlias)
             {
                 AliasSymbol discarded;
-                return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(symbol.IsNullableEnabled, (NamespaceOrTypeSymbol)UnwrapAlias(symbol.Symbol, out discarded, diagnostics, syntax, basesBeingResolved));
+                return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated((NamespaceOrTypeSymbol)UnwrapAlias(symbol.Symbol, out discarded, diagnostics, syntax, basesBeingResolved));
             }
 
             return symbol;
@@ -1106,7 +1031,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (symbol.IsAlias)
             {
-                return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated(symbol.IsNullableEnabled, (NamespaceOrTypeSymbol)UnwrapAlias(symbol.Symbol, out alias, diagnostics, syntax, basesBeingResolved));
+                return NamespaceOrTypeOrAliasSymbolWithAnnotations.CreateUnannotated((NamespaceOrTypeSymbol)UnwrapAlias(symbol.Symbol, out alias, diagnostics, syntax, basesBeingResolved));
             }
 
             alias = null;
@@ -1253,7 +1178,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     diagnostics);
             }
 
-            return TypeWithAnnotations.Create(AreNullableAnnotationsEnabled(node.TypeArgumentList.GreaterThanToken), resultType);
+            return TypeWithAnnotations.Create(true, resultType);
         }
 
         private NamedTypeSymbol LookupGenericTypeName(
@@ -1348,20 +1273,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private TypeWithAnnotations BindTypeArgument(TypeSyntax typeArgument, BindingDiagnosticBag diagnostics, ConsList<TypeSymbol> basesBeingResolved = null)
         {
-            // BackCompat.  The compiler would previously suppress reporting errors for pointers in generic types.  This
-            // was intended so you would get a specific error in CheckBasicConstraints.CheckBasicConstraints for a type
-            // like (like `List<int*>`). i.e. you would get the error about an unsafe type not being a legal type argument,
-            // but not the error about not being in an unsafe context.  This had the unfortunate consequence though of 
-            // preventing the latter check for something like `List<int*[]>`.  Here, this is a legal generic type, but we 
-            // still want to report the error that you need to be in an unsafe context.  So, to maintain compat, we only
-            // do the suppression if you're on C# 11 and prior.  In later versions we do the correct check.
-            var binder = !Compilation.IsFeatureEnabled(MessageID.IDS_FeatureUsingTypeAlias)
-                ? this.WithAdditionalFlags(BinderFlags.SuppressUnsafeDiagnostics)
-                : this;
-
             var arg = typeArgument.Kind() == SyntaxKind.OmittedTypeArgument
                 ? TypeWithAnnotations.Create(UnboundArgumentErrorTypeSymbol.Instance)
-                : binder.BindType(typeArgument, diagnostics, basesBeingResolved);
+                : this.WithAdditionalFlags(BinderFlags.SuppressUnsafeDiagnostics).BindType(typeArgument, diagnostics, basesBeingResolved);
 
             return arg;
         }
@@ -1373,29 +1287,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (typeArgumentsSyntax.Any(SyntaxKind.OmittedTypeArgument))
             {
-                if (this.IsInsideNameof)
+                if (!this.IsInsideNameof)
                 {
-                    // Inside a nameof an open-generic type is acceptable.  Fall through and bind the remainder accordingly.
-                    CheckFeatureAvailability(typeSyntax, MessageID.IDS_FeatureUnboundGenericTypesInNameof, diagnostics);
-
-                    // From the spec:
-                    //
-                    // Member lookup on an unbound type expression will be performed the same way as for a `this`
-                    // expression within that type declaration.
-                    //
-                    // So we want to just return the originating type symbol as is (e.g. List<T> in nameof(List<>)).
-                    // This is distinctly different than how typeof(List<>) works, where it returns an unbound generic
-                    // type.
-                }
-                else
-                {
-                    // Note: lookup won't have reported this, since the arity was correct.
-                    // CONSIDER: the text of this error message makes sense, but we might want to add a separate code.
-
-                    // If the syntax looks like an unbound generic type, then they probably wanted the definition.
-                    // Give an error indicating that the syntax is incorrect and then use the definition.
-                    // CONSIDER: we could construct an unbound generic type symbol, but that would probably be confusing
-                    // outside a typeof.
                     Error(diagnostics, ErrorCode.ERR_BadArity, typeSyntax, type, MessageID.IDS_SK_TYPE.Localize(), typeArgumentsSyntax.Count);
                 }
 
@@ -1578,8 +1471,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (ShouldCheckConstraints && ConstraintsHelper.RequiresChecking(type))
             {
-                bool includeNullability = Compilation.IsFeatureEnabled(MessageID.IDS_FeatureNullableReferenceTypes);
-                type.CheckConstraintsForNamedType(new ConstraintsHelper.CheckConstraintsArgs(this.Compilation, this.Conversions, includeNullability, typeSyntax.Location, diagnostics),
+                type.CheckConstraintsForNamedType(new ConstraintsHelper.CheckConstraintsArgs(this.Compilation, this.Conversions, true, typeSyntax.Location, diagnostics),
                                                   typeSyntax, typeArgumentsSyntax, basesBeingResolved);
             }
 
@@ -2731,47 +2623,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             return null;
-        }
-
-#nullable enable
-
-        internal static bool CheckFeatureAvailability(SyntaxNode syntax, MessageID feature, BindingDiagnosticBag diagnostics, Location? location = null)
-            => CheckFeatureAvailability(syntax, feature, diagnostics.DiagnosticBag, location);
-
-        internal static bool CheckFeatureAvailability(SyntaxToken syntax, MessageID feature, BindingDiagnosticBag diagnostics, bool forceWarning = false)
-            => CheckFeatureAvailability(syntax, feature, diagnostics.DiagnosticBag, forceWarning: forceWarning);
-
-        internal static bool CheckFeatureAvailability(SyntaxTree tree, MessageID feature, BindingDiagnosticBag diagnostics, Location location)
-            => CheckFeatureAvailability(tree, feature, diagnostics.DiagnosticBag, location);
-
-        private static bool CheckFeatureAvailability(SyntaxNode syntax, MessageID feature, DiagnosticBag? diagnostics, Location? location = null)
-            => CheckFeatureAvailability(syntax.SyntaxTree, feature, diagnostics, (location, syntax), static tuple => tuple.location ?? tuple.syntax.GetLocation());
-
-        private static bool CheckFeatureAvailability(SyntaxToken syntax, MessageID feature, DiagnosticBag? diagnostics, bool forceWarning = false)
-            => CheckFeatureAvailability(syntax.SyntaxTree!, feature, diagnostics, syntax, static syntax => syntax.GetLocation(), forceWarning: forceWarning);
-
-        private static bool CheckFeatureAvailability(SyntaxTree tree, MessageID feature, DiagnosticBag? diagnostics, Location location)
-            => CheckFeatureAvailability(tree, feature, diagnostics, location, static location => location);
-
-        /// <param name="getLocation">Callback function that computes the location to report the diagnostics at
-        /// <em>if</em> a diagnostic should be reported.  Should always be passed a static/cached callback to prevent
-        /// allocations of the delegate.</param>
-        private static bool CheckFeatureAvailability<TData>(SyntaxTree tree, MessageID feature, DiagnosticBag? diagnostics, TData data, Func<TData, Location> getLocation, bool forceWarning = false)
-        {
-            if (feature.GetFeatureAvailabilityDiagnosticInfo((CSharpParseOptions)tree.Options) is { } diagInfo)
-            {
-                if (forceWarning)
-                {
-                    diagnostics?.Add(ErrorCode.WRN_ErrorOverride, getLocation(data), diagInfo, (int)diagInfo.Code);
-                }
-                else
-                {
-                    diagnostics?.Add(diagInfo, getLocation(data));
-                }
-
-                return false;
-            }
-            return true;
         }
     }
 }

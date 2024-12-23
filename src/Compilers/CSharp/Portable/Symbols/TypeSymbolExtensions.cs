@@ -2095,10 +2095,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     addIfNotNull(builder, compilation.SynthesizeTupleNamesAttribute(type.Type));
                 }
-                if (compilation.ShouldEmitNativeIntegerAttributes(type.Type))
-                {
-                    addIfNotNull(builder, moduleBuilder.SynthesizeNativeIntegerAttribute(declaringSymbol, type.Type));
-                }
                 if (compilation.ShouldEmitNullableAttributes(declaringSymbol))
                 {
                     addIfNotNull(builder, moduleBuilder.SynthesizeNullableAttributeIfNecessary(declaringSymbol, declaringSymbol.GetNullableContextValue(), type));

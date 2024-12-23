@@ -209,7 +209,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
                 if (type.IsNativeIntegerWrapperType)
                 {
                     var result = RetargetNamedTypeDefinition(type.NativeIntegerUnderlyingType, options);
-                    return result.SpecialType == SpecialType.None ? result : result.AsNativeInteger();
+                    return result;
                 }
 
                 // Before we do anything else, check if we need to do special retargeting

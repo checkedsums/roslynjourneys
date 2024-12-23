@@ -28,7 +28,7 @@ internal class RestoreKeywordRecommender : AbstractSyntacticSingleKeywordRecomme
            previousToken3.Kind() == SyntaxKind.HashToken) ||
            // # nullable |
            // # nullable r|
-           (previousToken1.Kind() == SyntaxKind.NullableKeyword &&
+           (previousToken1.Kind() == SyntaxKind.ContextKeyword &&
            previousToken2.Kind() == SyntaxKind.HashToken);
     }
 }

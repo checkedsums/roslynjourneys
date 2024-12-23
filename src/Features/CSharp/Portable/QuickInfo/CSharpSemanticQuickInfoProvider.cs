@@ -85,22 +85,6 @@ internal class CSharpSemanticQuickInfoProvider : CommonSemanticQuickInfoProvider
 
     protected override NullableFlowState GetNullabilityAnalysis(SemanticModel semanticModel, ISymbol symbol, SyntaxNode node, CancellationToken cancellationToken)
     {
-        // Anything less than C# 8 we just won't show anything, even if the compiler could theoretically give analysis
-        var parseOptions = (CSharpParseOptions)semanticModel.SyntaxTree!.Options;
-        if (parseOptions.LanguageVersion < LanguageVersion.CSharp8)
-        {
-            return NullableFlowState.None;
-        }
-
-        // If the user doesn't have nullable enabled, don't show anything. For now we're not trying to be more precise if the user has just annotations or just
-        // warnings. If the user has annotations off then things that are oblivious might become non-null (which is a lie) and if the user has warnings off then
-        // that probably implies they're not actually trying to know if their code is correct. We can revisit this if we have specific user scenarios.
-        var nullableContext = semanticModel.GetNullableContext(node.SpanStart);
-        if (!nullableContext.WarningsEnabled() || !nullableContext.AnnotationsEnabled())
-        {
-            return NullableFlowState.None;
-        }
-
         // Although GetTypeInfo can return nullability for uses of all sorts of things, it's not always useful for quick info.
         // For example, if you have a call to a method with a nullable return, the fact it can be null is already captured
         // in the return type shown -- there's no flow analysis information there.

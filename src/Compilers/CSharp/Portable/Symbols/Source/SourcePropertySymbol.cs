@@ -48,14 +48,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 out var getSyntax,
                 out var setSyntax);
 
-            Debug.Assert(!(getterUsesFieldKeyword || setterUsesFieldKeyword) ||
-                ((CSharpParseOptions)syntax.SyntaxTree.Options).IsFeatureEnabled(MessageID.IDS_FeatureFieldKeyword));
-
             bool accessorsHaveImplementation = hasGetAccessorImplementation || hasSetAccessorImplementation;
 
             var explicitInterfaceSpecifier = GetExplicitInterfaceSpecifier(syntax);
             SyntaxTokenList modifiersTokenList = GetModifierTokensSyntax(syntax);
-            bool isExplicitInterfaceImplementation = explicitInterfaceSpecifier is object;
+            bool isExplicitInterfaceImplementation = explicitInterfaceSpecifier is not null;
             var (modifiers, hasExplicitAccessMod) = MakeModifiers(
                 containingType,
                 modifiersTokenList,
@@ -73,9 +70,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool hasAutoPropertySet = allowAutoPropertyAccessors && setSyntax != null && !hasSetAccessorImplementation;
 
             binder = binder.SetOrClearUnsafeRegionIfNecessary(modifiersTokenList);
-            TypeSymbol? explicitInterfaceType;
-            string? aliasQualifierOpt;
-            string memberName = ExplicitInterfaceHelpers.GetMemberNameAndInterfaceSymbol(binder, explicitInterfaceSpecifier, name, diagnostics, out explicitInterfaceType, out aliasQualifierOpt);
+            string memberName = ExplicitInterfaceHelpers.GetMemberNameAndInterfaceSymbol(binder, explicitInterfaceSpecifier, name, diagnostics, out TypeSymbol? explicitInterfaceType, out string? aliasQualifierOpt);
 
             return new SourcePropertySymbol(
                 containingType,
@@ -105,7 +100,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool hasSetAccessor,
             bool isExplicitInterfaceImplementation,
             TypeSymbol? explicitInterfaceType,
-            string? aliasQualifierOpt,
+            string? aliasQualifier,
             DeclarationModifiers modifiers,
             bool hasExplicitAccessMod,
             bool hasAutoPropertyGet,
@@ -124,7 +119,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasSetAccessor: hasSetAccessor,
                 isExplicitInterfaceImplementation,
                 explicitInterfaceType,
-                aliasQualifierOpt,
+                aliasQualifier,
                 modifiers,
                 hasInitializer: HasInitializer(syntax),
                 hasExplicitAccessMod: hasExplicitAccessMod,
@@ -142,25 +137,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(syntax.Type is not ScopedTypeSyntax);
 
-            if (hasAutoPropertyGet || hasAutoPropertySet)
-            {
-                Binder.CheckFeatureAvailability(
-                    syntax,
-                    hasGetAccessor && hasSetAccessor ?
-                        (hasAutoPropertyGet && hasAutoPropertySet ? MessageID.IDS_FeatureAutoImplementedProperties : MessageID.IDS_FeatureFieldKeyword) :
-                        (hasAutoPropertyGet ? MessageID.IDS_FeatureReadonlyAutoImplementedProperties : MessageID.IDS_FeatureAutoImplementedProperties),
-                    diagnostics,
-                    location);
-            }
-
             CheckForBlockAndExpressionBody(
                 syntax.AccessorList,
                 syntax.GetExpressionBodySyntax(),
                 syntax,
                 diagnostics);
-
-            if (syntax is PropertyDeclarationSyntax { Initializer: { } initializer })
-                MessageID.IDS_FeatureAutoPropertyInitializer.CheckFeatureAvailability(diagnostics, initializer.EqualsToken);
         }
 
         internal override void ForceComplete(SourceLocation? locationOpt, Predicate<Symbol>? filter, CancellationToken cancellationToken)
@@ -169,7 +150,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             base.ForceComplete(locationOpt, filter, cancellationToken);
         }
 
-        private TypeSyntax GetTypeSyntax(SyntaxNode syntax) => ((BasePropertyDeclarationSyntax)syntax).Type;
+        private static TypeSyntax GetTypeSyntax(SyntaxNode syntax) => ((BasePropertyDeclarationSyntax)syntax).Type;
 
         protected override Location TypeLocation
             => GetTypeSyntax(CSharpSyntaxNode).Location;
@@ -279,7 +260,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             else
             {
                 var body = GetArrowExpression(syntax);
-                hasGetAccessorImplementation = body is object;
+                hasGetAccessorImplementation = body is not null;
                 hasSetAccessorImplementation = false;
                 getterUsesFieldKeyword = body is { } && containsFieldExpressionInGreenNode(body.Green);
                 setterUsesFieldKeyword = false;
@@ -445,25 +426,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasExplicitAccessMod = true;
             }
 
-            if ((mods & DeclarationModifiers.Partial) != 0)
-            {
-                Debug.Assert(location.SourceTree is not null);
-
-                LanguageVersion availableVersion = ((CSharpParseOptions)location.SourceTree.Options).LanguageVersion;
-                LanguageVersion requiredVersion = MessageID.IDS_FeaturePartialProperties.RequiredVersion();
-                if (availableVersion < requiredVersion)
-                {
-                    ModifierUtils.ReportUnsupportedModifiersForLanguageVersion(mods, DeclarationModifiers.Partial, location, diagnostics, availableVersion, requiredVersion);
-                }
-            }
-
-            ModifierUtils.CheckFeatureAvailabilityForStaticAbstractMembersInInterfacesIfNeeded(mods, isExplicitInterfaceImplementation, location, diagnostics);
-
             containingType.CheckUnsafeModifier(mods, location, diagnostics);
 
-            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(accessorsHaveImplementation, mods,
-                                                                        defaultInterfaceImplementationModifiers,
-                                                                        location, diagnostics);
+            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(mods, defaultInterfaceImplementationModifiers, location, diagnostics);
 
             // Let's overwrite modifiers for interface properties with what they are supposed to be.
             // Proper errors must have been reported by now.
@@ -584,34 +549,26 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (type.IsVoidType())
             {
                 if (this.IsIndexer)
-                {
                     diagnostics.Add(ErrorCode.ERR_IndexerCantHaveVoidType, Location);
-                }
                 else
-                {
                     diagnostics.Add(ErrorCode.ERR_PropertyCantHaveVoidType, Location, this);
-                }
             }
 
             return type;
         }
 
         private static ImmutableArray<ParameterSymbol> MakeParameters(
-            Binder binder, SourcePropertySymbolBase owner, BaseParameterListSyntax? parameterSyntaxOpt, BindingDiagnosticBag diagnostics, bool addRefReadOnlyModifier)
+            Binder binder, SourcePropertySymbolBase owner, BaseParameterListSyntax? parameterListSyntax, BindingDiagnosticBag diagnostics, bool addRefReadOnlyModifier)
         {
-            if (parameterSyntaxOpt == null)
-            {
-                return ImmutableArray<ParameterSymbol>.Empty;
-            }
+            if (parameterListSyntax == null)
+                return [];
 
-            if (parameterSyntaxOpt.Parameters.Count < 1)
-            {
-                diagnostics.Add(ErrorCode.ERR_IndexerNeedsParam, parameterSyntaxOpt.GetLastToken().GetLocation());
-            }
+            if (parameterListSyntax.Parameters.Count < 1)
+                diagnostics.Add(ErrorCode.ERR_IndexerNeedsParam, parameterListSyntax.GetLastToken().GetLocation());
 
             SyntaxToken arglistToken;
             var parameters = ParameterHelpers.MakeParameters(
-                binder, owner, parameterSyntaxOpt, out arglistToken,
+                binder, owner, parameterListSyntax, out arglistToken,
                 allowRefOrOut: false,
                 allowThis: false,
                 addRefReadOnlyModifier: addRefReadOnlyModifier,
@@ -626,7 +583,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // ParameterHelpers already warns for default values on explicit interface implementations.
             if (parameters.Length == 1 && !owner.IsExplicitInterfaceImplementation)
             {
-                ParameterSyntax parameterSyntax = parameterSyntaxOpt.Parameters[0];
+                ParameterSyntax parameterSyntax = parameterListSyntax.Parameters[0];
                 if (parameterSyntax.Default != null)
                 {
                     SyntaxToken paramNameToken = parameterSyntax.Identifier;

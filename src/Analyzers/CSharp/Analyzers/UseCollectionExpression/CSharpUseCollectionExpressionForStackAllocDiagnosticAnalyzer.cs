@@ -25,12 +25,7 @@ internal sealed partial class CSharpUseCollectionExpressionForStackAllocDiagnost
     {
     }
 
-    protected override bool IsSupported(Compilation compilation)
-    {
-        // Runtime needs to support inline arrays in order for this to be ok.  Otherwise compiler has no good way to
-        // emit these collection expressions.
-        return compilation.SupportsRuntimeCapability(RuntimeCapability.InlineArrayTypes);
-    }
+    protected override bool IsSupported(Compilation compilation) => true;
 
     protected override void InitializeWorker(CodeBlockStartAnalysisContext<SyntaxKind> context, INamedTypeSymbol? expressionType)
     {

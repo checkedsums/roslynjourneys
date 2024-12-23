@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 return _possiblyNullableTypeSymbol.Type.OriginalDefinition.GetUseSiteInfo().DiagnosticInfo;
             }
-            return Binder.GetNullableUnconstrainedTypeParameterDiagnosticIfNecessary(_languageVersion, _possiblyNullableTypeSymbol);
+            return null;
         }
     }
 }

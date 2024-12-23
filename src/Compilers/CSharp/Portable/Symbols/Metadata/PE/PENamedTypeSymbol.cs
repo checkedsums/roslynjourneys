@@ -68,8 +68,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         /// </summary>
         private TypeKind _lazyKind;
 
-        private NullableContextKind _lazyNullableContextValue;
-
         private NamedTypeSymbol _lazyBaseType = ErrorTypeSymbol.UnknownResultType;
         private ImmutableArray<NamedTypeSymbol> _lazyInterfaces = default(ImmutableArray<NamedTypeSymbol>);
         private NamedTypeSymbol _lazyDeclaredBaseType = ErrorTypeSymbol.UnknownResultType;
@@ -516,7 +514,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
                     var moduleSymbol = ContainingPEModule;
                     TypeSymbol decodedType = DynamicTypeDecoder.TransformType(baseType, 0, _handle, moduleSymbol);
-                    decodedType = NativeIntegerTypeDecoder.TransformType(decodedType, _handle, moduleSymbol, this);
                     decodedType = TupleTypeDecoder.DecodeTupleTypesIfApplicable(decodedType, _handle, moduleSymbol);
                     baseType = (NamedTypeSymbol)NullableTypeDecoder.TransformType(TypeWithAnnotations.Create(decodedType), _handle, moduleSymbol, accessSymbol: this, nullableContext: this).Type;
                 }
@@ -576,7 +573,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                         EntityHandle interfaceHandle = moduleSymbol.Module.MetadataReader.GetInterfaceImplementation(interfaceImpl).Interface;
                         TypeSymbol typeSymbol = tokenDecoder.GetTypeOfToken(interfaceHandle);
 
-                        typeSymbol = NativeIntegerTypeDecoder.TransformType(typeSymbol, interfaceImpl, moduleSymbol, ContainingType);
                         typeSymbol = TupleTypeDecoder.DecodeTupleTypesIfApplicable(typeSymbol, interfaceImpl, moduleSymbol);
                         typeSymbol = NullableTypeDecoder.TransformType(TypeWithAnnotations.Create(typeSymbol), interfaceImpl, moduleSymbol, accessSymbol: this, nullableContext: this).Type;
 
@@ -738,24 +734,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         internal override IEnumerable<CSharpAttributeData> GetCustomAttributesToEmit(PEModuleBuilder moduleBuilder)
         {
             return GetAttributes();
-        }
-
-        internal override byte? GetNullableContextValue()
-        {
-            byte? value;
-            if (!_lazyNullableContextValue.TryGetByte(out value))
-            {
-                value = ContainingPEModule.Module.HasNullableContextAttribute(_handle, out byte arg) ?
-                    arg :
-                    _container.GetNullableContextValue();
-                _lazyNullableContextValue = value.ToNullableContextFlags();
-            }
-            return value;
-        }
-
-        internal override byte? GetLocalNullableContextValue()
-        {
-            throw ExceptionUtilities.Unreachable();
         }
 
         public override IEnumerable<string> MemberNames
@@ -2580,17 +2558,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 }
             }
 
-            internal override NamedTypeSymbol AsNativeInteger()
-            {
-                Debug.Assert(this.SpecialType == SpecialType.System_IntPtr || this.SpecialType == SpecialType.System_UIntPtr);
-                if (ContainingAssembly.RuntimeSupportsNumericIntPtr)
-                {
-                    return this;
-                }
-
-                return ContainingAssembly.GetNativeIntegerType(this);
-            }
-
             internal override NamedTypeSymbol NativeIntegerUnderlyingType => null;
 
             internal override bool Equals(TypeSymbol t2, TypeCompareKind comparison)
@@ -2681,8 +2648,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                     return _lazyTypeParameters;
                 }
             }
-
-            internal sealed override NamedTypeSymbol AsNativeInteger() => throw ExceptionUtilities.Unreachable();
 
             internal sealed override NamedTypeSymbol NativeIntegerUnderlyingType => null;
 

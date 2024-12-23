@@ -77,9 +77,7 @@ internal static class UseConditionalExpressionForReturnHelpers
         var falseThrow = falseStatement as IThrowOperation;
 
         var anyReturn = trueReturn ?? falseReturn;
-        if (UseConditionalExpressionHelpers.HasInconvertibleThrowStatement(
-                syntaxFacts, anyReturn.GetRefKind(containingSymbol) != RefKind.None,
-                trueThrow, falseThrow))
+        if (UseConditionalExpressionHelpers.HasInconvertibleThrowStatement(anyReturn.GetRefKind(containingSymbol) != RefKind.None, trueThrow, falseThrow))
         {
             return false;
         }

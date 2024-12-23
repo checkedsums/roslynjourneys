@@ -3789,43 +3789,5 @@ namespace Microsoft.CodeAnalysis
         }
 
         internal abstract bool IsUnreferencedAssemblyIdentityDiagnosticCode(int code);
-
-        /// <summary>
-        /// Returns the required language version found in a <see cref="Diagnostic"/>, if any is found.
-        /// Returns null if none is found.
-        /// </summary>
-        public static string? GetRequiredLanguageVersion(Diagnostic diagnostic)
-        {
-            if (diagnostic == null)
-            {
-                throw new ArgumentNullException(nameof(diagnostic));
-            }
-
-            bool found = false;
-            string? foundVersion = null;
-            if (diagnostic.Arguments != null)
-            {
-                foreach (var argument in diagnostic.Arguments)
-                {
-                    if (argument is RequiredLanguageVersion versionDiagnostic)
-                    {
-                        Debug.Assert(!found); // only one required language version in a given diagnostic
-                        found = true;
-                        foundVersion = versionDiagnostic.ToString();
-                    }
-                }
-            }
-
-            return foundVersion;
-        }
-
-        /// <summary>
-        /// Determines whether the runtime this <see cref="Compilation"/> is targeting supports a particular capability.
-        /// </summary>
-        /// <remarks>Returns <see langword="false"/> if an unknown capability is passed in.</remarks>
-        public bool SupportsRuntimeCapability(RuntimeCapability capability)
-            => SupportsRuntimeCapabilityCore(capability);
-
-        private protected abstract bool SupportsRuntimeCapabilityCore(RuntimeCapability capability);
     }
 }

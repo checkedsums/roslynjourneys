@@ -302,8 +302,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void EnsureAttributesFromConstraints(BindingDiagnosticBag diagnostics)
         {
-            if (DeclaringCompilation.ShouldEmitNativeIntegerAttributes()
-                && ConstraintTypesNoUseSiteDiagnostics.Any(static t => t.ContainsNativeIntegerWrapperType()))
+            if (ConstraintTypesNoUseSiteDiagnostics.Any(static t => t.ContainsNativeIntegerWrapperType()))
             {
                 DeclaringCompilation.EnsureNativeIntegerAttributeExists(diagnostics, getLocation(), ModifyCompilationForAttributeEmbedding());
             }
@@ -327,7 +326,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 return true;
             }
-            if (this.ConstraintTypesNoUseSiteDiagnostics.Any(static c => c.NeedsNullableAttribute()))
+            if (this.ConstraintTypesNoUseSiteDiagnostics.Any())
             {
                 return true;
             }

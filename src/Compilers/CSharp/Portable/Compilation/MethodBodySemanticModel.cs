@@ -184,7 +184,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             Debug.Assert(binder != null);
 
-            Binder executablebinder = new WithNullableContextBinder(SyntaxTree, position, binder ?? this.RootBinder);
+            Binder executablebinder = binder ?? this.RootBinder; //Dev420
             executablebinder = new ExecutableCodeBinder(body, methodSymbol, executablebinder);
             var blockBinder = executablebinder.GetBinder(body).WithAdditionalFlags(GetSemanticModelBinderFlags());
             // We don't pass the snapshot manager along here, because we're speculating about an entirely new body and it should not
@@ -210,7 +210,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var methodSymbol = (MethodSymbol)this.MemberSymbol;
-            binder = new WithNullableContextBinder(SyntaxTree, position, binder);
             binder = new ExecutableCodeBinder(statement, methodSymbol, binder);
             speculativeModel = CreateSpeculative(parentModel, methodSymbol, statement, binder, GetSnapshotManager(), GetRemappedSymbols(), position);
             return true;
@@ -228,7 +227,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var methodSymbol = (MethodSymbol)this.MemberSymbol;
-            binder = new WithNullableContextBinder(SyntaxTree, position, binder);
             binder = new ExecutableCodeBinder(expressionBody, methodSymbol, binder);
 
             speculativeModel = CreateSpeculative(parentModel, methodSymbol, expressionBody, binder, position);
@@ -243,7 +241,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var binder = this.GetEnclosingBinder(position);
                 if (binder != null)
                 {
-                    binder = new WithNullableContextBinder(SyntaxTree, position, binder);
                     binder = new ExecutableCodeBinder(constructorInitializer, methodSymbol, binder);
                     speculativeModel = CreateSpeculative(parentModel, methodSymbol, constructorInitializer, binder, position);
                     return true;
@@ -265,7 +262,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var binder = this.GetEnclosingBinder(position);
                     if (binder != null)
                     {
-                        binder = new WithNullableContextBinder(SyntaxTree, position, binder);
                         binder = new ExecutableCodeBinder(constructorInitializer, primaryCtor, binder);
                         speculativeModel = CreateSpeculative(parentModel, primaryCtor, constructorInitializer, binder, position);
                         return true;
@@ -298,11 +294,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected override void AnalyzeBoundNodeNullability(BoundNode boundRoot, Binder binder, DiagnosticBag diagnostics, bool createSnapshots)
         {
             NullableWalker.AnalyzeWithoutRewrite(Compilation, MemberSymbol, boundRoot, binder, diagnostics, createSnapshots);
-        }
-
-        protected override bool IsNullableAnalysisEnabledCore()
-        {
-            return Compilation.IsNullableAnalysisEnabledIn((MethodSymbol)MemberSymbol);
         }
     }
 }

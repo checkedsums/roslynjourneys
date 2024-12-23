@@ -89,12 +89,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             public sealed override ImmutableArray<TypeParameterSymbol> TypeParameters
             {
-                get { return ImmutableArray<TypeParameterSymbol>.Empty; }
+                get { return []; }
             }
 
             internal sealed override ImmutableArray<TypeWithAnnotations> TypeArgumentsWithAnnotationsNoUseSiteDiagnostics
             {
-                get { return ImmutableArray<TypeWithAnnotations>.Empty; }
+                get { return []; }
             }
 
             public sealed override bool IsAbstract
@@ -131,17 +131,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             public sealed override ImmutableArray<NamedTypeSymbol> GetTypeMembers()
             {
-                return ImmutableArray<NamedTypeSymbol>.Empty;
+                return [];
             }
 
             public sealed override ImmutableArray<NamedTypeSymbol> GetTypeMembers(ReadOnlyMemory<char> name)
             {
-                return ImmutableArray<NamedTypeSymbol>.Empty;
+                return [];
             }
 
             public sealed override ImmutableArray<NamedTypeSymbol> GetTypeMembers(ReadOnlyMemory<char> name, int arity)
             {
-                return ImmutableArray<NamedTypeSymbol>.Empty;
+                return [];
             }
 
             public sealed override Accessibility DeclaredAccessibility
@@ -151,7 +151,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal sealed override ImmutableArray<NamedTypeSymbol> InterfacesNoUseSiteDiagnostics(ConsList<TypeSymbol> basesBeingResolved)
             {
-                return ImmutableArray<NamedTypeSymbol>.Empty;
+                return [];
             }
 
             internal sealed override ImmutableArray<NamedTypeSymbol> GetInterfacesToEmit()
@@ -245,7 +245,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal sealed override ImmutableArray<string> GetAppliedConditionalSymbols()
             {
-                return ImmutableArray<string>.Empty;
+                return [];
             }
 
             internal sealed override AttributeUsageInfo GetAttributeUsageInfo()
@@ -260,10 +260,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal sealed override ImmutableArray<NamedTypeSymbol> GetDeclaredInterfaces(ConsList<TypeSymbol> basesBeingResolved)
             {
-                return ImmutableArray<NamedTypeSymbol>.Empty;
+                return [];
             }
-
-            internal sealed override NamedTypeSymbol AsNativeInteger() => throw ExceptionUtilities.Unreachable();
 
             internal sealed override NamedTypeSymbol? NativeIntegerUnderlyingType => null;
 

@@ -23,7 +23,6 @@ internal sealed partial class CSharpUseIndexOperatorDiagnosticAnalyzer
         /// The <see cref="T:System.Index"/> type.  Needed so that we only fixup code if we see the type
         /// we're using has an indexer that takes an <see cref="T:System.Index"/>.
         /// </summary>
-        [SuppressMessage("Documentation", "CA1200:Avoid using cref tags with a prefix", Justification = "Required to avoid ambiguous reference warnings.")]
         public readonly INamedTypeSymbol IndexType;
 
         public readonly INamedTypeSymbol? ExpressionOfTType;

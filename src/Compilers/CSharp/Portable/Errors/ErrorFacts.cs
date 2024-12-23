@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Roslyn.Utilities;
@@ -16,77 +15,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 {
     internal static partial class ErrorFacts
     {
-        private const string s_titleSuffix = "_Title";
-        private const string s_descriptionSuffix = "_Description";
+        private const string TitleSuffix = "_Title";
+        private const string DescriptionSuffix = "_Description";
         private static readonly Lazy<ImmutableDictionary<ErrorCode, string>> s_categoriesMap = new Lazy<ImmutableDictionary<ErrorCode, string>>(CreateCategoriesMap);
         public static readonly ImmutableHashSet<string> NullableWarnings;
-
-        static ErrorFacts()
-        {
-            ImmutableHashSet<string>.Builder nullableWarnings = ImmutableHashSet.CreateBuilder<string>();
-
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullReferenceAssignment));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullReferenceReceiver));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullReferenceReturn));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullReferenceArgument));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_UninitializedNonNullableField));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInAssignment));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInArgument));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInArgumentForOutput));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOfTargetDelegate));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOfTargetDelegate));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullAsNonNullable));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullableValueTypeMayBeNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeParameterConstraint));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeParameterReferenceTypeConstraint));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeParameterNotNullConstraint));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ThrowPossibleNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_UnboxPossibleNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_SwitchExpressionNotExhaustiveForNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_SwitchExpressionNotExhaustiveForNullWithWhen));
-
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ConvertingNullableToNonNullable));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_DisallowNullAttributeForbidsMaybeNullAssignment));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ParameterConditionallyDisallowsNull));
-
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeOnOverride));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOnOverride));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOnPartial));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOnOverride));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOnPartial));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInTypeOnExplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOnExplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOnExplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInConstraintsOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInExplicitlyImplementedInterface));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInInterfaceImplementedByBase));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_DuplicateInterfaceWithNullabilityMismatchInBaseList));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInConstraintsOnPartialImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullReferenceInitializer));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ShouldNotReturn));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_DoesNotReturnMismatch));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInParameterTypeOnExplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInParameterTypeOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInParameterTypeOnOverride));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInReturnTypeOnExplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInReturnTypeOnImplicitImplementation));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_TopLevelNullabilityMismatchInReturnTypeOnOverride));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_MemberNotNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_MemberNotNullBadMember));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_MemberNotNullWhen));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ParameterDisallowsNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ParameterNotNullIfNotNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_ReturnNotNullIfNotNull));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInReturnTypeOnInterceptor));
-            nullableWarnings.Add(GetId(ErrorCode.WRN_NullabilityMismatchInParameterTypeOnInterceptor));
-
-            nullableWarnings.Add(GetId(ErrorCode.WRN_UninitializedNonNullableBackingField));
-
-            NullableWarnings = nullableWarnings.ToImmutable();
-        }
 
         private static string GetId(ErrorCode errorCode)
         {
@@ -154,12 +86,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static LocalizableResourceString GetTitle(ErrorCode code)
         {
-            return new LocalizableResourceString(code.ToString() + s_titleSuffix, ResourceManager, typeof(ErrorFacts));
+            return new LocalizableResourceString(code.ToString() + TitleSuffix, ResourceManager, typeof(ErrorFacts));
         }
 
         public static LocalizableResourceString GetDescription(ErrorCode code)
         {
-            return new LocalizableResourceString(code.ToString() + s_descriptionSuffix, ResourceManager, typeof(ErrorFacts));
+            return new LocalizableResourceString(code.ToString() + DescriptionSuffix, ResourceManager, typeof(ErrorFacts));
         }
 
         public static string GetHelpLink(ErrorCode code)
@@ -230,14 +162,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_NubExprIsConstBool2:
                 case ErrorCode.WRN_StaticInAsOrIs:
                 case ErrorCode.WRN_PrecedenceInversion:
-                case ErrorCode.WRN_UseDefViolationPropertyUnsupportedVersion:
-                case ErrorCode.WRN_UseDefViolationFieldUnsupportedVersion:
-                case ErrorCode.WRN_UnassignedThisAutoPropertyUnsupportedVersion:
-                case ErrorCode.WRN_UnassignedThisUnsupportedVersion:
                 case ErrorCode.WRN_ParamUnassigned:
                 case ErrorCode.WRN_UseDefViolationProperty:
                 case ErrorCode.WRN_UseDefViolationField:
-                case ErrorCode.WRN_UseDefViolationThisUnsupportedVersion:
                 case ErrorCode.WRN_UseDefViolationOut:
                 case ErrorCode.WRN_UseDefViolation:
                 case ErrorCode.WRN_SyncAndAsyncEntryPoints:
@@ -355,7 +282,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_IllegalPragma:
                 case ErrorCode.WRN_IllegalPPWarning:
                 case ErrorCode.WRN_BadRestoreNumber:
-                case ErrorCode.WRN_NonECMAFeature:
                 case ErrorCode.WRN_ErrorOverride:
                 case ErrorCode.WRN_MultiplePredefTypes:
                 case ErrorCode.WRN_TooManyLinesForDebugger:
@@ -364,7 +290,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_IllegalPPChecksum:
                 case ErrorCode.WRN_EndOfPPLineExpected:
                 case ErrorCode.WRN_ConflictingChecksum:
-                case ErrorCode.WRN_DotOnDefault:
                 case ErrorCode.WRN_BadXMLRefTypeVar:
                 case ErrorCode.WRN_ReferencedAssemblyReferencesLinkedPIA:
                 case ErrorCode.WRN_MultipleRuntimeImplementationMatches:
@@ -419,7 +344,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_AlignmentMagnitude:
                 case ErrorCode.WRN_AttributeIgnoredWhenPublicSigning:
                 case ErrorCode.WRN_TupleLiteralNameMismatch:
-                case ErrorCode.WRN_WindowsExperimental:
                 case ErrorCode.WRN_AttributesOnBackingFieldsNotAvailable:
                 case ErrorCode.WRN_TupleBinopLiteralNameMismatch:
                 case ErrorCode.WRN_TypeParameterSameAsOuterMethodTypeParameter:
@@ -450,10 +374,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_NullabilityMismatchInReturnTypeOfTargetDelegate:
                 case ErrorCode.WRN_NullabilityMismatchInParameterTypeOfTargetDelegate:
                 case ErrorCode.WRN_NullAsNonNullable:
-                case ErrorCode.WRN_NullableValueTypeMayBeNull:
                 case ErrorCode.WRN_NullabilityMismatchInTypeParameterConstraint:
-                case ErrorCode.WRN_MissingNonNullTypesContextForAnnotation:
-                case ErrorCode.WRN_MissingNonNullTypesContextForAnnotationInGeneratedCode:
                 case ErrorCode.WRN_NullabilityMismatchInConstraintsOnImplicitImplementation:
                 case ErrorCode.WRN_NullabilityMismatchInTypeParameterReferenceTypeConstraint:
                 case ErrorCode.WRN_SwitchExpressionNotExhaustive:
@@ -557,8 +478,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_TargetDifferentRefness:
                 case ErrorCode.WRN_RefReadonlyParameterDefaultValue:
                 case ErrorCode.WRN_UseDefViolationRefField:
-                case ErrorCode.WRN_Experimental:
-                case ErrorCode.WRN_ExperimentalWithMessage:
                 case ErrorCode.WRN_CollectionExpressionRefStructMayAllocate:
                 case ErrorCode.WRN_CollectionExpressionRefStructSpreadMayAllocate:
                 case ErrorCode.WRN_ConvertingLock:
@@ -729,7 +648,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_CircularBase
                 or ErrorCode.ERR_MethodNameExpected
                 or ErrorCode.ERR_ConstantExpected
-                or ErrorCode.ERR_V6SwitchGoverningTypeValueExpected
                 or ErrorCode.ERR_DuplicateCaseLabel
                 or ErrorCode.ERR_InvalidGotoCase
                 or ErrorCode.ERR_PropertyLacksGet
@@ -746,7 +664,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_UseDefViolation
                 or ErrorCode.WRN_UnreferencedVar
                 or ErrorCode.ERR_UseDefViolationField
-                or ErrorCode.ERR_UnassignedThisUnsupportedVersion
                 or ErrorCode.ERR_AmbigQM
                 or ErrorCode.ERR_InvalidQM
                 or ErrorCode.ERR_NoBaseClass
@@ -762,7 +679,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_IsAlwaysFalse
                 or ErrorCode.ERR_LockNeedsReference
                 or ErrorCode.ERR_NullNotValid
-                or ErrorCode.ERR_UseDefViolationThisUnsupportedVersion
                 or ErrorCode.ERR_ArgsInvalid
                 or ErrorCode.ERR_AssgReadonly
                 or ErrorCode.ERR_RefReadonly
@@ -824,7 +740,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_PartialWrongTypeParams
                 or ErrorCode.ERR_PartialWrongConstraints
                 or ErrorCode.ERR_NoImplicitConvCast
-                or ErrorCode.ERR_PartialMisplaced
                 or ErrorCode.ERR_ImportedCircularBase
                 or ErrorCode.ERR_UseDefViolationOut
                 or ErrorCode.ERR_ArraySizeInDeclaration
@@ -972,7 +887,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ConditionalMustReturnVoid
                 or ErrorCode.ERR_DuplicateAttribute
                 or ErrorCode.ERR_ConditionalOnInterfaceMethod
-                or ErrorCode.ERR_OperatorCantReturnVoid
                 or ErrorCode.ERR_InvalidAttributeArgument
                 or ErrorCode.ERR_AttributeOnBadSymbolType
                 or ErrorCode.ERR_FloatOverflow
@@ -1119,7 +1033,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ExpressionTreeContainsMultiDimensionalArrayInitializer
                 or ErrorCode.ERR_MissingArgument
                 or ErrorCode.ERR_VariableUsedBeforeDeclaration
-                or ErrorCode.ERR_UnassignedThisAutoPropertyUnsupportedVersion
                 or ErrorCode.ERR_VariableUsedBeforeDeclarationAndHidesField
                 or ErrorCode.ERR_ExpressionTreeContainsBadCoalesce
                 or ErrorCode.ERR_ArrayInitializerExpected
@@ -1277,7 +1190,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ReturnInIterator
                 or ErrorCode.ERR_BadIteratorArgType
                 or ErrorCode.ERR_BadIteratorReturn
-                or ErrorCode.ERR_BadYieldInFinally
                 or ErrorCode.ERR_BadYieldInTryOfCatch
                 or ErrorCode.ERR_EmptyYield
                 or ErrorCode.ERR_AnonDelegateCantUse
@@ -1298,7 +1210,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_FixedDimsRequired
                 or ErrorCode.ERR_FixedNotInStruct
                 or ErrorCode.ERR_AnonymousReturnExpected
-                or ErrorCode.WRN_NonECMAFeature
                 or ErrorCode.ERR_ExpectedVerbatimLiteral
                 or ErrorCode.ERR_AssgReadonly2
                 or ErrorCode.ERR_RefReadonly2
@@ -1355,7 +1266,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_AssignmentToSelf
                 or ErrorCode.WRN_ComparisonToSelf
                 or ErrorCode.ERR_CantOpenWin32Res
-                or ErrorCode.WRN_DotOnDefault
                 or ErrorCode.ERR_NoMultipleInheritance
                 or ErrorCode.ERR_BaseClassMustBeFirst
                 or ErrorCode.WRN_BadXMLRefTypeVar
@@ -1467,8 +1377,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_DynamicAttributeMissing
                 or ErrorCode.WRN_IsDynamicIsConfusing
                 or ErrorCode.ERR_BadAsyncReturn
-                or ErrorCode.ERR_BadAwaitInFinally
-                or ErrorCode.ERR_BadAwaitInCatch
                 or ErrorCode.ERR_BadAwaitArg
                 or ErrorCode.ERR_BadAsyncArgType
                 or ErrorCode.ERR_BadAsyncExpressionTree
@@ -1483,7 +1391,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_FileAlreadyIncluded
                 or ErrorCode.ERR_NoFileSpec
                 or ErrorCode.ERR_SwitchNeedsString
-                or ErrorCode.ERR_BadSwitch
                 or ErrorCode.WRN_NoSources
                 or ErrorCode.ERR_OpenResponseFile
                 or ErrorCode.ERR_CantOpenFileWrite
@@ -1666,11 +1573,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.HDN_UnusedUsingDirective
                 or ErrorCode.HDN_UnusedExternAlias
                 or ErrorCode.WRN_NoRuntimeMetadataVersion
-                or ErrorCode.ERR_FeatureNotAvailableInVersion1
-                or ErrorCode.ERR_FeatureNotAvailableInVersion2
-                or ErrorCode.ERR_FeatureNotAvailableInVersion3
-                or ErrorCode.ERR_FeatureNotAvailableInVersion4
-                or ErrorCode.ERR_FeatureNotAvailableInVersion5
                 or ErrorCode.ERR_FieldHasMultipleDistinctConstantValues
                 or ErrorCode.ERR_ComImportWithInitializers
                 or ErrorCode.WRN_PdbLocalNameTooLong
@@ -1688,8 +1590,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_EnumsCantContainDefaultConstructor
                 or ErrorCode.ERR_EncodinglessSyntaxTree
                 or ErrorCode.ERR_BlockBodyAndExpressionBody
-                or ErrorCode.ERR_FeatureIsExperimental
-                or ErrorCode.ERR_FeatureNotAvailableInVersion6
                 or ErrorCode.ERR_SwitchFallOut
                 or ErrorCode.ERR_NullPropagatingOpInExpressionTree
                 or ErrorCode.WRN_NubExprIsConstBool2
@@ -1724,7 +1624,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_PeWritingFailure
                 or ErrorCode.WRN_AttributeIgnoredWhenPublicSigning
                 or ErrorCode.ERR_OptionMustBeAbsolutePath
-                or ErrorCode.ERR_FeatureNotAvailableInVersion7
                 or ErrorCode.ERR_DynamicLocalFunctionParamsParameter
                 or ErrorCode.ERR_ExpressionTreeContainsLocalFunction
                 or ErrorCode.ERR_InvalidInstrumentationKind
@@ -1815,19 +1714,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_VoidInTuple
                 or ErrorCode.ERR_Merge_conflict_marker_encountered
                 or ErrorCode.ERR_InvalidPreprocessingSymbol
-                or ErrorCode.ERR_FeatureNotAvailableInVersion7_1
                 or ErrorCode.ERR_LanguageVersionCannotHaveLeadingZeroes
                 or ErrorCode.ERR_CompilerAndLanguageVersion
-                or ErrorCode.WRN_WindowsExperimental
-                or ErrorCode.ERR_TupleInferredNamesNotAvailable
+                //or ErrorCode.ERR_TupleInferredNamesNotAvailable
                 or ErrorCode.ERR_TypelessTupleInAs
                 or ErrorCode.ERR_NoRefOutWhenRefOnly
                 or ErrorCode.ERR_NoNetModuleOutputWhenRefOutOrRefOnly
                 or ErrorCode.ERR_BadOpOnNullOrDefaultOrNew
                 or ErrorCode.ERR_DefaultLiteralNotValid
-                or ErrorCode.ERR_PatternWrongGenericTypeInVersion
                 or ErrorCode.ERR_AmbigBinaryOpsOnDefault
-                or ErrorCode.ERR_FeatureNotAvailableInVersion7_2
                 or ErrorCode.WRN_UnreferencedLocalFunction
                 or ErrorCode.ERR_DynamicLocalFunctionTypeParameter
                 or ErrorCode.ERR_BadNonTrailingNamedArgument
@@ -1868,7 +1763,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ConditionalInInterpolation
                 or ErrorCode.ERR_CantUseVoidInArglist
                 or ErrorCode.ERR_InDynamicMethodArg
-                or ErrorCode.ERR_FeatureNotAvailableInVersion7_3
                 or ErrorCode.WRN_AttributesOnBackingFieldsNotAvailable
                 or ErrorCode.ERR_DoNotUseFixedBufferAttrOnProperty
                 or ErrorCode.ERR_RefLocalOrParamExpected
@@ -1888,8 +1782,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_OutVariableCannotBeByRef
                 or ErrorCode.ERR_DeconstructVariableCannotBeByRef
                 or ErrorCode.ERR_OmittedTypeArgument
-                or ErrorCode.ERR_FeatureNotAvailableInVersion8
-                or ErrorCode.ERR_AltInterpolatedVerbatimStringsNotAvailable
                 or ErrorCode.ERR_IteratorMustBeAsync
                 or ErrorCode.ERR_NoConvToIAsyncDisp
                 or ErrorCode.ERR_AwaitForEachMissingMember
@@ -1917,7 +1809,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_VarMayNotBindToType
                 or ErrorCode.WRN_SwitchExpressionNotExhaustive
                 or ErrorCode.ERR_SwitchArmSubsumed
-                or ErrorCode.ERR_ConstantPatternVsOpenType
                 or ErrorCode.WRN_CaseConstantNamedUnderscore
                 or ErrorCode.WRN_IsTypeNamedUnderscore
                 or ErrorCode.ERR_ExpressionTreeContainsSwitchExpression
@@ -1958,20 +1849,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ExplicitNullableAttribute
                 or ErrorCode.WRN_NullabilityMismatchInArgumentForOutput
                 or ErrorCode.WRN_NullAsNonNullable
-                or ErrorCode.ERR_NullableUnconstrainedTypeParameter
                 or ErrorCode.ERR_AnnotationDisallowedInObjectCreation
-                or ErrorCode.WRN_NullableValueTypeMayBeNull
-                or ErrorCode.ERR_NullableOptionNotAvailable
                 or ErrorCode.WRN_NullabilityMismatchInTypeParameterConstraint
-                or ErrorCode.WRN_MissingNonNullTypesContextForAnnotation
                 or ErrorCode.WRN_NullabilityMismatchInConstraintsOnImplicitImplementation
                 or ErrorCode.WRN_NullabilityMismatchInTypeParameterReferenceTypeConstraint
                 or ErrorCode.ERR_TripleDotNotAllowed
-                or ErrorCode.ERR_BadNullableContextOption
                 or ErrorCode.ERR_NullableDirectiveQualifierExpected
                 or ErrorCode.ERR_BadNullableTypeof
                 or ErrorCode.ERR_ExpressionTreeCantContainRefStruct
-                or ErrorCode.ERR_ElseCannotStartStatement
                 or ErrorCode.ERR_ExpressionTreeCantContainNullCoalescingAssignment
                 or ErrorCode.WRN_NullabilityMismatchInExplicitlyImplementedInterface
                 or ErrorCode.WRN_NullabilityMismatchInInterfaceImplementedByBase
@@ -1982,7 +1867,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_GoToBackwardJumpOverUsingVar
                 or ErrorCode.ERR_IsNullableType
                 or ErrorCode.ERR_AsNullableType
-                or ErrorCode.ERR_FeatureInPreview
                 or ErrorCode.WRN_SwitchExpressionNotExhaustiveForNull
                 or ErrorCode.WRN_ImplicitCopyInReadOnlyMember
                 or ErrorCode.ERR_StaticMemberCantBeReadOnly
@@ -1997,16 +1881,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_OverrideValConstraintNotSatisfied
                 or ErrorCode.WRN_NullabilityMismatchInConstraintsOnPartialImplementation
                 or ErrorCode.ERR_NullableDirectiveTargetExpected
-                or ErrorCode.WRN_MissingNonNullTypesContextForAnnotationInGeneratedCode
                 or ErrorCode.WRN_NullReferenceInitializer
                 or ErrorCode.ERR_MultipleAnalyzerConfigsInSameDir
-                or ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation
-                or ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementationForMember
-                or ErrorCode.ERR_InvalidModifierForLanguageVersion
-                or ErrorCode.ERR_ImplicitImplementationOfNonPublicInterfaceMember
                 or ErrorCode.ERR_MostSpecificImplementationIsNotFound
-                or ErrorCode.ERR_LanguageVersionDoesNotSupportInterfaceImplementationForMember
-                or ErrorCode.ERR_RuntimeDoesNotSupportProtectedAccessForInterfaceMember
                 or ErrorCode.ERR_DefaultInterfaceImplementationInNoPIAType
                 or ErrorCode.ERR_AbstractEventHasAccessors
                 or ErrorCode.WRN_NullabilityMismatchInTypeParameterNotNullConstraint
@@ -2035,7 +1912,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_DoesNotReturnMismatch
                 or ErrorCode.ERR_NoOutputDirectory
                 or ErrorCode.ERR_StdInOptionProvidedButConsoleInputIsNotRedirected
-                or ErrorCode.ERR_FeatureNotAvailableInVersion9
                 or ErrorCode.WRN_MemberNotNull
                 or ErrorCode.WRN_MemberNotNullWhen
                 or ErrorCode.WRN_MemberNotNullBadMember
@@ -2089,8 +1965,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_ParameterNotNullIfNotNull
                 or ErrorCode.WRN_ReturnNotNullIfNotNull
                 or ErrorCode.WRN_PartialMethodTypeDifference
-                or ErrorCode.ERR_RuntimeDoesNotSupportCovariantReturnsOfClasses
-                or ErrorCode.ERR_RuntimeDoesNotSupportCovariantPropertiesOfClasses
                 or ErrorCode.WRN_SwitchExpressionNotExhaustiveWithWhen
                 or ErrorCode.WRN_SwitchExpressionNotExhaustiveForNullWithWhen
                 or ErrorCode.WRN_PrecedenceInversion
@@ -2125,16 +1999,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_StaticAPIInRecord
                 or ErrorCode.ERR_CopyConstructorWrongAccessibility
                 or ErrorCode.ERR_NonPrivateAPIInRecord
-                or ErrorCode.WRN_UnassignedThisAutoPropertyUnsupportedVersion
-                or ErrorCode.WRN_UnassignedThisUnsupportedVersion
                 or ErrorCode.WRN_ParamUnassigned
                 or ErrorCode.WRN_UseDefViolationProperty
                 or ErrorCode.WRN_UseDefViolationField
-                or ErrorCode.WRN_UseDefViolationThisUnsupportedVersion
                 or ErrorCode.WRN_UseDefViolationOut
                 or ErrorCode.WRN_UseDefViolation
                 or ErrorCode.ERR_CannotSpecifyManagedWithUnmanagedSpecifiers
-                or ErrorCode.ERR_RuntimeDoesNotSupportUnmanagedDefaultCallConv
                 or ErrorCode.ERR_TypeNotFound
                 or ErrorCode.ERR_TypeMustBePublic
                 or ErrorCode.ERR_InvalidUnmanagedCallersOnlyCallConv
@@ -2156,14 +2026,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_DoNotCompareFunctionPointers
                 or ErrorCode.ERR_RecordAmbigCtor
                 or ErrorCode.ERR_FunctionPointerTypesInAttributeNotSupported
-                or ErrorCode.ERR_InheritingFromRecordWithSealedToString
                 or ErrorCode.ERR_HiddenPositionalMember
                 or ErrorCode.ERR_GlobalUsingInNamespace
                 or ErrorCode.ERR_GlobalUsingOutOfOrder
                 or ErrorCode.ERR_AttributesRequireParenthesizedLambdaExpression
                 or ErrorCode.ERR_CannotInferDelegateType
                 or ErrorCode.ERR_InvalidNameInSubpattern
-                or ErrorCode.ERR_RuntimeDoesNotSupportStaticAbstractMembersInInterfaces
                 or ErrorCode.ERR_GenericConstraintNotSatisfiedInterfaceWithStaticAbstractMembers
                 or ErrorCode.ERR_BadAbstractUnaryOperatorSignature
                 or ErrorCode.ERR_BadAbstractIncDecSignature
@@ -2172,15 +2040,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_BadAbstractShiftOperatorSignature
                 or ErrorCode.ERR_BadAbstractStaticMemberAccess
                 or ErrorCode.ERR_ExpressionTreeContainsAbstractStaticMemberAccess
-                or ErrorCode.ERR_CloseUnimplementedInterfaceMemberNotStatic
-                or ErrorCode.ERR_RuntimeDoesNotSupportStaticAbstractMembersInInterfacesForMember
+                or ErrorCode.ERR_CloseUnimplementedInterfaceMemberNotStatic// //
                 or ErrorCode.ERR_ExplicitImplementationOfOperatorsMustBeStatic
                 or ErrorCode.ERR_AbstractConversionNotInvolvingContainedType
                 or ErrorCode.ERR_InterfaceImplementedByUnmanagedCallersOnlyMethod
                 or ErrorCode.HDN_DuplicateWithGlobalUsing
                 or ErrorCode.ERR_CantConvAnonMethReturnType
                 or ErrorCode.ERR_BuilderAttributeDisallowed
-                or ErrorCode.ERR_FeatureNotAvailableInVersion10
                 or ErrorCode.ERR_SimpleProgramIsEmpty
                 or ErrorCode.ERR_LineSpanDirectiveInvalidValue
                 or ErrorCode.ERR_LineSpanDirectiveEndLessThanStart
@@ -2249,10 +2115,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_NoDelegateConstraint
                 or ErrorCode.ERR_MisplacedRecord
                 or ErrorCode.ERR_PatternSpanCharCannotBeStringNull
-                or ErrorCode.ERR_UseDefViolationPropertyUnsupportedVersion
-                or ErrorCode.ERR_UseDefViolationFieldUnsupportedVersion
-                or ErrorCode.WRN_UseDefViolationPropertyUnsupportedVersion
-                or ErrorCode.WRN_UseDefViolationFieldUnsupportedVersion
                 or ErrorCode.WRN_UseDefViolationPropertySupportedVersion
                 or ErrorCode.WRN_UseDefViolationFieldSupportedVersion
                 or ErrorCode.WRN_UseDefViolationThisSupportedVersion
@@ -2292,14 +2154,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_FileTypeNested
                 or ErrorCode.ERR_GlobalUsingStaticFileType
                 or ErrorCode.ERR_FileTypeNameDisallowed
-                or ErrorCode.ERR_FeatureNotAvailableInVersion11
                 or ErrorCode.ERR_RefFieldInNonRefStruct
                 or ErrorCode.WRN_AnalyzerReferencesNewerCompiler
                 or ErrorCode.ERR_CannotMatchOnINumberBase
                 or ErrorCode.ERR_ScopedTypeNameDisallowed
                 or ErrorCode.ERR_ImplicitlyTypedDefaultParameter
                 or ErrorCode.ERR_UnscopedRefAttributeUnsupportedTarget
-                or ErrorCode.ERR_RuntimeDoesNotSupportRefFields
                 or ErrorCode.ERR_ExplicitScopedRef
                 or ErrorCode.ERR_UnscopedScoped
                 or ErrorCode.WRN_DuplicateAnalyzerReference
@@ -2351,7 +2211,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_UnexpectedParameterList
                 or ErrorCode.WRN_AddressOfInAsync
                 or ErrorCode.ERR_BadRefInUsingAlias
-                or ErrorCode.ERR_BadUnsafeInUsingDirective
                 or ErrorCode.ERR_BadNullableReferenceTypeInUsingAlias
                 or ErrorCode.ERR_BadStaticAfterUnsafe
                 or ErrorCode.ERR_BadCaseInSwitchArm
@@ -2380,7 +2239,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_InvalidInlineArrayLayout
                 or ErrorCode.ERR_InvalidInlineArrayFields
                 or ErrorCode.ERR_ExpressionTreeContainsInlineArrayOperation
-                or ErrorCode.ERR_RuntimeDoesNotSupportInlineArrayTypes
                 or ErrorCode.ERR_InlineArrayBadIndex
                 or ErrorCode.ERR_NamedArgumentForInlineArray
                 or ErrorCode.ERR_CollectionExpressionTargetTypeNotConstructible
@@ -2396,12 +2254,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_CollectionBuilderAttributeInvalidType
                 or ErrorCode.ERR_CollectionBuilderAttributeInvalidMethodName
                 or ErrorCode.ERR_CollectionBuilderNoElementType
-                or ErrorCode.ERR_InlineArrayForEachNotSupported
                 or ErrorCode.ERR_RefReadOnlyWrongOrdering
                 or ErrorCode.WRN_BadArgRef
                 or ErrorCode.WRN_ArgExpectedRefOrIn
                 or ErrorCode.WRN_RefReadonlyNotVariable
-                or ErrorCode.ERR_BadArgExtraRefLangVersion
                 or ErrorCode.WRN_ArgExpectedIn
                 or ErrorCode.WRN_OverridingDifferentRefness
                 or ErrorCode.WRN_HidingDifferentRefness
@@ -2410,10 +2266,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_RefReadonlyParameterDefaultValue
                 or ErrorCode.WRN_ByValArraySizeConstRequired
                 or ErrorCode.WRN_UseDefViolationRefField
-                or ErrorCode.ERR_FeatureNotAvailableInVersion12
                 or ErrorCode.ERR_CollectionExpressionEscape
-                or ErrorCode.WRN_Experimental
-                or ErrorCode.WRN_ExperimentalWithMessage
                 or ErrorCode.ERR_ExpectedInterpolatedString
                 or ErrorCode.ERR_InterceptorGlobalNamespace
                 or ErrorCode.WRN_CollectionExpressionRefStructMayAllocate
@@ -2441,9 +2294,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_InterceptsLocationFileNotFound
                 or ErrorCode.ERR_InterceptsLocationDataInvalidPosition
                 or ErrorCode.INF_TooManyBoundLambdas
-                or ErrorCode.ERR_BadYieldInUnsafe
                 or ErrorCode.ERR_AddressOfInIterator
-                or ErrorCode.ERR_RuntimeDoesNotSupportByRefLikeGenerics
                 or ErrorCode.ERR_RefStructConstraintAlreadySpecified
                 or ErrorCode.ERR_AllowsClauseMustBeLast
                 or ErrorCode.ERR_ClassIsCombinedWithRefStruct
@@ -2463,7 +2314,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_PartialPropertyRequiredDifference
                 or ErrorCode.WRN_FieldIsAmbiguous
                 or ErrorCode.ERR_InlineArrayAttributeOnRecord
-                or ErrorCode.ERR_FeatureNotAvailableInVersion13
                 or ErrorCode.ERR_CannotApplyOverloadResolutionPriorityToOverride
                 or ErrorCode.ERR_CannotApplyOverloadResolutionPriorityToMember
                 or ErrorCode.ERR_PartialPropertyDuplicateInitializer

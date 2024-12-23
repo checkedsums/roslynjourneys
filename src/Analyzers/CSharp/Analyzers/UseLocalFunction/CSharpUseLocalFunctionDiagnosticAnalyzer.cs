@@ -54,14 +54,7 @@ internal class CSharpUseLocalFunctionDiagnosticAnalyzer : AbstractBuiltInCodeSty
     {
         context.RegisterCompilationStartAction(compilationContext =>
         {
-            var compilation = compilationContext.Compilation;
-
-            // Local functions are only available in C# 7.0 and above.  Don't offer this refactoring
-            // in projects targeting a lesser version.
-            if (compilation.LanguageVersion() < LanguageVersion.CSharp7)
-                return;
-
-            var expressionType = compilation.GetTypeByMetadataName(typeof(Expression<>).FullName!);
+            var expressionType = compilationContext.Compilation.GetTypeByMetadataName(typeof(Expression<>).FullName!);
 
             // We wrap the SyntaxNodeAction within a CodeBlockStartAction, which allows us to
             // get callbacks for lambda expression nodes, but analyze nodes across the entire code block
@@ -121,13 +114,6 @@ internal class CSharpUseLocalFunctionDiagnosticAnalyzer : AbstractBuiltInCodeSty
 
         if (!CanReplaceAnonymousWithLocalFunction(semanticModel, expressionType, local, block, anonymousFunction, out var referenceLocations, cancellationToken))
             return;
-
-        if (localDeclaration.Declaration.Type.IsVar)
-        {
-            var options = semanticModel.SyntaxTree.Options;
-            if (options.LanguageVersion() < LanguageVersion.CSharp10)
-                return;
-        }
 
         // Looks good!
         var additionalLocations = ImmutableArray.Create(

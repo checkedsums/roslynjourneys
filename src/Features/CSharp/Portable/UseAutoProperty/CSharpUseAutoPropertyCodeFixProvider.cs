@@ -43,7 +43,7 @@ internal sealed partial class CSharpUseAutoPropertyCodeFixProvider()
         => (PropertyDeclarationSyntax)node;
 
     private static bool SupportsReadOnlyProperties(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp6;
+        => true;
 
     private static bool IsSetOrInitAccessor(AccessorDeclarationSyntax accessor)
         => accessor.Kind() is SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration;

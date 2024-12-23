@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     internal sealed class FunctionTypeSymbol : TypeSymbol
     {
-        private static readonly NamedTypeSymbol Uninitialized = new UnsupportedMetadataTypeSymbol();
+        private static readonly NamedTypeSymbol s_uninitialized = new UnsupportedMetadataTypeSymbol();
 
         private readonly Binder? _binder;
         private readonly Func<Binder, BoundExpression, NamedTypeSymbol?>? _calculateDelegate;
@@ -42,18 +42,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private BoundExpression? _expression;
         private NamedTypeSymbol? _lazyDelegateType;
 
-        internal static FunctionTypeSymbol? CreateIfFeatureEnabled(SyntaxNode syntax, Binder binder, Func<Binder, BoundExpression, NamedTypeSymbol?> calculateDelegate)
-        {
-            return syntax.IsFeatureEnabled(MessageID.IDS_FeatureInferredDelegateType) ?
-                new FunctionTypeSymbol(binder, calculateDelegate) :
-                null;
-        }
-
-        private FunctionTypeSymbol(Binder binder, Func<Binder, BoundExpression, NamedTypeSymbol?> calculateDelegate)
+        internal FunctionTypeSymbol(Binder binder, Func<Binder, BoundExpression, NamedTypeSymbol?> calculateDelegate)
         {
             _binder = binder;
             _calculateDelegate = calculateDelegate;
-            _lazyDelegateType = Uninitialized;
+            _lazyDelegateType = s_uninitialized;
         }
 
         internal FunctionTypeSymbol(NamedTypeSymbol delegateType)
@@ -63,7 +56,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal void SetExpression(BoundExpression expression)
         {
-            Debug.Assert((object?)_lazyDelegateType == Uninitialized);
+            Debug.Assert((object?)_lazyDelegateType == s_uninitialized);
             Debug.Assert(_expression is null);
             Debug.Assert(expression.Kind is BoundKind.MethodGroup or BoundKind.UnboundLambda);
 
@@ -76,17 +69,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal NamedTypeSymbol? GetInternalDelegateType()
         {
-            if ((object?)_lazyDelegateType == Uninitialized)
+            if ((object?)_lazyDelegateType == s_uninitialized)
             {
                 Debug.Assert(_binder is { });
                 Debug.Assert(_calculateDelegate is { });
                 Debug.Assert(_expression is { });
 
                 var delegateType = _calculateDelegate(_binder, _expression);
-                var result = Interlocked.CompareExchange(ref _lazyDelegateType, delegateType, Uninitialized);
+                var result = Interlocked.CompareExchange(ref _lazyDelegateType, delegateType, s_uninitialized);
 
                 if (_binder.Compilation.TestOnlyCompilationData is InferredDelegateTypeData data &&
-                    (object?)result == Uninitialized)
+                    (object?)result == s_uninitialized)
                 {
                     Interlocked.Increment(ref data.InferredDelegateCount);
                 }

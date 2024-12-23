@@ -44,7 +44,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                                     returnsVoid: baseMethod.ReturnsVoid,
                                                     returnsVoidIsSet: true,
                                                     isExtensionMethod: false,
-                                                    isNullableAnalysisEnabled: false,
                                                     isVarArg: baseMethod.IsVararg,
                                                     isExpressionBodied: false,
                                                     isExplicitInterfaceImplementation: false,

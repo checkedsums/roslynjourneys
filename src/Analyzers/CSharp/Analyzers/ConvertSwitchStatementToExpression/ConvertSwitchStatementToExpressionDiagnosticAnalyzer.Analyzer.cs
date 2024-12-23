@@ -19,21 +19,14 @@ internal sealed partial class ConvertSwitchStatementToExpressionDiagnosticAnalyz
 {
     private sealed class Analyzer : CSharpSyntaxVisitor<SyntaxKind>
     {
-        private readonly bool _supportsOrPatterns;
-
         private ExpressionSyntax? _assignmentTargetOpt;
-
-        private Analyzer(bool supportsOrPatterns)
-        {
-            _supportsOrPatterns = supportsOrPatterns;
-        }
 
         public static (SyntaxKind nodeToGenerate, VariableDeclaratorSyntax? declaratorToRemoveOpt) Analyze(
             SwitchStatementSyntax node,
             SemanticModel semanticModel,
             out bool shouldRemoveNextStatement)
         {
-            var analyzer = new Analyzer(supportsOrPatterns: semanticModel.SyntaxTree.Options.LanguageVersion() >= LanguageVersion.CSharp9);
+            var analyzer = new Analyzer();
             var nodeToGenerate = analyzer.AnalyzeSwitchStatement(node, out shouldRemoveNextStatement);
 
             if (nodeToGenerate == SyntaxKind.SimpleAssignmentExpression &&
@@ -130,7 +123,7 @@ internal sealed partial class ConvertSwitchStatementToExpressionDiagnosticAnalyz
             return Aggregate(nextStatement, sections, (result, section) => Intersect(result, AnalyzeSwitchSection(section)));
         }
 
-        private bool CanConvertLabelsToArms(SyntaxList<SwitchLabelSyntax> labels)
+        private static bool CanConvertLabelsToArms(SyntaxList<SwitchLabelSyntax> labels)
         {
             Debug.Assert(labels.Count >= 1);
             if (labels.Count == 1)
@@ -139,19 +132,11 @@ internal sealed partial class ConvertSwitchStatementToExpressionDiagnosticAnalyz
                 return true;
             }
 
-            if (labels.Any(label => IsDefaultSwitchLabel(label)))
+            if (labels.Any(IsDefaultSwitchLabel))
             {
                 // if any of the  labels are a default/_/var (catch-all) then we can convert this set of labels into
                 // a single `_` arm.
                 return true;
-            }
-
-            // We have multiple labels and none of them are a 'catch-all'.  
-
-            if (!_supportsOrPatterns)
-            {
-                // We don't support 'or' patterns, so no way to convert this to arms.
-                return false;
             }
 
             // If any of the cases have when-clauses, like so:
@@ -176,7 +161,7 @@ internal sealed partial class ConvertSwitchStatementToExpressionDiagnosticAnalyz
         private SyntaxKind AnalyzeNextStatement(SwitchStatementSyntax switchStatement, out bool shouldRemoveNextStatement)
         {
             // Check if we have a catch-all label anywhere.  If so we don't need to pull in the next statements.
-            if (switchStatement.Sections.Any(section => section.Labels.Any(label => IsDefaultSwitchLabel(label))))
+            if (switchStatement.Sections.Any(section => section.Labels.Any(IsDefaultSwitchLabel)))
             {
                 // Throw can be overridden by other section bodies, therefore it has no effect on the result.
                 shouldRemoveNextStatement = false;

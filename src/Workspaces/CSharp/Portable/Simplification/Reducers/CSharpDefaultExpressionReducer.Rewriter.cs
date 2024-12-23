@@ -32,7 +32,7 @@ internal partial class CSharpDefaultExpressionReducer
         {
             var preferSimpleDefaultExpression = options.PreferSimpleDefaultExpression.Value;
 
-            if (node.CanReplaceWithDefaultLiteral(ParseOptions, preferSimpleDefaultExpression, semanticModel, cancellationToken))
+            if (node.CanReplaceWithDefaultLiteral(preferSimpleDefaultExpression, semanticModel, cancellationToken))
             {
                 return SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression)
                                     .WithTriviaFrom(node);

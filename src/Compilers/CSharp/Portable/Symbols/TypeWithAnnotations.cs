@@ -571,35 +571,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _extensions.WithTypeAndModifiers(this, typeSymbol, CustomModifiers);
 
         /// <summary>
-        /// Used by callers before calling CSharpCompilation.EnsureNullableAttributeExists().
-        /// </summary>
-        /// <remarks>
-        /// This method ignores any [NullableContext]. For example, if there is a [NullableContext(1)]
-        /// at the containing type, and this type reference is oblivious, NeedsNullableAttribute()
-        /// will return false even though a [Nullable(0)] will be emitted for this type reference.
-        /// In practice, this shouldn't be an issue though since EnsuresNullableAttributeExists()
-        /// will have returned true for at least some of other type references that required
-        /// [Nullable(1)] and were subsequently aggregated to the [NullableContext(1)].
-        /// </remarks>
-        public bool NeedsNullableAttribute()
-        {
-            return NeedsNullableAttribute(this, typeOpt: null);
-        }
-
-        public static bool NeedsNullableAttribute(
-            TypeWithAnnotations typeWithAnnotationsOpt,
-            TypeSymbol typeOpt)
-        {
-            var type = TypeSymbolExtensions.VisitType(
-                typeWithAnnotationsOpt,
-                typeOpt,
-                typeWithAnnotationsPredicate: (t, a, b) => t.NullableAnnotation != NullableAnnotation.Oblivious && !t.Type.IsErrorType() && !t.Type.IsValueType,
-                typePredicate: null,
-                arg: (object)null);
-            return (object)type != null;
-        }
-
-        /// <summary>
         /// If the type is a non-generic value type or Nullable&lt;&gt;, and
         /// is not a type parameter, the nullability is not included in the byte[].
         /// </summary>

@@ -20,11 +20,6 @@ internal abstract class AbstractDiagnosticPropertiesService : IDiagnosticPropert
         Compilation compilation)
     {
         var assemblyIds = compilation.GetUnreferencedAssemblyIdentities(diagnostic);
-        var requiredVersion = Compilation.GetRequiredLanguageVersion(diagnostic);
-        if (assemblyIds.IsDefaultOrEmpty && requiredVersion == null)
-        {
-            return null;
-        }
 
         var result = ImmutableDictionary.CreateBuilder<string, string>();
         if (!assemblyIds.IsDefaultOrEmpty)
@@ -32,13 +27,6 @@ internal abstract class AbstractDiagnosticPropertiesService : IDiagnosticPropert
             result.Add(
                 DiagnosticPropertyConstants.UnreferencedAssemblyIdentity,
                 assemblyIds[0].GetDisplayName());
-        }
-
-        if (requiredVersion != null)
-        {
-            result.Add(
-                DiagnosticPropertyConstants.RequiredLanguageVersion,
-                requiredVersion);
         }
 
         return result.ToImmutable();

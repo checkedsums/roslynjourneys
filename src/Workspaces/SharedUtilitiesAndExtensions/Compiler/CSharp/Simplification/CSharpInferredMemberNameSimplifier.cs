@@ -18,11 +18,6 @@ internal static class CSharpInferredMemberNameSimplifier
             return false;
         }
 
-        if (parseOptions.LanguageVersion < LanguageVersion.CSharp7_1)
-        {
-            return false;
-        }
-
         if (RemovalCausesAmbiguity(((TupleExpressionSyntax)node.Parent).Arguments, node))
         {
             return false;

@@ -23,8 +23,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal BoundExpression BindQuery(QueryExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
-            MessageID.IDS_FeatureQueryExpression.CheckFeatureAvailability(diagnostics, node.FromClause.FromKeyword);
-
             var fromClause = node.FromClause;
             var boundFromExpression = BindLeftOfPotentialColorColorMemberAccess(fromClause.Expression, diagnostics);
 
@@ -162,13 +160,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private BoundExpression BindQueryInternal1(QueryTranslationState state, BindingDiagnosticBag diagnostics)
-        {
+        private BoundExpression BindQueryInternal1(QueryTranslationState state, BindingDiagnosticBag diagnostics) =>
             // If the query is a degenerate one the form "from x in e select x", but in source,
             // then we go ahead and generate the select anyway.  We do this by skipping BindQueryInternal2,
             // whose job it is to (reduce away the whole query and) optimize away degenerate queries.
-            return IsDegenerateQuery(state) ? FinalTranslation(state, diagnostics) : BindQueryInternal2(state, diagnostics);
-        }
+            IsDegenerateQuery(state) ? FinalTranslation(state, diagnostics) : BindQueryInternal2(state, diagnostics);
 
         private static bool IsDegenerateQuery(QueryTranslationState state)
         {
@@ -765,16 +761,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             state.fromExpression = MakeQueryClause(let, invocation, y, invocation);
         }
 
-        private BoundBlock CreateLambdaBlockForQueryClause(ExpressionSyntax expression, BoundExpression result, BindingDiagnosticBag diagnostics)
-        {
-            var locals = this.GetDeclaredLocalsForScope(expression);
-            if (locals.Any())
-            {
-                CheckFeatureAvailability(expression, MessageID.IDS_FeatureExpressionVariablesInQueriesAndInitializers, diagnostics, locals[0].GetFirstLocation());
-            }
-
-            return this.CreateBlockFromExpression(expression, locals, RefKind.None, result, expression, diagnostics);
-        }
+        private BoundBlock CreateLambdaBlockForQueryClause(ExpressionSyntax expression, BoundExpression result, BindingDiagnosticBag diagnostics) 
+            => this.CreateBlockFromExpression(expression, this.GetDeclaredLocalsForScope(expression), RefKind.None, result, expression, diagnostics);
 
         private BoundQueryClause MakeQueryClause(
             CSharpSyntaxNode syntax,
@@ -818,49 +806,34 @@ namespace Microsoft.CodeAnalysis.CSharp
                 new AnonymousTypeField(fieldName, fieldValue.Syntax.Location, TypeWithAnnotations.Create(TypeOrError(fieldValue)), RefKind.None, ScopedKind.None);
         }
 
-        private TypeSymbol TypeOrError(BoundExpression e)
-        {
-            return e.Type ?? CreateErrorType();
-        }
+        private TypeSymbol TypeOrError(BoundExpression e) => e.Type ?? CreateErrorType();
 
-        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, RangeVariableSymbol parameter, ExpressionSyntax expression, bool withDependencies)
-        {
-            return MakeQueryUnboundLambda(qvm, ImmutableArray.Create(parameter), expression, withDependencies);
-        }
+        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, RangeVariableSymbol parameter, ExpressionSyntax expression, bool withDependencies) => MakeQueryUnboundLambda(qvm, ImmutableArray.Create(parameter), expression, withDependencies);
 
-        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, ImmutableArray<RangeVariableSymbol> parameters, ExpressionSyntax expression, bool withDependencies)
-        {
-            return MakeQueryUnboundLambda(expression, new QueryUnboundLambdaState(this, qvm, parameters, (LambdaSymbol lambdaSymbol, Binder lambdaBodyBinder, BindingDiagnosticBag diagnostics) =>
-            {
-                lambdaBodyBinder = lambdaBodyBinder.GetRequiredBinder(expression);
-                Debug.Assert(lambdaSymbol != null);
-                BoundExpression boundExpression = lambdaBodyBinder.BindValue(expression, diagnostics, BindValueKind.RValue);
-                return lambdaBodyBinder.CreateLambdaBlockForQueryClause(expression, boundExpression, diagnostics);
-            }), withDependencies);
-        }
+        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, ImmutableArray<RangeVariableSymbol> parameters, ExpressionSyntax expression, bool withDependencies) => MakeQueryUnboundLambda(expression, new QueryUnboundLambdaState(this, qvm, parameters, (LambdaSymbol lambdaSymbol, Binder lambdaBodyBinder, BindingDiagnosticBag diagnostics) =>
+                                                                                                                                                                                           {
+                                                                                                                                                                                               lambdaBodyBinder = lambdaBodyBinder.GetRequiredBinder(expression);
+                                                                                                                                                                                               Debug.Assert(lambdaSymbol != null);
+                                                                                                                                                                                               BoundExpression boundExpression = lambdaBodyBinder.BindValue(expression, diagnostics, BindValueKind.RValue);
+                                                                                                                                                                                               return lambdaBodyBinder.CreateLambdaBlockForQueryClause(expression, boundExpression, diagnostics);
+                                                                                                                                                                                           }), withDependencies);
 
-        private UnboundLambda MakeQueryUnboundLambdaWithCast(RangeVariableMap qvm, RangeVariableSymbol parameter, ExpressionSyntax expression, TypeSyntax castTypeSyntax, TypeWithAnnotations castType, bool withDependencies)
-        {
-            return MakeQueryUnboundLambda(expression, new QueryUnboundLambdaState(this, qvm, ImmutableArray.Create(parameter), (LambdaSymbol lambdaSymbol, Binder lambdaBodyBinder, BindingDiagnosticBag diagnostics) =>
-            {
-                lambdaBodyBinder = lambdaBodyBinder.GetRequiredBinder(expression);
-                BoundExpression boundExpression = lambdaBodyBinder.BindValue(expression, diagnostics, BindValueKind.RValue);
+        private UnboundLambda MakeQueryUnboundLambdaWithCast(RangeVariableMap qvm, RangeVariableSymbol parameter, ExpressionSyntax expression, TypeSyntax castTypeSyntax, TypeWithAnnotations castType, bool withDependencies) => MakeQueryUnboundLambda(expression, new QueryUnboundLambdaState(this, qvm, ImmutableArray.Create(parameter), (LambdaSymbol lambdaSymbol, Binder lambdaBodyBinder, BindingDiagnosticBag diagnostics) =>
+                                                                                                                                                                                                                                           {
+                                                                                                                                                                                                                                               lambdaBodyBinder = lambdaBodyBinder.GetRequiredBinder(expression);
+                                                                                                                                                                                                                                               BoundExpression boundExpression = lambdaBodyBinder.BindValue(expression, diagnostics, BindValueKind.RValue);
 
-                // We transform the expression from "expr" to "expr.Cast<castTypeOpt>()".
-                boundExpression = lambdaBodyBinder.MakeQueryInvocation(expression, boundExpression, "Cast", castTypeSyntax, castType, diagnostics
+                                                                                                                                                                                                                                               // We transform the expression from "expr" to "expr.Cast<castTypeOpt>()".
+                                                                                                                                                                                                                                               boundExpression = lambdaBodyBinder.MakeQueryInvocation(expression, boundExpression, "Cast", castTypeSyntax, castType, diagnostics
 #if DEBUG
-                    , expectedMethodName: null
+                                                                                                                                                                                                                                                   , expectedMethodName: null
 #endif
-                    );
+                                                                                                                                                                                                                                                   );
 
-                return lambdaBodyBinder.CreateLambdaBlockForQueryClause(expression, boundExpression, diagnostics);
-            }), withDependencies);
-        }
+                                                                                                                                                                                                                                               return lambdaBodyBinder.CreateLambdaBlockForQueryClause(expression, boundExpression, diagnostics);
+                                                                                                                                                                                                                                           }), withDependencies);
 
-        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, ImmutableArray<RangeVariableSymbol> parameters, CSharpSyntaxNode node, LambdaBodyFactory bodyFactory, bool withDependencies)
-        {
-            return MakeQueryUnboundLambda(node, new QueryUnboundLambdaState(this, qvm, parameters, bodyFactory), withDependencies);
-        }
+        private UnboundLambda MakeQueryUnboundLambda(RangeVariableMap qvm, ImmutableArray<RangeVariableSymbol> parameters, CSharpSyntaxNode node, LambdaBodyFactory bodyFactory, bool withDependencies) => MakeQueryUnboundLambda(node, new QueryUnboundLambdaState(this, qvm, parameters, bodyFactory), withDependencies);
 
         private static UnboundLambda MakeQueryUnboundLambda(CSharpSyntaxNode node, QueryUnboundLambdaState state, bool withDependencies)
         {
@@ -875,40 +848,31 @@ namespace Microsoft.CodeAnalysis.CSharp
 #if DEBUG
             , string? expectedMethodName
 #endif
-            )
-        {
-            return MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), ImmutableArray.Create(arg), diagnostics
+            ) => MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), ImmutableArray.Create(arg), diagnostics
 #if DEBUG
                 , expectedMethodName
 #endif
                 );
-        }
 
         protected BoundCall MakeQueryInvocation(CSharpSyntaxNode node, BoundExpression receiver, string methodName, ImmutableArray<BoundExpression> args, BindingDiagnosticBag diagnostics
 #if DEBUG
             , string? expectedMethodName
 #endif
-            )
-        {
-            return MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), args, diagnostics
+            ) => MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), args, diagnostics
 #if DEBUG
                 , expectedMethodName
 #endif
                 );
-        }
 
         protected BoundCall MakeQueryInvocation(CSharpSyntaxNode node, BoundExpression receiver, string methodName, TypeSyntax typeArgSyntax, TypeWithAnnotations typeArg, BindingDiagnosticBag diagnostics
 #if DEBUG
             , string? expectedMethodName
 #endif
-            )
-        {
-            return MakeQueryInvocation(node, receiver, methodName, new SeparatedSyntaxList<TypeSyntax>(new SyntaxNodeOrTokenList(typeArgSyntax, 0)), ImmutableArray.Create(typeArg), ImmutableArray<BoundExpression>.Empty, diagnostics
+            ) => MakeQueryInvocation(node, receiver, methodName, new SeparatedSyntaxList<TypeSyntax>(new SyntaxNodeOrTokenList(typeArgSyntax, 0)), ImmutableArray.Create(typeArg), ImmutableArray<BoundExpression>.Empty, diagnostics
 #if DEBUG
                 , expectedMethodName
 #endif
                 );
-        }
 
         protected BoundCall MakeQueryInvocation(CSharpSyntaxNode node, BoundExpression receiver, string methodName, SeparatedSyntaxList<TypeSyntax> typeArgsSyntax, ImmutableArray<TypeWithAnnotations> typeArgs, ImmutableArray<BoundExpression> args, BindingDiagnosticBag diagnostics
 #if DEBUG

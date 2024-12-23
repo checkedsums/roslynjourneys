@@ -17,16 +17,11 @@ internal sealed class CSharpAddAccessibilityModifiersCodeFixProvider() : Abstrac
 {
     protected override SyntaxNode MapToDeclarator(SyntaxNode node)
     {
-        switch (node)
+        return node switch
         {
-            case FieldDeclarationSyntax field:
-                return field.Declaration.Variables[0];
-
-            case EventFieldDeclarationSyntax eventField:
-                return eventField.Declaration.Variables[0];
-
-            default:
-                return node;
-        }
+            FieldDeclarationSyntax field => field.Declaration.Variables[0],
+            EventFieldDeclarationSyntax eventField => eventField.Declaration.Variables[0],
+            _ => node,
+        };
     }
 }

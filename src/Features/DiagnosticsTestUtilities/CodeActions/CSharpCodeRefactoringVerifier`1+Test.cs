@@ -36,12 +36,10 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.CodeActions
             {
                 // If we have outdated defaults from the host unit test application targeting an older .NET Framework, use more
                 // reasonable TLS protocol version for outgoing connections.
-#pragma warning disable CA5364 // Do Not Use Deprecated Security Protocols
 #pragma warning disable CS0618 // Type or member is obsolete
 #pragma warning disable SYSLIB0014 // 'ServicePointManager' is obsolete
                 if (ServicePointManager.SecurityProtocol == (SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls))
 #pragma warning restore CS0618 // Type or member is obsolete
-#pragma warning restore CA5364 // Do Not Use Deprecated Security Protocols
                 {
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 }
@@ -54,11 +52,7 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.CodeActions
                 this.FixedState.InheritanceMode = StateInheritanceMode.AutoInherit;
             }
 
-            /// <summary>
-            /// Gets or sets the language version to use for the test. The default value is
-            /// <see cref="LanguageVersion.CSharp8"/>.
-            /// </summary>
-            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.CSharp8;
+            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.CSharp13;
 
             /// <inheritdoc cref="SharedVerifierState.Options"/>
             internal OptionsCollection Options => _sharedState.Options;

@@ -58,15 +58,12 @@ internal abstract class AbstractConvertAnonymousTypeToClassCodeRefactoringProvid
             return;
 
         var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
-        if (syntaxFacts.SupportsRecord(anonymousObject.SyntaxTree.Options))
-        {
-            context.RegisterRefactoring(
-                CodeAction.Create(
-                    FeaturesResources.Convert_to_record,
-                    c => ConvertAsync(document, textSpan, isRecord: true, c),
-                    nameof(FeaturesResources.Convert_to_record)),
-                anonymousObject.Span);
-        }
+        context.RegisterRefactoring(
+            CodeAction.Create(
+                FeaturesResources.Convert_to_record,
+                c => ConvertAsync(document, textSpan, isRecord: true, c),
+                nameof(FeaturesResources.Convert_to_record)),
+            anonymousObject.Span);
 
         context.RegisterRefactoring(
             CodeAction.Create(

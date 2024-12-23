@@ -34,10 +34,6 @@ internal sealed class CSharpMakeStructMemberReadOnlyDiagnosticAnalyzer()
     protected override void InitializeWorker(AnalysisContext context)
         => context.RegisterCompilationStartAction(context =>
         {
-            var compilation = context.Compilation;
-            if (compilation.LanguageVersion() < LanguageVersion.CSharp8)
-                return;
-
             context.RegisterSymbolStartAction(context =>
             {
                 if (!ShouldAnalyze(context, out var option))

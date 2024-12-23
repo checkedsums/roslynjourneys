@@ -71,7 +71,7 @@ internal sealed class UseExpressionBodyForLambdaDiagnosticAnalyzer : AbstractBui
         SemanticModel semanticModel, CodeStyleOption2<ExpressionBodyPreference> option,
         LambdaExpressionSyntax declaration, AnalyzerOptions analyzerOptions, CancellationToken cancellationToken)
     {
-        if (UseExpressionBodyForLambdaHelpers.CanOfferUseExpressionBody(option.Value, declaration, declaration.GetLanguageVersion(), cancellationToken))
+        if (UseExpressionBodyForLambdaHelpers.CanOfferUseExpressionBody(option.Value, declaration, cancellationToken))
         {
             var location = GetDiagnosticLocation(declaration);
 

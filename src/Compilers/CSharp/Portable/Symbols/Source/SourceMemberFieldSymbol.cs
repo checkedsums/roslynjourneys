@@ -193,12 +193,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             if ((result & DeclarationModifiers.Fixed) != 0)
             {
-                foreach (var modifier in modifiers)
-                {
-                    if (modifier.IsKind(SyntaxKind.FixedKeyword))
-                        MessageID.IDS_FeatureFixedBuffer.CheckFeatureAvailability(diagnostics, modifier);
-                }
-
                 reportBadMemberFlagIfAny(result, DeclarationModifiers.Static, diagnostics, errorLocation);
                 reportBadMemberFlagIfAny(result, DeclarationModifiers.ReadOnly, diagnostics, errorLocation);
                 reportBadMemberFlagIfAny(result, DeclarationModifiers.Const, diagnostics, errorLocation);
@@ -358,16 +352,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             if (containingType.IsInterface)
             {
-                if (this.IsStatic)
-                {
-                    Binder.CheckFeatureAvailability(declarator, MessageID.IDS_DefaultInterfaceImplementation, diagnostics, ErrorLocation);
-
-                    if (!ContainingAssembly.RuntimeSupportsDefaultInterfaceImplementation)
-                    {
-                        diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation, ErrorLocation);
-                    }
-                }
-                else
+                if (!this.IsStatic)
                 {
                     diagnostics.Add(ErrorCode.ERR_InterfacesCantContainFields, ErrorLocation);
                 }
@@ -490,10 +475,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     type = binder.BindType(typeOnly, diagnosticsForFirstDeclarator);
                     if (refKind != RefKind.None)
                     {
-                        MessageID.IDS_FeatureRefFields.CheckFeatureAvailability(diagnostics, compilation, typeSyntax.SkipScoped(out _).Location);
-                        if (!compilation.Assembly.RuntimeSupportsByRefFields)
-                            diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportRefFields, ErrorLocation);
-
                         if (!containingType.IsRefLikeType)
                             diagnostics.Add(ErrorCode.ERR_RefFieldInNonRefStruct, ErrorLocation);
 

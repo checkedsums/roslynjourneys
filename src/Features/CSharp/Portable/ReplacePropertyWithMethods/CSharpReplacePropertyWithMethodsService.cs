@@ -256,9 +256,7 @@ internal sealed partial class CSharpReplacePropertyWithMethodsService() :
     {
         if (methodDeclaration.Body != null && expressionBodyPreference != ExpressionBodyPreference.Never)
         {
-            if (methodDeclaration.Body.TryConvertToArrowExpressionBody(
-                    methodDeclaration.Kind(), languageVersion, expressionBodyPreference, cancellationToken,
-                    out var arrowExpression, out var semicolonToken))
+            if (methodDeclaration.Body.TryConvertToArrowExpressionBody(expressionBodyPreference, cancellationToken, out var arrowExpression, out var semicolonToken))
             {
                 return methodDeclaration.WithBody(null)
                                         .WithExpressionBody(arrowExpression)

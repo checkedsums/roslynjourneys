@@ -50,14 +50,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
         public static bool AreEquivalent(SyntaxToken before, SyntaxToken after)
         {
-            return before.RawKind == after.RawKind && (before.Node == null || AreTokensEquivalent(before.Node, after.Node, ignoreChildNode: null));
+            return before.RawKind == after.RawKind && (before.Node == null || AreTokensEquivalent(before.Node, after.Node));
         }
 
-        private static bool AreTokensEquivalent(GreenNode? before, GreenNode? after, Func<SyntaxKind, bool>? ignoreChildNode)
+        private static bool AreTokensEquivalent(GreenNode? before, GreenNode? after)
         {
             if (before is null || after is null)
             {
-                return (before is null && after is null);
+                return before is null && after is null;
             }
 
             // NOTE(cyrusn): Do we want to drill into trivia?  Can documentation ever affect the
@@ -99,7 +99,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                     break;
             }
 
-            return AreNullableDirectivesEquivalent(before, after, ignoreChildNode);
+            return true;
         }
 
         private static bool AreEquivalentRecursive(GreenNode? before, GreenNode? after, Func<SyntaxKind, bool>? ignoreChildNode, bool topLevel)
@@ -145,7 +145,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 if (before.IsToken)
                 {
                     Debug.Assert(after.IsToken);
-                    return AreTokensEquivalent(before, after, ignoreChildNode);
+                    return AreTokensEquivalent(before, after);
                 }
 
                 if (topLevel)
@@ -156,7 +156,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                     {
                         case SyntaxKind.Block:
                         case SyntaxKind.ArrowExpressionClause:
-                            return AreNullableDirectivesEquivalent(before, after, ignoreChildNode);
+                            return true;
                     }
 
                     // If we're only checking top level equivalence, then we don't have to go down into
@@ -248,47 +248,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
                 // So far these are equivalent.  Continue checking the children.
                 return true;
-            }
-        }
-
-        private static bool AreNullableDirectivesEquivalent(GreenNode before, GreenNode after, Func<SyntaxKind, bool>? ignoreChildNode)
-        {
-            // Fast path for when the caller does not care about nullable directives. This can happen in some IDE refactorings.
-            if (ignoreChildNode is object && ignoreChildNode(SyntaxKind.NullableDirectiveTrivia))
-            {
-                return true;
-            }
-
-            using var beforeDirectivesEnumerator = ((Green.CSharpSyntaxNode)before).GetDirectives().GetEnumerator();
-            using var afterDirectivesEnumerator = ((Green.CSharpSyntaxNode)after).GetDirectives().GetEnumerator();
-            while (true)
-            {
-                Green.DirectiveTriviaSyntax? beforeAnnotation = getNextNullableDirective(beforeDirectivesEnumerator);
-                Green.DirectiveTriviaSyntax? afterAnnotation = getNextNullableDirective(afterDirectivesEnumerator);
-
-                if (beforeAnnotation == null || afterAnnotation == null)
-                {
-                    return beforeAnnotation == afterAnnotation;
-                }
-
-                if (!AreEquivalentRecursive(beforeAnnotation, afterAnnotation, ignoreChildNode, topLevel: false))
-                {
-                    return false;
-                }
-
-                static Green.DirectiveTriviaSyntax? getNextNullableDirective(IEnumerator<Green.DirectiveTriviaSyntax> enumerator)
-                {
-                    while (enumerator.MoveNext())
-                    {
-                        var current = enumerator.Current;
-                        if (current.Kind == SyntaxKind.NullableDirectiveTrivia)
-                        {
-                            return current;
-                        }
-                    }
-
-                    return null;
-                }
             }
         }
     }

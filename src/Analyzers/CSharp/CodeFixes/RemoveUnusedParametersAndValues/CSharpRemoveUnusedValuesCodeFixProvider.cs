@@ -97,8 +97,7 @@ internal sealed class CSharpRemoveUnusedValuesCodeFixProvider()
 
             // 1) `... is MyType variable` -> `... is MyType`
             // 2) `... is MyType /*1*/ variable /*2*/` -> `... is MyType /*1*/  /*2*/`
-            if (parent is DeclarationPatternSyntax declarationPattern &&
-                parent.SyntaxTree.Options.LanguageVersion() >= LanguageVersion.CSharp9)
+            if (parent is DeclarationPatternSyntax declarationPattern)
             {
                 var trailingTrivia = declarationPattern.Type.GetTrailingTrivia().AddRange(triviaToAppend);
                 return TypePattern(declarationPattern.Type).WithTrailingTrivia(trailingTrivia);

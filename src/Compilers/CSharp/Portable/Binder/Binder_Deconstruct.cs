@@ -40,22 +40,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     case null:
                     case SyntaxKind.ExpressionStatement:
-                        if (expression != null)
-                        {
-                            MessageID.IDS_FeatureMixedDeclarationsAndExpressionsInDeconstruction
-                                .CheckFeatureAvailability(diagnostics, Compilation, node.Location);
-                        }
                         break;
                     case SyntaxKind.ForStatement:
-                        if (((ForStatementSyntax)node.Parent).Initializers.Contains(node))
-                        {
-                            if (expression != null)
-                            {
-                                MessageID.IDS_FeatureMixedDeclarationsAndExpressionsInDeconstruction
-                                    .CheckFeatureAvailability(diagnostics, Compilation, node.Location);
-                            }
-                        }
-                        else
+                        if (!((ForStatementSyntax)node.Parent).Initializers.Contains(node))
                         {
                             Error(diagnostics, ErrorCode.ERR_DeclarationExpressionNotPermitted, declaration);
                         }
@@ -577,7 +564,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             ImmutableArray<string?> tupleNames = namesBuilder is null ? default : namesBuilder.ToImmutableAndFree();
             ImmutableArray<bool> inferredPositions = tupleNames.IsDefault ? default : tupleNames.SelectAsArray(n => n != null);
-            bool disallowInferredNames = this.Compilation.LanguageVersion.DisallowInferredTupleElementNames();
 
             var type = NamedTypeSymbol.CreateTuple(
                 syntax.Location,
@@ -585,7 +571,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 tupleNames, this.Compilation,
                 shouldCheckConstraints: !ignoreDiagnosticsFromTuple,
                 includeNullability: false,
-                errorPositions: disallowInferredNames ? inferredPositions : default,
+                errorPositions: [],
                 syntax: syntax, diagnostics: ignoreDiagnosticsFromTuple ? null : diagnostics);
 
             return (BoundTupleExpression)BindToNaturalType(new BoundTupleLiteral(syntax, arguments, tupleNames, inferredPositions, type), diagnostics);
@@ -745,10 +731,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                             declaration = component;
                         }
 
-                        bool isVar;
                         bool isConst = false;
-                        AliasSymbol alias;
-                        var declType = BindVariableTypeWithAnnotations(component.Designation, diagnostics, component.Type.SkipScoped(out _).SkipRef(), ref isConst, out isVar, out alias);
+                        var declType = BindVariableTypeWithAnnotations(component.Designation, diagnostics, component.Type.SkipScoped(out _).SkipRef(), ref isConst, out bool isVar, out AliasSymbol alias);
                         Debug.Assert(isVar == !declType.HasType);
                         if (component.Designation.Kind() == SyntaxKind.ParenthesizedVariableDesignation)
                         {
@@ -757,21 +741,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 // An explicit type is not allowed with a parenthesized designation
                                 Error(diagnostics, ErrorCode.ERR_DeconstructionVarFormDisallowsSpecificType, component.Designation);
                             }
-                            else if (node.Parent is not ArgumentSyntax)
-                            {
-                                // check for use of `var (x, y, z)`.  Only need to report this in a non-argument
-                                // position. If it's an argument, then we have `(int x, var (y, z))` and we will have
-                                // already reported the parent tuple, so no need to report on the inner designation.
-                                MessageID.IDS_FeatureTuples.CheckFeatureAvailability(diagnostics, component.Designation);
-                            }
                         }
 
                         return BindDeconstructionVariables(declType, component.Designation, component, diagnostics);
                     }
                 case SyntaxKind.TupleExpression:
                     {
-                        MessageID.IDS_FeatureTuples.CheckFeatureAvailability(diagnostics, node);
-
                         var component = (TupleExpressionSyntax)node;
                         var builder = ArrayBuilder<DeconstructionVariable>.GetInstance(component.Arguments.Count);
                         foreach (var arg in component.Arguments)
@@ -878,19 +853,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     if (typeSyntax is ScopedTypeSyntax scopedType)
                     {
-                        // Check for support for 'scoped'.
-                        ModifierUtils.CheckScopedModifierAvailability(typeSyntax, scopedType.ScopedKeyword, diagnostics);
                         typeSyntax = scopedType.Type;
                     }
 
                     if (typeSyntax is RefTypeSyntax refType)
                     {
                         diagnostics.Add(ErrorCode.ERR_DeconstructVariableCannotBeByRef, refType.RefKeyword.GetLocation());
-                    }
-
-                    if (declTypeWithAnnotations.HasType)
-                    {
-                        CheckRestrictedTypeInAsyncMethod(this.ContainingMemberOrLambda, declTypeWithAnnotations.Type, diagnostics, typeSyntax);
                     }
 
                     if (declTypeWithAnnotations.HasType &&

@@ -8,11 +8,9 @@ using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.CSharp.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Shared.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
-using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Shared.Collections;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Roslyn.Utilities;
@@ -55,11 +53,6 @@ internal sealed class CSharpUseSystemThreadingLockDiagnosticAnalyzer()
         context.RegisterCompilationStartAction(compilationContext =>
         {
             var compilation = compilationContext.Compilation;
-
-            // The new 'Lock' feature is only supported in C# 13 and above, and only if we actually have a definition of
-            // System.Threading.Lock available.
-            if (!compilation.LanguageVersion().IsCSharp13OrAbove())
-                return;
 
             var lockType = compilation.GetBestTypeByMetadataName("System.Threading.Lock");
             if (lockType is not { DeclaredAccessibility: Accessibility.Public })

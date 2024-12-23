@@ -186,13 +186,7 @@ internal sealed class CSharpSyntaxGeneratorInternal() : SyntaxGeneratorInternal
             _ => throw ExceptionUtilities.UnexpectedValue(negatedKind),
         };
 
-    public override SyntaxNode IsNotTypeExpression(SyntaxNode expression, SyntaxNode type)
-        => throw ExceptionUtilities.Unreachable();
-
     #region Patterns
-
-    public override bool SupportsPatterns(ParseOptions options)
-        => ((CSharpParseOptions)options).LanguageVersion >= LanguageVersion.CSharp7;
 
     public override SyntaxNode IsPatternExpression(SyntaxNode expression, SyntaxToken isKeyword, SyntaxNode pattern)
         => SyntaxFactory.IsPatternExpression(

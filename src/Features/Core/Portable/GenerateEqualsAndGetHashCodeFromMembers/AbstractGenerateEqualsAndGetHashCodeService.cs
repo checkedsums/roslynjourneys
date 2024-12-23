@@ -69,32 +69,17 @@ internal abstract partial class AbstractGenerateEqualsAndGetHashCodeService : IG
         var objName = generator.IdentifierName("obj");
         if (containingType.IsValueType)
         {
-            if (generator.SyntaxGeneratorInternal.SupportsPatterns(tree.Options))
-            {
-                // return obj is T t && this.Equals(t);
-                var localName = containingType.GetLocalName();
+            var localName = containingType.GetLocalName();
 
-                expressions.Add(
-                    generator.SyntaxGeneratorInternal.IsPatternExpression(objName,
-                        generator.SyntaxGeneratorInternal.DeclarationPattern(containingType, localName)));
-                expressions.Add(
-                    generator.InvocationExpression(
-                        generator.MemberAccessExpression(
-                            generator.ThisExpression(),
-                            generator.IdentifierName(nameof(Equals))),
-                        generator.IdentifierName(localName)));
-            }
-            else
-            {
-                // return obj is T && this.Equals((T)obj);
-                expressions.Add(generator.IsTypeExpression(objName, containingType));
-                expressions.Add(
-                    generator.InvocationExpression(
-                        generator.MemberAccessExpression(
-                            generator.ThisExpression(),
-                            generator.IdentifierName(nameof(Equals))),
-                        generator.CastExpression(containingType, objName)));
-            }
+            expressions.Add(
+                generator.SyntaxGeneratorInternal.IsPatternExpression(objName,
+                    generator.SyntaxGeneratorInternal.DeclarationPattern(containingType, localName)));
+            expressions.Add(
+                generator.InvocationExpression(
+                    generator.MemberAccessExpression(
+                        generator.ThisExpression(),
+                        generator.IdentifierName(nameof(Equals))),
+                    generator.IdentifierName(localName)));
         }
         else
         {

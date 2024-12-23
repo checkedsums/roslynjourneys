@@ -53,10 +53,6 @@ internal sealed partial class CSharpUseRangeOperatorDiagnosticAnalyzer()
         {
             var compilation = context.Compilation;
 
-            // Check if we're at least on C# 8
-            if (compilation.LanguageVersion() < LanguageVersion.CSharp8)
-                return;
-
             // We're going to be checking every invocation in the compilation. Cache information
             // we compute in this object so we don't have to continually recompute it.
             if (!InfoCache.TryCreate(compilation, out var infoCache))

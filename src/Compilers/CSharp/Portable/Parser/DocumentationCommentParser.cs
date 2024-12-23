@@ -982,7 +982,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             Debug.Assert(CurrentToken.Kind == SyntaxKind.OperatorKeyword);
             SyntaxToken operatorKeyword = EatToken();
-            SyntaxToken checkedKeyword = TryEatCheckedKeyword(isConversion: false, ref operatorKeyword);
+            SyntaxToken checkedKeyword = TryEatCheckedKeyword(ref operatorKeyword);
 
             SyntaxToken operatorToken;
 
@@ -1031,8 +1031,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                                 operatorToken.Text + operatorToken2.Text + operatorToken3.Text,
                                 operatorToken.ValueText + operatorToken2.ValueText + operatorToken3.ValueText,
                                 operatorToken3.GetTrailingTrivia());
-
-                            operatorToken = CheckFeatureAvailability(operatorToken, MessageID.IDS_FeatureUnsignedRightShift, forceWarning: true);
                         }
                         else
                         {
@@ -1107,15 +1105,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return SyntaxFactory.OperatorMemberCref(operatorKeyword, checkedKeyword, operatorToken, parameters);
         }
 
-        private SyntaxToken TryEatCheckedKeyword(bool isConversion, ref SyntaxToken operatorKeyword)
+        private SyntaxToken TryEatCheckedKeyword(ref SyntaxToken operatorKeyword)
         {
             SyntaxToken checkedKeyword = tryEatCheckedOrHandleUnchecked(ref operatorKeyword);
-
-            if (checkedKeyword is not null &&
-                (isConversion || SyntaxFacts.IsAnyOverloadableOperator(CurrentToken.Kind)))
-            {
-                checkedKeyword = CheckFeatureAvailability(checkedKeyword, MessageID.IDS_FeatureCheckedUserDefinedOperators, forceWarning: true);
-            }
 
             return checkedKeyword;
 
@@ -1143,7 +1135,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             SyntaxToken implicitOrExplicit = EatToken();
 
             SyntaxToken operatorKeyword = EatToken(SyntaxKind.OperatorKeyword);
-            SyntaxToken checkedKeyword = TryEatCheckedKeyword(isConversion: true, ref operatorKeyword);
+            SyntaxToken checkedKeyword = TryEatCheckedKeyword(ref operatorKeyword);
 
             TypeSyntax type = ParseCrefType(typeArgumentsMustBeIdentifiers: false);
 
@@ -1323,8 +1315,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
                 SyntaxToken close = EatToken(SyntaxKind.GreaterThanToken);
 
-                open = CheckFeatureAvailability(open, MessageID.IDS_FeatureGenerics, forceWarning: true);
-
                 return SyntaxFactory.GenericName(identifierToken, SyntaxFactory.TypeArgumentList(open, list, close));
             }
             finally
@@ -1386,8 +1376,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 {
                     alias = ConvertToKeyword(alias);
                 }
-
-                alias = CheckFeatureAvailability(alias, MessageID.IDS_FeatureGlobalNamespace, forceWarning: true);
 
                 SyntaxToken colonColon = EatToken();
                 SimpleNameSyntax name = ParseCrefName(typeArgumentsMustBeIdentifiers);

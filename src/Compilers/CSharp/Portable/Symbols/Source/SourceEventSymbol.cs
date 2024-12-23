@@ -333,11 +333,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 AddSynthesizedAttribute(ref attributes, compilation.SynthesizeDynamicAttribute(type.Type, type.CustomModifiers.Length));
             }
 
-            if (compilation.ShouldEmitNativeIntegerAttributes(type.Type))
-            {
-                AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNativeIntegerAttribute(this, type.Type));
-            }
-
             if (type.Type.ContainsTupleNames())
             {
                 AddSynthesizedAttribute(ref attributes,
@@ -503,13 +498,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var mods = ModifierUtils.MakeAndCheckNonTypeMemberModifiers(isOrdinaryMethod: false, isForInterfaceMember: isInterface,
                                                                         modifiers, defaultAccess, allowedModifiers, location, diagnostics, out modifierErrors);
 
-            ModifierUtils.CheckFeatureAvailabilityForStaticAbstractMembersInInterfacesIfNeeded(mods, explicitInterfaceImplementation, location, diagnostics);
-
             this.CheckUnsafeModifier(mods, diagnostics);
 
-            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(!isFieldLike, mods,
-                                                                        defaultInterfaceImplementationModifiers,
-                                                                        location, diagnostics);
+            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(mods, defaultInterfaceImplementationModifiers, location, diagnostics);
 
             // Let's overwrite modifiers for interface events with what they are supposed to be. 
             // Proper errors must have been reported by now.
@@ -753,13 +744,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             this.CheckModifiersAndType(diagnostics);
             this.Type.CheckAllConstraints(compilation, conversions, location, diagnostics);
 
-            if (compilation.ShouldEmitNativeIntegerAttributes(Type))
+            if (Type.ContainsNativeIntegerWrapperType())
             {
                 compilation.EnsureNativeIntegerAttributeExists(diagnostics, location, modifyCompilation: true);
             }
 
-            if (compilation.ShouldEmitNullableAttributes(this) &&
-                TypeWithAnnotations.NeedsNullableAttribute())
+            if (compilation.ShouldEmitNullableAttributes(this))
             {
                 compilation.EnsureNullableAttributeExists(diagnostics, location, modifyCompilation: true);
             }

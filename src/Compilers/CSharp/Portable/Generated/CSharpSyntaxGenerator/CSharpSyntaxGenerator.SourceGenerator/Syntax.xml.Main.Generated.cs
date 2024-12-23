@@ -743,9 +743,6 @@ public partial class CSharpSyntaxVisitor<TResult>
 
     /// <summary>Called when the visitor visits a ShebangDirectiveTriviaSyntax node.</summary>
     public virtual TResult? VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
-
-    /// <summary>Called when the visitor visits a NullableDirectiveTriviaSyntax node.</summary>
-    public virtual TResult? VisitNullableDirectiveTrivia(NullableDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 }
 
 public partial class CSharpSyntaxVisitor
@@ -1478,9 +1475,6 @@ public partial class CSharpSyntaxVisitor
 
     /// <summary>Called when the visitor visits a ShebangDirectiveTriviaSyntax node.</summary>
     public virtual void VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node) => this.DefaultVisit(node);
-
-    /// <summary>Called when the visitor visits a NullableDirectiveTriviaSyntax node.</summary>
-    public virtual void VisitNullableDirectiveTrivia(NullableDirectiveTriviaSyntax node) => this.DefaultVisit(node);
 }
 
 public partial class CSharpSyntaxRewriter : CSharpSyntaxVisitor<SyntaxNode?>
@@ -2213,9 +2207,6 @@ public partial class CSharpSyntaxRewriter : CSharpSyntaxVisitor<SyntaxNode?>
 
     public override SyntaxNode? VisitShebangDirectiveTrivia(ShebangDirectiveTriviaSyntax node)
         => node.Update(VisitToken(node.HashToken), VisitToken(node.ExclamationToken), VisitToken(node.EndOfDirectiveToken), node.IsActive);
-
-    public override SyntaxNode? VisitNullableDirectiveTrivia(NullableDirectiveTriviaSyntax node)
-        => node.Update(VisitToken(node.HashToken), VisitToken(node.NullableKeyword), VisitToken(node.SettingToken), VisitToken(node.TargetToken), VisitToken(node.EndOfDirectiveToken), node.IsActive);
 }
 
 public static partial class SyntaxFactory
@@ -6479,35 +6470,4 @@ public static partial class SyntaxFactory
     /// <summary>Creates a new ShebangDirectiveTriviaSyntax instance.</summary>
     public static ShebangDirectiveTriviaSyntax ShebangDirectiveTrivia(bool isActive)
         => SyntaxFactory.ShebangDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.ExclamationToken), SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
-
-    /// <summary>Creates a new NullableDirectiveTriviaSyntax instance.</summary>
-    public static NullableDirectiveTriviaSyntax NullableDirectiveTrivia(SyntaxToken hashToken, SyntaxToken nullableKeyword, SyntaxToken settingToken, SyntaxToken targetToken, SyntaxToken endOfDirectiveToken, bool isActive)
-    {
-        if (hashToken.Kind() != SyntaxKind.HashToken) throw new ArgumentException(nameof(hashToken));
-        if (nullableKeyword.Kind() != SyntaxKind.NullableKeyword) throw new ArgumentException(nameof(nullableKeyword));
-        switch (settingToken.Kind())
-        {
-            case SyntaxKind.EnableKeyword:
-            case SyntaxKind.DisableKeyword:
-            case SyntaxKind.RestoreKeyword: break;
-            default: throw new ArgumentException(nameof(settingToken));
-        }
-        switch (targetToken.Kind())
-        {
-            case SyntaxKind.WarningsKeyword:
-            case SyntaxKind.AnnotationsKeyword:
-            case SyntaxKind.None: break;
-            default: throw new ArgumentException(nameof(targetToken));
-        }
-        if (endOfDirectiveToken.Kind() != SyntaxKind.EndOfDirectiveToken) throw new ArgumentException(nameof(endOfDirectiveToken));
-        return (NullableDirectiveTriviaSyntax)Syntax.InternalSyntax.SyntaxFactory.NullableDirectiveTrivia((Syntax.InternalSyntax.SyntaxToken)hashToken.Node!, (Syntax.InternalSyntax.SyntaxToken)nullableKeyword.Node!, (Syntax.InternalSyntax.SyntaxToken)settingToken.Node!, (Syntax.InternalSyntax.SyntaxToken?)targetToken.Node, (Syntax.InternalSyntax.SyntaxToken)endOfDirectiveToken.Node!, isActive).CreateRed();
-    }
-
-    /// <summary>Creates a new NullableDirectiveTriviaSyntax instance.</summary>
-    public static NullableDirectiveTriviaSyntax NullableDirectiveTrivia(SyntaxToken settingToken, SyntaxToken targetToken, bool isActive)
-        => SyntaxFactory.NullableDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.NullableKeyword), settingToken, targetToken, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
-
-    /// <summary>Creates a new NullableDirectiveTriviaSyntax instance.</summary>
-    public static NullableDirectiveTriviaSyntax NullableDirectiveTrivia(SyntaxToken settingToken, bool isActive)
-        => SyntaxFactory.NullableDirectiveTrivia(SyntaxFactory.Token(SyntaxKind.HashToken), SyntaxFactory.Token(SyntaxKind.NullableKeyword), settingToken, default, SyntaxFactory.Token(SyntaxKind.EndOfDirectiveToken), isActive);
 }

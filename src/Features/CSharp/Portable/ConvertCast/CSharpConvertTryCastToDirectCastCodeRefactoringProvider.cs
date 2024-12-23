@@ -39,7 +39,7 @@ internal sealed partial class CSharpConvertTryCastToDirectCastCodeRefactoringPro
     protected override TypeSyntax GetTypeNode(BinaryExpressionSyntax expression)
         => (TypeSyntax)expression.Right;
 
-    protected override CastExpressionSyntax ConvertExpression(BinaryExpressionSyntax asExpression, NullableContext nullableContext, bool isReferenceType)
+    protected override CastExpressionSyntax ConvertExpression(BinaryExpressionSyntax asExpression, bool isReferenceType)
     {
         var expression = asExpression.Left;
         var typeNode = GetTypeNode(asExpression);
@@ -56,7 +56,7 @@ internal sealed partial class CSharpConvertTryCastToDirectCastCodeRefactoringPro
         typeNode = typeNode.WithoutTrailingTrivia();
 
         // Make sure we make reference type nullable when converting expressions like `null as string` -> `(string?)null`
-        if (expression.IsKind(SyntaxKind.NullLiteralExpression) && nullableContext.HasFlag(NullableContext.AnnotationsEnabled) && isReferenceType)
+        if (expression.IsKind(SyntaxKind.NullLiteralExpression) && isReferenceType)
             typeNode = NullableType(typeNode, QuestionToken);
 
         var castExpression = CastExpression(openParen, typeNode, closeParen, expression.WithoutTrailingTrivia())

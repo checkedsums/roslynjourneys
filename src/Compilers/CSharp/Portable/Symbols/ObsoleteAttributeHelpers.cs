@@ -175,32 +175,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return null;
                 }
 
-                if (data.Kind == ObsoleteAttributeKind.WindowsExperimental)
-                {
-                    Debug.Assert(data.Message == null);
-                    Debug.Assert(!data.IsError);
-                    // Provide an explicit format for fully-qualified type names.
-                    return new CSDiagnosticInfo(ErrorCode.WRN_WindowsExperimental,
-                        new FormattedSymbol(symbol, SymbolDisplayFormat.CSharpErrorMessageFormat));
-                }
-
-                if (data.Kind == ObsoleteAttributeKind.Experimental)
-                {
-                    Debug.Assert(!data.IsError);
-
-                    // Provide an explicit format for fully-qualified type names.
-                    if (string.IsNullOrEmpty(data.Message))
-                    {
-                        return new CustomObsoleteDiagnosticInfo(MessageProvider.Instance, (int)ErrorCode.WRN_Experimental, data,
-                            new FormattedSymbol(symbol, SymbolDisplayFormat.CSharpErrorMessageFormat));
-                    }
-                    else
-                    {
-                        return new CustomObsoleteDiagnosticInfo(MessageProvider.Instance, (int)ErrorCode.WRN_ExperimentalWithMessage, data,
-                            new FormattedSymbol(symbol, SymbolDisplayFormat.CSharpErrorMessageFormat), data.Message);
-                    }
-                }
-
                 // Issue a specialized diagnostic for add methods of collection initializers
                 var isColInit = location.Includes(BinderFlags.CollectionInitializerAddMethod);
                 Debug.Assert(!isColInit || symbol.Name == WellKnownMemberNames.CollectionInitializerAddMethodName);
@@ -226,10 +200,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static bool IsObsoleteDiagnostic(this DiagnosticInfo diagnosticInfo)
         {
             return (ErrorCode)diagnosticInfo.Code is
-                       (ErrorCode.WRN_Experimental or ErrorCode.WRN_ExperimentalWithMessage or ErrorCode.WRN_WindowsExperimental or ErrorCode.WRN_DeprecatedCollectionInitAdd or
+                        ErrorCode.WRN_DeprecatedCollectionInitAdd or ErrorCode.WRN_DeprecatedSymbolStr or
                         ErrorCode.WRN_DeprecatedSymbol or ErrorCode.ERR_DeprecatedCollectionInitAddStr or
-                        ErrorCode.ERR_DeprecatedSymbolStr or ErrorCode.WRN_DeprecatedCollectionInitAddStr or
-                        ErrorCode.WRN_DeprecatedSymbolStr);
+                        ErrorCode.ERR_DeprecatedSymbolStr or ErrorCode.WRN_DeprecatedCollectionInitAddStr;
         }
     }
 }

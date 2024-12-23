@@ -30,7 +30,7 @@ internal sealed class CSharpUseNullPropagationDiagnosticAnalyzer :
         => SyntaxKind.IfStatement;
 
     protected override bool ShouldAnalyze(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp6;
+        => true;
 
     protected override ISemanticFacts SemanticFacts
         => CSharpSemanticFacts.Instance;

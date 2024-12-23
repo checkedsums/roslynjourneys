@@ -203,9 +203,6 @@ internal abstract class AbstractUseCollectionInitializerAnalyzer<
         [NotNullWhen(true)] out TExpressionSyntax? instance)
     {
         instance = null;
-        if (!this.SyntaxFacts.SupportsIndexingInitializer(statement.SyntaxTree.Options))
-            return false;
-
         if (!this.SyntaxFacts.IsSimpleAssignmentStatement(statement))
             return false;
 

@@ -126,8 +126,6 @@ internal abstract class AbstractImplementInterfaceCodeFixProvider<TTypeSyntax> :
         Document document, ImplementInterfaceInfo state, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var compilation = await document.Project.GetRequiredCompilationAsync(cancellationToken).ConfigureAwait(false);
-        var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
-        var supportsImplicitImplementationOfNonPublicInterfaceMembers = syntaxFacts.SupportsImplicitImplementationOfNonPublicInterfaceMembers(document.Project.ParseOptions!);
         if (state.MembersWithoutExplicitOrImplicitImplementationWhichCanBeImplicitlyImplemented.Length > 0)
         {
             var totalMemberCount = 0;
@@ -139,7 +137,7 @@ internal abstract class AbstractImplementInterfaceCodeFixProvider<TTypeSyntax> :
                 {
                     totalMemberCount++;
 
-                    if (ContainsTypeLessAccessibleThan(member, state.ClassOrStructType, supportsImplicitImplementationOfNonPublicInterfaceMembers))
+                    if (ContainsTypeLessAccessibleThan(member, state.ClassOrStructType))
                         inaccessibleMemberCount++;
                 }
             }

@@ -49,7 +49,7 @@ internal abstract class AbstractIntroduceLocalForExpressionCodeRefactoringProvid
         }
 
         var nodeString = syntaxFacts.ConvertToSingleLine(expression).ToString();
-        if (type.IsTupleType && syntaxFacts.SupportsTupleDeconstruction(expression.SyntaxTree.Options))
+        if (type.IsTupleType)
         {
             // prefer to emit as `var (x, y) = ...` or `(T x, T y) = ...`
             context.RegisterRefactoring(

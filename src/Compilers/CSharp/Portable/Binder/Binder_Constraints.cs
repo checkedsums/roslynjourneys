@@ -95,7 +95,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 if (results[i] == null)
                 {
-                    results[i] = GetDefaultTypeParameterConstraintClause(typeParameterList.Parameters[i], isForOverride);
+                    results[i] = TypeParameterConstraintClause.Empty;
                 }
             }
 
@@ -121,8 +121,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ArrayBuilder<TypeWithAnnotations>? constraintTypes = null;
             ArrayBuilder<TypeConstraintSyntax>? syntaxBuilder = null;
             SeparatedSyntaxList<TypeParameterConstraintSyntax> constraintsSyntax = constraintClauseSyntax.Constraints;
-            Debug.Assert(!InExecutableBinder); // Cannot eagerly report diagnostics handled by LazyMissingNonNullTypesContextDiagnosticInfo 
-            bool hasTypeLikeConstraint = false;
+            Debug.Assert(!InExecutableBinder); // Cannot eagerly report diagnostics handled by LazyMissingNonNullTypesContextDiagnosticInfo
             bool reportedOverrideWithConstraints = false;
 
             for (int i = 0, n = constraintsSyntax.Count; i < n; i++)
@@ -131,8 +130,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 switch (syntax.Kind())
                 {
                     case SyntaxKind.ClassConstraint:
-                        hasTypeLikeConstraint = true;
-
                         if (i != 0)
                         {
                             if (!reportedOverrideWithConstraints)
@@ -156,24 +153,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                             {
                                 reportOverrideWithConstraints(ref reportedOverrideWithConstraints, syntax, diagnostics);
                             }
-                            else if (diagnostics.DiagnosticBag is DiagnosticBag diagnosticBag)
-                            {
-                                LazyMissingNonNullTypesContextDiagnosticInfo.AddAll(this, questionToken, type: null, diagnosticBag);
-                            }
-                        }
-                        else if (isForOverride || AreNullableAnnotationsEnabled(constraintSyntax.ClassOrStructKeyword))
-                        {
-                            constraints |= TypeParameterConstraintKind.NotNullableReferenceType;
                         }
                         else
                         {
-                            constraints |= TypeParameterConstraintKind.ReferenceType;
+                            constraints |= TypeParameterConstraintKind.NotNullableReferenceType;
                         }
 
                         continue;
                     case SyntaxKind.StructConstraint:
-                        hasTypeLikeConstraint = true;
-
                         if (i != 0)
                         {
                             if (!reportedOverrideWithConstraints)
@@ -213,8 +200,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         constraints |= TypeParameterConstraintKind.Constructor;
                         continue;
                     case SyntaxKind.DefaultConstraint:
-                        CheckFeatureAvailability(syntax, MessageID.IDS_FeatureDefaultTypeParameterConstraint, diagnostics);
-
                         if (!isForOverride)
                         {
                             diagnostics.Add(ErrorCode.ERR_DefaultConstraintOverrideOnly, syntax.GetLocation());
@@ -242,8 +227,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         else
                         {
-                            hasTypeLikeConstraint = true;
-
                             if (constraintTypes == null)
                             {
                                 constraintTypes = ArrayBuilder<TypeWithAnnotations>.GetInstance();
@@ -316,13 +299,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 }
                                 else
                                 {
-                                    CheckFeatureAvailability(allowsConstraint, MessageID.IDS_FeatureAllowsRefStructConstraint, diagnostics);
-
-                                    if (!Compilation.Assembly.RuntimeSupportsByRefLikeGenerics)
-                                    {
-                                        Error(diagnostics, ErrorCode.ERR_RuntimeDoesNotSupportByRefLikeGenerics, allowsConstraint);
-                                    }
-
                                     constraints |= TypeParameterConstraintKind.AllowByRefLike;
                                     hasRefStructConstraint = true;
                                 }
@@ -334,11 +310,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     default:
                         throw ExceptionUtilities.UnexpectedValue(syntax.Kind());
                 }
-            }
-
-            if (!isForOverride && !hasTypeLikeConstraint && !AreNullableAnnotationsEnabled(typeParameterSyntax.Identifier))
-            {
-                constraints |= TypeParameterConstraintKind.ObliviousNullabilityIfReferenceType;
             }
 
             Debug.Assert(!isForOverride ||
@@ -367,15 +338,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             foreach (TypeParameterSyntax typeParameterSyntax in typeParameterList.Parameters)
             {
-                builder.Add(GetDefaultTypeParameterConstraintClause(typeParameterSyntax));
+                builder.Add(TypeParameterConstraintClause.Empty);
             }
 
             return builder.ToImmutableAndFree();
-        }
-
-        private TypeParameterConstraintClause GetDefaultTypeParameterConstraintClause(TypeParameterSyntax typeParameterSyntax, bool isForOverride = false)
-        {
-            return isForOverride || AreNullableAnnotationsEnabled(typeParameterSyntax.Identifier) ? TypeParameterConstraintClause.Empty : TypeParameterConstraintClause.ObliviousNullabilityIfReferenceType;
         }
 
         /// <summary>
@@ -563,18 +529,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 switch (type.SpecialType)
                 {
                     case SpecialType.System_Enum:
-                        CheckFeatureAvailability(syntax, MessageID.IDS_FeatureEnumGenericTypeConstraint, diagnostics);
-                        break;
-
                     case SpecialType.System_Delegate:
                     case SpecialType.System_MulticastDelegate:
-                        CheckFeatureAvailability(syntax, MessageID.IDS_FeatureDelegateGenericTypeConstraint, diagnostics);
                         break;
 
                     case SpecialType.System_Object:
                     case SpecialType.System_ValueType:
                     case SpecialType.System_Array:
-                        // "Constraint cannot be special class '{0}'"
                         Error(diagnostics, ErrorCode.ERR_SpecialTypeAsBound, syntax, type);
                         return false;
                 }

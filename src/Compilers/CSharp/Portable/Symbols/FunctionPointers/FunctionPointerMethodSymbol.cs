@@ -142,7 +142,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         switch (callingConventionSyntax.UnmanagedCallingConventionList)
                         {
                             case null:
-                                checkUnmanagedSupport(compilation, callingConventionSyntax.ManagedOrUnmanagedKeyword.GetLocation(), diagnostics);
                                 return CallingConvention.Unmanaged;
 
                             case { CallingConventions: { Count: 1 } specifiers }:
@@ -169,7 +168,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                             case { CallingConventions: var specifiers }:
                                 // More than one identifier case
-                                checkUnmanagedSupport(compilation, callingConventionSyntax.ManagedOrUnmanagedKeyword.GetLocation(), diagnostics);
                                 foreach (FunctionPointerUnmanagedCallingConventionSyntax? specifier in specifiers)
                                 {
                                     CustomModifier? modifier = handleIndividualUnrecognizedSpecifier(specifier, compilation, diagnostics);
@@ -188,7 +186,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 static CallingConvention handleSingleConvention(FunctionPointerUnmanagedCallingConventionSyntax specifier, CSharpCompilation compilation, ArrayBuilder<CustomModifier> customModifiers, BindingDiagnosticBag diagnostics)
                 {
-                    checkUnmanagedSupport(compilation, specifier.GetLocation(), diagnostics);
                     CustomModifier? modifier = handleIndividualUnrecognizedSpecifier(specifier, compilation, diagnostics);
                     if (modifier is object)
                     {
@@ -224,14 +221,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     diagnostics.Add(specifierType.GetUseSiteInfo(), specifier);
 
                     return CSharpCustomModifier.CreateOptional(specifierType);
-                }
-
-                static void checkUnmanagedSupport(CSharpCompilation compilation, Location errorLocation, BindingDiagnosticBag diagnostics)
-                {
-                    if (!compilation.Assembly.RuntimeSupportsUnmanagedSignatureCallingConvention)
-                    {
-                        diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportUnmanagedDefaultCallConv, errorLocation);
-                    }
                 }
             }
         }
@@ -856,7 +845,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public override DllImportData GetDllImportData() => throw ExceptionUtilities.Unreachable();
         internal override int CalculateLocalSyntaxOffset(int localPosition, SyntaxTree localTree) => throw ExceptionUtilities.Unreachable();
         internal override IEnumerable<SecurityAttribute> GetSecurityInformation() => throw ExceptionUtilities.Unreachable();
-        internal sealed override bool IsNullableAnalysisEnabled() => throw ExceptionUtilities.Unreachable();
         protected sealed override bool HasSetsRequiredMembersImpl => throw ExceptionUtilities.Unreachable();
         internal sealed override bool HasUnscopedRefAttribute => false;
 

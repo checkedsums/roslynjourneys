@@ -91,7 +91,6 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
         private const string CheckOverflowAttributeName = "CheckOverflow";
         private const string AllowUnsafeAttributeName = "AllowUnsafe";
         private const string OutputKindName = "OutputKind";
-        private const string NullableAttributeName = "Nullable";
         private const string DocumentFromSourceGeneratorElementName = "DocumentFromSourceGenerator";
 
         /// <summary>
@@ -414,7 +413,6 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
             var checkOverflow = false;
             var allowUnsafe = false;
             var outputKind = OutputKind.DynamicallyLinkedLibrary;
-            var nullable = NullableContextOptions.Disable;
 
             if (compilationOptionsElement != null)
             {
@@ -479,12 +477,6 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
                     delaySign = (bool)delaySignAttribute;
                 }
 
-                var nullableAttribute = compilationOptionsElement.Attribute(NullableAttributeName);
-                if (nullableAttribute != null)
-                {
-                    nullable = (NullableContextOptions)Enum.Parse(typeof(NullableContextOptions), nullableAttribute.Value);
-                }
-
                 var outputTypeAttribute = compilationOptionsElement.Attribute(OutputTypeAttributeName);
                 if (outputTypeAttribute != null
                     && outputTypeAttribute.Value == "WindowsRuntimeMetadata")
@@ -526,7 +518,7 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
 
             if (language == LanguageNames.CSharp)
             {
-                compilationOptions = ((CSharpCompilationOptions)compilationOptions).WithAllowUnsafe(allowUnsafe).WithNullableContextOptions(nullable);
+                compilationOptions = ((CSharpCompilationOptions)compilationOptions).WithAllowUnsafe(allowUnsafe);
             }
 
             if (language == LanguageNames.VisualBasic)

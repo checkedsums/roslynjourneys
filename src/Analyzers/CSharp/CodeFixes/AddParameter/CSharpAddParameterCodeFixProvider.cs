@@ -35,10 +35,10 @@ internal sealed class CSharpAddParameterCodeFixProvider() : AbstractAddParameter
     private const string CS1729 = nameof(CS1729); // error CS1729: 'C' does not contain a constructor that takes n arguments
     private const string CS1739 = nameof(CS1739); // error CS1739: The best overload for 'M' does not have a parameter named 'x'
 
-    private static readonly ImmutableArray<string> AddParameterFixableDiagnosticIds = [CS1501, CS1503, CS1660, CS1729, CS1739];
+    private static readonly ImmutableArray<string> s_addParameterFixableDiagnosticIds = [CS1501, CS1503, CS1660, CS1729, CS1739];
 
     public override ImmutableArray<string> FixableDiagnosticIds
-        => AddParameterFixableDiagnosticIds;
+        => s_addParameterFixableDiagnosticIds;
 
     protected override ImmutableArray<string> TooManyArgumentsDiagnosticIds
         => GenerateConstructorDiagnosticIds.TooManyArgumentsDiagnosticIds;

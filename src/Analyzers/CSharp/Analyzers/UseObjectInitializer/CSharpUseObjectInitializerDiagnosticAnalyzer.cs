@@ -33,7 +33,7 @@ internal sealed class CSharpUseObjectInitializerDiagnosticAnalyzer :
     {
         // object initializers are only available in C# 3.0 and above.  Don't offer this refactoring
         // in projects targeting a lesser version.
-        return compilation.LanguageVersion() >= LanguageVersion.CSharp3;
+        return true;
     }
 
     protected override ISyntaxFacts GetSyntaxFacts() => CSharpSyntaxFacts.Instance;

@@ -17,13 +17,11 @@ internal static class DefaultExpressionSyntaxExtensions
 
     public static bool CanReplaceWithDefaultLiteral(
         this DefaultExpressionSyntax defaultExpression,
-        CSharpParseOptions parseOptions,
         bool preferSimpleDefaultExpression,
         SemanticModel semanticModel,
         CancellationToken cancellationToken)
     {
-        if (parseOptions.LanguageVersion < LanguageVersion.CSharp7_1 ||
-            !preferSimpleDefaultExpression)
+        if (!preferSimpleDefaultExpression)
         {
             return false;
         }

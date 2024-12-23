@@ -4,7 +4,6 @@
 
 using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp.CodeStyle;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.LanguageService;
 using Microsoft.CodeAnalysis.UseThrowExpression;
@@ -22,5 +21,5 @@ internal class CSharpUseThrowExpressionDiagnosticAnalyzer()
         => context.GetCSharpAnalyzerOptions().PreferThrowExpression;
 
     protected override bool IsSupported(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp7;
+        => true;
 }

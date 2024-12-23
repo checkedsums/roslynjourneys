@@ -171,7 +171,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Conversion.ImplicitDynamic,
                     iDisposableType,
                     @checked: false,
-                    constantValueOpt: rewrittenExpression.ConstantValueOpt);
+                    constantValue: rewrittenExpression.ConstantValueOpt);
 
                 boundTemp = _factory.StoreToTemp(tempInit, out tempAssignment, kind: SynthesizedLocalKind.Using);
             }

@@ -342,14 +342,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     location = node.Syntax.Location;
                 }
-
-                _factory.ModuleBuilderOpt.EnsureParamCollectionAttributeExists(_diagnostics, location);
             }
 
             _sawLambdas = true;
 
             var lambda = node.Symbol;
-            CheckRefReadOnlySymbols(lambda);
 
             var oldContainingSymbol = _factory.CurrentFunction;
             var oldInstrumenter = InstrumentationState.Instrumenter;
@@ -382,39 +379,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             int localFunctionOrdinal = _availableLocalFunctionOrdinal++;
 
             var localFunction = node.Symbol;
-            CheckRefReadOnlySymbols(localFunction);
-
-            if (_factory.CompilationState.ModuleBuilderOpt is { } moduleBuilder)
-            {
-                var typeParameters = localFunction.TypeParameters;
-                if (typeParameters.Any(static typeParameter => typeParameter.HasUnmanagedTypeConstraint))
-                {
-                    moduleBuilder.EnsureIsUnmanagedAttributeExists();
-                }
-
-                if (_compilation.ShouldEmitNativeIntegerAttributes())
-                {
-                    if (hasReturnTypeOrParameter(localFunction, static t => t.ContainsNativeIntegerWrapperType()) ||
-                        typeParameters.Any(static t => t.ConstraintTypesNoUseSiteDiagnostics.Any(static t => t.ContainsNativeIntegerWrapperType())))
-                    {
-                        moduleBuilder.EnsureNativeIntegerAttributeExists();
-                    }
-                }
-
-                if (_factory.CompilationState.Compilation.ShouldEmitNullableAttributes(localFunction))
-                {
-                    bool constraintsNeedNullableAttribute = typeParameters.Any(
-                       static typeParameter => ((SourceTypeParameterSymbolBase)typeParameter).ConstraintsNeedNullableAttribute());
-
-                    if (constraintsNeedNullableAttribute || hasReturnTypeOrParameter(localFunction, static t => t.NeedsNullableAttribute()))
-                    {
-                        moduleBuilder.EnsureNullableAttributeExists();
-                    }
-                }
-
-                static bool hasReturnTypeOrParameter(LocalFunctionSymbol localFunction, Func<TypeWithAnnotations, bool> predicate) =>
-                    predicate(localFunction.ReturnTypeWithAnnotations) || localFunction.ParameterTypesWithAnnotations.Any(predicate);
-            }
 
             var oldContainingSymbol = _factory.CurrentFunction;
             var oldInstrumenter = InstrumentationState.Instrumenter;
@@ -1120,15 +1084,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             RoslynDebug.Assert(expr is not BoundValuePlaceholderBase, $"Placeholder kind {expr.Kind} must be handled explicitly");
 
             return false;
-        }
-
-        private void CheckRefReadOnlySymbols(MethodSymbol symbol)
-        {
-            if (symbol.ReturnsByRefReadonly ||
-                symbol.Parameters.Any(static p => p.RefKind == RefKind.In))
-            {
-                _factory.CompilationState.ModuleBuilderOpt?.EnsureIsReadOnlyAttributeExists();
-            }
         }
 
         private CompoundUseSiteInfo<AssemblySymbol> GetNewCompoundUseSiteInfo()

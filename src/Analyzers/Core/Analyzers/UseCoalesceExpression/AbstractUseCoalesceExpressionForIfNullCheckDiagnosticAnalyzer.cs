@@ -74,11 +74,7 @@ internal abstract class AbstractUseCoalesceExpressionForIfNullStatementCheckDiag
 
         if (syntaxFacts.IsThrowStatement(whenTrueStatement))
         {
-            if (!syntaxFacts.SupportsThrowExpression(ifStatement.SyntaxTree.Options))
-                return;
-
-            var thrownExpression = syntaxFacts.GetExpressionOfThrowStatement(whenTrueStatement);
-            if (thrownExpression is null)
+            if (syntaxFacts.GetExpressionOfThrowStatement(whenTrueStatement) is null)
                 return;
         }
 

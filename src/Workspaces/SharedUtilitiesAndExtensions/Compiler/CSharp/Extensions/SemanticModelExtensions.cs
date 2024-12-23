@@ -498,16 +498,4 @@ internal static partial class SemanticModelExtensions
         return semanticModel.GetDeclaredSymbol(syntax, cancellationToken)
             ?? throw new InvalidOperationException();
     }
-
-    /// <summary>
-    /// Returns whether or not <see cref="IntPtr"/> and <see cref="UIntPtr"/> are exactly identical to <see
-    /// cref="nint"/> and <see cref="nuint"/> respectively.
-    /// </summary>
-    public static bool UnifiesNativeIntegers(this SemanticModel semanticModel)
-    {
-        var languageVersion = semanticModel.SyntaxTree.Options.LanguageVersion();
-
-        // In C# 11 we made it so that IntPtr and nint are identical as long as the runtime unifies them.
-        return languageVersion >= LanguageVersion.CSharp11 && semanticModel.Compilation.SupportsRuntimeCapability(RuntimeCapability.NumericIntPtr);
-    }
 }

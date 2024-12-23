@@ -53,7 +53,7 @@ internal sealed partial class CSharpAsAndMemberAccessCodeFixProvider() : SyntaxE
             return;
 
         if (!UsePatternMatchingHelpers.TryGetPartsOfAsAndMemberAccessCheck(
-                asExpression, out var conditionalAccessExpression, out var binaryExpression, out var isPatternExpression, out _))
+                asExpression, out var conditionalAccessExpression, out var binaryExpression, out var isPatternExpression))
         {
             return;
         }

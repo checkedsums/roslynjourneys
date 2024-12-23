@@ -104,8 +104,7 @@ internal sealed partial class GenerateEqualsAndGetHashCodeFromMembersCodeRefacto
                 return null;
 
             var useNullableTypeArgument =
-                !_containingType.IsValueType
-                && semanticModel.GetNullableContext(_typeDeclaration.SpanStart).AnnotationsEnabled();
+                !_containingType.IsValueType;
 
             return useNullableTypeArgument
                 ? equatableType.Construct(_containingType.WithNullableAnnotation(NullableAnnotation.Annotated))

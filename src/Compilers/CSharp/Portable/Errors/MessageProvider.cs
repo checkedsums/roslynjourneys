@@ -122,13 +122,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool hasPragmaSuppression;
             return CSharpDiagnosticFilter.GetDiagnosticReport(diagnosticInfo.Severity,
                                                               true,
-                                                              diagnosticInfo.Code,
                                                               diagnosticInfo.MessageIdentifier,
                                                               diagnosticInfo.WarningLevel,
                                                               Location.None,
                                                               diagnosticInfo.CustomTags,
                                                               options.WarningLevel,
-                                                              ((CSharpCompilationOptions)options).NullableContextOptions,
                                                               options.GeneralDiagnosticOption,
                                                               options.SpecificDiagnosticOptions,
                                                               options.SyntaxTreeOptionsProvider,

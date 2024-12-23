@@ -15,7 +15,6 @@ using System.Threading;
 using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp.CodeStyle;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Shared.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -70,9 +69,6 @@ internal sealed class CSharpUsePrimaryConstructorDiagnosticAnalyzer()
     {
         context.RegisterCompilationStartAction(context =>
         {
-            if (!context.Compilation.LanguageVersion().SupportsPrimaryConstructors())
-                return;
-
             // Mapping from a named type to a particular analyzer we have created for it. Needed because nested
             // types need to update the information for their containing types while they themselves are being
             // analyzed.

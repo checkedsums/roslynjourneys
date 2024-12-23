@@ -381,15 +381,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        internal static bool IsOutDeclaration(this DeclarationExpressionSyntax p)
+        internal static bool IsOutDeclaration(this ExpressionSyntax p, out DeclarationExpressionSyntax _out)
         {
-            return p.Parent?.Kind() == SyntaxKind.Argument
-                && ((ArgumentSyntax)p.Parent).RefOrOutKeyword.Kind() == SyntaxKind.OutKeyword;
+            return (_out = (p is DeclarationExpressionSyntax _p && _p.Parent?.Kind() == SyntaxKind.Argument
+                && ((ArgumentSyntax)_p.Parent).RefOrOutKeyword.Kind() == SyntaxKind.OutKeyword) ? _p : null!) != null;
         }
 
         internal static bool IsOutVarDeclaration(this DeclarationExpressionSyntax p)
         {
-            return p.Designation.Kind() == SyntaxKind.SingleVariableDesignation && p.IsOutDeclaration();
+            return p.Designation.Kind() == SyntaxKind.SingleVariableDesignation && p.IsOutDeclaration(out _);
         }
 
         /// <summary>

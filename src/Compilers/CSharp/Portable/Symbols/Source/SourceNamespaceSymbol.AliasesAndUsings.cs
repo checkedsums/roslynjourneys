@@ -667,12 +667,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 diagnostics.Add(ErrorCode.WRN_GlobalAliasDefn, location);
                             }
 
-                            if (usingDirective.StaticKeyword != default(SyntaxToken))
+                            if (usingDirective.StaticKeyword != default)
                             {
                                 diagnostics.Add(ErrorCode.ERR_NoAliasHere, location);
                             }
 
-                            SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, compilation, diagnostics, location);
+                            SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, diagnostics, location);
 
                             string identifierValueText = identifier.ValueText;
                             bool skipInLookup = false;
@@ -716,10 +716,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                             if (!skipInLookup)
                             {
-                                if (usingAliasesMap == null)
-                                {
-                                    usingAliasesMap = globalUsingAliasesMap.ToBuilder();
-                                }
+                                usingAliasesMap ??= globalUsingAliasesMap.ToBuilder();
 
                                 usingAliasesMap.Add(identifierValueText, aliasAndDirective);
                             }
@@ -732,30 +729,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 continue;
                             }
 
-                            var flags = BinderFlags.SuppressConstraintChecks;
+                            var flags = BinderFlags.SuppressConstraintChecks | BinderFlags.UnsafeRegion;
                             if (usingDirective.UnsafeKeyword != default)
                             {
                                 var unsafeKeywordLocation = usingDirective.UnsafeKeyword.GetLocation();
-                                if (usingDirective.StaticKeyword == default)
-                                {
-                                    diagnostics.Add(ErrorCode.ERR_BadUnsafeInUsingDirective, unsafeKeywordLocation);
-                                }
-                                else
-                                {
-                                    MessageID.IDS_FeatureUsingTypeAlias.CheckFeatureAvailability(diagnostics, usingDirective, unsafeKeywordLocation);
-                                    declaringSymbol.CheckUnsafeModifier(DeclarationModifiers.Unsafe, unsafeKeywordLocation, diagnostics);
-                                }
 
-                                flags |= BinderFlags.UnsafeRegion;
-                            }
-                            else
-                            {
-                                // Prior to C#12, allow the using static type to be an unsafe region.  This allows us to
-                                // maintain compat with prior versions of the compiler that allowed `using static
-                                // List<int*[]>;` to be written.  In 12.0 and onwards though, we require the code to
-                                // explicitly contain the `unsafe` keyword.
-                                if (!compilation.IsFeatureEnabled(MessageID.IDS_FeatureUsingTypeAlias))
-                                    flags |= BinderFlags.UnsafeRegion;
+                                declaringSymbol.CheckUnsafeModifier(DeclarationModifiers.Unsafe, unsafeKeywordLocation, diagnostics);
                             }
 
                             var directiveDiagnostics = BindingDiagnosticBag.GetInstance();
@@ -770,7 +749,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             {
                                 Debug.Assert(directiveDiagnostics.DependenciesBag.IsEmpty());
 
-                                if (usingDirective.StaticKeyword != default(SyntaxToken))
+                                if (usingDirective.StaticKeyword != default)
                                 {
                                     diagnostics.Add(ErrorCode.ERR_BadUsingType, usingDirective.NamespaceOrType.Location, imported);
                                 }
@@ -788,14 +767,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             }
                             else if (imported.Kind == SymbolKind.NamedType)
                             {
-                                if (usingDirective.StaticKeyword == default(SyntaxToken))
+                                if (usingDirective.StaticKeyword == default)
                                 {
                                     diagnostics.Add(ErrorCode.ERR_BadUsingNamespace, usingDirective.NamespaceOrType.Location, imported);
                                 }
                                 else
                                 {
                                     var importedType = (NamedTypeSymbol)imported;
-                                    if (usingDirective.GlobalKeyword != default(SyntaxToken) && importedType.HasFileLocalTypes())
+                                    if (usingDirective.GlobalKeyword != default && importedType.HasFileLocalTypes())
                                     {
                                         diagnostics.Add(ErrorCode.ERR_GlobalUsingStaticFileType, usingDirective.NamespaceOrType.Location, imported);
                                     }

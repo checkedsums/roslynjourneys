@@ -64,12 +64,6 @@ internal sealed class CSharpIsAndCastCheckWithoutNameDiagnosticAnalyzer()
     {
         var cancellationToken = context.CancellationToken;
         var semanticModel = context.SemanticModel;
-        var syntaxTree = semanticModel.SyntaxTree;
-
-        // "x is Type y" is only available in C# 7.0 and above.  Don't offer this refactoring
-        // in projects targeting a lesser version.
-        if (syntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp7)
-            return;
 
         var styleOption = context.GetCSharpAnalyzerOptions().PreferPatternMatchingOverIsWithCastCheck;
         if (!styleOption.Value || ShouldSkipAnalysis(context, styleOption.Notification))

@@ -19,10 +19,10 @@ internal class CSharpUseIsNullCheckForReferenceEqualsDiagnosticAnalyzer : Abstra
     }
 
     protected override bool IsLanguageVersionSupported(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp7;
+        => true;
 
     protected override bool IsUnconstrainedGenericSupported(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp8;
+        => true;
 
     protected override ISyntaxFacts GetSyntaxFacts()
         => CSharpSyntaxFacts.Instance;

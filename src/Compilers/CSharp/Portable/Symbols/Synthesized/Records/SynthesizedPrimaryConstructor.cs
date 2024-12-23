@@ -47,7 +47,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     isExpressionBodied: false,
                                     isExtensionMethod: false,
                                     isVarArg: syntax.ParameterList.IsVarArg(),
-                                    isNullableAnalysisEnabled: false, // IsNullableAnalysisEnabled uses containing type instead.
                                     isExplicitInterfaceImplementation: false,
                                     hasThisInitializer: false);
 
@@ -88,11 +87,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public new SourceMemberContainerTypeSymbol ContainingType => (SourceMemberContainerTypeSymbol)base.ContainingType;
 
         protected override bool AllowRefOrOut => !(ContainingType is { IsRecord: true } or { IsRecordStruct: true });
-
-        internal override bool IsNullableAnalysisEnabled()
-        {
-            return ContainingType.IsNullableEnabledForConstructorsAndInitializers(IsStatic);
-        }
 
         protected override bool IsWithinExpressionOrBlockBody(int position, out int offset)
         {
@@ -172,11 +166,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (attributeDeclarationSyntax.SyntaxTree == SyntaxRef.SyntaxTree &&
                 GetSyntax().AttributeLists.Contains(attributeDeclarationSyntax))
             {
-                if (ContainingType is { IsRecord: true } or { IsRecordStruct: true })
-                {
-                    MessageID.IDS_FeaturePrimaryConstructors.CheckFeatureAvailability(diagnostics, attributeDeclarationSyntax, attributeDeclarationSyntax.Target.Identifier.GetLocation());
-                }
-
                 return true;
             }
 

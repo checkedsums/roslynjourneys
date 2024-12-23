@@ -1130,37 +1130,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             get { return lexer.Directives; }
         }
 
-#nullable enable
-        /// <remarks>
-        /// NOTE: we are specifically diverging from dev11 to improve the user experience.
-        /// Since treating the "async" keyword as an identifier in older language
-        /// versions can never result in a correct program, we instead accept it as a
-        /// keyword regardless of the language version and produce an error if the version
-        /// is insufficient.
-        /// </remarks>
-        protected TNode CheckFeatureAvailability<TNode>(TNode node, MessageID feature, bool forceWarning = false)
-            where TNode : GreenNode
-        {
-            var info = feature.GetFeatureAvailabilityDiagnosticInfo(this.Options);
-            if (info != null)
-            {
-                if (forceWarning)
-                {
-                    return AddError(node, ErrorCode.WRN_ErrorOverride, info, (int)info.Code);
-                }
-
-                return AddError(node, info.Code, info.Arguments);
-            }
-
-            return node;
-        }
-#nullable disable
-
-        protected bool IsFeatureEnabled(MessageID feature)
-        {
-            return this.Options.IsFeatureEnabled(feature);
-        }
-
         /// <summary>
         /// Whenever parsing in a <c>while (true)</c> loop and a bug could prevent the loop from making progress,
         /// this method can prevent the parsing from hanging.

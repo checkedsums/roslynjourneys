@@ -94,8 +94,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override string Name { get { return _name; } }
 
-        internal sealed override bool IsNullableAnalysisEnabled() => throw ExceptionUtilities.Unreachable();
-
         internal sealed override bool HasAsyncMethodBuilderAttribute(out TypeSymbol builderArgument)
         {
             builderArgument = null;

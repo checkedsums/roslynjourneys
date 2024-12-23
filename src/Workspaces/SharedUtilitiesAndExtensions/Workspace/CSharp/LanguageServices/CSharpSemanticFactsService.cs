@@ -42,13 +42,9 @@ internal sealed partial class CSharpSemanticFactsService : AbstractSemanticFacts
         // Get all the symbols visible to the current location.
         var visibleSymbols = semanticModel.LookupSymbols(location.SpanStart);
 
-        // Local function parameter is allowed to shadow variables since C# 8.
-        if (semanticModel.Compilation.LanguageVersion().MapSpecifiedToEffectiveVersion() >= LanguageVersion.CSharp8)
+        if (SyntaxFacts.IsParameterList(container) && SyntaxFacts.IsLocalFunctionStatement(container.Parent))
         {
-            if (SyntaxFacts.IsParameterList(container) && SyntaxFacts.IsLocalFunctionStatement(container.Parent))
-            {
-                visibleSymbols = visibleSymbols.WhereAsArray(s => !s.MatchesKind(SymbolKind.Local, SymbolKind.Parameter));
-            }
+            visibleSymbols = visibleSymbols.WhereAsArray(s => !s.MatchesKind(SymbolKind.Local, SymbolKind.Parameter));
         }
 
         // Some symbols in the enclosing block could cause conflicts even if they are not available at the location.
@@ -65,8 +61,7 @@ internal sealed partial class CSharpSemanticFactsService : AbstractSemanticFacts
         // Exclude lambdas as well when the language version is C# 8 or higher because symbols declared inside no longer collide with outer variables.
         bool ShouldDescendInto(SyntaxNode node)
         {
-            var isLanguageVersionGreaterOrEqualToCSharp8 = (semanticModel.Compilation as CSharpCompilation)?.LanguageVersion >= LanguageVersion.CSharp8;
-            return isLanguageVersionGreaterOrEqualToCSharp8 ? !SyntaxFacts.IsAnonymousOrLocalFunction(node) : !SyntaxFacts.IsLocalFunctionStatement(node);
+            return !SyntaxFacts.IsAnonymousOrLocalFunction(node);
         }
     }
 

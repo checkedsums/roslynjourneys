@@ -32,9 +32,7 @@ internal class ConvertToTopLevelStatementsCodeRefactoringProvider : CodeRefactor
     {
         var (document, span, cancellationToken) = context;
 
-        // can only suggest moving to top level statement on c# 9 or above.
-        if (document.Project.ParseOptions!.LanguageVersion() < LanguageVersion.CSharp9 ||
-            !IsApplication(document.Project.CompilationOptions!))
+        if (!IsApplication(document.Project.CompilationOptions!))
         {
             return;
         }

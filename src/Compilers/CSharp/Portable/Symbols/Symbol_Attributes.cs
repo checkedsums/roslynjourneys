@@ -335,16 +335,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 Binder.BindAttributeTypes(binders, attributesToBind, this, attributeTypesBuilder, beforeAttributePartBound, afterAttributePartBound, diagnostics);
 
                 bool interestedInDiagnostics = !earlyDecodingOnly && attributeMatchesOpt is null;
-                if (interestedInDiagnostics)
-                {
-                    for (var i = 0; i < totalAttributesCount; i++)
-                    {
-                        if (attributeTypesBuilder[i].IsGenericType)
-                        {
-                            MessageID.IDS_FeatureGenericAttributes.CheckFeatureAvailability(diagnostics, attributesToBind[i]);
-                        }
-                    }
-                }
 
                 ImmutableArray<NamedTypeSymbol> boundAttributeTypes = attributeTypesBuilder.AsImmutableOrNull();
 
@@ -425,7 +415,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 Binder.CheckRequiredMembersInObjectInitializer(ctor, ImmutableArray<BoundExpression>.CastUp(boundAttribute.NamedArguments), boundAttribute.Syntax, diagnostics);
                                 attributeBinder.ReportDiagnosticsIfObsolete(diagnostics, ctor, boundAttribute.Syntax, hasBaseReceiver: false);
                             }
-                            NullableWalker.AnalyzeIfNeeded(attributeBinder, boundAttribute, boundAttribute.Syntax, diagnostics.DiagnosticBag);
+                            NullableWalker.AnalyzeIfNeeded(attributeBinder, boundAttribute, diagnostics.DiagnosticBag);
                         }
                     }
 
@@ -694,8 +684,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 targetOpt.Identifier.ToAttributeLocation() == AttributeLocation.Module)
             {
                 var parseOptions = (CSharpParseOptions)targetOpt.SyntaxTree.Options;
-                if (parseOptions.LanguageVersion == LanguageVersion.CSharp1)
-                    diagnostics.Add(ErrorCode.WRN_NonECMAFeature, targetOpt.GetLocation(), MessageID.IDS_FeatureModuleAttrLoc);
             }
 
             AttributeLocation allowedTargets = attributesOwner.AllowedAttributeLocations;

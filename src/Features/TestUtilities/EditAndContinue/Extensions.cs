@@ -92,7 +92,7 @@ namespace Microsoft.CodeAnalysis.EditAndContinue.UnitTests
                 language,
                 parseOptions: language switch
                 {
-                    LanguageNames.CSharp => CSharpParseOptions.Default.WithNoRefSafetyRulesAttribute(),
+                    LanguageNames.CSharp => CSharpParseOptions.Default,
                     LanguageNames.VisualBasic => VisualBasicParseOptions.Default,
                     NoCompilationConstants.LanguageName => null,
                     _ => throw ExceptionUtilities.UnexpectedValue(language)

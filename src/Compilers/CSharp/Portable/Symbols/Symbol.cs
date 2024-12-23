@@ -1561,10 +1561,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // NullableAttribute should not be set explicitly.
                 diagnostics.Add(ErrorCode.ERR_ExplicitNullableAttribute, arguments.AttributeSyntaxOpt.Location);
             }
-            else if ((reserved & ReservedAttributes.NullableContextAttribute) != 0 &&
-                reportExplicitUseOfReservedAttribute(attribute, arguments, AttributeDescription.NullableContextAttribute))
-            {
-            }
             else if ((reserved & ReservedAttributes.NullablePublicOnlyAttribute) != 0 &&
                 reportExplicitUseOfReservedAttribute(attribute, arguments, AttributeDescription.NullablePublicOnlyAttribute))
             {
@@ -1628,10 +1624,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             switch (this.Kind)
             {
                 case SymbolKind.NamedType:
-                    if (compilation.ShouldEmitNullableAttributes(this))
-                    {
-                        builder.AddValue(this.GetLocalNullableContextValue());
-                    }
                     break;
                 case SymbolKind.Event:
                     if (compilation.ShouldEmitNullableAttributes(this))
@@ -1652,10 +1644,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                     break;
                 case SymbolKind.Method:
-                    if (compilation.ShouldEmitNullableAttributes(this))
-                    {
-                        builder.AddValue(this.GetLocalNullableContextValue());
-                    }
                     break;
                 case SymbolKind.Property:
                     if (compilation.ShouldEmitNullableAttributes(this))
@@ -1678,20 +1666,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                     break;
             }
-        }
-
-        internal bool ShouldEmitNullableContextValue(out byte value)
-        {
-            byte? localValue = GetLocalNullableContextValue();
-            if (localValue == null)
-            {
-                value = 0;
-                return false;
-            }
-
-            value = localValue.GetValueOrDefault();
-            byte containingValue = ContainingSymbol?.GetNullableContextValue() ?? 0;
-            return value != containingValue;
         }
 
 #nullable enable

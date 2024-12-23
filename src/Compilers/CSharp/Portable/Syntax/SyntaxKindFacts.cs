@@ -101,7 +101,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.RestoreKeyword:
                 case SyntaxKind.ReferenceKeyword:
                 case SyntaxKind.LoadKeyword:
-                case SyntaxKind.NullableKeyword:
+                case SyntaxKind.ContextKeyword:
                 case SyntaxKind.EnableKeyword:
                 case SyntaxKind.WarningsKeyword:
                 case SyntaxKind.AnnotationsKeyword:
@@ -239,7 +239,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.InterpolatedStringEndToken:
                 case SyntaxKind.InterpolatedRawStringEndToken:
                 case SyntaxKind.LoadKeyword:
-                case SyntaxKind.NullableKeyword:
+                case SyntaxKind.ContextKeyword:
                 case SyntaxKind.EnableKeyword:
                 case SyntaxKind.UnderscoreToken:
                 case SyntaxKind.MultiLineRawStringLiteralToken:
@@ -291,7 +291,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.LoadDirectiveTrivia:
                 case SyntaxKind.BadDirectiveTrivia:
                 case SyntaxKind.ShebangDirectiveTrivia:
-                case SyntaxKind.NullableDirectiveTrivia:
                     return true;
                 default:
                     return false;
@@ -1151,8 +1150,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return SyntaxKind.ReferenceKeyword;
                 case "load":
                     return SyntaxKind.LoadKeyword;
-                case "nullable":
-                    return SyntaxKind.NullableKeyword;
+                case "context":
+                    return SyntaxKind.ContextKeyword;
                 case "enable":
                     return SyntaxKind.EnableKeyword;
                 case "warnings":
@@ -1692,8 +1691,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return "r";
                 case SyntaxKind.LoadKeyword:
                     return "load";
-                case SyntaxKind.NullableKeyword:
-                    return "nullable";
+                case SyntaxKind.ContextKeyword:
+                    return "context";
                 case SyntaxKind.EnableKeyword:
                     return "enable";
                 case SyntaxKind.WarningsKeyword:

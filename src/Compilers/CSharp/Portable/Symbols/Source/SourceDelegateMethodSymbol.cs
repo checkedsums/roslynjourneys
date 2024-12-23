@@ -2,12 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable disable
-
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Roslyn.Utilities;
@@ -29,7 +25,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             : base(delegateType, syntax.GetReference(), location: syntax.Identifier.GetLocation(), isIterator: false,
                    (declarationModifiers, MakeFlags(
                                                     methodKind, refKind, declarationModifiers, returnType.IsVoidType(), returnsVoidIsSet: true, isExpressionBodied: false,
-                                                    isExtensionMethod: false, isVarArg: false, isNullableAnalysisEnabled: false, isExplicitInterfaceImplementation: false, hasThisInitializer: false)))
+                                                    isExtensionMethod: false, isVarArg: false, isExplicitInterfaceImplementation: false, hasThisInitializer: false)))
         {
             _returnType = returnType;
         }
@@ -70,7 +66,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // A delegate has the following members: (see CLI spec 13.6)
             // (1) a method named Invoke with the specified signature
             var invoke = new InvokeMethod(delegateType, refKind, returnType, syntax, binder, diagnostics);
-            invoke.CheckDelegateVarianceSafety(diagnostics);
             symbols.Add(invoke);
 
             // (2) a constructor with argument types (object, System.IntPtr)
@@ -216,9 +211,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 DelegateDeclarationSyntax syntax)
                 : base(delegateType, voidType, syntax, MethodKind.Constructor, RefKind.None, DeclarationModifiers.Public)
             {
-                InitializeParameters(ImmutableArray.Create<ParameterSymbol>(
+                InitializeParameters(
+                [
                     SynthesizedParameterSymbol.Create(this, objectType, 0, RefKind.None, "object"),
-                    SynthesizedParameterSymbol.Create(this, intPtrType, 1, RefKind.None, "method")));
+                    SynthesizedParameterSymbol.Create(this, intPtrType, 1, RefKind.None, "method"),
+                ]);
             }
 
             public override string Name
@@ -280,7 +277,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (this.RefKind == RefKind.RefReadOnly)
                 {
                     var modifierType = binder.GetWellKnownType(WellKnownType.System_Runtime_InteropServices_InAttribute, diagnostics, syntax.ReturnType);
-                    _refCustomModifiers = ImmutableArray.Create(CSharpCustomModifier.CreateRequired(modifierType));
+                    _refCustomModifiers = [CSharpCustomModifier.CreateRequired(modifierType)];
                 }
                 else
                 {
@@ -324,7 +321,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ParameterHelpers.EnsureRefKindAttributesExist(compilation, Parameters, diagnostics, modifyCompilation: true);
                 ParameterHelpers.EnsureParamCollectionAttributeExistsAndModifyCompilation(compilation, Parameters, diagnostics);
 
-                if (compilation.ShouldEmitNativeIntegerAttributes(ReturnType))
+                if (ReturnType.ContainsNativeIntegerWrapperType())
                 {
                     compilation.EnsureNativeIntegerAttributeExists(diagnostics, location, modifyCompilation: true);
                 }
@@ -332,8 +329,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ParameterHelpers.EnsureNativeIntegerAttributeExists(compilation, Parameters, diagnostics, modifyCompilation: true);
                 ParameterHelpers.EnsureScopedRefAttributeExists(compilation, Parameters, diagnostics, modifyCompilation: true);
 
-                if (compilation.ShouldEmitNullableAttributes(this) &&
-                    ReturnTypeWithAnnotations.NeedsNullableAttribute())
+                if (compilation.ShouldEmitNullableAttributes(this))
                 {
                     compilation.EnsureNullableAttributeExists(diagnostics, location, modifyCompilation: true);
                 }

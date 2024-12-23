@@ -56,10 +56,6 @@ internal sealed class CSharpUsePatternCombinatorsDiagnosticAnalyzer() :
         if (!IsTopmostExpression(expression))
             return;
 
-        var syntaxTree = expression.SyntaxTree;
-        if (syntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp9)
-            return;
-
         var cancellationToken = context.CancellationToken;
         var styleOption = context.GetCSharpAnalyzerOptions().PreferPatternMatching;
         if (!styleOption.Value || ShouldSkipAnalysis(context, styleOption.Notification))

@@ -793,15 +793,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return false;
         }
 
-        private void CheckFeatureAvailability(MessageID feature)
-        {
-            var info = feature.GetFeatureAvailabilityDiagnosticInfo(Options);
-            if (info != null)
-            {
-                AddError(info.Code, info.Arguments);
-            }
-        }
-
         private bool ScanInteger()
         {
             int start = TextWindow.Position;
@@ -885,7 +876,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
                 else if (ch == 'b' || ch == 'B')
                 {
-                    CheckFeatureAvailability(MessageID.IDS_FeatureBinaryLiteral);
                     TextWindow.AdvanceChar(2);
                     isBinary = true;
                 }
@@ -1036,17 +1026,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
 
             if (underscoreInWrongPlace)
-            {
                 this.AddError(MakeError(start, TextWindow.Position - start, ErrorCode.ERR_InvalidNumber));
-            }
-            else if (firstCharWasUnderscore)
-            {
-                CheckFeatureAvailability(MessageID.IDS_FeatureLeadingDigitSeparator);
-            }
-            else if (usedUnderscore)
-            {
-                CheckFeatureAvailability(MessageID.IDS_FeatureDigitSeparator);
-            }
 
             info.Kind = SyntaxKind.NumericLiteralToken;
             info.Text = TextWindow.GetText(true);

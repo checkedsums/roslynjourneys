@@ -128,7 +128,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             where TOwningSymbol : Symbol
         {
             Debug.Assert(!parsingFunctionPointer || owner is FunctionPointerMethodSymbol);
-            arglistToken = default(SyntaxToken);
+            arglistToken = default;
 
             int parameterIndex = 0;
             int firstDefault = -1;
@@ -204,13 +204,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (!parsingFunctionPointer)
             {
                 var methodOwner = owner as MethodSymbol;
-                var typeParameters = (object)methodOwner != null ?
-                    methodOwner.TypeParameters :
-                    default(ImmutableArray<TypeParameterSymbol>);
+                var typeParameters = methodOwner is not null ?
+                    methodOwner.TypeParameters : default;
 
                 Debug.Assert(methodOwner?.MethodKind != MethodKind.LambdaMethod);
-                bool allowShadowingNames = withTypeParametersBinder.Compilation.IsFeatureEnabled(MessageID.IDS_FeatureNameShadowingInNestedFunctions) &&
-                    methodOwner?.MethodKind == MethodKind.LocalFunction;
+                bool allowShadowingNames = methodOwner?.MethodKind == MethodKind.LocalFunction;
 
                 withTypeParametersBinder.ValidateParameterNameConflicts(typeParameters, parameters.Cast<TParameterSymbol, ParameterSymbol>(), allowShadowingNames, diagnostics);
             }
@@ -275,7 +273,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static void EnsureNativeIntegerAttributeExists(PEModuleBuilder moduleBuilder, ImmutableArray<ParameterSymbol> parameters)
         {
-            Debug.Assert(moduleBuilder.Compilation.ShouldEmitNativeIntegerAttributes());
             EnsureNativeIntegerAttributeExists(moduleBuilder.Compilation, parameters, diagnostics: null, modifyCompilation: false, moduleBuilder);
         }
 
@@ -288,17 +285,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return;
             }
 
-            if (!compilation.ShouldEmitNativeIntegerAttributes())
-            {
-                return;
-            }
-
             EnsureNativeIntegerAttributeExists(compilation, parameters, diagnostics, modifyCompilation, moduleBuilder: null);
         }
 
         private static void EnsureNativeIntegerAttributeExists(CSharpCompilation compilation, ImmutableArray<ParameterSymbol> parameters, BindingDiagnosticBag? diagnostics, bool modifyCompilation, PEModuleBuilder? moduleBuilder)
         {
-            Debug.Assert(compilation.ShouldEmitNativeIntegerAttributes());
             foreach (var parameter in parameters)
             {
                 if (parameter.TypeWithAnnotations.ContainsNativeIntegerWrapperType())
@@ -399,16 +390,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 foreach (var parameter in parameters)
                 {
-                    if (parameter.TypeWithAnnotations.NeedsNullableAttribute())
+                    if (moduleBuilder is { })
                     {
-                        if (moduleBuilder is { })
-                        {
-                            moduleBuilder.EnsureNullableAttributeExists();
-                        }
-                        else
-                        {
-                            compilation.EnsureNullableAttributeExists(diagnostics, GetParameterLocation(parameter), modifyCompilation);
-                        }
+                        moduleBuilder.EnsureNullableAttributeExists();
+                    }
+                    else
+                    {
+                        compilation.EnsureNullableAttributeExists(diagnostics, GetParameterLocation(parameter), modifyCompilation);
                     }
                 }
             }
@@ -439,12 +427,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 switch (modifier.Kind())
                 {
                     case SyntaxKind.ThisKeyword:
-                        Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureExtensionMethod, diagnostics);
-
-                        if (seenRef || seenIn)
-                        {
-                            Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureRefExtensionMethods, diagnostics);
-                        }
 
                         if (parsingLambdaParams || parsingAnonymousMethodParams)
                         {
@@ -469,10 +451,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         break;
 
                     case SyntaxKind.RefKeyword:
-                        if (seenThis)
-                        {
-                            Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureRefExtensionMethods, diagnostics);
-                        }
 
                         if (seenRef)
                         {
@@ -553,19 +531,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             seenParams = true;
                         }
 
-                        if (parsingLambdaParams)
-                        {
-                            MessageID.IDS_FeatureLambdaParamsArray.CheckFeatureAvailability(diagnostics, modifier);
-                        }
                         break;
 
                     case SyntaxKind.InKeyword:
-                        Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureReadOnlyReferences, diagnostics);
-
-                        if (seenThis)
-                        {
-                            Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureRefExtensionMethods, diagnostics);
-                        }
 
                         if (seenIn)
                         {
@@ -590,7 +558,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         break;
 
                     case SyntaxKind.ScopedKeyword when !parsingFunctionPointerParams:
-                        ModifierUtils.CheckScopedModifierAvailability(parameter, modifier, diagnostics);
                         Debug.Assert(!seenIn);
                         Debug.Assert(!seenOut);
                         Debug.Assert(!seenRef);
@@ -610,7 +577,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         }
                         else if (seenRef)
                         {
-                            Binder.CheckFeatureAvailability(modifier, MessageID.IDS_FeatureRefReadonlyParameters, diagnostics);
                             seenReadonly = true;
                         }
                         break;
@@ -790,7 +756,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasErrors = true;
             }
             else if (conversion.IsReference &&
-                (object)defaultExpression.Type != null &&
+                defaultExpression.Type is not null &&
                 defaultExpression.Type.SpecialType == SpecialType.System_String ||
                 conversion.IsBoxing)
             {
@@ -824,7 +790,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasErrors = true;
             }
 
-            ConstantValueUtils.CheckLangVersionForConstantValue(convertedExpression, diagnostics);
+            ConstantValueUtils.CheckConstantValue(convertedExpression, diagnostics);
 
             // Certain contexts allow default parameter values syntactically but they are ignored during
             // semantic analysis. They are:
@@ -904,7 +870,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static MethodSymbol FindContainingGenericMethod(Symbol symbol)
         {
-            for (Symbol current = symbol; (object)current != null; current = current.ContainingSymbol)
+            for (Symbol current = symbol; current is not null; current = current.ContainingSymbol)
             {
                 if (current.Kind == SymbolKind.Method)
                 {
@@ -923,9 +889,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var refKind = RefKind.None;
             bool isScoped = false;
 
-            refnessKeyword = default(SyntaxToken);
-            paramsKeyword = default(SyntaxToken);
-            thisKeyword = default(SyntaxToken);
+            refnessKeyword = default;
+            paramsKeyword = default;
+            thisKeyword = default;
 
             foreach (var modifier in modifiers)
             {

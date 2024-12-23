@@ -27,14 +27,14 @@ internal static class UseExpressionBodyForLambdaCodeActionHelpers
     {
         var expressionBody = UseExpressionBodyForLambdaHelpers.GetBodyAsExpression(currentDeclaration);
         return expressionBody == null
-            ? WithExpressionBody(currentDeclaration, originalDeclaration.GetLanguageVersion(), cancellationToken)
+            ? WithExpressionBody(currentDeclaration, cancellationToken)
             : WithBlockBody(semanticModel, originalDeclaration, currentDeclaration, expressionBody);
     }
 
-    private static LambdaExpressionSyntax WithExpressionBody(LambdaExpressionSyntax declaration, LanguageVersion languageVersion, CancellationToken cancellationToken)
+    private static LambdaExpressionSyntax WithExpressionBody(LambdaExpressionSyntax declaration, CancellationToken cancellationToken)
     {
         if (!UseExpressionBodyForLambdaHelpers.TryConvertToExpressionBody(
-                declaration, languageVersion, ExpressionBodyPreference.WhenPossible, cancellationToken, out var expressionBody))
+                declaration, ExpressionBodyPreference.WhenPossible, cancellationToken, out var expressionBody))
         {
             return declaration;
         }

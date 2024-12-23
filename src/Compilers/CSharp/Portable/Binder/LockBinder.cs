@@ -58,9 +58,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (exprType?.IsWellKnownTypeLock() == true &&
                 TryFindLockTypeInfo(exprType, diagnostics, exprSyntax) is { } lockTypeInfo)
             {
-                CheckFeatureAvailability(exprSyntax, MessageID.IDS_FeatureLockObject, diagnostics);
-
-                // Report use-site errors for members we will use in lowering.
                 _ = diagnostics.ReportUseSite(lockTypeInfo.EnterScopeMethod, exprSyntax) ||
                     diagnostics.ReportUseSite(lockTypeInfo.ScopeType, exprSyntax) ||
                     diagnostics.ReportUseSite(lockTypeInfo.ScopeDisposeMethod, exprSyntax);

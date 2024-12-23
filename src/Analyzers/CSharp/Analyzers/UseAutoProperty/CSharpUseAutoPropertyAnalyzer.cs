@@ -40,13 +40,13 @@ internal sealed class CSharpUseAutoPropertyAnalyzer : AbstractUseAutoPropertyAna
         => CSharpSemanticFacts.Instance;
 
     protected override bool SupportsReadOnlyProperties(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp6;
+        => true;
 
     protected override bool SupportsPropertyInitializer(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.CSharp6;
+        => true;
 
     protected override bool SupportsFieldExpression(Compilation compilation)
-        => compilation.LanguageVersion() >= LanguageVersion.Preview;
+        => true;
 
     protected override ExpressionSyntax? GetFieldInitializer(VariableDeclaratorSyntax variable, CancellationToken cancellationToken)
         => variable.Initializer?.Value;

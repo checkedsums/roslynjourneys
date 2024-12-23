@@ -2,14 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable disable
-
-using System;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.PooledObjects;
-using Microsoft.CodeAnalysis.Text;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp
 {
@@ -33,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             ResolveBreaks(afterSwitchState, node.BreakLabel);
 
-            return null;
+            return null!;
         }
 
         protected virtual TLocalState VisitSwitchStatementDispatch(BoundSwitchStatement node)
@@ -48,8 +41,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 foreach (var label in section.SwitchLabels)
                 {
-                    if (reachableLabels.Contains(label.Label) || label.HasErrors ||
-                        label == node.DefaultLabel && node.Expression.ConstantValueOpt == null && IsTraditionalSwitch(node))
+                    if (reachableLabels.Contains(label.Label) || label.HasErrors)
                     {
                         SetState(initialState.Clone());
                     }
@@ -71,50 +63,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             TLocalState afterSwitchState = UnreachableState();
-            if (node.ReachabilityDecisionDag.ReachableLabels.Contains(node.BreakLabel) ||
-                (node.DefaultLabel == null && node.Expression.ConstantValueOpt == null && IsTraditionalSwitch(node)))
+            if (node.ReachabilityDecisionDag.ReachableLabels.Contains(node.BreakLabel))
             {
                 Join(ref afterSwitchState, ref initialState);
             }
 
             return afterSwitchState;
-        }
-
-        /// <summary>
-        /// Is the switch statement one that could be interpreted as a C# 6 or earlier switch statement?
-        /// </summary>
-        private bool IsTraditionalSwitch(BoundSwitchStatement node)
-        {
-            // Before recursive patterns were introduced, we did not consider handling both 'true' and 'false' to
-            // completely handle all case of a switch on a bool unless there was some patterny syntax or semantics
-            // in the switch.  We had two different bound nodes and separate flow analysis handling for
-            // "traditional" switch statements and "pattern-based" switch statements.  We simulate that behavior
-            // by testing to see if this switch would have been handled under the old rules by the old compiler.
-
-            // If we are in a recent enough language version, we treat the switch as a fully pattern-based switch
-            // for the purposes of flow analysis.
-            if (compilation.LanguageVersion >= MessageID.IDS_FeatureRecursivePatterns.RequiredVersion())
-            {
-                return false;
-            }
-
-            if (!node.Expression.Type.IsValidV6SwitchGoverningType())
-            {
-                return false;
-            }
-
-            foreach (var sectionSyntax in ((SwitchStatementSyntax)node.Syntax).Sections)
-            {
-                foreach (var label in sectionSyntax.Labels)
-                {
-                    if (label.Kind() == SyntaxKind.CasePatternSwitchLabel)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
         }
 
         protected virtual void VisitSwitchSection(BoundSwitchSection node, bool isLastSection)
@@ -139,7 +93,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             SetUnreachable();
-            return null;
+            return null!;
         }
 
         public override BoundNode VisitConvertedSwitchExpression(BoundConvertedSwitchExpression node)

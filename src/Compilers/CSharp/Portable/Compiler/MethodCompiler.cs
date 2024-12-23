@@ -305,17 +305,17 @@ namespace Microsoft.CodeAnalysis.CSharp
                         synthesizedEntryPoint,
                         methodOrdinal,
                         loweredBody,
-                        ImmutableArray<EncLambdaInfo>.Empty,
-                        ImmutableArray<LambdaRuntimeRudeEditInfo>.Empty,
-                        ImmutableArray<EncClosureInfo>.Empty,
-                        ImmutableArray<StateMachineStateDebugInfo>.Empty,
+                        [],
+                        [],
+                        [],
+                        [],
                         stateMachineTypeOpt: null,
                         variableSlotAllocatorOpt: null,
                         diagnostics: diagnostics,
                         debugDocumentProvider: null,
                         importChainOpt: null,
                         emittingPdb: false,
-                        codeCoverageSpans: ImmutableArray<SourceSpan>.Empty,
+                        codeCoverageSpans: [],
                         entryPointOpt: null);
                     moduleBeingBuilt.SetMethodBody(synthesizedEntryPoint, emittedBody);
                 }
@@ -344,10 +344,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             SourceAssemblySymbol assembly = (SourceAssemblySymbol)compilation.Assembly;
             diagnostics.AddRange(assembly.GetUnusedFieldWarnings(cancellationToken));
         }
-
-        // Do not report nullable diagnostics when emitting EnC delta since they are not needed. 
-        private bool ReportNullableDiagnostics
-            => _moduleBeingBuiltOpt?.IsEncDelta != true;
 
         private DebugDocumentProvider GetDebugDocumentProvider(MethodInstrumentation instrumentation)
         {
@@ -531,8 +527,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                             Binder.ProcessedFieldInitializers processedInitializers =
                                 (method.MethodKind == MethodKind.Constructor || method.IsScriptInitializer) ? processedInstanceInitializers :
-                                method.MethodKind == MethodKind.StaticConstructor ? processedStaticInitializers :
-                                default(Binder.ProcessedFieldInitializers);
+                                method.MethodKind == MethodKind.StaticConstructor ? processedStaticInitializers : default;
 
                             CompileMethod(method, memberOrdinal, ref processedInitializers, synthesizedSubmissionFields, compilationState);
                             break;
@@ -609,33 +604,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                     }
                 }
-
-                // If there is no explicit or implicit .cctor and no static initializers, then report
-                // warnings for any static non-nullable fields. (If there is no .cctor, there
-                // shouldn't be any initializers but for robustness, we check both.)
-                if (processedStaticInitializers.BoundInitializers.IsDefaultOrEmpty &&
-                    _compilation.LanguageVersion >= MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion() &&
-                    containingType is { IsImplicitlyDeclared: false, TypeKind: TypeKind.Class or TypeKind.Struct or TypeKind.Interface } &&
-                    ReportNullableDiagnostics)
-                {
-                    NullableWalker.AnalyzeIfNeeded(
-                        this._compilation,
-                        new SynthesizedStaticConstructor(containingType),
-                        GetSynthesizedEmptyBody(containingType),
-                        _diagnostics.DiagnosticBag,
-                        useConstructorExitWarnings: true,
-                        initialNullableState: null,
-                        getFinalNullableState: false,
-                        baseOrThisInitializer: null,
-                        finalNullableState: out _);
-                }
             }
 
             // compile submission constructor last so that synthesized submission fields are collected from all script methods:
             if (scriptCtor != null && compilationState.Emitting)
             {
                 Debug.Assert(scriptCtorOrdinal >= 0);
-                var processedInitializers = new Binder.ProcessedFieldInitializers() { BoundInitializers = ImmutableArray<BoundInitializer>.Empty };
+                var processedInitializers = new Binder.ProcessedFieldInitializers() { BoundInitializers = [] };
                 CompileMethod(scriptCtor, scriptCtorOrdinal, ref processedInitializers, synthesizedSubmissionFields, compilationState);
                 if (synthesizedSubmissionFields != null)
                 {
@@ -762,9 +737,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 method,
                                 methodOrdinal,
                                 loweredBody,
-                                ImmutableArray<EncLambdaInfo>.Empty,
-                                ImmutableArray<LambdaRuntimeRudeEditInfo>.Empty,
-                                ImmutableArray<EncClosureInfo>.Empty,
+                                [],
+                                [],
+                                [],
                                 stateMachineStateDebugInfoBuilder.ToImmutable(),
                                 stateMachine,
                                 variableSlotAllocatorOpt,
@@ -772,7 +747,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 GetDebugDocumentProvider(MethodInstrumentation.Empty),
                                 method.GenerateDebugInfo ? importChain : null,
                                 emittingPdb: _emittingPdb,
-                                codeCoverageSpans: ImmutableArray<SourceSpan>.Empty,
+                                codeCoverageSpans: [],
                                 _entryPointOpt);
                         }
                     }
@@ -897,7 +872,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if ((object)sourceMethod != null)
                 {
                     bool diagsWritten;
-                    sourceMethod.SetDiagnostics(ImmutableArray<Diagnostic>.Empty, out diagsWritten);
+                    sourceMethod.SetDiagnostics([], out diagsWritten);
                     if (diagsWritten && !methodSymbol.IsImplicitlyDeclared && _compilation.EventQueue != null)
                     {
                         _compilation.SymbolDeclaredEvent(methodSymbol);
@@ -958,7 +933,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (methodSymbol.IsScriptConstructor)
                 {
                     Debug.Assert(methodSymbol.IsImplicitlyDeclared);
-                    body = new BoundBlock(methodSymbol.GetNonNullSyntaxNode(), ImmutableArray<LocalSymbol>.Empty, ImmutableArray<BoundStatement>.Empty) { WasCompilerGenerated = true };
+                    body = new BoundBlock(methodSymbol.GetNonNullSyntaxNode(), [], []) { WasCompilerGenerated = true };
                 }
                 else if (methodSymbol.IsScriptInitializer)
                 {
@@ -970,9 +945,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // the lowered script initializers should not be treated as initializers anymore but as a method body:
                     body = BoundBlock.SynthesizedNoLocals(initializerStatements.Syntax, initializerStatements.Statements);
 
-                    if (ReportNullableDiagnostics)
+                    if (_moduleBeingBuiltOpt?.IsEncDelta != true)
                     {
-                        NullableWalker.AnalyzeIfNeeded(
+                        NullableWalker.Analyze(
                             _compilation,
                             methodSymbol,
                             initializerStatements,
@@ -1001,7 +976,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         processedInitializers.HasErrors = processedInitializers.HasErrors || analyzedInitializers.HasAnyErrors;
 
                         RefSafetyAnalysis.Analyze(_compilation, methodSymbol,
-                                                  new BoundBlock(analyzedInitializers.Syntax, ImmutableArray<LocalSymbol>.Empty, analyzedInitializers.Statements), // The block is necessary to establish the right local scope for the analysis 
+                                                  new BoundBlock(analyzedInitializers.Syntax, [], analyzedInitializers.Statements), // The block is necessary to establish the right local scope for the analysis 
                                                   diagsForCurrentMethod);
                     }
 
@@ -1011,7 +986,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         diagsForCurrentMethod,
                         includeInitializersInBody,
                         analyzedInitializers,
-                        ReportNullableDiagnostics,
                         out importChain,
                         out originalBodyNested,
                         out bool prependedDefaultValueTypeConstructorInitializer,
@@ -1195,7 +1169,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     else
                     {
                         loweredBodyOpt = null;
-                        codeCoverageSpans = ImmutableArray<SourceSpan>.Empty;
+                        codeCoverageSpans = [];
                     }
 
                     hasErrors = hasErrors || (hasBody && loweredBodyOpt.HasErrors) || diagsForCurrentMethod.HasAnyErrors();
@@ -1219,7 +1193,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         else
                         {
-                            boundStatements = ImmutableArray<BoundStatement>.Empty;
+                            boundStatements = [];
 
                             if (methodSymbol is SynthesizedPrimaryConstructor primaryCtor)
                             {
@@ -1381,7 +1355,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (body.HasErrors)
             {
-                codeCoverageSpans = ImmutableArray<SourceSpan>.Empty;
+                codeCoverageSpans = [];
                 return body;
             }
 
@@ -1473,9 +1447,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             catch (BoundTreeVisitor.CancelledByStackGuardException ex)
             {
-                codeCoverageSpans = ImmutableArray<SourceSpan>.Empty;
+                codeCoverageSpans = [];
                 ex.AddAnError(diagnostics);
-                return new BoundBadStatement(body.Syntax, ImmutableArray.Create<BoundNode>(body), hasErrors: true);
+                return new BoundBadStatement(body.Syntax, [body], hasErrors: true);
             }
         }
 
@@ -1577,7 +1551,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Compiler-generated MoveNext methods have hoisted local scopes.
                 // These are built by call to CodeGen.Generate.
                 var stateMachineHoistedLocalScopes = ((object)kickoffMethod != null) ?
-                    builder.GetHoistedLocalScopes() : default(ImmutableArray<StateMachineHoistedLocalScope>);
+                    builder.GetHoistedLocalScopes() : default;
 
                 // Translate the imports even if we are not writing PDBs. The translation has an impact on generated metadata
                 // and we don't want to emit different metadata depending on whether or we emit with PDB stream.
@@ -1722,7 +1696,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics,
                 includeInitializersInBody: false,
                 initializersBody: null,
-                reportNullableDiagnostics: true,
                 importChain: out _,
                 originalBodyNested: out _,
                 prependedDefaultValueTypeConstructorInitializer: out _,
@@ -1736,7 +1709,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             BindingDiagnosticBag diagnostics,
             bool includeInitializersInBody,
             BoundNode? initializersBody,
-            bool reportNullableDiagnostics,
             out ImportChain? importChain,
             out bool originalBodyNested,
             out bool prependedDefaultValueTypeConstructorInitializer,
@@ -1801,40 +1773,16 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     nullableInitialState = getInitializerState(methodBody);
 
-                    if (reportNullableDiagnostics)
-                    {
-                        Debug.Assert(diagnostics.DiagnosticBag != null);
-                        if (compilation.IsNullableAnalysisEnabledIn(method))
-                        {
-                            var isSufficientLangVersion = compilation.LanguageVersion >= MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion();
-
-                            methodBodyForSemanticModel = NullableWalker.AnalyzeAndRewrite(
-                                compilation,
-                                method,
-                                methodBody,
-                                bodyBinder,
-                                nullableInitialState,
-                                // if language version is insufficient, we do not want to surface nullability diagnostics,
-                                // but we should still provide nullability information through the semantic model.
-                                isSufficientLangVersion ? diagnostics.DiagnosticBag : new DiagnosticBag(),
-                                createSnapshots: true,
-                                out snapshotManager,
-                                ref remappedSymbols);
-                        }
-                        else
-                        {
-                            NullableWalker.AnalyzeIfNeeded(
-                                compilation,
-                                method,
-                                methodBody,
-                                diagnostics.DiagnosticBag,
-                                useConstructorExitWarnings: true,
-                                nullableInitialState,
-                                getFinalNullableState: false,
-                                baseOrThisInitializer: null,
-                                finalNullableState: out _);
-                        }
-                    }
+                    methodBodyForSemanticModel = NullableWalker.AnalyzeAndRewrite(
+                        compilation,
+                        method,
+                        methodBody,
+                        bodyBinder,
+                        nullableInitialState,
+                        new DiagnosticBag(),
+                        createSnapshots: true,
+                        out snapshotManager,
+                        ref remappedSymbols);
 
                     forSemanticModel = new MethodBodySemanticModel.InitialState(syntaxNode, methodBodyForSemanticModel, bodyBinder, snapshotManager, remappedSymbols);
 
@@ -1857,11 +1805,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                                 if (body == null)
                                 {
-                                    body = new BoundBlock(constructor.Syntax, constructor.Locals, ImmutableArray.Create<BoundStatement>(constructor.Initializer));
+                                    body = new BoundBlock(constructor.Syntax, constructor.Locals, [constructor.Initializer]);
                                 }
                                 else
                                 {
-                                    body = new BoundBlock(constructor.Syntax, constructor.Locals, ImmutableArray.Create<BoundStatement>(constructor.Initializer, body));
+                                    body = new BoundBlock(constructor.Syntax, constructor.Locals, [constructor.Initializer, body]);
                                     originalBodyNested = true;
                                     prependedDefaultValueTypeConstructorInitializer =
                                         expressionStatement.Expression is BoundCall { Method: var initMethod } && initMethod.IsDefaultValueTypeConstructor();
@@ -1918,10 +1866,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 nullableInitialState = getInitializerState(null);
             }
 
-            if (reportNullableDiagnostics && method.IsConstructor() && method.IsImplicitlyDeclared && nullableInitialState is object)
+            if (method.IsConstructor() && method.IsImplicitlyDeclared && nullableInitialState is object)
             {
                 Debug.Assert(diagnostics.AccumulatesDiagnostics);
-                NullableWalker.AnalyzeIfNeeded(
+                NullableWalker.Analyze(
                     compilationState.Compilation,
                     method,
                     body ?? GetSynthesizedEmptyBody(method),
@@ -1948,15 +1896,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return body;
                 }
 
-                statements = ImmutableArray<BoundStatement>.Empty;
+                statements = [];
             }
             else if (body == null)
             {
-                statements = ImmutableArray.Create(constructorInitializer);
+                statements = [constructorInitializer];
             }
             else
             {
-                statements = ImmutableArray.Create(constructorInitializer, body);
+                statements = [constructorInitializer, body];
                 originalBodyNested = true;
             }
 
@@ -1964,7 +1912,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             NullableWalker.VariableState? getInitializerState(BoundNode? body)
             {
-                if (reportNullableDiagnostics && includeInitializersInBody)
+                if (includeInitializersInBody)
                 {
                     return NullableWalker.GetAfterInitializersState(compilationState.Compilation, method, initializersBody, body, diagnostics);
                 }

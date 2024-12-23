@@ -88,7 +88,6 @@
                 case ErrorCode.WRN_IllegalPragma:
                 case ErrorCode.WRN_IllegalPPWarning:
                 case ErrorCode.WRN_BadRestoreNumber:
-                case ErrorCode.WRN_NonECMAFeature:
                 case ErrorCode.WRN_ErrorOverride:
                 case ErrorCode.WRN_InvalidSearchPathDir:
                 case ErrorCode.WRN_MultiplePredefTypes:
@@ -106,7 +105,6 @@
                 case ErrorCode.WRN_MissingTypeParamTag:
                 case ErrorCode.WRN_AssignmentToSelf:
                 case ErrorCode.WRN_ComparisonToSelf:
-                case ErrorCode.WRN_DotOnDefault:
                 case ErrorCode.WRN_BadXMLRefTypeVar:
                 case ErrorCode.WRN_UnmatchedParamRefTag:
                 case ErrorCode.WRN_UnmatchedTypeParamRefTag:
@@ -174,7 +172,6 @@
                 case ErrorCode.WRN_AlignmentMagnitude:
                 case ErrorCode.WRN_AttributeIgnoredWhenPublicSigning:
                 case ErrorCode.WRN_TupleLiteralNameMismatch:
-                case ErrorCode.WRN_WindowsExperimental:
                 case ErrorCode.WRN_UnreferencedLocalFunction:
                 case ErrorCode.WRN_FilterIsConstantFalse:
                 case ErrorCode.WRN_FilterIsConstantFalseRedundantTryCatch:
@@ -215,9 +212,7 @@
                 case ErrorCode.WRN_NullabilityMismatchInParameterTypeOfTargetDelegate:
                 case ErrorCode.WRN_NullabilityMismatchInArgumentForOutput:
                 case ErrorCode.WRN_NullAsNonNullable:
-                case ErrorCode.WRN_NullableValueTypeMayBeNull:
                 case ErrorCode.WRN_NullabilityMismatchInTypeParameterConstraint:
-                case ErrorCode.WRN_MissingNonNullTypesContextForAnnotation:
                 case ErrorCode.WRN_NullabilityMismatchInConstraintsOnImplicitImplementation:
                 case ErrorCode.WRN_NullabilityMismatchInTypeParameterReferenceTypeConstraint:
                 case ErrorCode.WRN_NullabilityMismatchInExplicitlyImplementedInterface:
@@ -226,7 +221,6 @@
                 case ErrorCode.WRN_SwitchExpressionNotExhaustiveForNull:
                 case ErrorCode.WRN_ImplicitCopyInReadOnlyMember:
                 case ErrorCode.WRN_NullabilityMismatchInConstraintsOnPartialImplementation:
-                case ErrorCode.WRN_MissingNonNullTypesContextForAnnotationInGeneratedCode:
                 case ErrorCode.WRN_NullReferenceInitializer:
                 case ErrorCode.WRN_NullabilityMismatchInTypeParameterNotNullConstraint:
                 case ErrorCode.WRN_ParameterConditionallyDisallowsNull:
@@ -257,12 +251,9 @@
                 case ErrorCode.WRN_AnalyzerReferencesFramework:
                 case ErrorCode.WRN_RecordEqualsWithoutGetHashCode:
                 case ErrorCode.WRN_RecordNamedDisallowed:
-                case ErrorCode.WRN_UnassignedThisAutoPropertyUnsupportedVersion:
-                case ErrorCode.WRN_UnassignedThisUnsupportedVersion:
                 case ErrorCode.WRN_ParamUnassigned:
                 case ErrorCode.WRN_UseDefViolationProperty:
                 case ErrorCode.WRN_UseDefViolationField:
-                case ErrorCode.WRN_UseDefViolationThisUnsupportedVersion:
                 case ErrorCode.WRN_UseDefViolationOut:
                 case ErrorCode.WRN_UseDefViolation:
                 case ErrorCode.WRN_SyncAndAsyncEntryPoints:
@@ -281,8 +272,6 @@
                 case ErrorCode.WRN_CompileTimeCheckedOverflow:
                 case ErrorCode.WRN_MethGrpToNonDel:
                 case ErrorCode.WRN_LowerCaseTypeName:
-                case ErrorCode.WRN_UseDefViolationPropertyUnsupportedVersion:
-                case ErrorCode.WRN_UseDefViolationFieldUnsupportedVersion:
                 case ErrorCode.WRN_UseDefViolationPropertySupportedVersion:
                 case ErrorCode.WRN_UseDefViolationFieldSupportedVersion:
                 case ErrorCode.WRN_UseDefViolationThisSupportedVersion:
@@ -334,7 +323,6 @@
                 case ErrorCode.WRN_TargetDifferentRefness:
                 case ErrorCode.WRN_RefReadonlyParameterDefaultValue:
                 case ErrorCode.WRN_UseDefViolationRefField:
-                case ErrorCode.WRN_Experimental:
                 case ErrorCode.WRN_CollectionExpressionRefStructMayAllocate:
                 case ErrorCode.WRN_CollectionExpressionRefStructSpreadMayAllocate:
                 case ErrorCode.WRN_ConvertingLock:
@@ -343,7 +331,6 @@
                 case ErrorCode.WRN_UninitializedNonNullableBackingField:
                 case ErrorCode.WRN_UnassignedInternalRefField:
                 case ErrorCode.WRN_AccessorDoesNotUseBackingField:
-                case ErrorCode.WRN_ExperimentalWithMessage:
                 case ErrorCode.WRN_UnscopedRefAttributeOldRules:
                 case ErrorCode.WRN_InterceptsLocationAttributeUnsupportedSignature:
                     return true;

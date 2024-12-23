@@ -95,10 +95,6 @@ internal sealed class ExtractMethodCodeRefactoringProvider() : CodeRefactoringPr
     {
         var syntaxTree = await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false);
         var syntaxFacts = document.GetLanguageService<ISyntaxFactsService>();
-        if (!syntaxFacts.SupportsLocalFunctionDeclaration(syntaxTree.Options))
-        {
-            return null;
-        }
 
         var localFunctionResult = await ExtractMethodService.ExtractMethodAsync(
             document,

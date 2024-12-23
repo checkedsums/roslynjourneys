@@ -408,7 +408,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(syntax.IsAnonymousFunction());
             bool hasErrors = !types.IsDefault && types.Any(static t => t.Type?.Kind == SymbolKind.ErrorType);
 
-            var functionType = FunctionTypeSymbol.CreateIfFeatureEnabled(syntax, binder, static (binder, expr) => ((UnboundLambda)expr).Data.InferDelegateType());
+            var functionType = new FunctionTypeSymbol(binder, static (binder, expr) => ((UnboundLambda)expr).Data.InferDelegateType());
             var data = new PlainUnboundLambdaState(binder, returnRefKind, returnType, parameterAttributes, names, discardsOpt, types, refKinds, declaredScopes, defaultValues, syntaxList, isAsync: isAsync, isStatic: isStatic, includeCache: true);
             var lambda = new UnboundLambda(syntax, data, functionType, withDependencies, hasErrors: hasErrors);
             data.SetUnboundLambda(lambda);
@@ -815,33 +815,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             lambdaSymbol.GetDeclarationDiagnostics(diagnostics);
 
-            if (lambdaSymbol.RefKind == CodeAnalysis.RefKind.RefReadOnly)
-            {
-                compilation.EnsureIsReadOnlyAttributeExists(diagnostics, lambdaSymbol.DiagnosticLocation, modifyCompilation: false);
-            }
-
             var lambdaParameters = lambdaSymbol.Parameters;
-            ParameterHelpers.EnsureRefKindAttributesExist(compilation, lambdaParameters, diagnostics, modifyCompilation: false);
-            // Not emitting ParamCollectionAttribute/ParamArrayAttribute for lambdas
-
-            if (returnType.HasType)
-            {
-                if (compilation.ShouldEmitNativeIntegerAttributes(returnType.Type))
-                {
-                    compilation.EnsureNativeIntegerAttributeExists(diagnostics, lambdaSymbol.DiagnosticLocation, modifyCompilation: false);
-                }
-
-                if (compilation.ShouldEmitNullableAttributes(lambdaSymbol) &&
-                    returnType.NeedsNullableAttribute())
-                {
-                    compilation.EnsureNullableAttributeExists(diagnostics, lambdaSymbol.DiagnosticLocation, modifyCompilation: false);
-                    // Note: we don't need to warn on annotations used in #nullable disable context for lambdas, as this is handled in binding already
-                }
-            }
-
-            ParameterHelpers.EnsureNativeIntegerAttributeExists(compilation, lambdaParameters, diagnostics, modifyCompilation: false);
-            ParameterHelpers.EnsureScopedRefAttributeExists(compilation, lambdaParameters, diagnostics, modifyCompilation: false);
-            ParameterHelpers.EnsureNullableAttributeExists(compilation, lambdaSymbol, lambdaParameters, diagnostics, modifyCompilation: false);
             // Note: we don't need to warn on annotations used in #nullable disable context for lambdas, as this is handled in binding already
 
             ValidateUnsafeParameters(diagnostics, cacheKey.ParameterTypes);

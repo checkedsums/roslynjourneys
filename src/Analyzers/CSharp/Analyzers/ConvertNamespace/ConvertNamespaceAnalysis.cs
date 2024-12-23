@@ -37,23 +37,16 @@ internal static class ConvertNamespaceAnalysis
         return canOffer;
     }
 
-    internal static bool CanOfferUseFileScoped(CodeStyleOption2<NamespaceDeclarationPreference> option, CompilationUnitSyntax root, [NotNullWhen(true)] BaseNamespaceDeclarationSyntax? declaration, bool forAnalyzer)
-        => CanOfferUseFileScoped(option, root, declaration, forAnalyzer, root.SyntaxTree.Options.LanguageVersion());
-
     internal static bool CanOfferUseFileScoped(
         CodeStyleOption2<NamespaceDeclarationPreference> option,
         CompilationUnitSyntax root,
         BaseNamespaceDeclarationSyntax? declaration,
-        bool forAnalyzer,
-        LanguageVersion version)
+        bool forAnalyzer)
     {
         if (declaration is not NamespaceDeclarationSyntax namespaceDeclaration)
             return false;
 
         if (namespaceDeclaration.OpenBraceToken.IsMissing)
-            return false;
-
-        if (version < LanguageVersion.CSharp10)
             return false;
 
         var userPrefersFileScopedNamespaces = option.Value == NamespaceDeclarationPreference.FileScoped;

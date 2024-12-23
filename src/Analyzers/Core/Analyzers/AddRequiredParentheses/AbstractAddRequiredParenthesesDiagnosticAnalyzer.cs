@@ -4,10 +4,8 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis.CodeStyle;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Precedence;
 using Microsoft.CodeAnalysis.RemoveUnnecessaryParentheses;
 using Roslyn.Utilities;
@@ -15,35 +13,19 @@ using Roslyn.Utilities;
 namespace Microsoft.CodeAnalysis.AddRequiredParentheses;
 
 internal abstract class AbstractAddRequiredParenthesesDiagnosticAnalyzer<
-    TExpressionSyntax, TBinaryLikeExpressionSyntax, TLanguageKindEnum>
-    : AbstractBuiltInCodeStyleDiagnosticAnalyzer
+    TExpressionSyntax, TBinaryLikeExpressionSyntax, TLanguageKindEnum>(IPrecedenceService precedenceService)
+    : AbstractBuiltInCodeStyleDiagnosticAnalyzer(IDEDiagnosticIds.AddRequiredParenthesesDiagnosticId,
+           EnforceOnBuildValues.AddRequiredParentheses,
+           options: ParenthesesDiagnosticAnalyzersHelper.Options,
+           new LocalizableResourceString(nameof(AnalyzersResources.Add_parentheses_for_clarity), AnalyzersResources.ResourceManager, typeof(AnalyzersResources)),
+           new LocalizableResourceString(nameof(AnalyzersResources.Parentheses_should_be_added_for_clarity), AnalyzersResources.ResourceManager, typeof(AnalyzersResources)))
     where TExpressionSyntax : SyntaxNode
     where TBinaryLikeExpressionSyntax : TExpressionSyntax
     where TLanguageKindEnum : struct
 {
     private static readonly Dictionary<(bool includeInFixAll, string equivalenceKey), ImmutableDictionary<string, string?>> s_cachedProperties = [];
 
-    private readonly IPrecedenceService _precedenceService;
-
-    static AbstractAddRequiredParenthesesDiagnosticAnalyzer()
-    {
-        var includeArray = new[] { false, true };
-
-        foreach (var equivalenceKey in GetAllEquivalenceKeys())
-        {
-            foreach (var includeInFixAll in includeArray)
-            {
-                var properties = ImmutableDictionary<string, string?>.Empty;
-                if (includeInFixAll)
-                {
-                    properties = properties.Add(AddRequiredParenthesesConstants.IncludeInFixAll, "");
-                }
-
-                properties = properties.Add(AddRequiredParenthesesConstants.EquivalenceKey, equivalenceKey);
-                s_cachedProperties.Add((includeInFixAll, equivalenceKey), properties);
-            }
-        }
-    }
+    private readonly IPrecedenceService _precedenceService = precedenceService;
 
     protected static string GetEquivalenceKey(PrecedenceKind precedenceKind)
         => precedenceKind switch
@@ -55,9 +37,6 @@ internal abstract class AbstractAddRequiredParenthesesDiagnosticAnalyzer<
             _ => throw ExceptionUtilities.UnexpectedValue(precedenceKind),
         };
 
-    protected static ImmutableArray<string> GetAllEquivalenceKeys()
-        => ["ArithmeticBinary", "RelationalBinary", "OtherBinary", "Other"];
-
     private static ImmutableDictionary<string, string?> GetProperties(bool includeInFixAll, string equivalenceKey)
         => s_cachedProperties[(includeInFixAll, equivalenceKey)];
 
@@ -65,16 +44,6 @@ internal abstract class AbstractAddRequiredParenthesesDiagnosticAnalyzer<
     protected abstract TExpressionSyntax? TryGetAppropriateParent(TBinaryLikeExpressionSyntax binaryLike);
     protected abstract bool IsBinaryLike(TExpressionSyntax node);
     protected abstract (TExpressionSyntax, SyntaxToken, TExpressionSyntax) GetPartsOfBinaryLike(TBinaryLikeExpressionSyntax binaryLike);
-
-    protected AbstractAddRequiredParenthesesDiagnosticAnalyzer(IPrecedenceService precedenceService)
-        : base(IDEDiagnosticIds.AddRequiredParenthesesDiagnosticId,
-               EnforceOnBuildValues.AddRequiredParentheses,
-               options: ParenthesesDiagnosticAnalyzersHelper.Options,
-               new LocalizableResourceString(nameof(AnalyzersResources.Add_parentheses_for_clarity), AnalyzersResources.ResourceManager, typeof(AnalyzersResources)),
-               new LocalizableResourceString(nameof(AnalyzersResources.Parentheses_should_be_added_for_clarity), AnalyzersResources.ResourceManager, typeof(AnalyzersResources)))
-    {
-        _precedenceService = precedenceService;
-    }
 
     public sealed override DiagnosticAnalyzerCategory GetAnalyzerCategory()
         => DiagnosticAnalyzerCategory.SemanticSpanAnalysis;

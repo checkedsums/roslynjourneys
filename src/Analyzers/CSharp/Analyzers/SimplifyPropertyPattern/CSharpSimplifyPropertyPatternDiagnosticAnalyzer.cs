@@ -39,12 +39,6 @@ internal class CSharpSimplifyPropertyPatternDiagnosticAnalyzer : AbstractBuiltIn
     {
         context.RegisterCompilationStartAction(compilationContext =>
         {
-            // Dotted property patterns are only available in C# 10.0 and above.  Don't offer this refactoring
-            // in projects targeting a lesser version.
-
-            if (compilationContext.Compilation.LanguageVersion() < LanguageVersion.CSharp10)
-                return;
-
             context.RegisterSyntaxNodeAction(AnalyzeSubpattern, SyntaxKind.Subpattern);
         });
     }

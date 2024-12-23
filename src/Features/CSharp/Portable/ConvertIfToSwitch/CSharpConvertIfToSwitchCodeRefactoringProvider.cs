@@ -26,11 +26,7 @@ internal sealed partial class CSharpConvertIfToSwitchCodeRefactoringProvider()
 
     public override Analyzer CreateAnalyzer(ISyntaxFacts syntaxFacts, ParseOptions options)
     {
-        var version = options.LanguageVersion();
-        var features =
-            (version >= LanguageVersion.CSharp7 ? Feature.SourcePattern | Feature.IsTypePattern | Feature.CaseGuard : 0) |
-            (version >= LanguageVersion.CSharp8 ? Feature.SwitchExpression : 0) |
-            (version >= LanguageVersion.CSharp9 ? Feature.RelationalPattern | Feature.OrPattern | Feature.AndPattern | Feature.TypePattern : 0);
+        var features = Feature.SourcePattern | Feature.IsTypePattern | Feature.CaseGuard | Feature.SwitchExpression | Feature.RelationalPattern | Feature.OrPattern | Feature.AndPattern | Feature.TypePattern;
         return new CSharpAnalyzer(syntaxFacts, features);
     }
 

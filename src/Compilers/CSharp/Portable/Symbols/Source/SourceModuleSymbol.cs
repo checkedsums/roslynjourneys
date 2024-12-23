@@ -641,13 +641,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var version = ImmutableArray.Create(new TypedConstant(compilation.GetSpecialType(SpecialType.System_Int32), TypedConstantKind.Primitive, 11));
                 AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeRefSafetyRulesAttribute(version));
             }
-
-            if (moduleBuilder.ShouldEmitNullablePublicOnlyAttribute())
-            {
-                var includesInternals = ImmutableArray.Create(
-                    new TypedConstant(compilation.GetSpecialType(SpecialType.System_Boolean), TypedConstantKind.Primitive, _assemblySymbol.InternalsAreVisible));
-                AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNullablePublicOnlyAttribute(includesInternals));
-            }
         }
 
         internal override bool HasAssemblyCompilationRelaxationsAttribute
@@ -688,19 +681,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ModuleMetadata? GetMetadata() => null;
 
-        internal override bool UseUpdatedEscapeRules
-        {
-            get
-            {
-                if (_lazyUseUpdatedEscapeRules == ThreeState.Unknown)
-                {
-                    var compilation = _assemblySymbol.DeclaringCompilation;
-                    bool value = compilation.IsFeatureEnabled(MessageID.IDS_FeatureRefFields) || _assemblySymbol.RuntimeSupportsByRefFields;
-                    _lazyUseUpdatedEscapeRules = value.ToThreeState();
-                }
-                return _lazyUseUpdatedEscapeRules == ThreeState.True;
-            }
-        }
+        internal override bool UseUpdatedEscapeRules => _lazyUseUpdatedEscapeRules != ThreeState.False;
 
         /// <summary>
         /// Returns data decoded from <see cref="ObsoleteAttribute"/> attribute or null if there is no <see cref="ObsoleteAttribute"/> attribute.

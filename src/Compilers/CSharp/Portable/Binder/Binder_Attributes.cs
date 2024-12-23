@@ -458,10 +458,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 HashSet<string>? boundNamedArgumentsSet = null;
 
-                // Only report the first "non-trailing named args required C# 7.2" error,
-                // so as to avoid "cascading" errors.
-                bool hadLangVersionError = false;
-
                 var shouldHaveName = false;
 
                 foreach (var argument in attributeArgumentList.Arguments)
@@ -477,7 +473,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         this.BindArgumentAndName(
                             boundConstructorArguments,
                             diagnostics,
-                            ref hadLangVersionError,
                             argument,
                             BindArgumentExpression(diagnostics, argument.Expression, RefKind.None, allowArglist: false),
                             argument.NameColon,
@@ -486,7 +481,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     else
                     {
                         shouldHaveName = true;
-
                         // Named argument
                         // TODO: use fully qualified identifier name for boundNamedArgumentsSet
                         string argumentName = argument.NameEquals.Name.Identifier.ValueText!;
@@ -535,12 +529,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (setMethod != null)
                 {
                     ReportDiagnosticsIfObsolete(diagnostics, setMethod, namedArgument, hasBaseReceiver: false);
-
-                    if (setMethod.IsInitOnly && setMethod.DeclaringCompilation != this.Compilation)
-                    {
-                        // an error would have already been reported on declaring an init-only setter
-                        CheckFeatureAvailability(namedArgument, MessageID.IDS_FeatureInitOnlySetters, diagnostics);
-                    }
                 }
             }
 
@@ -854,7 +842,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         typedConstantKind = TypedConstantKind.Error;
                     }
 
-                    ConstantValueUtils.CheckLangVersionForConstantValue(node, diagnostics);
+                    ConstantValueUtils.CheckConstantValue(node, diagnostics);
 
                     return CreateTypedConstant(node, typedConstantKind, diagnostics, ref attrHasErrors, curArgumentHasErrors, simpleValue: constantValue.Value);
                 }

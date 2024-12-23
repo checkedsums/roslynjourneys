@@ -23,5 +23,5 @@ internal static class UseIsNullCheckHelpers
     }
 
     public static bool SupportsIsNotPattern(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp9;
+        => true;
 }

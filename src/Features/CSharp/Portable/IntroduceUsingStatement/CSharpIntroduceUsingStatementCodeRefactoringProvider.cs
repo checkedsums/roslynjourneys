@@ -97,8 +97,7 @@ internal sealed class CSharpIntroduceUsingStatementCodeRefactoringProvider()
         usingDeclarationStatement = null;
 
         // using-declarations are not allowed in switch sections (due to craziness with how switch section scoping works).
-        if (declarationStatement.Parent is SwitchSectionSyntax ||
-            options.LanguageVersion() < LanguageVersion.CSharp8)
+        if (declarationStatement.Parent is SwitchSectionSyntax)
         {
             return false;
         }

@@ -32,11 +32,7 @@ internal sealed class CSharpUseNullCheckOverTypeCheckDiagnosticAnalyzer : Abstra
     {
         context.RegisterCompilationStartAction(context =>
         {
-            var compilation = context.Compilation;
-            if (compilation.LanguageVersion() < LanguageVersion.CSharp9)
-                return;
-
-            var expressionType = compilation.ExpressionOfTType();
+            var expressionType = context.Compilation.ExpressionOfTType();
             context.RegisterOperationAction(c => AnalyzeIsTypeOperation(c, expressionType), OperationKind.IsType);
             context.RegisterOperationAction(c => AnalyzeNegatedPatternOperation(c), OperationKind.NegatedPattern);
         });

@@ -33,7 +33,7 @@ internal class CSharpUseNamedArgumentsCodeRefactoringProvider : AbstractUseNamed
             => !parameters.Last().IsParams || parameters.Length >= argumentCount;
 
         protected override bool SupportsNonTrailingNamedArguments(ParseOptions options)
-            => options.LanguageVersion() >= LanguageVersion.CSharp7_2;
+            => true;
 
         protected override bool IsImplicitIndexOrRangeIndexer(ImmutableArray<IParameterSymbol> parameters, TSyntax argument, SemanticModel semanticModel)
         {

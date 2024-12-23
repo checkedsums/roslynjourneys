@@ -280,8 +280,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             if (_cannotUse)
             {
-                return new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_TupleInferredNamesNotAvailable, _name,
-                    new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureInferredTupleNames.RequiredVersion())));
+                //Dev69
+                //return new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_TupleInferredNamesNotAvailable, _name));
             }
 
             return base.GetUseSiteInfo();

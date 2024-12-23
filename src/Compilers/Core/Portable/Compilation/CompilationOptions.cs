@@ -234,31 +234,6 @@ namespace Microsoft.CodeAnalysis
         /// </summary>
         public AssemblyIdentityComparer AssemblyIdentityComparer { get; protected set; }
 
-        /// <summary>
-        /// Gets the default nullable context state in this compilation.
-        /// </summary>
-        /// <remarks>
-        /// This context does not apply to files that are marked as generated. Nullable is off
-        /// by default in those locations.
-        /// </remarks>
-        public abstract NullableContextOptions NullableContextOptions { get; protected set; }
-
-        /// <summary>
-        /// A set of strings designating experimental compiler features that are to be enabled.
-        /// </summary>
-        [Obsolete]
-        protected internal ImmutableArray<string> Features
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            protected set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         private readonly Lazy<ImmutableArray<Diagnostic>> _lazyErrors;
 
         private int _hashCode;
@@ -647,8 +622,7 @@ namespace Microsoft.CodeAnalysis
                    object.Equals(this.SyntaxTreeOptionsProvider, other.SyntaxTreeOptionsProvider) &&
                    object.Equals(this.StrongNameProvider, other.StrongNameProvider) &&
                    object.Equals(this.AssemblyIdentityComparer, other.AssemblyIdentityComparer) &&
-                   this.PublicSign == other.PublicSign &&
-                   this.NullableContextOptions == other.NullableContextOptions;
+                   this.PublicSign == other.PublicSign;
 
             return equal;
         }
@@ -694,8 +668,7 @@ namespace Microsoft.CodeAnalysis
                    Hash.Combine(this.SyntaxTreeOptionsProvider,
                    Hash.Combine(this.StrongNameProvider,
                    Hash.Combine(this.AssemblyIdentityComparer,
-                   Hash.Combine(this.PublicSign,
-                   Hash.Combine((int)this.NullableContextOptions, 0))))))))))))))))))))))))))));
+                   Hash.Combine(this.PublicSign, 0)))))))))))))))))))))))))));
         }
 
         public static bool operator ==(CompilationOptions? left, CompilationOptions? right)

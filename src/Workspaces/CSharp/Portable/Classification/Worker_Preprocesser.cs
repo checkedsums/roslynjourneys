@@ -69,9 +69,6 @@ internal ref partial struct Worker
             case SyntaxKind.LoadDirectiveTrivia:
                 ClassifyLoadDirective((LoadDirectiveTriviaSyntax)node);
                 break;
-            case SyntaxKind.NullableDirectiveTrivia:
-                ClassifyNullableDirective((NullableDirectiveTriviaSyntax)node);
-                break;
         }
     }
 
@@ -321,15 +318,6 @@ internal ref partial struct Worker
         AddClassification(node.HashToken, ClassificationTypeNames.PreprocessorKeyword);
         AddClassification(node.LoadKeyword, ClassificationTypeNames.PreprocessorKeyword);
         AddClassification(node.File, ClassificationTypeNames.StringLiteral);
-        ClassifyDirectiveTrivia(node);
-    }
-
-    private void ClassifyNullableDirective(NullableDirectiveTriviaSyntax node)
-    {
-        AddClassification(node.HashToken, ClassificationTypeNames.PreprocessorKeyword);
-        AddClassification(node.NullableKeyword, ClassificationTypeNames.PreprocessorKeyword);
-        AddClassification(node.SettingToken, ClassificationTypeNames.PreprocessorKeyword);
-        AddClassification(node.TargetToken, ClassificationTypeNames.PreprocessorKeyword);
         ClassifyDirectiveTrivia(node);
     }
 }

@@ -67,11 +67,6 @@ internal sealed class PassInCapturedVariablesAsArgumentsCodeFixProvider() : Synt
     {
         var root = await document.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-        // Even when the language version doesn't support static local function, the compiler will still generate
-        // this error. So we need to check to make sure we don't provide incorrect fix.
-        if (!MakeLocalFunctionStaticHelper.IsStaticLocalFunctionSupported(root.SyntaxTree.Options.LanguageVersion()))
-            return;
-
         // Find all unique local functions that contain the error.
         var localFunctions = diagnostics
             .Select(d => root.FindNode(d.Location.SourceSpan).AncestorsAndSelf().OfType<LocalFunctionStatementSyntax>().FirstOrDefault())

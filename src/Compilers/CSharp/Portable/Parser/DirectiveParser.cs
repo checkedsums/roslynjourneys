@@ -103,10 +103,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     result = this.ParseLoadDirective(hash, this.EatContextualToken(contextualKind), isActive, isFollowingToken);
                     break;
 
-                case SyntaxKind.NullableKeyword:
-                    result = this.ParseNullableDirective(hash, this.EatContextualToken(contextualKind), isActive);
-                    break;
-
                 default:
                     if (lexer.Options.Kind == SourceCodeKind.Script && contextualKind == SyntaxKind.ExclamationToken && hashPosition == 0 && !hash.HasTrailingTrivia)
                     {
@@ -331,17 +327,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         eod = this.AddError(eod, triviaOffset, triviaWidth, ErrorCode.ERR_CompilerAndLanguageVersion, version,
                             displayLanguageVersion);
                     }
-                    else
-                    {
-                        const string versionMarker = "version:";
-                        if (this.Options.LanguageVersion != LanguageVersion.Preview &&
-                            errorText.StartsWith(versionMarker, StringComparison.Ordinal) &&
-                            LanguageVersionFacts.TryParse(errorText.Substring(versionMarker.Length), out var languageVersion))
-                        {
-                            ErrorCode error = this.Options.LanguageVersion.GetErrorCode();
-                            eod = this.AddError(eod, triviaOffset, triviaWidth, error, "version", new CSharpRequiredLanguageVersion(languageVersion));
-                        }
-                    }
                 }
             }
 
@@ -525,41 +510,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return SyntaxFactory.LoadDirectiveTrivia(hash, keyword, file, end, isActive);
         }
 
-        private DirectiveTriviaSyntax ParseNullableDirective(SyntaxToken hash, SyntaxToken token, bool isActive)
-        {
-            if (isActive)
-            {
-                token = CheckFeatureAvailability(token, MessageID.IDS_FeatureNullableReferenceTypes);
-            }
-
-            SyntaxToken setting = this.CurrentToken.Kind switch
-            {
-                SyntaxKind.EnableKeyword => EatToken(),
-                SyntaxKind.DisableKeyword => EatToken(),
-                SyntaxKind.RestoreKeyword => EatToken(),
-                _ => EatToken(SyntaxKind.DisableKeyword, ErrorCode.ERR_NullableDirectiveQualifierExpected, reportError: isActive)
-            };
-
-            SyntaxToken target = this.CurrentToken.Kind switch
-            {
-                SyntaxKind.WarningsKeyword => EatToken(),
-                SyntaxKind.AnnotationsKeyword => EatToken(),
-                SyntaxKind.EndOfDirectiveToken => null,
-                SyntaxKind.EndOfFileToken => null,
-                _ => EatToken(SyntaxKind.WarningsKeyword, ErrorCode.ERR_NullableDirectiveTargetExpected, reportError: !setting.IsMissing && isActive)
-            };
-
-            var end = this.ParseEndOfDirective(ignoreErrors: setting.IsMissing || target?.IsMissing == true || !isActive);
-            return SyntaxFactory.NullableDirectiveTrivia(hash, token, setting, target, end, isActive);
-        }
-
         private DirectiveTriviaSyntax ParsePragmaDirective(SyntaxToken hash, SyntaxToken pragma, bool isActive)
         {
-            if (isActive)
-            {
-                pragma = CheckFeatureAvailability(pragma, MessageID.IDS_FeaturePragma);
-            }
-
             bool hasError = false;
             if (this.CurrentToken.ContextualKind == SyntaxKind.WarningKeyword)
             {

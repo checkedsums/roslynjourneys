@@ -43,47 +43,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.LanguageService
 
         Public ReadOnly Property SyntaxKinds As ISyntaxKinds = VisualBasicSyntaxKinds.Instance Implements ISyntaxFacts.SyntaxKinds
 
-        Public Function SupportsIndexingInitializer(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsIndexingInitializer
-            Return False
-        End Function
-
-        Public Function SupportsThrowExpression(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsThrowExpression
-            Return False
-        End Function
-
-        Public Function SupportsLocalFunctionDeclaration(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsLocalFunctionDeclaration
-            Return False
-        End Function
-
-        Public Function SupportsRecord(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsRecord
-            Return False
-        End Function
-
-        Public Function SupportsRecordStruct(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsRecordStruct
-            Return False
-        End Function
-
-        Public Function SupportsTargetTypedConditionalExpression(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsTargetTypedConditionalExpression
-            Return False
-        End Function
-
-        Public Function SupportsConstantInterpolatedStrings(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsConstantInterpolatedStrings
-            Return False
-        End Function
-
-        Public Function SupportsTupleDeconstruction(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsTupleDeconstruction
-            ' While VB supports tuples, it does not support deconstruction.
-            Return False
-        End Function
-
-        Public Function SupportsCollectionExpressionNaturalType(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsCollectionExpressionNaturalType
-            Return False
-        End Function
-
-        Public Function SupportsImplicitImplementationOfNonPublicInterfaceMembers(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsImplicitImplementationOfNonPublicInterfaceMembers
-            Return True
-        End Function
-
         Public Function ParseToken(text As String) As SyntaxToken Implements ISyntaxFacts.ParseToken
             Return SyntaxFactory.ParseToken(text, startStatement:=True)
         End Function
@@ -1689,14 +1648,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.LanguageService
             End Select
 
             Return 1
-        End Function
-
-        Public Function SupportsNotPattern(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsNotPattern
-            Return False
-        End Function
-
-        Public Function SupportsIsNotTypeExpression(options As ParseOptions) As Boolean Implements ISyntaxFacts.SupportsIsNotTypeExpression
-            Return DirectCast(options, VisualBasicParseOptions).LanguageVersion >= LanguageVersion.VisualBasic14
         End Function
 
         Public Function IsAnyPattern(node As SyntaxNode) As Boolean Implements ISyntaxFacts.IsAnyPattern

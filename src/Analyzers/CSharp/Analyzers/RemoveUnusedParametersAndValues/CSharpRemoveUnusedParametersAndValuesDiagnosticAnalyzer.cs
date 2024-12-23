@@ -26,9 +26,6 @@ internal sealed class CSharpRemoveUnusedParametersAndValuesDiagnosticAnalyzer : 
 
     protected override ISyntaxFacts SyntaxFacts => CSharpSyntaxFacts.Instance;
 
-    protected override bool SupportsDiscard(SyntaxTree tree)
-        => tree.Options.LanguageVersion() >= LanguageVersion.CSharp7;
-
     protected override bool MethodHasHandlesClause(IMethodSymbol method)
         => false;
 
@@ -109,4 +106,7 @@ internal sealed class CSharpRemoveUnusedParametersAndValuesDiagnosticAnalyzer : 
                 return unusedDefinition.Syntax.GetLocation();
         }
     }
+
+    protected override bool SupportsDiscard(SyntaxTree tree)
+        => true;
 }

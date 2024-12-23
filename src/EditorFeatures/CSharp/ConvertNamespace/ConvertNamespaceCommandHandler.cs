@@ -137,8 +137,7 @@ internal sealed class ConvertNamespaceCommandHandler(
         if (namespaceDecl.Name.GetLastToken() != token)
             return default;
 
-        // Pass in our special options, and C#10 so that if we can convert this to file-scoped, we will.
-        if (!ConvertNamespaceAnalysis.CanOfferUseFileScoped(s_fileScopedNamespacePreferenceOption, (CompilationUnitSyntax)parsedDocument.Root, namespaceDecl, forAnalyzer: true, LanguageVersion.CSharp10))
+        if (!ConvertNamespaceAnalysis.CanOfferUseFileScoped(s_fileScopedNamespacePreferenceOption, (CompilationUnitSyntax)parsedDocument.Root, namespaceDecl, forAnalyzer: true))
             return default;
 
         var formattingOptions = subjectBuffer.GetSyntaxFormattingOptions(_editorOptionsService, document.Project.GetFallbackAnalyzerOptions(), document.Project.Services, explicitFormat: false);

@@ -21,7 +21,7 @@ internal class EnableKeywordRecommender : AbstractSyntacticSingleKeywordRecommen
 
         // # nullable |
         // # nullable e|
-        if (previousToken1.Kind() == SyntaxKind.NullableKeyword &&
+        if (previousToken1.Kind() == SyntaxKind.ContextKeyword &&
             previousToken2.Kind() == SyntaxKind.HashToken)
         {
             return true;

@@ -125,13 +125,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         private EntryPoint? _lazyEntryPoint;
 
         /// <summary>
-        /// Emit nullable attributes for only those members that are visible outside the assembly
-        /// (public, protected, and if any [InternalsVisibleTo] attributes, internal members).
-        /// If false, attributes are emitted for all members regardless of visibility.
-        /// </summary>
-        private ThreeState _lazyEmitNullablePublicOnly;
-
-        /// <summary>
         /// The set of trees for which a <see cref="CompilationUnitCompletedEvent"/> has been added to the queue.
         /// </summary>
         private HashSet<SyntaxTree>? _lazyCompilationUnitCompletedTrees;
@@ -224,93 +217,13 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// The code may be less efficient and may deviate from spec in corner cases.
         /// The flag is only to be used if PEVerify pass is extremely important.
         /// </summary>
-        internal bool IsPeVerifyCompatEnabled => LanguageVersion < LanguageVersion.CSharp7_2 || Feature("peverify-compat") != null;
+        internal bool IsPeVerifyCompatEnabled => Feature("peverify-compat") != null;
 
         /// <summary>
         /// True when the "disable-length-based-switch" feature flag is set.
         /// When this flag is set, the compiler will not emit length-based switch for string dispatches.
         /// </summary>
         internal bool FeatureDisableLengthBasedSwitch => Feature("disable-length-based-switch") != null;
-
-        /// <summary>
-        /// Returns true if nullable analysis is enabled in the text span represented by the syntax node.
-        /// </summary>
-        /// <remarks>
-        /// This overload is used for member symbols during binding, or for cases other
-        /// than symbols such as attribute arguments and parameter defaults.
-        /// </remarks>
-        internal bool IsNullableAnalysisEnabledIn(SyntaxNode syntax)
-        {
-            return IsNullableAnalysisEnabledIn((CSharpSyntaxTree)syntax.SyntaxTree, syntax.Span);
-        }
-
-        /// <summary>
-        /// Returns true if nullable analysis is enabled in the text span.
-        /// </summary>
-        /// <remarks>
-        /// This overload is used for member symbols during binding, or for cases other
-        /// than symbols such as attribute arguments and parameter defaults.
-        /// </remarks>
-        internal bool IsNullableAnalysisEnabledIn(CSharpSyntaxTree tree, TextSpan span)
-        {
-            return GetNullableAnalysisValue() ??
-                tree.IsNullableAnalysisEnabled(span) ??
-                (Options.NullableContextOptions & NullableContextOptions.Warnings) != 0;
-        }
-
-        /// <summary>
-        /// Returns true if nullable analysis is enabled for the method. For constructors, the
-        /// region considered may include other constructors and field and property initializers.
-        /// </summary>
-        /// <remarks>
-        /// This overload is intended for callers that rely on symbols rather than syntax. The overload
-        /// uses the cached value calculated during binding (from potentially several spans)
-        /// from <see cref="IsNullableAnalysisEnabledIn(CSharpSyntaxTree, TextSpan)"/>.
-        /// </remarks>
-        internal bool IsNullableAnalysisEnabledIn(MethodSymbol method)
-        {
-            return GetNullableAnalysisValue() ??
-                method.IsNullableAnalysisEnabled();
-        }
-
-        /// <summary>
-        /// Returns true if nullable analysis is enabled for all methods regardless
-        /// of the actual nullable context.
-        /// If this property returns true but IsNullableAnalysisEnabled returns false,
-        /// any nullable analysis should be enabled but results should be ignored.
-        /// </summary>
-        /// <remarks>
-        /// For DEBUG builds, we treat nullable analysis as enabled for all methods
-        /// unless explicitly disabled, so that analysis is run, even though results may
-        /// be ignored, to increase the chance of catching nullable regressions
-        /// (e.g. https://github.com/dotnet/roslyn/issues/40136).
-        /// </remarks>
-        internal bool IsNullableAnalysisEnabledAlways
-        {
-            get
-            {
-                var value = GetNullableAnalysisValue();
-#if DEBUG
-                return value != false;
-#else
-                return value == true;
-#endif
-            }
-        }
-
-        /// <summary>
-        /// Returns Feature("run-nullable-analysis") as a bool? value:
-        /// true for "always"; false for "never"; and null otherwise.
-        /// </summary>
-        private bool? GetNullableAnalysisValue()
-        {
-            return Feature("run-nullable-analysis") switch
-            {
-                "always" => true,
-                "never" => false,
-                _ => null,
-            };
-        }
 
         /// <summary>
         /// The language version that was used to parse the syntax trees of this compilation.
@@ -2046,15 +1959,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     foreach (var (IsValid, Candidate, SpecificDiagnostics) in taskEntryPoints)
                     {
-                        if (checkValid(Candidate, IsValid, SpecificDiagnostics) &&
-                            CheckFeatureAvailability(Candidate.ExtractReturnTypeSyntax(), MessageID.IDS_FeatureAsyncMain, diagnostics))
+                        if (checkValid(Candidate, IsValid, SpecificDiagnostics))
                         {
                             diagnostics.AddRange(SpecificDiagnostics);
                             viableEntryPoints.Add(Candidate);
                         }
                     }
                 }
-                else if (LanguageVersion >= MessageID.IDS_FeatureAsyncMain.RequiredVersion() && taskEntryPoints.Count > 0)
+                else if (taskEntryPoints.Count > 0)
                 {
                     var taskCandidates = taskEntryPoints.SelectAsArray(s => (Symbol)s.Candidate);
                     var taskLocations = taskCandidates.SelectAsArray(s => s.GetFirstLocation());
@@ -2064,7 +1976,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // Method '{0}' will not be used as an entry point because a synchronous entry point '{1}' was found.
                         var info = new CSDiagnosticInfo(
                              ErrorCode.WRN_SyncAndAsyncEntryPoints,
-                             args: new object[] { candidate, viableEntryPoints[0] },
+                             args: [candidate, viableEntryPoints[0]],
                              symbols: taskCandidates,
                              additionalLocations: taskLocations);
                         diagnostics.Add(new CSDiagnostic(info, candidate.GetFirstLocation()));
@@ -2987,14 +2899,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 CheckAssemblyName(builder.DiagnosticBag);
                 builder.AddRange(Options.Errors);
-
-                if (Options.NullableContextOptions != NullableContextOptions.Disable && LanguageVersion < MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion() &&
-                    _syntaxAndDeclarations.ExternalSyntaxTrees.Any())
-                {
-                    builder.Add(new CSDiagnostic(new CSDiagnosticInfo(ErrorCode.ERR_NullableOptionNotAvailable,
-                                                 nameof(Options.NullableContextOptions), Options.NullableContextOptions, LanguageVersion.ToDisplayString(),
-                                                 new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion())), Location.None));
-                }
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -4130,7 +4034,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal new NamedTypeSymbol CreateNativeIntegerTypeSymbol(bool signed)
         {
-            return GetSpecialType(signed ? SpecialType.System_IntPtr : SpecialType.System_UIntPtr).AsNativeInteger();
+            return GetSpecialType(signed ? SpecialType.System_IntPtr : SpecialType.System_UIntPtr);
         }
 
         protected override INamedTypeSymbol CommonCreateTupleTypeSymbol(
@@ -4687,67 +4591,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             return (diagnostic == null) || (diagnostic.Severity != DiagnosticSeverity.Error);
         }
 
-        internal bool EmitNullablePublicOnly
-        {
-            get
-            {
-                if (!_lazyEmitNullablePublicOnly.HasValue())
-                {
-                    bool value = SyntaxTrees.FirstOrDefault()?.Options?.Features?.ContainsKey("nullablePublicOnly") == true;
-                    _lazyEmitNullablePublicOnly = value.ToThreeState();
-                }
-                return _lazyEmitNullablePublicOnly.Value();
-            }
-        }
-
-        internal bool ShouldEmitNativeIntegerAttributes()
-        {
-            return !Assembly.RuntimeSupportsNumericIntPtr;
-        }
-
         internal bool ShouldEmitNullableAttributes(Symbol symbol)
         {
-            RoslynDebug.Assert(symbol is object);
-            Debug.Assert(symbol.IsDefinition);
-
-            if (symbol.ContainingModule != SourceModule)
-            {
-                return false;
-            }
-
-            if (!EmitNullablePublicOnly)
-            {
-                return true;
-            }
-
-            // For symbols that do not have explicit accessibility in metadata,
-            // use the accessibility of the container.
-            symbol = getExplicitAccessibilitySymbol(symbol);
-
-            if (!AccessCheck.IsEffectivelyPublicOrInternal(symbol, out bool isInternal))
-            {
-                return false;
-            }
-
-            return !isInternal || SourceAssembly.InternalsAreVisible;
-
-            static Symbol getExplicitAccessibilitySymbol(Symbol symbol)
-            {
-                while (true)
-                {
-                    switch (symbol.Kind)
-                    {
-                        case SymbolKind.Parameter:
-                        case SymbolKind.TypeParameter:
-                        case SymbolKind.Property:
-                        case SymbolKind.Event:
-                            symbol = symbol.ContainingSymbol;
-                            break;
-                        default:
-                            return symbol;
-                    }
-                }
-            }
+            return symbol.ContainingModule == SourceModule;
         }
 
         internal override AnalyzerDriver CreateAnalyzerDriver(ImmutableArray<DiagnosticAnalyzer> analyzers, AnalyzerManager analyzerManager, SeverityFilter severityFilter)
@@ -4771,11 +4617,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (Options.CheckOverflow)
             {
                 writeValue(CompilationOptionNames.Checked, Options.CheckOverflow.ToString());
-            }
-
-            if (Options.NullableContextOptions != NullableContextOptions.Disable)
-            {
-                writeValue(CompilationOptionNames.Nullable, Options.NullableContextOptions.ToString());
             }
 
             if (Options.AllowUnsafe)
@@ -4827,9 +4668,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return sustainedLowLatency != null && sustainedLowLatency.ContainingAssembly == Assembly.CorLibrary;
             }
         }
-
-        private protected override bool SupportsRuntimeCapabilityCore(RuntimeCapability capability)
-            => this.Assembly.SupportsRuntimeCapability(capability);
 
         private abstract class AbstractSymbolSearcher
         {

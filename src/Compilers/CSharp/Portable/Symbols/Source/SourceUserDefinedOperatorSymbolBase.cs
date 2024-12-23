@@ -32,7 +32,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool hasAnyBody,
             bool isExpressionBodied,
             bool isIterator,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics) :
             base(containingType, syntax.GetReference(), location, isIterator: isIterator,
                  (declarationModifiers, MakeFlags(
@@ -43,7 +42,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                                   returnsVoid: false,
                                                   returnsVoidIsSet: false,
                                                   isExpressionBodied: isExpressionBodied,
-                                                  isExtensionMethod: false, isVarArg: false, isNullableAnalysisEnabled: isNullableAnalysisEnabled,
+                                                  isExtensionMethod: false, isVarArg: false,
                                                   isExplicitInterfaceImplementation: methodKind == MethodKind.ExplicitInterfaceImplementation,
                                                   hasThisInitializer: false)))
         {
@@ -166,31 +165,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         result &= ~DeclarationModifiers.Sealed;
                     }
 
-                    LanguageVersion availableVersion = ((CSharpParseOptions)location.SourceTree.Options).LanguageVersion;
-                    LanguageVersion requiredVersion = MessageID.IDS_FeatureStaticAbstractMembersInInterfaces.RequiredVersion();
-
-                    if (availableVersion < requiredVersion)
-                    {
-                        var requiredVersionArgument = new CSharpRequiredLanguageVersion(requiredVersion);
-                        var availableVersionArgument = availableVersion.ToDisplayString();
-
-                        if ((result & DeclarationModifiers.Abstract) != 0)
-                        {
-                            reportModifierIfPresent(result, DeclarationModifiers.Abstract, location, diagnostics, requiredVersionArgument, availableVersionArgument);
-                        }
-                        else
-                        {
-                            reportModifierIfPresent(result, DeclarationModifiers.Virtual, location, diagnostics, requiredVersionArgument, availableVersionArgument);
-                        }
-
-                        reportModifierIfPresent(result, DeclarationModifiers.Sealed, location, diagnostics, requiredVersionArgument, availableVersionArgument);
-                    }
-
                     result &= ~DeclarationModifiers.Sealed;
-                }
-                else if ((result & DeclarationModifiers.Static) != 0 && syntax is OperatorDeclarationSyntax { OperatorToken: var opToken } && opToken.Kind() is not (SyntaxKind.EqualsEqualsToken or SyntaxKind.ExclamationEqualsToken))
-                {
-                    Binder.CheckFeatureAvailability(location.SourceTree, MessageID.IDS_DefaultInterfaceImplementation, diagnostics, location);
                 }
             }
 
@@ -203,17 +178,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             return result;
-
-            static void reportModifierIfPresent(DeclarationModifiers result, DeclarationModifiers errorModifier, Location location, BindingDiagnosticBag diagnostics, CSharpRequiredLanguageVersion requiredVersionArgument, string availableVersionArgument)
-            {
-                if ((result & errorModifier) != 0)
-                {
-                    diagnostics.Add(ErrorCode.ERR_InvalidModifierForLanguageVersion, location,
-                                    ModifierUtils.ConvertSingleModifierToSyntaxText(errorModifier),
-                                    availableVersionArgument,
-                                    requiredVersionArgument);
-                }
-            }
         }
 
         protected (TypeWithAnnotations ReturnType, ImmutableArray<ParameterSymbol> Parameters) MakeParametersAndBindReturnType(BaseMethodDeclarationSyntax declarationSyntax, TypeSyntax returnTypeSyntax, BindingDiagnosticBag diagnostics)
@@ -434,8 +398,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void CheckUserDefinedConversionSignature(BindingDiagnosticBag diagnostics)
         {
-            CheckReturnIsNotVoid(diagnostics);
-
             // SPEC: For a given source type S and target type T, if S or T are
             // SPEC: nullable types let S0 and T0 refer to their underlying types,
             // SPEC: otherwise, S0 and T0 are equal to S and T, respectively.
@@ -586,15 +548,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        private void CheckReturnIsNotVoid(BindingDiagnosticBag diagnostics)
-        {
-            if (this.ReturnsVoid)
-            {
-                // CS0590: User-defined operators cannot return void
-                diagnostics.Add(ErrorCode.ERR_OperatorCantReturnVoid, this.GetFirstLocation());
-            }
-        }
-
         private void CheckUnarySignature(BindingDiagnosticBag diagnostics)
         {
             // SPEC: A unary + - ! ~ operator must take a single parameter of type
@@ -605,8 +558,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // The parameter of a unary operator must be the containing type
                 diagnostics.Add((IsAbstract || IsVirtual) ? ErrorCode.ERR_BadAbstractUnaryOperatorSignature : ErrorCode.ERR_BadUnaryOperatorSignature, this.GetFirstLocation());
             }
-
-            CheckReturnIsNotVoid(diagnostics);
         }
 
         private void CheckTrueFalseSignature(BindingDiagnosticBag diagnostics)
@@ -724,13 +675,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 //         same type as the containing type
                 diagnostics.Add((IsAbstract || IsVirtual) ? ErrorCode.ERR_BadAbstractShiftOperatorSignature : ErrorCode.ERR_BadShiftOperatorSignature, this.GetFirstLocation());
             }
-            else if (this.GetParameterType(1).StrippedType().SpecialType != SpecialType.System_Int32)
-            {
-                var location = this.GetFirstLocation();
-                Binder.CheckFeatureAvailability(location.SourceTree, MessageID.IDS_FeatureRelaxedShiftOperator, diagnostics, location);
-            }
-
-            CheckReturnIsNotVoid(diagnostics);
         }
 
         private void CheckBinarySignature(BindingDiagnosticBag diagnostics)
@@ -743,8 +687,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // CS0563: One of the parameters of a binary operator must be the containing type
                 diagnostics.Add((IsAbstract || IsVirtual) ? ErrorCode.ERR_BadAbstractBinaryOperatorSignature : ErrorCode.ERR_BadBinaryOperatorSignature, this.GetFirstLocation());
             }
-
-            CheckReturnIsNotVoid(diagnostics);
         }
 
         private void CheckAbstractEqualitySignature(BindingDiagnosticBag diagnostics)
@@ -754,36 +696,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 diagnostics.Add(ErrorCode.ERR_BadAbstractEqualityOperatorSignature, this.GetFirstLocation(), this.ContainingType);
             }
-
-            CheckReturnIsNotVoid(diagnostics);
         }
 
-        public sealed override string Name
-        {
-            get
-            {
-                return _name;
-            }
-        }
+        public sealed override string Name => _name;
 
-        public sealed override bool IsExtensionMethod
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsExtensionMethod => false;
 
-        public sealed override ImmutableArray<TypeParameterSymbol> TypeParameters
-        {
-            get { return ImmutableArray<TypeParameterSymbol>.Empty; }
-        }
+        public sealed override ImmutableArray<TypeParameterSymbol> TypeParameters => [];
 
-        public sealed override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes()
-            => ImmutableArray<ImmutableArray<TypeWithAnnotations>>.Empty;
+        public sealed override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes() => [];
 
-        public sealed override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds()
-            => ImmutableArray<TypeParameterConstraintKind>.Empty;
+        public sealed override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds() => [];
 
         protected sealed override void CheckConstraintsForExplicitInterfaceType(ConversionsBase conversions, BindingDiagnosticBag diagnostics)
         {

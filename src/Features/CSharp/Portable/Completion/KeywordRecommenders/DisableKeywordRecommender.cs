@@ -20,7 +20,7 @@ internal class DisableKeywordRecommender : AbstractSyntacticSingleKeywordRecomme
         var previousToken2 = previousToken1.GetPreviousToken(includeSkipped: true);
         var previousToken3 = previousToken2.GetPreviousToken(includeSkipped: true);
 
-        if (previousToken1.Kind() == SyntaxKind.NullableKeyword &&
+        if (previousToken1.Kind() == SyntaxKind.ContextKeyword &&
             previousToken2.Kind() == SyntaxKind.HashToken)
         {
             // # nullable |

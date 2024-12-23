@@ -115,16 +115,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             NullableWalker.AnalyzeWithoutRewrite(Compilation, symbol: null, boundRoot, binder, diagnostics, createSnapshots);
         }
 
-        protected override bool IsNullableAnalysisEnabledCore()
-        {
-            return IsNullableAnalysisEnabledIn(Compilation, (AttributeSyntax)Root);
-        }
-
-        internal static bool IsNullableAnalysisEnabledIn(CSharpCompilation compilation, AttributeSyntax syntax)
-        {
-            return compilation.IsNullableAnalysisEnabledIn(syntax);
-        }
-
         internal override bool TryGetSpeculativeSemanticModelCore(SyntaxTreeSemanticModel parentModel, int position, ConstructorInitializerSyntax constructorInitializer, out PublicSemanticModel? speculativeModel)
         {
             speculativeModel = null;

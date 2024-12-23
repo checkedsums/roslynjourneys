@@ -36,11 +36,6 @@ internal sealed class CSharpMakeMemberRequiredCodeFixProvider() : SyntaxEditorBa
         var cancellationToken = context.CancellationToken;
 
         var root = await document.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-
-        // Required members are available in C# 11 or higher
-        if (root.GetLanguageVersion() < LanguageVersion.CSharp11)
-            return;
-
         var node = root.FindNode(span);
 
         // Supported cases:

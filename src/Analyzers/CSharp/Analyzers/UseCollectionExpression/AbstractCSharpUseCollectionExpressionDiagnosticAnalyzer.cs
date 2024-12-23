@@ -4,8 +4,6 @@
 
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CodeStyle;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Shared.Extensions;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.UseCollectionInitializer;
@@ -53,8 +51,6 @@ internal abstract class AbstractCSharpUseCollectionExpressionDiagnosticAnalyzer
         => context.RegisterCompilationStartAction(context =>
         {
             var compilation = context.Compilation;
-            if (!compilation.LanguageVersion().SupportsCollectionExpressions())
-                return;
 
             if (!IsSupported(compilation))
                 return;

@@ -52,19 +52,11 @@ internal static class UseExpressionBodyForLambdaHelpers
             return false;
         }
 
-        var languageVersion = declaration.SyntaxTree.Options.LanguageVersion();
-        if (expressionBodyOpt.IsKind(SyntaxKind.ThrowExpression) &&
-            languageVersion < LanguageVersion.CSharp7)
-        {
-            // Can't convert this prior to C# 7 because ```a => throw ...``` isn't allowed.
-            return false;
-        }
-
         return true;
     }
 
     internal static bool CanOfferUseExpressionBody(
-        ExpressionBodyPreference preference, LambdaExpressionSyntax declaration, LanguageVersion languageVersion, CancellationToken cancellationToken)
+        ExpressionBodyPreference preference, LambdaExpressionSyntax declaration, CancellationToken cancellationToken)
     {
         var userPrefersExpressionBodies = preference != ExpressionBodyPreference.Never;
         if (!userPrefersExpressionBodies)
@@ -82,7 +74,7 @@ internal static class UseExpressionBodyForLambdaHelpers
 
         // They don't have an expression body.  See if we could convert the block they 
         // have into one.
-        return TryConvertToExpressionBody(declaration, languageVersion, preference, cancellationToken, out _);
+        return TryConvertToExpressionBody(declaration, preference, cancellationToken, out _);
     }
 
     internal static ExpressionSyntax? GetBodyAsExpression(LambdaExpressionSyntax declaration)
@@ -106,14 +98,13 @@ internal static class UseExpressionBodyForLambdaHelpers
 
     internal static bool TryConvertToExpressionBody(
         LambdaExpressionSyntax declaration,
-        LanguageVersion languageVersion,
         ExpressionBodyPreference conversionPreference,
         CancellationToken cancellationToken,
         [NotNullWhen(true)] out ExpressionSyntax? expression)
     {
         var body = declaration.Body as BlockSyntax;
 
-        if (!body.TryConvertToExpressionBody(languageVersion, conversionPreference, cancellationToken, out expression, out var semicolonToken))
+        if (!body.TryConvertToExpressionBody(conversionPreference, cancellationToken, out expression, out var semicolonToken))
             return false;
 
         // If we have directives, we have something like:

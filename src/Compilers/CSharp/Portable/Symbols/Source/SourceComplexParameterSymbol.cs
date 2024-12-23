@@ -191,7 +191,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         internal override ImmutableHashSet<string> NotNullIfParameterNotNull
-            => GetDecodedWellKnownAttributeData()?.NotNullIfParameterNotNull ?? ImmutableHashSet<string>.Empty;
+            => GetDecodedWellKnownAttributeData()?.NotNullIfParameterNotNull ?? [];
 
         internal bool HasEnumeratorCancellationAttribute
         {
@@ -261,7 +261,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         if (binder is not null &&
                             GetDefaultValueSyntaxForIsNullableAnalysisEnabled(ParameterSyntax) is { } valueSyntax)
                         {
-                            NullableWalker.AnalyzeIfNeeded(binder, parameterEqualsValue, valueSyntax, diagnostics.DiagnosticBag);
+                            NullableWalker.AnalyzeIfNeeded(binder, parameterEqualsValue, diagnostics.DiagnosticBag);
                         }
                         if (!_lazyDefaultSyntaxValue.IsBad)
                         {
@@ -319,11 +319,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return;
             }
 
-            // The syntax span used to determine whether the attribute value is in a nullable-enabled
-            // context is larger than necessary - it includes the entire attribute list rather than the specific
-            // default value attribute which is used in AttributeSemanticModel.IsNullableAnalysisEnabled().
             var attributes = parameterSyntax.AttributeLists.Node;
-            if (attributes is null || !NullableWalker.NeedsAnalysis(DeclaringCompilation, attributes))
+            if (attributes is null)
             {
                 return;
             }
@@ -343,14 +340,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var parameterEqualsValue = new BoundParameterEqualsValue(
                 parameterSyntax,
                 this,
-                ImmutableArray<LocalSymbol>.Empty,
+                [],
                 // note that if the parameter type conflicts with the default value from attributes,
                 // we will just get a bad constant value above and return early.
                 new BoundLiteral(parameterSyntax, defaultValue, Type));
 
             var diagnostics = BindingDiagnosticBag.GetInstance(withDiagnostics: true, withDependencies: false);
             Debug.Assert(diagnostics.DiagnosticBag != null);
-            NullableWalker.AnalyzeIfNeeded(binder, parameterEqualsValue, parameterSyntax, diagnostics.DiagnosticBag);
+            NullableWalker.AnalyzeIfNeeded(binder, parameterEqualsValue, diagnostics.DiagnosticBag);
             AddDeclarationDiagnostics(diagnostics);
             diagnostics.Free();
         }
@@ -373,8 +370,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 return ConstantValue.NotAvailable;
             }
-
-            MessageID.IDS_FeatureOptionalParameter.CheckFeatureAvailability(diagnostics, defaultSyntax.EqualsToken);
 
             binder = GetDefaultParameterValueBinder(defaultSyntax);
             binder = binder.CreateBinderForParameterDefaultValue(this, defaultSyntax);
@@ -1655,11 +1650,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
 
                 Debug.Assert(elementType is { });
-
-                if (collectionTypeKind != CollectionExpressionTypeKind.Array)
-                {
-                    MessageID.IDS_FeatureParamsCollections.CheckFeatureAvailability(diagnostics, ParameterSyntax);
-                }
             }
 
             bool isAtLeastAsVisible(ParameterSyntax syntax, Binder binder, MethodSymbol method, BindingDiagnosticBag diagnostics)
@@ -1712,7 +1702,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         public override TypeWithAnnotations TypeWithAnnotations => _parameterType;
-        public override ImmutableArray<CustomModifier> RefCustomModifiers => ImmutableArray<CustomModifier>.Empty;
+        public override ImmutableArray<CustomModifier> RefCustomModifiers => [];
     }
 
     internal sealed class SourceComplexParameterSymbolWithCustomModifiersPrecedingRef : SourceComplexParameterSymbolBase

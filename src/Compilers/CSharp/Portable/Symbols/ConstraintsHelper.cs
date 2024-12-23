@@ -99,12 +99,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (inherited)
                 {
                     Location location = typeParameter.GetFirstLocation();
-                    Binder.CheckFeatureAvailability(location.SourceTree, MessageID.IDS_FeatureAllowsRefStructConstraint, diagnostics, location);
-
-                    if (!typeParameter.DeclaringCompilation.Assembly.RuntimeSupportsByRefLikeGenerics)
-                    {
-                        diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportByRefLikeGenerics, location);
-                    }
                 }
                 else
                 {
@@ -492,8 +486,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Location location,
             BindingDiagnosticBag diagnostics)
         {
-            bool includeNullability = compilation.IsFeatureEnabled(MessageID.IDS_FeatureNullableReferenceTypes);
-            var boxedArgs = CheckConstraintsArgsBoxed.Allocate(compilation, conversions, includeNullability, location, diagnostics);
+            var boxedArgs = CheckConstraintsArgsBoxed.Allocate(compilation, conversions, true, location, diagnostics);
             type.CheckAllConstraints(boxedArgs);
             boxedArgs.Free();
         }
@@ -521,33 +514,23 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             type.VisitType(s_checkConstraintsSingleTypeFunc, args);
         }
 
-        internal readonly struct CheckConstraintsArgs
+        internal readonly struct CheckConstraintsArgs(CSharpCompilation currentCompilation, ConversionsBase conversions, bool includeNullability, Location location, BindingDiagnosticBag diagnostics, CompoundUseSiteInfo<AssemblySymbol> template)
         {
-            public readonly CSharpCompilation CurrentCompilation;
-            public readonly ConversionsBase Conversions;
-            public readonly bool IncludeNullability;
-            public readonly Location Location;
-            public readonly BindingDiagnosticBag Diagnostics;
-            public readonly CompoundUseSiteInfo<AssemblySymbol> Template;
+            public readonly CSharpCompilation CurrentCompilation = currentCompilation;
+            public readonly ConversionsBase Conversions = conversions;
+            public readonly bool IncludeNullability = includeNullability;
+            public readonly Location Location = location;
+            public readonly BindingDiagnosticBag Diagnostics = diagnostics;
+            public readonly CompoundUseSiteInfo<AssemblySymbol> Template = template;
 
             public CheckConstraintsArgs(CSharpCompilation currentCompilation, ConversionsBase conversions, Location location, BindingDiagnosticBag diagnostics) :
-                this(currentCompilation, conversions, currentCompilation.IsFeatureEnabled(MessageID.IDS_FeatureNullableReferenceTypes), location, diagnostics)
+                this(currentCompilation, conversions, true, location, diagnostics)
             {
             }
 
             public CheckConstraintsArgs(CSharpCompilation currentCompilation, ConversionsBase conversions, bool includeNullability, Location location, BindingDiagnosticBag diagnostics) :
                 this(currentCompilation, conversions, includeNullability, location, diagnostics, template: new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, currentCompilation.Assembly))
             {
-            }
-
-            public CheckConstraintsArgs(CSharpCompilation currentCompilation, ConversionsBase conversions, bool includeNullability, Location location, BindingDiagnosticBag diagnostics, CompoundUseSiteInfo<AssemblySymbol> template)
-            {
-                this.CurrentCompilation = currentCompilation;
-                this.Conversions = conversions;
-                this.IncludeNullability = includeNullability;
-                this.Location = location;
-                this.Diagnostics = diagnostics;
-                this.Template = template;
             }
         }
 
@@ -939,28 +922,10 @@ hasRelatedInterfaces:
                 return false;
             }
 
-            if (typeArgument.Type.IsRefLikeOrAllowsRefLikeType())
+            if (typeArgument.Type.IsRefLikeOrAllowsRefLikeType() && !typeParameter.AllowsRefLikeType)
             {
-                if (typeParameter.AllowsRefLikeType)
-                {
-                    if (args.CurrentCompilation.SourceModule != typeParameter.ContainingModule)
-                    {
-                        if (MessageID.IDS_FeatureAllowsRefStructConstraint.GetFeatureAvailabilityDiagnosticInfo(args.CurrentCompilation) is { } diagnosticInfo)
-                        {
-                            diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(diagnosticInfo)));
-                        }
-
-                        if (!args.CurrentCompilation.Assembly.RuntimeSupportsByRefLikeGenerics)
-                        {
-                            diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_RuntimeDoesNotSupportByRefLikeGenerics))));
-                        }
-                    }
-                }
-                else
-                {
-                    diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_NotRefStructConstraintNotSatisfied, containingSymbol.ConstructedFrom(), typeParameter, typeArgument.Type))));
-                    return false;
-                }
+                diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_NotRefStructConstraintNotSatisfied, containingSymbol.ConstructedFrom(), typeParameter, typeArgument.Type))));
+                return false;
             }
 
             if (typeArgument.IsStatic)
@@ -993,22 +958,6 @@ hasRelatedInterfaces:
                     // "The type '{2}' must be a non-nullable value type, along with all fields at any level of nesting, in order to use it as parameter '{1}' in the generic type or method '{0}'"
                     diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_UnmanagedConstraintNotSatisfied, containingSymbol.ConstructedFrom(), typeParameter, typeArgument.Type))));
                     return false;
-                }
-                else if (managedKind == ManagedKind.UnmanagedWithGenerics)
-                {
-                    // When there is no compilation, we are being invoked through the API IMethodSymbol.ReduceExtensionMethod(...).
-                    // In that case we consider the unmanaged constraint to be satisfied as if we were compiling with the latest
-                    // language version.  The net effect of this is that in some IDE scenarios completion might consider an
-                    // extension method to be applicable, but then when you try to use it the IDE tells you to upgrade your language version.
-                    if (!(args.CurrentCompilation is null))
-                    {
-                        var csDiagnosticInfo = MessageID.IDS_FeatureUnmanagedConstructedTypes.GetFeatureAvailabilityDiagnosticInfo(args.CurrentCompilation);
-                        if (csDiagnosticInfo != null)
-                        {
-                            diagnosticsBuilder.Add(new TypeParameterDiagnosticInfo(typeParameter, new UseSiteInfo<AssemblySymbol>(csDiagnosticInfo)));
-                            return false;
-                        }
-                    }
                 }
             }
 

@@ -556,7 +556,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal virtual bool IsNativeIntegerWrapperType => false;
 
         internal bool IsNativeIntegerType => IsNativeIntegerWrapperType
-            || (SpecialType is SpecialType.System_IntPtr or SpecialType.System_UIntPtr && this.ContainingAssembly.RuntimeSupportsNumericIntPtr);
+            || (SpecialType is SpecialType.System_IntPtr or SpecialType.System_UIntPtr);
 
         /// <summary>
         /// Verify if the given type is a tuple of a given cardinality, or can be used to back a tuple type 
@@ -620,12 +620,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;
                 return GetManagedKind(ref discardedUseSiteInfo);
             }
-        }
-#nullable disable
-
-        internal bool NeedsNullableAttribute()
-        {
-            return TypeWithAnnotations.NeedsNullableAttribute(typeWithAnnotationsOpt: default, typeOpt: this);
         }
 
         internal abstract void AddNullableTransforms(ArrayBuilder<byte> transforms);
@@ -1009,17 +1003,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             diagnostics.Add(ErrorCode.ERR_ImplicitImplementationOfInaccessibleInterfaceMember, GetImplicitImplementationDiagnosticLocation(interfaceMember, implementingType, implicitImpl), implementingType, interfaceMember, implicitImpl);
                             suppressRegularValidation = true;
-                        }
-                        else if (!interfaceMember.IsStatic)
-                        {
-                            LanguageVersion requiredVersion = MessageID.IDS_FeatureImplicitImplementationOfNonPublicMembers.RequiredVersion();
-                            LanguageVersion? availableVersion = implementingType.DeclaringCompilation?.LanguageVersion;
-                            if (requiredVersion > availableVersion)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_ImplicitImplementationOfNonPublicInterfaceMember, GetImplicitImplementationDiagnosticLocation(interfaceMember, implementingType, implicitImpl),
-                                                implementingType, interfaceMember, implicitImpl,
-                                                availableVersion.GetValueOrDefault().ToDisplayString(), new CSharpRequiredLanguageVersion(requiredVersion));
-                            }
                         }
 
                         diagnostics.Add(
@@ -1630,35 +1613,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     GetInterfaceLocation(interfaceMember, implementingType),
                                     implicitImpl, interfaceMember, implementingType);
                 }
-                else if (implementingType.ContainingModule != implicitImpl.ContainingModule)
-                {
-                    // The default implementation is coming from a different module, which means that we probably didn't check
-                    // for the required runtime capability or language version
-                    var feature = isStatic ? MessageID.IDS_FeatureStaticAbstractMembersInInterfaces : MessageID.IDS_DefaultInterfaceImplementation;
-
-                    LanguageVersion requiredVersion = feature.RequiredVersion();
-                    LanguageVersion? availableVersion = implementingType.DeclaringCompilation?.LanguageVersion;
-                    if (requiredVersion > availableVersion)
-                    {
-                        diagnostics.Add(ErrorCode.ERR_LanguageVersionDoesNotSupportInterfaceImplementationForMember,
-                                        GetInterfaceLocation(interfaceMember, implementingType),
-                                        implicitImpl, interfaceMember, implementingType,
-                                        feature.Localize(),
-                                        availableVersion.GetValueOrDefault().ToDisplayString(),
-                                        new CSharpRequiredLanguageVersion(requiredVersion));
-                    }
-
-                    if (!(isStatic ?
-                              implementingType.ContainingAssembly.RuntimeSupportsStaticAbstractMembersInInterfaces :
-                              implementingType.ContainingAssembly.RuntimeSupportsDefaultInterfaceImplementation))
-                    {
-                        diagnostics.Add(isStatic ?
-                                            ErrorCode.ERR_RuntimeDoesNotSupportStaticAbstractMembersInInterfacesForMember :
-                                            ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementationForMember,
-                                        GetInterfaceLocation(interfaceMember, implementingType),
-                                        implicitImpl, interfaceMember, implementingType);
-                    }
-                }
             }
         }
 
@@ -1732,28 +1686,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         // CONSIDER: Dev10 does not seem to report this for indexers or their accessors.
                         diagnostics.Add(ErrorCode.WRN_MultipleRuntimeImplementationMatches, GetImplicitImplementationDiagnosticLocation(interfaceMember, implementingType, member), member, interfaceMember, implementingType);
                     }
-                }
-            }
-
-            if (implicitImpl.IsStatic && interfaceMember.ContainingModule != implementingType.ContainingModule)
-            {
-                LanguageVersion requiredVersion = MessageID.IDS_FeatureStaticAbstractMembersInInterfaces.RequiredVersion();
-                LanguageVersion? availableVersion = implementingType.DeclaringCompilation?.LanguageVersion;
-                if (requiredVersion > availableVersion)
-                {
-                    diagnostics.Add(ErrorCode.ERR_LanguageVersionDoesNotSupportInterfaceImplementationForMember,
-                                    GetImplicitImplementationDiagnosticLocation(interfaceMember, implementingType, implicitImpl),
-                                    implicitImpl, interfaceMember, implementingType,
-                                    MessageID.IDS_FeatureStaticAbstractMembersInInterfaces.Localize(),
-                                    availableVersion.GetValueOrDefault().ToDisplayString(),
-                                    new CSharpRequiredLanguageVersion(requiredVersion));
-                }
-
-                if (!implementingType.ContainingAssembly.RuntimeSupportsStaticAbstractMembersInInterfaces)
-                {
-                    diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportStaticAbstractMembersInInterfacesForMember,
-                                    GetImplicitImplementationDiagnosticLocation(interfaceMember, implementingType, implicitImpl),
-                                    implicitImpl, interfaceMember, implementingType);
                 }
             }
         }
@@ -1888,15 +1820,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                         if (implementingMethod.HasUnscopedRefAttributeOnMethodOrProperty())
                         {
-                            if (implementedMethod.HasUnscopedRefAttributeOnMethodOrProperty())
-                            {
-                                if (!implementingMethod.IsExplicitInterfaceImplementation && implementingMethod is SourceMethodSymbol &&
-                                    implementedMethod.ContainingModule != implementingMethod.ContainingModule)
-                                {
-                                    checkRefStructInterfacesFeatureAvailabilityOnUnscopedRefAttribute(implementingMethod.HasUnscopedRefAttribute ? implementingMethod : implementingMethod.AssociatedSymbol, diagnostics);
-                                }
-                            }
-                            else
+                            if (!implementedMethod.HasUnscopedRefAttributeOnMethodOrProperty())
                             {
                                 diagnostics.Add(
                                     ErrorCode.ERR_UnscopedRefAttributeInterfaceImplementation,
@@ -1957,21 +1881,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             throw ExceptionUtilities.UnexpectedValue(interfaceMember.Kind);
                     }
                 }
-            }
-
-            static void checkRefStructInterfacesFeatureAvailabilityOnUnscopedRefAttribute(Symbol implementingSymbol, BindingDiagnosticBag diagnostics)
-            {
-                foreach (var attributeData in implementingSymbol.GetAttributes())
-                {
-                    if (attributeData is SourceAttributeData { ApplicationSyntaxReference: { } applicationSyntaxReference } &&
-                        attributeData.IsTargetAttribute(AttributeDescription.UnscopedRefAttribute))
-                    {
-                        MessageID.IDS_FeatureRefStructInterfaces.CheckFeatureAvailability(diagnostics, implementingSymbol.DeclaringCompilation, applicationSyntaxReference.GetLocation());
-                        return;
-                    }
-                }
-
-                Debug.Assert(false);
             }
         }
 

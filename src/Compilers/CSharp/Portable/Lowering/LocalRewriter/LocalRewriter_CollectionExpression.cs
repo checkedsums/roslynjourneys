@@ -533,8 +533,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool ShouldUseInlineArray(BoundCollectionExpressionBase node, CSharpCompilation compilation)
         {
             return !node.HasSpreadElements(out _, out _) &&
-                node.Elements.Length > 0 &&
-                compilation.Assembly.RuntimeSupportsInlineArrayTypes;
+                node.Elements.Length > 0;
         }
 
         private BoundExpression CreateAndPopulateSpanFromInlineArray(
@@ -547,7 +546,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(elements.All(e => e is BoundExpression));
             Debug.Assert(_factory.ModuleBuilderOpt is { });
             Debug.Assert(_diagnostics.DiagnosticBag is { });
-            Debug.Assert(_compilation.Assembly.RuntimeSupportsInlineArrayTypes);
             Debug.Assert(_additionalLocals is { });
 
             int arrayLength = elements.Length;

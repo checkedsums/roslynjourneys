@@ -29,7 +29,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             string aliasQualifierOpt,
             bool isAdder,
             bool isIterator,
-            bool isNullableAnalysisEnabled,
             bool isExpressionBodied)
             : base(@event.containingType, syntaxReference, location, isIterator,
                    (@event.Modifiers, MakeFlags(
@@ -40,7 +39,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                                 returnsVoidIsSet: false,
                                                 isExpressionBodied: isExpressionBodied,
                                                 isExtensionMethod: false,
-                                                isNullableAnalysisEnabled: isNullableAnalysisEnabled,
                                                 isVarArg: false,
                                                 isExplicitInterfaceImplementation: @event.IsExplicitInterfaceImplementation,
                                                 hasThisInitializer: false)))

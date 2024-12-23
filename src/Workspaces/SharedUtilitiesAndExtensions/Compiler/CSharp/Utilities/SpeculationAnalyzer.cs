@@ -771,7 +771,6 @@ internal class SpeculationAnalyzer : AbstractSpeculationAnalyzer<
             // In this case, the null type is allowed if we do have a conditional-expression-conversion *and* the
             // converted type matches the original type.
             if (newExpression.IsKind(SyntaxKind.ConditionalExpression) &&
-                ConditionalExpressionConversionsAreAllowed(newExpression) &&
                 this.SpeculativeSemanticModel.GetConversion(newExpression).IsConditionalExpression)
             {
                 return true;
@@ -820,11 +819,6 @@ internal class SpeculationAnalyzer : AbstractSpeculationAnalyzer<
         {
             if (newConversion.IsConditionalExpression)
             {
-                // If we went from a non-conditional-conversion to a conditional-conversion (i.e. by removing a
-                // cast), then that is always an error before CSharp9, and should not be allowed.
-                if (!originalConversion.IsConditionalExpression && !ConditionalExpressionConversionsAreAllowed(originalExpression))
-                    return false;
-
                 // If the only change to the conversion here is the introduction of a conditional expression conversion,
                 // that means types didn't really change in a meaningful way.
                 if (originalConversion.IsIdentity)
@@ -834,9 +828,6 @@ internal class SpeculationAnalyzer : AbstractSpeculationAnalyzer<
 
         return ConversionsAreCompatible(originalConversion, newConversion);
     }
-
-    private static bool ConditionalExpressionConversionsAreAllowed(ExpressionSyntax originalExpression)
-        => originalExpression.GetLanguageVersion() >= LanguageVersion.CSharp9;
 
     protected override bool ConversionsAreCompatible(ExpressionSyntax originalExpression, ITypeSymbol originalTargetType, ExpressionSyntax newExpression, ITypeSymbol newTargetType)
     {

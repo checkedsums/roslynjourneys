@@ -607,9 +607,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return (expr is BoundConversion conv)
                 ? MakeConversionNode(
-                    oldNodeOpt: conv, syntax: conv.Syntax, rewrittenOperand: LowerConversions(conv.Operand),
+                    oldNode: conv, syntax: conv.Syntax, rewrittenOperand: LowerConversions(conv.Operand),
                     conversion: conv.Conversion, @checked: conv.Checked, explicitCastInCode: conv.ExplicitCastInCode,
-                    constantValueOpt: conv.ConstantValueOpt, rewrittenType: conv.Type)
+                    constantValue: conv.ConstantValueOpt, rewrittenType: conv.Type)
                 : expr;
         }
     }

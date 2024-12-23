@@ -755,8 +755,6 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             return localPosition;
         }
 
-        internal override bool IsNullableAnalysisEnabled() => false;
-
         protected override bool HasSetsRequiredMembersImpl => throw ExceptionUtilities.Unreachable();
 
         internal sealed override bool HasAsyncMethodBuilderAttribute(out TypeSymbol builderArgument)

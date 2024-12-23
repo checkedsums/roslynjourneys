@@ -23,7 +23,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             NamedTypeSymbol containingType,
             Binder bodyBinder,
             MethodDeclarationSyntax syntax,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics)
         {
             var interfaceSpecifier = syntax.ExplicitInterfaceSpecifier;
@@ -40,8 +39,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // Use a smaller type for the common case of non-generic, non-partial, non-explicit-impl methods.
 
             return explicitInterfaceType is null && !syntax.Modifiers.Any(SyntaxKind.PartialKeyword) && syntax.Arity == 0
-                ? new SourceOrdinaryMethodSymbolSimple(containingType, name, location, syntax, methodKind, isNullableAnalysisEnabled, diagnostics)
-                : new SourceOrdinaryMethodSymbolComplex(containingType, explicitInterfaceType, name, location, syntax, methodKind, isNullableAnalysisEnabled, diagnostics);
+                ? new SourceOrdinaryMethodSymbolSimple(containingType, name, location, syntax, methodKind, diagnostics)
+                : new SourceOrdinaryMethodSymbolComplex(containingType, explicitInterfaceType, name, location, syntax, methodKind, diagnostics);
         }
 
         private SourceOrdinaryMethodSymbol(
@@ -50,14 +49,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Location location,
             MethodDeclarationSyntax syntax,
             MethodKind methodKind,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics) :
             base(containingType,
                  name,
                  location,
                  syntax,
                  isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
-                 MakeModifiersAndFlags(containingType, location, syntax, methodKind, isNullableAnalysisEnabled, diagnostics, out bool hasExplicitAccessMod))
+                 MakeModifiersAndFlags(containingType, location, syntax, methodKind, diagnostics, out bool hasExplicitAccessMod))
         {
             Debug.Assert(diagnostics.DiagnosticBag is object);
 
@@ -65,8 +63,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             HasExplicitAccessModifier = hasExplicitAccessMod;
             bool hasAnyBody = syntax.HasAnyBody();
-
-            CheckFeatureAvailabilityAndRuntimeSupport(syntax, location, hasAnyBody, diagnostics);
 
             if (hasAnyBody)
             {
@@ -87,8 +83,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         private static (DeclarationModifiers, Flags) MakeModifiersAndFlags(
-            NamedTypeSymbol containingType, Location location, MethodDeclarationSyntax syntax, MethodKind methodKind,
-            bool isNullableAnalysisEnabled, BindingDiagnosticBag diagnostics, out bool hasExplicitAccessMod)
+            NamedTypeSymbol containingType, Location location, MethodDeclarationSyntax syntax, MethodKind methodKind, BindingDiagnosticBag diagnostics, out bool hasExplicitAccessMod)
         {
             (DeclarationModifiers declarationModifiers, hasExplicitAccessMod) = MakeModifiers(syntax, containingType, methodKind, hasBody: syntax.HasAnyBody(), location, diagnostics);
             Flags flags = new Flags(
@@ -100,7 +95,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     isExtensionMethod: syntax.ParameterList.Parameters.FirstOrDefault() is ParameterSyntax firstParam &&
                                                        !firstParam.IsArgList &&
                                                        firstParam.Modifiers.Any(SyntaxKind.ThisKeyword),
-                                    isNullableAnalysisEnabled: isNullableAnalysisEnabled,
                                     isVararg: syntax.IsVarArg(),
                                     isExplicitInterfaceImplementation: methodKind == MethodKind.ExplicitInterfaceImplementation,
                                     hasThisInitializer: false);
@@ -163,9 +157,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // implemented.
                 if (syntax.ConstraintClauses.Count > 0)
                 {
-                    Binder.CheckFeatureAvailability(
-                        syntax.ConstraintClauses[0].WhereKeyword, MessageID.IDS_OverrideWithConstraints, diagnostics);
-
                     declaredConstraints = signatureBinder.WithAdditionalFlags(BinderFlags.GenericConstraintsClause | BinderFlags.SuppressConstraintChecks).
                                               BindTypeParameterConstraintClauses(this, TypeParameters, syntax.TypeParameterList, syntax.ConstraintClauses,
                                                                                  diagnostics, performOnlyCycleSafeValidation: false, isForOverride: true);
@@ -755,11 +746,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 hasExplicitAccessMod = true;
             }
 
-            ModifierUtils.CheckFeatureAvailabilityForStaticAbstractMembersInInterfacesIfNeeded(mods, isExplicitInterfaceImplementation, location, diagnostics);
-
-            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(hasBody, mods,
-                                                                        defaultInterfaceImplementationModifiers,
-                                                                        location, diagnostics);
+            ModifierUtils.ReportDefaultInterfaceImplementationModifiers(mods, defaultInterfaceImplementationModifiers, location, diagnostics);
 
             mods = AddImpliedModifiers(mods, isInterface, methodKind, hasBody);
             return (mods, hasExplicitAccessMod);
@@ -798,11 +785,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(!IsStatic || ContainingType.IsInterface || (!IsAbstract && !IsVirtual)); // Otherwise should have been reported and cleared earlier.
 
             bool isExplicitInterfaceImplementationInInterface = isExplicitInterfaceImplementation && ContainingType.IsInterface;
-
-            if (IsPartial && HasExplicitAccessModifier)
-            {
-                Binder.CheckFeatureAvailability(SyntaxNode, MessageID.IDS_FeatureExtendedPartialMethods, diagnostics, location);
-            }
 
             if (IsPartial && IsAbstract)
             {
@@ -920,9 +902,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Location location,
                 MethodDeclarationSyntax syntax,
                 MethodKind methodKind,
-                bool isNullableAnalysisEnabled,
                 BindingDiagnosticBag diagnostics)
-                : base(containingType, name, location, syntax, methodKind, isNullableAnalysisEnabled, diagnostics)
+                : base(containingType, name, location, syntax, methodKind, diagnostics)
             {
             }
 
@@ -978,9 +959,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Location location,
                 MethodDeclarationSyntax syntax,
                 MethodKind methodKind,
-                bool isNullableAnalysisEnabled,
                 BindingDiagnosticBag diagnostics)
-                : base(containingType, name, location, syntax, methodKind, isNullableAnalysisEnabled, diagnostics)
+                : base(containingType, name, location, syntax, methodKind, diagnostics)
             {
                 _explicitInterfaceType = explicitInterfaceType;
 
@@ -1095,10 +1075,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return ImmutableArray<TypeParameterSymbol>.Empty;
                 }
 
-                Debug.Assert(syntax.TypeParameterList != null);
-
-                MessageID.IDS_FeatureGenerics.CheckFeatureAvailability(diagnostics, syntax.TypeParameterList.LessThanToken);
-
                 OverriddenMethodTypeParameterMapBase typeMap = null;
                 if (this.IsOverride)
                 {
@@ -1135,7 +1111,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         }
                     }
 
-                    SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, this.DeclaringCompilation, diagnostics.DiagnosticBag, location);
+                    SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, diagnostics.DiagnosticBag, location);
 
                     var tpEnclosing = ContainingType.FindEnclosingTypeParameter(name);
                     if ((object)tpEnclosing != null)

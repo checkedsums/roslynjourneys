@@ -27,7 +27,7 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.Utilities
             var newCSharpOptions = (CSharpCompilationOptions)newOptions;
 
             // Currently, only changes to AllowUnsafe and Nullable of compilation options are supported.
-            return oldCSharpOptions.WithAllowUnsafe(newCSharpOptions.AllowUnsafe).WithNullableContextOptions(newCSharpOptions.NullableContextOptions) == newOptions;
+            return oldCSharpOptions.WithAllowUnsafe(newCSharpOptions.AllowUnsafe) == newOptions;
         }
 
         public void Apply(CompilationOptions oldOptions, CompilationOptions newOptions, ProjectPropertyStorage storage)
@@ -39,18 +39,6 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.Utilities
             {
                 storage.SetProperty("AllowUnsafeBlocks", nameof(ProjectConfigurationProperties3.AllowUnsafeBlocks),
                     newCSharpOptions.AllowUnsafe);
-            }
-
-            if (newCSharpOptions.NullableContextOptions != oldCSharpOptions.NullableContextOptions)
-            {
-                var projectSetting = newCSharpOptions.NullableContextOptions switch
-                {
-                    NullableContextOptions.Enable => "enable",
-                    NullableContextOptions.Warnings => "warnings",
-                    NullableContextOptions.Annotations => "annotations",
-                    _ => "disable",
-                };
-                storage.SetProperty("Nullable", "Nullable", projectSetting);
             }
         }
     }

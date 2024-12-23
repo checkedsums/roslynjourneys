@@ -24,7 +24,7 @@ internal class AnnotationsKeywordRecommender : AbstractSyntacticSingleKeywordRec
         // # nullable enable a|
         return
             (previousToken1.Kind() == SyntaxKind.EnableKeyword || previousToken1.Kind() == SyntaxKind.DisableKeyword || previousToken1.Kind() == SyntaxKind.RestoreKeyword) &&
-            previousToken2.Kind() == SyntaxKind.NullableKeyword &&
+            previousToken2.Kind() == SyntaxKind.ContextKeyword &&
             previousToken3.Kind() == SyntaxKind.HashToken;
     }
 }

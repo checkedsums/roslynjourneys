@@ -253,7 +253,7 @@ internal sealed class CSharpConvertLocalFunctionToMethodCodeRefactoringProvider(
     }
 
     private static bool SupportsNonTrailingNamedArguments(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp7_2;
+        => true;
 
     private static SyntaxNode GenerateArgument(IParameterSymbol p, string name, bool shouldUseNamedArguments = false)
         => CSharpSyntaxGenerator.Instance.Argument(shouldUseNamedArguments ? name : null, p.RefKind, name.ToIdentifierName());

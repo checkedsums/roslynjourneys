@@ -3569,10 +3569,6 @@ _Default:
 
             Return declaringSyntax
         End Function
-
-        Public NotOverridable Overrides Function GetNullableContext(position As Integer) As NullableContext
-            Return NullableContext.Disabled Or NullableContext.ContextInherited
-        End Function
 #End Region
 
 #Region "Logging Helpers"

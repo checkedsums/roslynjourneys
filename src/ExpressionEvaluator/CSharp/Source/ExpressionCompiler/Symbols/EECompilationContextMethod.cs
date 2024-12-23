@@ -78,11 +78,6 @@ namespace Microsoft.CodeAnalysis.CSharp.ExpressionEvaluator
             return _underlyingMethod.GetUnmanagedCallersOnlyAttributeData(forceComplete);
         }
 
-        internal override bool IsNullableAnalysisEnabled()
-        {
-            return _underlyingMethod.IsNullableAnalysisEnabled();
-        }
-
         internal override CSharpCompilation DeclaringCompilation => _compilation;
 
         internal override bool TryGetThisParameter(out ParameterSymbol? thisParameter)

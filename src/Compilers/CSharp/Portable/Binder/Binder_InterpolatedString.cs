@@ -18,25 +18,6 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private BoundExpression BindInterpolatedString(InterpolatedStringExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
-            if (CheckFeatureAvailability(node, MessageID.IDS_FeatureInterpolatedStrings, diagnostics))
-            {
-                // Only bother reporting an issue for raw string literals if we didn't already report above that
-                // interpolated strings are not allowed.
-                if (node.StringStartToken.Kind() is SyntaxKind.InterpolatedSingleLineRawStringStartToken or SyntaxKind.InterpolatedMultiLineRawStringStartToken)
-                {
-                    CheckFeatureAvailability(node, MessageID.IDS_FeatureRawStringLiterals, diagnostics);
-                }
-            }
-
-            var startText = node.StringStartToken.Text;
-            if (startText.StartsWith("@$\"") && !Compilation.IsFeatureEnabled(MessageID.IDS_FeatureAltInterpolatedVerbatimStrings))
-            {
-                Error(diagnostics,
-                    ErrorCode.ERR_AltInterpolatedVerbatimStringsNotAvailable,
-                    node.StringStartToken.GetLocation(),
-                    new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureAltInterpolatedVerbatimStrings.RequiredVersion()));
-            }
-
             var builder = ArrayBuilder<BoundExpression>.GetInstance();
             var stringType = GetSpecialType(SpecialType.System_String, diagnostics, node);
             ConstantValue? resultConstant = null;
@@ -50,7 +31,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var isNonVerbatimInterpolatedString = node.StringStartToken.Kind() != SyntaxKind.InterpolatedVerbatimStringStartToken;
                 var isRawInterpolatedString = node.StringStartToken.Kind() is SyntaxKind.InterpolatedSingleLineRawStringStartToken or SyntaxKind.InterpolatedMultiLineRawStringStartToken;
-                var newLinesInInterpolationsAllowed = this.Compilation.IsFeatureEnabled(MessageID.IDS_FeatureNewLinesInInterpolations);
 
                 var intType = GetSpecialType(SpecialType.System_Int32, diagnostics, node);
                 foreach (var content in node.Contents)
@@ -60,32 +40,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         case SyntaxKind.Interpolation:
                             {
                                 var interpolation = (InterpolationSyntax)content;
-
-                                // If we're prior to C# 11 then we don't allow newlines in the interpolations of
-                                // non-verbatim interpolated strings.  Check for that here and report an error
-                                // if the interpolation spans multiple lines (and thus must have a newline).
-                                //
-                                // Note: don't bother doing this if the interpolation is otherwise malformed or
-                                // we've already reported some other error within it.  No need to spam the user
-                                // with multiple errors (esp as a malformed interpolation may commonly span multiple
-                                // lines due to error recovery).
-                                if (isNonVerbatimInterpolatedString &&
-                                    !interpolation.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error) &&
-                                    !newLinesInInterpolationsAllowed &&
-                                    !interpolation.OpenBraceToken.IsMissing &&
-                                    !interpolation.CloseBraceToken.IsMissing)
-                                {
-                                    var text = node.SyntaxTree.GetText();
-                                    if (text.Lines.GetLineFromPosition(interpolation.OpenBraceToken.SpanStart).LineNumber !=
-                                        text.Lines.GetLineFromPosition(interpolation.CloseBraceToken.SpanStart).LineNumber)
-                                    {
-                                        diagnostics.Add(
-                                            ErrorCode.ERR_NewlinesAreNotAllowedInsideANonVerbatimInterpolatedString,
-                                            interpolation.CloseBraceToken.GetLocation(),
-                                            this.Compilation.LanguageVersion.ToDisplayString(),
-                                            new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureNewLinesInInterpolations.RequiredVersion()));
-                                    }
-                                }
 
                                 var value = BindValue(interpolation.Expression, diagnostics, BindValueKind.RValue);
 
@@ -650,63 +604,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             // there are errors we get better diagnostics than "could not convert to object."
             var implicitBuilderReceiver = new BoundInterpolatedStringHandlerPlaceholder(syntax, interpolatedStringHandlerType) { WasCompilerGenerated = true };
             var (appendCallsArray, usesBoolReturn, positionInfo, baseStringLength, numFormatHoles) = BindInterpolatedStringAppendCalls(partsArray, implicitBuilderReceiver, diagnostics);
-
-            // Prior to C# 10, all types in an interpolated string expression needed to be convertible to `object`. After 10, some types
-            // (such as Span<T>) that are not convertible to `object` are permissible as interpolated string components, provided there
-            // is an applicable AppendFormatted method that accepts them. To preserve langversion, we therefore make sure all components
-            // are convertible to object if the current langversion is lower than the interpolation feature and we're converting this
-            // interpolation into an actual string.
-            bool needToCheckConversionToObject = false;
-            if (isHandlerConversion)
-            {
-                CheckFeatureAvailability(syntax, MessageID.IDS_FeatureImprovedInterpolatedStrings, diagnostics);
-            }
-            else if (!Compilation.IsFeatureEnabled(MessageID.IDS_FeatureImprovedInterpolatedStrings) && diagnostics.AccumulatesDiagnostics)
-            {
-                needToCheckConversionToObject = true;
-            }
-
-            Debug.Assert(appendCallsArray.Select(a => a.Length).SequenceEqual(partsArray.Select(a => a.Length)));
-            Debug.Assert(appendCallsArray.All(appendCalls => appendCalls.All(a => a is { HasErrors: true } or BoundCall { Arguments: { Length: > 0 } } or BoundDynamicInvocation)));
-
-            if (needToCheckConversionToObject)
-            {
-                TypeSymbol objectType = GetSpecialType(SpecialType.System_Object, diagnostics, syntax);
-                BindingDiagnosticBag conversionDiagnostics = BindingDiagnosticBag.GetInstance(withDiagnostics: true, withDependencies: false);
-                foreach (var parts in partsArray)
-                {
-                    foreach (var currentPart in parts)
-                    {
-                        if (currentPart is BoundStringInsert insert)
-                        {
-                            var value = insert.Value;
-                            bool reported = false;
-                            if (value.Type is not null)
-                            {
-                                value = BindToNaturalType(value, conversionDiagnostics);
-                                if (conversionDiagnostics.HasAnyErrors())
-                                {
-                                    CheckFeatureAvailability(value.Syntax, MessageID.IDS_FeatureImprovedInterpolatedStrings, diagnostics);
-                                    reported = true;
-                                }
-                            }
-
-                            if (!reported)
-                            {
-                                _ = GenerateConversionForAssignment(objectType, value, conversionDiagnostics);
-                                if (conversionDiagnostics.HasAnyErrors())
-                                {
-                                    CheckFeatureAvailability(value.Syntax, MessageID.IDS_FeatureImprovedInterpolatedStrings, diagnostics);
-                                }
-                            }
-
-                            conversionDiagnostics.Clear();
-                        }
-                    }
-                }
-
-                conversionDiagnostics.Free();
-            }
 
             var intType = GetSpecialType(SpecialType.System_Int32, diagnostics, syntax);
             int constructorArgumentLength = 3 + additionalConstructorArguments.Length;

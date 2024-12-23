@@ -154,35 +154,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal override void PostDecodeWellKnownAttributes(ImmutableArray<CSharpAttributeData> boundAttributes, ImmutableArray<AttributeSyntax> allAttributeSyntaxNodes, BindingDiagnosticBag diagnostics, AttributeLocation symbolPart, WellKnownAttributeData decodedData)
         {
             base.PostDecodeWellKnownAttributes(boundAttributes, allAttributeSyntaxNodes, diagnostics, symbolPart, decodedData);
-
-            if (!allAttributeSyntaxNodes.IsEmpty && _property.IsAutoPropertyOrUsesFieldKeyword)
-            {
-                CheckForFieldTargetedAttribute(diagnostics);
-            }
-        }
-
-        private void CheckForFieldTargetedAttribute(BindingDiagnosticBag diagnostics)
-        {
-            var languageVersion = this.DeclaringCompilation.LanguageVersion;
-            if (languageVersion.AllowAttributesOnBackingFields())
-            {
-                return;
-            }
-
-            foreach (var attributeList in GetAttributeDeclarations())
-            {
-                foreach (var attribute in attributeList)
-                {
-                    if (attribute.Target?.GetAttributeLocation() == AttributeLocation.Field)
-                    {
-                        diagnostics.Add(
-                            new CSDiagnosticInfo(ErrorCode.WRN_AttributesOnBackingFieldsNotAvailable,
-                                languageVersion.ToDisplayString(),
-                                new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureAttributesOnBackingFields.RequiredVersion())),
-                            attribute.Target.Location);
-                    }
-                }
-            }
         }
     }
 }

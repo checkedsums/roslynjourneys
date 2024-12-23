@@ -24,20 +24,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             AccessorDeclarationSyntax syntax,
             EventSymbol explicitlyImplementedEventOpt,
             string aliasQualifierOpt,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics)
             : base(@event,
                    syntax.GetReference(),
                    syntax.Keyword.GetLocation(), explicitlyImplementedEventOpt, aliasQualifierOpt,
                    isAdder: syntax.Kind() == SyntaxKind.AddAccessorDeclaration,
                    isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
-                   isNullableAnalysisEnabled: isNullableAnalysisEnabled,
                    isExpressionBodied: syntax is { Body: null, ExpressionBody: not null })
         {
             Debug.Assert(syntax != null);
             Debug.Assert(syntax.Kind() == SyntaxKind.AddAccessorDeclaration || syntax.Kind() == SyntaxKind.RemoveAccessorDeclaration);
-
-            CheckFeatureAvailabilityAndRuntimeSupport(syntax, this.Location, hasBody: true, diagnostics: diagnostics);
 
             if (syntax.Body != null || syntax.ExpressionBody != null)
             {

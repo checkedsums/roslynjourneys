@@ -103,12 +103,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Debug.Assert(!this.IsClassType() || localBase.IsObjectType() || baseLocation != null);
             }
 
-            // you need to know all bases before you can ask this question... (asking this causes a cycle)
-            if (this.IsGenericType && !baseContainsErrorTypes && this.DeclaringCompilation.IsAttributeType(localBase))
-            {
-                MessageID.IDS_FeatureGenericAttributes.CheckFeatureAvailability(diagnostics, this.DeclaringCompilation, baseLocation);
-            }
-
             // Check constraints on the first declaration with explicit bases.
             var singleDeclaration = this.FirstDeclarationWithExplicitBases();
             if (singleDeclaration != null)
@@ -565,11 +559,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             // '{0}': static classes cannot implement interfaces
                             diagnostics.Add(ErrorCode.ERR_StaticClassInterfaceImpl, location, this);
-                        }
-
-                        if (this.IsRefLikeType)
-                        {
-                            Binder.CheckFeatureAvailability(typeSyntax, MessageID.IDS_FeatureRefStructInterfaces, diagnostics);
                         }
 
                         if (baseType.ContainsDynamic())

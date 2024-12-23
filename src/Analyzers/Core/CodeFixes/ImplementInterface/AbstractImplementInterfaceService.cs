@@ -106,17 +106,15 @@ internal abstract partial class AbstractImplementInterfaceService() : IImplement
         var generator = new ImplementInterfaceGenerator(
             this, document, info, options, configuration);
 
-        var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
-        var supportsImplementingLessAccessibleMember = syntaxFacts.SupportsImplicitImplementationOfNonPublicInterfaceMembers(document.Project.ParseOptions!);
         var implementedMembers = generator.GenerateMembers(
             compilation,
             interfaceMember,
             conflictingMember: null,
             memberName: interfaceMember.Name,
-            generateInvisibly: generator.ShouldGenerateInvisibleMember(document.Project.ParseOptions!, interfaceMember, interfaceMember.Name, supportsImplementingLessAccessibleMember),
+            generateInvisibly: generator.ShouldGenerateInvisibleMember(document.Project.ParseOptions!, interfaceMember, interfaceMember.Name),
             generateAbstractly: configuration.Abstractly,
             addNew: false,
-            interfaceMember.RequiresUnsafeModifier() && !syntaxFacts.IsUnsafeContext(info.ContextNode),
+            interfaceMember.RequiresUnsafeModifier() && !document.GetRequiredLanguageService<ISyntaxFactsService>().IsUnsafeContext(info.ContextNode),
             options.PropertyGenerationBehavior);
 
         return implementedMembers;

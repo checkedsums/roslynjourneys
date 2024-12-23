@@ -29,9 +29,6 @@ internal sealed class MakeAnonymousFunctionStaticDiagnosticAnalyzer : AbstractBu
     {
         context.RegisterCompilationStartAction(context =>
         {
-            if (context.Compilation.LanguageVersion() < LanguageVersion.CSharp9)
-                return;
-
             context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.SimpleLambdaExpression, SyntaxKind.ParenthesizedLambdaExpression, SyntaxKind.AnonymousMethodExpression);
         });
     }

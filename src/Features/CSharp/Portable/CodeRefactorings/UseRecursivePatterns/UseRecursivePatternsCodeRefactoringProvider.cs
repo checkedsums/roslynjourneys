@@ -53,9 +53,6 @@ internal sealed class UseRecursivePatternsCodeRefactoringProvider : SyntaxEditor
             return;
 
         var root = await document.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        if (root.SyntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp9)
-            return;
-
         var model = await document.GetRequiredSemanticModelAsync(cancellationToken).ConfigureAwait(false);
         var node = root.FindToken(textSpan.Start).Parent;
         var replacementFunc = GetReplacementFunc(node, model);
@@ -381,7 +378,7 @@ internal sealed class UseRecursivePatternsCodeRefactoringProvider : SyntaxEditor
     {
         Debug.Assert(!names.IsDefaultOrEmpty);
 
-        if (names.Length > 1 && names[0].SyntaxTree.Options.LanguageVersion() >= LanguageVersion.CSharp10)
+        if (names.Length > 1)
         {
             ExpressionSyntax expression = names[^1];
             for (var i = names.Length - 2; i >= 0; i--)

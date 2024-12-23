@@ -72,18 +72,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             private static ImmutableArray<TypeParameterSymbol> CreateTypeParameters(AnonymousDelegateTemplateSymbol containingType, int parameterCount, bool returnsVoid, bool hasParamsArray)
             {
-                var allowRefLikeTypes = containingType.ContainingAssembly.RuntimeSupportsByRefLikeGenerics;
-
                 var typeParameters = ArrayBuilder<TypeParameterSymbol>.GetInstance(parameterCount + (returnsVoid ? 0 : 1));
                 for (int i = 0; i < parameterCount; i++)
                 {
                     typeParameters.Add(new AnonymousTypeManager.AnonymousTypeParameterSymbol(containingType, i, "T" + (i + 1),
-                        allowsRefLikeType: allowRefLikeTypes && (!hasParamsArray || i != parameterCount - 1)));
+                        allowsRefLikeType: (!hasParamsArray || i != parameterCount - 1)));
                 }
 
                 if (!returnsVoid)
                 {
-                    typeParameters.Add(new AnonymousTypeManager.AnonymousTypeParameterSymbol(containingType, parameterCount, "TResult", allowsRefLikeType: allowRefLikeTypes));
+                    typeParameters.Add(new AnonymousTypeManager.AnonymousTypeParameterSymbol(containingType, parameterCount, "TResult", allowsRefLikeType: true));
                 }
 
                 return typeParameters.ToImmutableAndFree();

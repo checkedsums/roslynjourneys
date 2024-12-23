@@ -126,11 +126,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             throw ExceptionUtilities.Unreachable();
         }
 
-        internal override NamedTypeSymbol AsNativeInteger()
-        {
-            throw ExceptionUtilities.Unreachable();
-        }
-
         internal override ImmutableArray<string> GetAppliedConditionalSymbols() => ImmutableArray<string>.Empty;
 
         internal override AttributeUsageInfo GetAttributeUsageInfo()

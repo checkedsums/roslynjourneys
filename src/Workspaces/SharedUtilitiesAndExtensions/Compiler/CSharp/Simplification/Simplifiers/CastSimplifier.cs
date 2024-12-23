@@ -1544,8 +1544,7 @@ internal static class CastSimplifier
 
         // Removing a cast may cause a conditional-expression conversion to come into existence.  This is
         // fine as long as we're in C# 9 or above.
-        if (originalSemanticModel.Compilation.LanguageVersion() < LanguageVersion.CSharp9 &&
-            IntroducedConditionalExpressionConversion(rewrittenExpression, rewrittenSemanticModel, cancellationToken))
+        if (IntroducedConditionalExpressionConversion(rewrittenExpression, rewrittenSemanticModel, cancellationToken))
         {
             return default;
         }

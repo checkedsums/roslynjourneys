@@ -11,9 +11,6 @@ namespace Microsoft.CodeAnalysis.CSharp.MakeLocalFunctionStatic;
 
 internal static class MakeLocalFunctionStaticHelper
 {
-    public static bool IsStaticLocalFunctionSupported(LanguageVersion languageVersion)
-        => languageVersion >= LanguageVersion.CSharp8;
-
     private static bool TryGetDataFlowAnalysis(LocalFunctionStatementSyntax localFunction, SemanticModel semanticModel, [NotNullWhen(returnValue: true)] out DataFlowAnalysis? dataFlow)
     {
         dataFlow = semanticModel.AnalyzeDataFlow(localFunction);

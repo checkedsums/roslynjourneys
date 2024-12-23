@@ -139,10 +139,7 @@ internal abstract class UseExpressionBodyHelper<TDeclaration> : UseExpressionBod
             return false;
         }
 
-        var languageVersion = body.SyntaxTree.Options.LanguageVersion();
-
-        return body.TryConvertToArrowExpressionBody(
-            declaration.Kind(), languageVersion, conversionPreference, cancellationToken,
+        return body.TryConvertToArrowExpressionBody(conversionPreference, cancellationToken,
             out expressionWhenOnSingleLine, out semicolonWhenOnSingleLine);
     }
 
@@ -186,37 +183,6 @@ internal abstract class UseExpressionBodyHelper<TDeclaration> : UseExpressionBod
         {
             fixesError = false;
             return false;
-        }
-
-        var languageVersion = declaration.GetLanguageVersion();
-        if (languageVersion < LanguageVersion.CSharp7)
-        {
-            if (expressionBody!.Expression.IsKind(SyntaxKind.ThrowExpression))
-            {
-                // If they're using a throw expression in a declaration and it's prior to C# 7
-                // then always mark this as something that can be fixed by the analyzer.  This way
-                // we'll also get 'fix all' working to fix all these cases.
-                fixesError = true;
-                return true;
-            }
-
-            if (declaration is AccessorDeclarationSyntax or ConstructorDeclarationSyntax)
-            {
-                // If they're using expression bodies for accessors/constructors and it's prior to C# 7
-                // then always mark this as something that can be fixed by the analyzer.  This way
-                // we'll also get 'fix all' working to fix all these cases.
-                fixesError = true;
-                return true;
-            }
-        }
-
-        if (languageVersion < LanguageVersion.CSharp6)
-        {
-            // If they're using expression bodies prior to C# 6, then always mark this as something
-            // that can be fixed by the analyzer.  This way we'll also get 'fix all' working to fix
-            // all these cases.
-            fixesError = true;
-            return true;
         }
 
         // If the user likes block bodies, then we offer block bodies from the diagnostic analyzer.

@@ -375,8 +375,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             throw ExceptionUtilities.Unreachable();
         }
 
-        internal override bool IsNullableAnalysisEnabled() => throw ExceptionUtilities.Unreachable();
-
         internal sealed override bool HasAsyncMethodBuilderAttribute(out TypeSymbol builderArgument)
         {
             if (_underlyingMethod.HasAsyncMethodBuilderAttribute(out builderArgument))

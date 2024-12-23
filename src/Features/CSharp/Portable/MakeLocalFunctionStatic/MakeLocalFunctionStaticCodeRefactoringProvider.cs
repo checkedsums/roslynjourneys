@@ -27,8 +27,6 @@ internal sealed class MakeLocalFunctionStaticCodeRefactoringProvider : CodeRefac
         var (document, textSpan, cancellationToken) = context;
 
         var syntaxTree = (await document.GetSyntaxTreeAsync(cancellationToken).ConfigureAwait(false))!;
-        if (!MakeLocalFunctionStaticHelper.IsStaticLocalFunctionSupported(syntaxTree.Options.LanguageVersion()))
-            return;
 
         var localFunction = await context.TryGetRelevantNodeAsync<LocalFunctionStatementSyntax>().ConfigureAwait(false);
         if (localFunction == null)

@@ -174,8 +174,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         throw ExceptionUtilities.UnexpectedValue(typeDecl.Kind());
                 }
 
-                MessageID.IDS_FeatureGenerics.CheckFeatureAvailability(diagnostics, tpl.LessThanToken);
-
                 bool isInterfaceOrDelegate = typeKind == SyntaxKind.InterfaceDeclaration || typeKind == SyntaxKind.DelegateDeclaration;
                 var parameterBuilder = new List<TypeParameterBuilder>();
                 parameterBuilders1.Add(parameterBuilder);
@@ -188,17 +186,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             diagnostics.Add(ErrorCode.ERR_IllegalVarianceSyntax, tp.VarianceKeyword.GetLocation());
                         }
-                        else
-                        {
-                            MessageID.IDS_FeatureTypeVariance.CheckFeatureAvailability(diagnostics, tp.VarianceKeyword);
-                        }
                     }
 
                     var name = typeParameterNames[i];
                     var location = new SourceLocation(tp.Identifier);
                     var varianceKind = typeParameterVarianceKeywords[i];
 
-                    ReportReservedTypeName(tp.Identifier.Text, this.DeclaringCompilation, diagnostics.DiagnosticBag, location);
+                    ReportReservedTypeName(tp.Identifier.Text, diagnostics.DiagnosticBag, location);
 
                     if (name == null)
                     {
@@ -1751,18 +1745,7 @@ next:;
         }
 
         #endregion
-
-        internal override NamedTypeSymbol AsNativeInteger()
-        {
-            Debug.Assert(this.SpecialType == SpecialType.System_IntPtr || this.SpecialType == SpecialType.System_UIntPtr);
-            if (ContainingAssembly.RuntimeSupportsNumericIntPtr)
-            {
-                return this;
-            }
-
-            return ContainingAssembly.GetNativeIntegerType(this);
-        }
-
+        
         internal override NamedTypeSymbol NativeIntegerUnderlyingType => null;
 
         internal override bool Equals(TypeSymbol t2, TypeCompareKind comparison)
@@ -1898,11 +1881,6 @@ next:;
                 else
                 {
                     diagnostics.Add(ErrorCode.ERR_InvalidInlineArrayFields, GetFirstLocation());
-                }
-
-                if (!ContainingAssembly.RuntimeSupportsInlineArrayTypes)
-                {
-                    diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportInlineArrayTypes, GetFirstLocation());
                 }
             }
         }

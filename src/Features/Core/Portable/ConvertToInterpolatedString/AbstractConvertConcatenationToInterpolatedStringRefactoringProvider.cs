@@ -45,14 +45,6 @@ internal abstract class AbstractConvertConcatenationToInterpolatedStringRefactor
         if (top == null)
             return;
 
-        if (!syntaxFacts.SupportsConstantInterpolatedStrings(document.Project.ParseOptions!))
-        {
-            // if there is a const keyword, the refactoring shouldn't show because interpolated string is not const string
-            var declarator = top.FirstAncestorOrSelf<SyntaxNode>(syntaxFacts.IsVariableDeclarator);
-            if (declarator != null && generator.GetModifiers(declarator).IsConst)
-                return;
-        }
-
         // Currently we can concatenate only full subtrees. Therefore we can't support arbitrary selection. We could
         // theoretically support selecting the selections that correspond to full sub-trees (e.g. prefixes of 
         // correct length but from UX point of view that it would feel arbitrary). 

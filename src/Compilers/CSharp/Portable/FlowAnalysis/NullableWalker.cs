@@ -888,12 +888,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                     }
 
-                    // Pre-C# 11, we don't use a default initial state for value type instance constructors without `: this()`
-                    // because any usages of uninitialized fields will get definite assignment errors anyway.
-                    if (!hasThisConstructorInitializer
-                        && (!method.ContainingType.IsValueType
-                            || method.IsStatic
-                            || compilation.IsFeatureEnabled(MessageID.IDS_FeatureAutoDefaultStructs)))
+                    if (!hasThisConstructorInitializer)
                     {
                         return membersToBeInitialized(method.ContainingType, includeAllMembers: true, includeCurrentTypeRequiredMembers, includeBaseRequiredMembers);
                     }
@@ -1191,9 +1186,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private void EnforceParameterNotNullOnExit(SyntaxNode? syntaxOpt, LocalState state)
         {
             if (!state.Reachable)
-            {
                 return;
-            }
 
             foreach (var parameter in this.MethodParameters)
             {
@@ -1328,10 +1321,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        /// <summary>
-        /// Analyzes a method body if settings indicate we should.
-        /// </summary>
-        internal static void AnalyzeIfNeeded(
+        internal static void Analyze(
             CSharpCompilation compilation,
             MethodSymbol method,
             BoundNode node,
@@ -1341,34 +1331,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool getFinalNullableState,
             MethodSymbol? baseOrThisInitializer,
             out VariableState? finalNullableState)
-        {
-            if (!HasRequiredLanguageVersion(compilation) || !compilation.IsNullableAnalysisEnabledIn(method))
-            {
-                if (compilation.IsNullableAnalysisEnabledAlways)
-                {
-                    // Once we address https://github.com/dotnet/roslyn/issues/46579 we should also always pass `getFinalNullableState: true` in debug mode.
-                    // We will likely always need to write a 'null' out for the out parameter in this code path, though, because
-                    // we don't want to introduce behavior differences between debug and release builds
-                    Analyze(compilation, method, node, new DiagnosticBag(), useConstructorExitWarnings: false, initialNullableState: null, getFinalNullableState: false, baseOrThisInitializer, out _, requiresAnalysis: false);
-                }
-                finalNullableState = null;
-                return;
-            }
-
-            Analyze(compilation, method, node, diagnostics, useConstructorExitWarnings, initialNullableState, getFinalNullableState, baseOrThisInitializer, out finalNullableState);
-        }
-
-        private static void Analyze(
-            CSharpCompilation compilation,
-            MethodSymbol method,
-            BoundNode node,
-            DiagnosticBag diagnostics,
-            bool useConstructorExitWarnings,
-            VariableState? initialNullableState,
-            bool getFinalNullableState,
-            MethodSymbol? baseOrThisInitializer,
-            out VariableState? finalNullableState,
-            bool requiresAnalysis = true)
         {
             if (method.IsImplicitlyDeclared && !method.IsImplicitConstructor && !method.IsScriptInitializer)
             {
@@ -1396,8 +1358,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 snapshotBuilderOpt: null,
                 returnTypesOpt: null,
                 getFinalNullableState,
-                finalNullableState: out finalNullableState,
-                requiresAnalysis);
+                finalNullableState: out finalNullableState);
         }
 
         internal static VariableState? GetAfterInitializersState(CSharpCompilation compilation, Symbol? symbol, BoundNode constructorBody)
@@ -1437,7 +1398,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             MethodSymbol? baseOrThisInitializer = GetConstructorThisOrBaseSymbol(constructorBody);
 
-            NullableWalker.AnalyzeIfNeeded(
+            Analyze(
                 compilation,
                 method,
                 nodeToAnalyze,
@@ -1476,7 +1437,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             DiagnosticBag diagnostics,
             bool createSnapshots)
         {
-            _ = AnalyzeWithSemanticInfo(compilation, symbol, node, binder, initialState: GetAfterInitializersState(compilation, symbol, node), diagnostics, createSnapshots, requiresAnalysis: false);
+            _ = AnalyzeWithSemanticInfo(compilation, symbol, node, binder, initialState: GetAfterInitializersState(compilation, symbol, node), diagnostics, createSnapshots);
         }
 
         /// <summary>
@@ -1495,7 +1456,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref ImmutableDictionary<Symbol, Symbol>? remappedSymbols)
         {
             ImmutableDictionary<BoundExpression, (NullabilityInfo, TypeSymbol?)> analyzedNullabilitiesMap;
-            (snapshotManager, analyzedNullabilitiesMap) = AnalyzeWithSemanticInfo(compilation, symbol, node, binder, initialState, diagnostics, createSnapshots, requiresAnalysis: true);
+            (snapshotManager, analyzedNullabilitiesMap) = AnalyzeWithSemanticInfo(compilation, symbol, node, binder, initialState, diagnostics, createSnapshots);
             return Rewrite(analyzedNullabilitiesMap, snapshotManager, node, ref remappedSymbols);
         }
 
@@ -1506,8 +1467,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Binder binder,
             VariableState? initialState,
             DiagnosticBag diagnostics,
-            bool createSnapshots,
-            bool requiresAnalysis)
+            bool createSnapshots)
         {
             var analyzedNullabilities = ImmutableDictionary.CreateBuilder<BoundExpression, (NullabilityInfo, TypeSymbol?)>(EqualityComparer<BoundExpression>.Default, NullabilityInfoTypeComparer.Instance);
 
@@ -1531,28 +1491,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 analyzedNullabilities,
                 snapshotBuilder,
                 returnTypesOpt: null,
-                getFinalNullableState: false,
-                out _,
-                requiresAnalysis);
+                getFinalNullableState: false, out _);
 
             var analyzedNullabilitiesMap = analyzedNullabilities.ToImmutable();
             var snapshotManager = snapshotBuilder?.ToManagerAndFree();
 
 #if DEBUG
-            // https://github.com/dotnet/roslyn/issues/34993 Enable for all calls
-            if (isNullableAnalysisEnabledAnywhere(compilation))
-            {
-                DebugVerifier.Verify(analyzedNullabilitiesMap, snapshotManager, node);
-            }
-
-            static bool isNullableAnalysisEnabledAnywhere(CSharpCompilation compilation)
-            {
-                if (compilation.Options.NullableContextOptions != NullableContextOptions.Disable)
-                {
-                    return true;
-                }
-                return compilation.SyntaxTrees.Any(static tree => ((CSharpSyntaxTree)tree).IsNullableAnalysisEnabled(new Text.TextSpan(0, tree.Length)) == true);
-            }
+            DebugVerifier.Verify(analyzedNullabilitiesMap, snapshotManager, node);
 #endif
 
             return (snapshotManager, analyzedNullabilitiesMap);
@@ -1588,7 +1533,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 isSpeculative: true);
             try
             {
-                Analyze(walker, symbol, diagnostics: null, LocalState.Create(localState), snapshotBuilderOpt: newSnapshotBuilder);
+                Analyze(walker, symbol, diagnostics: null, LocalState.Create(localState), snapshotBuilder: newSnapshotBuilder);
             }
             finally
             {
@@ -1607,56 +1552,28 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static BoundNode Rewrite(ImmutableDictionary<BoundExpression, (NullabilityInfo, TypeSymbol?)> updatedNullabilities, SnapshotManager? snapshotManager, BoundNode node, ref ImmutableDictionary<Symbol, Symbol>? remappedSymbols)
         {
-            var remappedSymbolsBuilder = ImmutableDictionary.CreateBuilder<Symbol, Symbol>(Symbols.SymbolEqualityComparer.ConsiderEverything, Symbols.SymbolEqualityComparer.ConsiderEverything);
-            if (remappedSymbols is object)
-            {
+            var remappedSymbolsBuilder = ImmutableDictionary.CreateBuilder(Symbols.SymbolEqualityComparer.ConsiderEverything, Symbols.SymbolEqualityComparer.ConsiderEverything);
+            if (remappedSymbols is not null)
                 // When we're rewriting for the speculative model, there will be a set of originally-mapped symbols, and we need to
                 // use them in addition to any symbols found during this pass of the walker.
                 remappedSymbolsBuilder.AddRange(remappedSymbols);
-            }
+
             var rewriter = new NullabilityRewriter(updatedNullabilities, snapshotManager, remappedSymbolsBuilder);
             var rewrittenNode = rewriter.Visit(node);
             remappedSymbols = remappedSymbolsBuilder.ToImmutable();
             return rewrittenNode;
         }
 
-        private static bool HasRequiredLanguageVersion(CSharpCompilation compilation)
-        {
-            return compilation.LanguageVersion >= MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion();
-        }
-
-        /// <summary>
-        /// Returns true if the nullable analysis is needed for the region represented by <paramref name="syntaxNode"/>.
-        /// The syntax node is used to determine the overall nullable context for the region.
-        /// </summary>
-        internal static bool NeedsAnalysis(CSharpCompilation compilation, SyntaxNode syntaxNode)
-        {
-            return HasRequiredLanguageVersion(compilation) &&
-                (compilation.IsNullableAnalysisEnabledIn(syntaxNode) || compilation.IsNullableAnalysisEnabledAlways);
-        }
 
         /// <summary>Analyzes a node in a "one-off" context, such as for attributes or parameter default values.</summary>
         /// <remarks><paramref name="syntax"/> is the syntax span used to determine the overall nullable context.</remarks>
         internal static void AnalyzeIfNeeded(
             Binder binder,
             BoundNode node,
-            SyntaxNode syntax,
             DiagnosticBag diagnostics)
         {
-            bool requiresAnalysis = true;
-            var compilation = binder.Compilation;
-            if (!HasRequiredLanguageVersion(compilation) || !compilation.IsNullableAnalysisEnabledIn(syntax))
-            {
-                if (!compilation.IsNullableAnalysisEnabledAlways)
-                {
-                    return;
-                }
-                diagnostics = new DiagnosticBag();
-                requiresAnalysis = false;
-            }
-
             Analyze(
-                compilation,
+                binder.Compilation,
                 symbol: null,
                 node,
                 binder,
@@ -1672,8 +1589,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 snapshotBuilderOpt: null,
                 returnTypesOpt: null,
                 getFinalNullableState: false,
-                out _,
-                requiresAnalysis);
+                out _);
         }
 
         internal static void Analyze(
@@ -1706,7 +1622,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             try
             {
                 var localState = LocalState.Create(initialState.VariableNullableStates).CreateNestedMethodState(variables);
-                Analyze(walker, symbol, diagnostics, localState, snapshotBuilderOpt: null);
+                Analyze(walker, symbol, diagnostics, localState, null);
             }
             finally
             {
@@ -1714,7 +1630,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private static void Analyze(
+        internal static void Analyze(
             CSharpCompilation compilation,
             Symbol? symbol,
             BoundNode node,
@@ -1731,8 +1647,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SnapshotManager.Builder? snapshotBuilderOpt,
             ArrayBuilder<(BoundReturnStatement, TypeWithAnnotations)>? returnTypesOpt,
             bool getFinalNullableState,
-            out VariableState? finalNullableState,
-            bool requiresAnalysis = true)
+            out VariableState? finalNullableState)
         {
             Debug.Assert(diagnostics != null);
             var walker = new NullableWalker(compilation,
@@ -1753,7 +1668,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             finalNullableState = null;
             try
             {
-                Analyze(walker, symbol, diagnostics, initialState is null ? (Optional<LocalState>)default : LocalState.Create(initialState.VariableNullableStates), snapshotBuilderOpt, requiresAnalysis);
+                Analyze(walker, symbol, diagnostics, initialState is null ? (Optional<LocalState>)default : LocalState.Create(initialState.VariableNullableStates), snapshotBuilderOpt);
                 if (getFinalNullableState)
                 {
                     Debug.Assert(!walker.IsConditionalState);
@@ -1771,11 +1686,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             Symbol? symbol,
             DiagnosticBag? diagnostics,
             Optional<LocalState> initialState,
-            SnapshotManager.Builder? snapshotBuilderOpt,
-            bool requiresAnalysis = true)
+            SnapshotManager.Builder? snapshotBuilder)
         {
-            Debug.Assert(snapshotBuilderOpt is null || symbol is object);
-            var previousSlot = snapshotBuilderOpt?.EnterNewWalker(symbol!) ?? -1;
+            Debug.Assert(snapshotBuilder is null || symbol is object);
+            var previousSlot = snapshotBuilder?.EnterNewWalker(symbol!) ?? -1;
             try
             {
 #if DEBUG
@@ -1795,25 +1709,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             finally
             {
-                snapshotBuilderOpt?.ExitWalker(walker.SaveSharedState(), previousSlot);
-            }
-
-            walker.RecordNullableAnalysisData(symbol, requiresAnalysis);
-        }
-
-        private void RecordNullableAnalysisData(Symbol? symbol, bool requiredAnalysis)
-        {
-            if (compilation.TestOnlyCompilationData is NullableAnalysisData { Data: { } state })
-            {
-                var key = (object?)symbol ?? methodMainNode.Syntax;
-                if (state.TryGetValue(key, out var result))
-                {
-                    Debug.Assert(result.RequiredAnalysis == requiredAnalysis);
-                }
-                else
-                {
-                    state.TryAdd(key, new Data(_variables.GetTotalVariableCount(), requiredAnalysis));
-                }
+                snapshotBuilder?.ExitWalker(walker.SaveSharedState(), previousSlot);
             }
         }
 
@@ -2338,31 +2234,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else if (useLegacyWarnings)
             {
-                if (isMaybeDefaultValue(valueType) && !allowUnconstrainedTypeParameterAnnotations(compilation))
-                {
-                    // No W warning reported assigning or casting [MaybeNull]T value to T
-                    // because there is no syntax for declaring the target type as [MaybeNull]T.
-                    return;
-                }
                 ReportNonSafetyDiagnostic(location);
             }
             else
             {
                 ReportDiagnostic(assignmentKind == AssignmentKind.Return ? ErrorCode.WRN_NullReferenceReturn : ErrorCode.WRN_NullReferenceAssignment, location);
-            }
-
-            static bool isMaybeDefaultValue(TypeWithState valueType)
-            {
-                return valueType.Type?.TypeKind == TypeKind.TypeParameter &&
-                    valueType.State == NullableFlowState.MaybeDefault;
-            }
-
-            static bool allowUnconstrainedTypeParameterAnnotations(CSharpCompilation compilation)
-            {
-                // Check IDS_FeatureDefaultTypeParameterConstraint feature since `T?` and `where ... : default`
-                // are treated as a single feature, even though the errors reported for the two cases are distinct.
-                var requiredVersion = MessageID.IDS_FeatureDefaultTypeParameterConstraint.RequiredVersion();
-                return requiredVersion <= compilation.LanguageVersion;
             }
         }
 
@@ -8094,18 +7970,18 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (extensionMethodThisArgument)
             {
                 return conversions.ClassifyImplicitExtensionMethodThisArgConversion(
-                    useExpression ? sourceExpression : null,
-                    sourceType,
+                    useExpression ? sourceExpression! : null!,
+                    sourceType!,
                     destinationType,
                     ref discardedUseSiteInfo,
                     isMethodGroupConversion: false);
             }
             return useExpression ?
                 (fromExplicitCast ?
-                    conversions.ClassifyConversionFromExpression(sourceExpression, destinationType, isChecked: isChecked, ref discardedUseSiteInfo, forCast: true) :
+                    conversions.ClassifyConversionFromExpression(sourceExpression!, destinationType, isChecked: isChecked, ref discardedUseSiteInfo, forCast: true) :
                     conversions.ClassifyImplicitConversionFromExpression(sourceExpression!, destinationType, ref discardedUseSiteInfo)) :
                 (fromExplicitCast ?
-                    conversions.ClassifyConversionFromType(sourceType, destinationType, isChecked: isChecked, ref discardedUseSiteInfo, forCast: true) :
+                    conversions.ClassifyConversionFromType(sourceType!, destinationType, isChecked: isChecked, ref discardedUseSiteInfo, forCast: true) :
                     conversions.ClassifyImplicitConversionFromType(sourceType!, destinationType, ref discardedUseSiteInfo));
         }
 
@@ -9012,12 +8888,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ConversionKind.ExplicitNullable:
                     if (operandType.Type?.IsNullableType() == true && !targetType.IsNullableType())
                     {
-                        // Explicit conversion of Nullable<T> to T is equivalent to Nullable<T>.Value.
-                        if (reportTopLevelWarnings && operandType.MayBeNull)
-                        {
-                            ReportDiagnostic(ErrorCode.WRN_NullableValueTypeMayBeNull, getDiagnosticLocation());
-                        }
-
                         // Mark the value as not nullable, regardless of whether it was known to be nullable,
                         // because the implied call to `.Value` will only succeed if not null.
                         if (conversionOperand != null)
@@ -11818,14 +11688,18 @@ namespace Microsoft.CodeAnalysis.CSharp
             reportedDiagnostic = false;
             if (state.MayBeNull())
             {
-                bool isValueType = type.IsValueType;
-                if (isValueType && (!checkNullableValueType || !type.IsNullableTypeOrTypeParameter() || type.GetNullableUnderlyingType().IsErrorType()))
+                if (type.IsValueType)
                 {
-                    return false;
+                    if (!checkNullableValueType || !type.IsNullableTypeOrTypeParameter() || type.GetNullableUnderlyingType().IsErrorType())
+                    {
+                        return false;
+                    }
                 }
-
-                ReportDiagnostic(isValueType ? ErrorCode.WRN_NullableValueTypeMayBeNull : ErrorCode.WRN_NullReferenceReceiver, syntax);
-                reportedDiagnostic = true;
+                else
+                {
+                    ReportDiagnostic(ErrorCode.WRN_NullReferenceReceiver, syntax);
+                    reportedDiagnostic = true;
+                }
             }
 
             return true;

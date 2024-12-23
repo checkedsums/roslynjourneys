@@ -29,7 +29,7 @@ internal abstract class AbstractConvertCastCodeRefactoringProvider<TTypeNode, TF
     protected abstract string GetTitle();
 
     protected abstract int FromKind { get; }
-    protected abstract TToExpression ConvertExpression(TFromExpression from, NullableContext nullableContext, bool isReferenceType);
+    protected abstract TToExpression ConvertExpression(TFromExpression from, bool isReferenceType);
     protected abstract TTypeNode GetTypeNode(TFromExpression from);
 
     public sealed override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
@@ -47,7 +47,6 @@ internal abstract class AbstractConvertCastCodeRefactoringProvider<TTypeNode, TF
         var typeNode = GetTypeNode(from);
         var semanticModel = await document.GetRequiredSemanticModelAsync(cancellationToken).ConfigureAwait(false);
         var type = semanticModel.GetTypeInfo(typeNode, cancellationToken).Type;
-        var nullableContext = semanticModel.GetNullableContext(from.SpanStart);
 
         if (type is { TypeKind: TypeKind.Error })
             return;
@@ -59,7 +58,7 @@ internal abstract class AbstractConvertCastCodeRefactoringProvider<TTypeNode, TF
             context.RegisterRefactoring(
                 CodeAction.Create(
                     title,
-                    c => ConvertAsync(document, from, nullableContext, isReferenceType, cancellationToken),
+                    c => ConvertAsync(document, from, isReferenceType, cancellationToken),
                     title),
                 from.Span);
         }
@@ -68,12 +67,11 @@ internal abstract class AbstractConvertCastCodeRefactoringProvider<TTypeNode, TF
     private async Task<Document> ConvertAsync(
         Document document,
         TFromExpression from,
-        NullableContext nullableContext,
         bool isReferenceType,
         CancellationToken cancellationToken)
     {
         var root = await document.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        var newRoot = root.ReplaceNode(from, ConvertExpression(from, nullableContext, isReferenceType));
+        var newRoot = root.ReplaceNode(from, ConvertExpression(from, isReferenceType));
         return document.WithSyntaxRoot(newRoot);
     }
 }

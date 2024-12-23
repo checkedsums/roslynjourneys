@@ -29,13 +29,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="d">The input diagnostic</param>
         /// <param name="warningLevelOption">The maximum warning level to allow. Diagnostics with a higher warning level will be filtered out.</param>
         /// <param name="generalDiagnosticOption">How warning diagnostics should be reported</param>
-        /// <param name="nullableOption">Whether Nullable Reference Types feature is enabled globally</param>
         /// <param name="specificDiagnosticOptions">How specific diagnostics should be reported</param>
         /// <returns>A diagnostic updated to reflect the options, or null if it has been filtered out</returns>
         internal static Diagnostic? Filter(
             Diagnostic d,
             int warningLevelOption,
-            NullableContextOptions nullableOption,
             ReportDiagnostic generalDiagnosticOption,
             IDictionary<string, ReportDiagnostic> specificDiagnosticOptions,
             SyntaxTreeOptionsProvider? syntaxTreeOptions,
@@ -78,13 +76,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 reportAction = GetDiagnosticReport(ErrorFacts.GetSeverity(ErrorCode.WRN_ALinkWarn),
                     d.IsEnabledByDefault,
-                    d.Code,
-                    CSharp.MessageProvider.Instance.GetIdForErrorCode((int)ErrorCode.WRN_ALinkWarn),
+                    MessageProvider.Instance.GetIdForErrorCode((int)ErrorCode.WRN_ALinkWarn),
                     ErrorFacts.GetWarningLevel(ErrorCode.WRN_ALinkWarn),
                     d.Location,
                     d.CustomTags,
                     warningLevelOption,
-                    nullableOption,
                     generalDiagnosticOption,
                     specificDiagnosticOptions,
                     syntaxTreeOptions,
@@ -95,13 +91,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 reportAction = GetDiagnosticReport(d.Severity,
                     d.IsEnabledByDefault,
-                    d.Code,
                     d.Id,
                     d.WarningLevel,
                     d.Location,
                     d.CustomTags,
                     warningLevelOption,
-                    nullableOption,
                     generalDiagnosticOption,
                     specificDiagnosticOptions,
                     syntaxTreeOptions,
@@ -135,13 +129,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static ReportDiagnostic GetDiagnosticReport(
             DiagnosticSeverity severity,
             bool isEnabledByDefault,
-            int errorCode,
             string id,
             int diagnosticWarningLevel,
             Location location,
             ImmutableArray<string> customTags,
             int warningLevelOption,
-            NullableContextOptions nullableOption,
             ReportDiagnostic generalDiagnosticOption,
             IDictionary<string, ReportDiagnostic> specificDiagnosticOptions,
             SyntaxTreeOptionsProvider? syntaxTreeOptions,
@@ -153,28 +145,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(location.SourceTree is null || location.SourceTree is CSharpSyntaxTree);
             var tree = location.SourceTree as CSharpSyntaxTree;
             var position = location.SourceSpan.Start;
-
-            bool isNullableFlowAnalysisWarning = ErrorFacts.NullableWarnings.Contains(id);
-            if (isNullableFlowAnalysisWarning)
-            {
-                Syntax.NullableContextState.State? warningsState = tree?.GetNullableContextState(position).WarningsState;
-                var nullableWarningsEnabled = warningsState switch
-                {
-                    Syntax.NullableContextState.State.Enabled => true,
-                    Syntax.NullableContextState.State.Disabled => false,
-                    Syntax.NullableContextState.State.ExplicitlyRestored => nullableOption.WarningsEnabled(),
-                    Syntax.NullableContextState.State.Unknown =>
-                        // IsGeneratedCode may be slow, check the option first:
-                        nullableOption.WarningsEnabled() && tree?.IsGeneratedCode(syntaxTreeOptions, cancellationToken) != true,
-                    null => nullableOption.WarningsEnabled(),
-                    _ => throw ExceptionUtilities.UnexpectedValue(warningsState)
-                };
-
-                if (!nullableWarningsEnabled)
-                {
-                    return ReportDiagnostic.Suppress;
-                }
-            }
 
             // 1. Warning level
             if (diagnosticWarningLevel > warningLevelOption)  // honor the warning level
@@ -317,14 +287,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         break;
                 }
-            }
-
-            if (!isSpecified && errorCode is (int)ErrorCode.WRN_Experimental or (int)ErrorCode.WRN_ExperimentalWithMessage)
-            {
-                // Special handling for [Experimental] warning (treat as error severity by default)
-                Debug.Assert(isEnabledByDefault);
-                Debug.Assert(!specifiedWarnAsErrorMinus);
-                report = ReportDiagnostic.Error;
             }
 
             return report;

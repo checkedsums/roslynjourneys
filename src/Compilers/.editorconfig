@@ -24,7 +24,14 @@ dotnet_diagnostic.IDE0130.severity = none
 # CA1052: Static holder types should be Static or NotInheritable
 dotnet_diagnostic.CA1052.severity = none
 
+# IDE0059: Unnecessary assignment of a value
+dotnet_diagnostic.IDE0059.severity = none
+
 # CSharp code style settings:
+
+# IDE0003: Remove qualification
+dotnet_diagnostic.IDE0003.severity = none
+
 [*.cs]
 csharp_style_var_for_built_in_types = false:none
 csharp_style_var_when_type_is_apparent = true:none

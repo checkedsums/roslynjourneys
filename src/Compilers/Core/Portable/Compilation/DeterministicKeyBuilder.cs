@@ -456,7 +456,6 @@ namespace Microsoft.CodeAnalysis
             writer.Write("debugPlusMode", options.DebugPlusMode);
             writer.Write("referencesSupersedeLowerVersions", options.ReferencesSupersedeLowerVersions);
             writer.Write("reportSuppressedDiagnostics", options.ReportSuppressedDiagnostics);
-            writer.Write("nullableContextOptions", options.NullableContextOptions);
 
             writer.WriteKey("specificDiagnosticOptions");
             writer.WriteArrayStart();

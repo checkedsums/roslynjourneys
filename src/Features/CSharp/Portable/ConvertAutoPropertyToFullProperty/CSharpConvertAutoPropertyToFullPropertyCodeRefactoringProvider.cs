@@ -87,9 +87,7 @@ internal sealed class CSharpConvertAutoPropertyToFullPropertyCodeRefactoringProv
             return accessorDeclarationSyntax.WithSemicolonToken(default);
         }
 
-        if (!accessorDeclarationSyntax.Body.TryConvertToArrowExpressionBody(
-                accessorDeclarationSyntax.Kind(), info.LanguageVersion, preference, cancellationToken,
-                out var arrowExpression, out _))
+        if (!accessorDeclarationSyntax.Body.TryConvertToArrowExpressionBody(preference, cancellationToken, out var arrowExpression, out _))
         {
             return accessorDeclarationSyntax.WithSemicolonToken(default);
         }

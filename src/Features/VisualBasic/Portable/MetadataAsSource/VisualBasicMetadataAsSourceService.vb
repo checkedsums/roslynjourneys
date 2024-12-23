@@ -51,11 +51,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.MetadataAsSource
             Return document.WithSyntaxRoot(newRoot)
         End Function
 
-        Protected Overrides Function AddNullableRegionsAsync(document As Document, cancellationToken As CancellationToken) As Task(Of Document)
-            ' VB has no equivalent to #nullable enable
-            Return Task.FromResult(document)
-        End Function
-
         Protected Overrides Async Function ConvertDocCommentsToRegularCommentsAsync(document As Document, docCommentFormattingService As IDocumentationCommentFormattingService, cancellationToken As CancellationToken) As Task(Of Document)
             Dim syntaxRoot = Await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(False)
 

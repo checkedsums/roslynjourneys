@@ -332,15 +332,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             public override int GetHashCode()
             {
                 // Inherit special behavior for the object type from NamedTypeSymbol.
-                if (this.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Object)
+                if (this.SpecialType == SpecialType.System_Object)
                 {
-                    return (int)Microsoft.CodeAnalysis.SpecialType.System_Object;
+                    return (int)SpecialType.System_Object;
                 }
 
                 return Hash.Combine(MetadataName, Hash.Combine(_containingModule, Hash.Combine(_namespaceName, arity)));
             }
-
-            internal sealed override NamedTypeSymbol AsNativeInteger() => AsNativeInteger(asNativeInt: true);
 
             private TopLevel AsNativeInteger(bool asNativeInt)
             {

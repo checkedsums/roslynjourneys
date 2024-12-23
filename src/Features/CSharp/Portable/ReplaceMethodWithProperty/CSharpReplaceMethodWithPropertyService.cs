@@ -80,9 +80,7 @@ internal class CSharpReplaceMethodWithPropertyService : AbstractReplaceMethodWit
                                               .WithAccessorList(null);
                 }
                 else if (getAccessor.Body != null &&
-                         getAccessor.Body.TryConvertToArrowExpressionBody(
-                             propertyDeclaration.Kind(), languageVersion, expressionBodyPreference, cancellationToken,
-                             out var arrowExpression, out var semicolonToken))
+                         getAccessor.Body.TryConvertToArrowExpressionBody(expressionBodyPreference, cancellationToken, out var arrowExpression, out var semicolonToken))
                 {
                     return propertyDeclaration.WithExpressionBody(arrowExpression)
                                               .WithSemicolonToken(semicolonToken)
@@ -178,9 +176,7 @@ internal class CSharpReplaceMethodWithPropertyService : AbstractReplaceMethodWit
         var expressionBodyPreference = options.PreferExpressionBodiedAccessors.Value;
         if (accessorDeclaration?.Body != null && expressionBodyPreference != ExpressionBodyPreference.Never)
         {
-            if (accessorDeclaration.Body.TryConvertToArrowExpressionBody(
-                    accessorDeclaration.Kind(), languageVersion, expressionBodyPreference, cancellationToken,
-                    out var arrowExpression, out var semicolonToken))
+            if (accessorDeclaration.Body.TryConvertToArrowExpressionBody(expressionBodyPreference, cancellationToken, out var arrowExpression, out var semicolonToken))
             {
                 return accessorDeclaration.WithBody(null)
                                           .WithExpressionBody(arrowExpression)

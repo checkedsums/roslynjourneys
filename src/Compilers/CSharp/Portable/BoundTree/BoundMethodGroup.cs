@@ -20,14 +20,14 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundMethodGroupFlags flags,
             Binder binder,
             bool hasErrors = false)
-            : this(syntax, typeArgumentsOpt, name, methods, lookupResult.SingleSymbolOrDefault, lookupResult.Error, flags, functionType: GetFunctionType(binder, syntax), receiverOpt, lookupResult.Kind, hasErrors)
+            : this(syntax, typeArgumentsOpt, name, methods, lookupResult.SingleSymbolOrDefault, lookupResult.Error, flags, GetFunctionType(binder), receiverOpt, lookupResult.Kind, hasErrors)
         {
             FunctionType?.SetExpression(this);
         }
 
-        private static FunctionTypeSymbol? GetFunctionType(Binder binder, SyntaxNode syntax)
+        private static FunctionTypeSymbol? GetFunctionType(Binder binder)
         {
-            return FunctionTypeSymbol.CreateIfFeatureEnabled(syntax, binder, static (binder, expr) => binder.GetMethodGroupDelegateType((BoundMethodGroup)expr));
+            return new FunctionTypeSymbol(binder, static (binder, expr) => binder.GetMethodGroupDelegateType((BoundMethodGroup)expr));
         }
 
         public MemberAccessExpressionSyntax? MemberAccessExpressionSyntax

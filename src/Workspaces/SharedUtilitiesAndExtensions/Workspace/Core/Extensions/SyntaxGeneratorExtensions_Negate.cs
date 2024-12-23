@@ -114,11 +114,7 @@ internal static partial class SyntaxGeneratorExtensions
         if (syntaxFacts.IsIsTypeExpression(expressionOrPattern))
         {
             syntaxFacts.GetPartsOfAnyIsTypeExpression(expressionOrPattern, out var expression, out var type);
-            if (syntaxFacts.SupportsNotPattern(options))
-                return generatorInternal.IsPatternExpression(expression, generatorInternal.NotPattern(type));
-
-            if (syntaxFacts.SupportsIsNotTypeExpression(options))
-                return generatorInternal.IsNotTypeExpression(expression, type);
+            return generatorInternal.IsPatternExpression(expression, generatorInternal.NotPattern(type));
         }
 
         if (syntaxFacts.IsIsNotTypeExpression(expressionOrPattern))
@@ -183,12 +179,12 @@ internal static partial class SyntaxGeneratorExtensions
                 newToken,
                 newToken.WithTriviaFrom(operatorToken));
         }
-        else if (operation is IIsTypeOperation { TypeOperand.SpecialType: SpecialType.System_Object } && generatorInternal.SupportsPatterns(semanticModel.SyntaxTree.Options))
+        else if (operation is IIsTypeOperation { TypeOperand.SpecialType: SpecialType.System_Object })
         {
             // `is object`  ->   `is null`
             return generatorInternal.IsPatternExpression(leftOperand, operatorToken, generatorInternal.ConstantPattern(generator.NullLiteralExpression().WithTriviaFrom(rightOperand)));
         }
-        else if (syntaxFacts.IsIsTypeExpression(expressionNode) && syntaxFacts.SupportsNotPattern(semanticModel.SyntaxTree.Options))
+        else if (syntaxFacts.IsIsTypeExpression(expressionNode))
         {
             // `is y`   ->    `is not y`
             SyntaxNode innerPattern;
@@ -266,21 +262,9 @@ internal static partial class SyntaxGeneratorExtensions
         var syntaxFacts = generatorInternal.SyntaxFacts;
         syntaxFacts.GetPartsOfIsPatternExpression(isExpression, out var left, out var isToken, out var pattern);
 
-        SyntaxNode? negatedPattern = null;
-        if (syntaxFacts.SupportsNotPattern(semanticModel.SyntaxTree.Options))
-        {
-            // We do support 'not' patterns.  So attempt to push a 'not' pattern into the current is-pattern RHS.
-            // We include the type of the value when negating the pattern, since it allows for nicer negations of
-            // `is true/false` for Boolean values and relational patterns for numeric values.
-            var operation = semanticModel.GetOperation(isExpression, cancellationToken);
-            var valueType = (operation as IIsPatternOperation)?.Value.Type?.SpecialType;
-            negatedPattern = generator.Negate(generatorInternal, pattern, semanticModel, negateBinary: true, valueType, cancellationToken);
-        }
-        else if (syntaxFacts.IsNotPattern(pattern))
-        {
-            // we don't support 'not' patterns, but we have a 'not' pattern in code.  Do a simple unwrapping of it.
-            negatedPattern = GetNegationOfNotPattern(pattern, generator, generatorInternal, syntaxFacts);
-        }
+        var operation = semanticModel.GetOperation(isExpression, cancellationToken);
+        var valueType = (operation as IIsPatternOperation)?.Value.Type?.SpecialType;
+        var negatedPattern = generator.Negate(generatorInternal, pattern, semanticModel, negateBinary: true, valueType, cancellationToken);
 
         // Negating the pattern may have formed something illegal.  If so, just do a normal `!` negation.
         if (negatedPattern != null && IsLegalPattern(syntaxFacts, negatedPattern, designatorsLegal: true))
@@ -537,38 +521,28 @@ internal static partial class SyntaxGeneratorExtensions
         // not not p    ->   p
         if (syntaxFacts.IsNotPattern(pattern))
         {
-            return GetNegationOfNotPattern(pattern, generator, generatorInternal, syntaxFacts);
+            Contract.ThrowIfFalse(syntaxFacts.IsNotPattern(pattern));
+
+            syntaxFacts.GetPartsOfUnaryPattern(pattern, out var opToken, out var subPattern);
+
+            // If we started with `not object`, instead of converting to `object`, directly convert to `not null`
+            if (syntaxFacts.IsTypePattern(subPattern))
+            {
+                var type = syntaxFacts.GetTypeOfTypePattern(subPattern);
+                if (syntaxFacts.IsPredefinedType(type, PredefinedType.Object))
+                {
+                    return generatorInternal.UnaryPattern(opToken,
+                        generatorInternal.ConstantPattern(
+                            generator.NullLiteralExpression().WithTriviaFrom(type)));
+                }
+            }
+
+            return subPattern.WithPrependedLeadingTrivia(opToken.LeadingTrivia)
+                             .WithAdditionalAnnotations(Simplifier.Annotation);
         }
 
         // If there are other interesting unary patterns in the future, we can support specialized logic for
         // negating them here.
         return generatorInternal.NotPattern(pattern);
-    }
-
-    private static SyntaxNode GetNegationOfNotPattern(
-        SyntaxNode pattern,
-        SyntaxGenerator generator,
-        SyntaxGeneratorInternal generatorInternal,
-        ISyntaxFacts syntaxFacts)
-    {
-        Contract.ThrowIfFalse(syntaxFacts.IsNotPattern(pattern));
-
-        syntaxFacts.GetPartsOfUnaryPattern(pattern, out var opToken, out var subPattern);
-
-        // If we started with `not object`, instead of converting to `object`, directly convert to `not null`
-        if (syntaxFacts.SupportsNotPattern(pattern.SyntaxTree.Options) &&
-            syntaxFacts.IsTypePattern(subPattern))
-        {
-            var type = syntaxFacts.GetTypeOfTypePattern(subPattern);
-            if (syntaxFacts.IsPredefinedType(type, PredefinedType.Object))
-            {
-                return generatorInternal.UnaryPattern(opToken,
-                    generatorInternal.ConstantPattern(
-                        generator.NullLiteralExpression().WithTriviaFrom(type)));
-            }
-        }
-
-        return subPattern.WithPrependedLeadingTrivia(opToken.LeadingTrivia)
-                         .WithAdditionalAnnotations(Simplifier.Annotation);
     }
 }

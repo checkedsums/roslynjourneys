@@ -484,21 +484,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                             {
                                 Symbol associatedPropertyOrEvent = field.AssociatedSymbol;
                                 bool hasAssociatedProperty = associatedPropertyOrEvent?.Kind == SymbolKind.Property;
-                                if (compilation.IsFeatureEnabled(MessageID.IDS_FeatureAutoDefaultStructs))
-                                {
-                                    Diagnostics.Add(
-                                        hasAssociatedProperty ? ErrorCode.WRN_UnassignedThisAutoPropertySupportedVersion : ErrorCode.WRN_UnassignedThisSupportedVersion,
-                                        location,
-                                        hasAssociatedProperty ? associatedPropertyOrEvent : field);
-                                }
-                                else
-                                {
-                                    Diagnostics.Add(
-                                        hasAssociatedProperty ? ErrorCode.ERR_UnassignedThisAutoPropertyUnsupportedVersion : ErrorCode.ERR_UnassignedThisUnsupportedVersion,
-                                        location,
-                                        hasAssociatedProperty ? associatedPropertyOrEvent : field,
-                                        new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureAutoDefaultStructs.RequiredVersion()));
-                                }
+
+                                Diagnostics.Add(
+                                    hasAssociatedProperty ? ErrorCode.WRN_UnassignedThisAutoPropertySupportedVersion : ErrorCode.WRN_UnassignedThisSupportedVersion,
+                                    location,
+                                    hasAssociatedProperty ? associatedPropertyOrEvent : field);
 
                                 this.AddImplicitlyInitializedField(field);
                                 reported = true;
@@ -509,11 +499,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         {
                             if (parameterType.HasInlineArrayAttribute(out int length) && length > 1 && parameterType.TryGetPossiblyUnsupportedByLanguageInlineArrayElementField() is FieldSymbol elementField)
                             {
-                                if (!compilation.IsFeatureEnabled(MessageID.IDS_FeatureAutoDefaultStructs))
-                                {
-                                    Diagnostics.Add(ErrorCode.ERR_ParamUnassigned, location, parameter.Name);
-                                }
-
                                 // Add the element field to the set of fields requiring initialization to indicate that the whole instance needs initialization.
                                 // This is done explicitly only for unreported cases, because, if something was reported, then we already have added the
                                 // element field in the set. It is the only instance field in the type.
@@ -597,16 +582,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 ErrorCode newCode = oldCode switch
                 {
 #pragma warning disable format
-                    ErrorCode.ERR_UnassignedThisAutoPropertyUnsupportedVersion => ErrorCode.WRN_UnassignedThisAutoPropertyUnsupportedVersion,
-                    ErrorCode.ERR_UnassignedThisUnsupportedVersion             => ErrorCode.WRN_UnassignedThisUnsupportedVersion,
-                    ErrorCode.ERR_ParamUnassigned                              => ErrorCode.WRN_ParamUnassigned,
-                    ErrorCode.ERR_UseDefViolationProperty                      => ErrorCode.WRN_UseDefViolationProperty,
-                    ErrorCode.ERR_UseDefViolationField                         => ErrorCode.WRN_UseDefViolationField,
-                    ErrorCode.ERR_UseDefViolationThisUnsupportedVersion        => ErrorCode.WRN_UseDefViolationThisUnsupportedVersion,
-                    ErrorCode.ERR_UseDefViolationPropertyUnsupportedVersion    => ErrorCode.WRN_UseDefViolationPropertyUnsupportedVersion,
-                    ErrorCode.ERR_UseDefViolationFieldUnsupportedVersion       => ErrorCode.WRN_UseDefViolationFieldUnsupportedVersion,
-                    ErrorCode.ERR_UseDefViolationOut                           => ErrorCode.WRN_UseDefViolationOut,
-                    ErrorCode.ERR_UseDefViolation                              => ErrorCode.WRN_UseDefViolation,
+                    ErrorCode.ERR_ParamUnassigned          => ErrorCode.WRN_ParamUnassigned,
+                    ErrorCode.ERR_UseDefViolationProperty  => ErrorCode.WRN_UseDefViolationProperty,
+                    ErrorCode.ERR_UseDefViolationField     => ErrorCode.WRN_UseDefViolationField,
+                    ErrorCode.ERR_UseDefViolationOut       => ErrorCode.WRN_UseDefViolationOut,
+                    ErrorCode.ERR_UseDefViolation          => ErrorCode.WRN_UseDefViolation,
                     _ => oldCode, // rare but possible, e.g. ErrorCode.ERR_InsufficientStack occurring in strict mode only due to needing extra frames
 #pragma warning restore format
                 };
@@ -1290,17 +1270,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Debug.Assert(foundUnassignedField);
                 }
 
-                if (compilation.IsFeatureEnabled(MessageID.IDS_FeatureAutoDefaultStructs))
-                {
-                    Diagnostics.Add(ErrorCode.WRN_UseDefViolationThisSupportedVersion, node.Location);
-                }
-                else
-                {
-                    Diagnostics.Add(
-                        ErrorCode.ERR_UseDefViolationThisUnsupportedVersion,
-                        node.Location,
-                        new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureAutoDefaultStructs.RequiredVersion()));
-                }
+                Diagnostics.Add(ErrorCode.WRN_UseDefViolationThisSupportedVersion, node.Location);
             }
 
             void addDiagnosticForStructField(int fieldSlot, FieldSymbol fieldSymbol)
@@ -1342,20 +1312,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                                     symbolName);
                             }
                         }
-                        else if (compilation.IsFeatureEnabled(MessageID.IDS_FeatureAutoDefaultStructs))
+                        else
                         {
                             Diagnostics.Add(
                                 hasAssociatedProperty ? ErrorCode.WRN_UseDefViolationPropertySupportedVersion : ErrorCode.WRN_UseDefViolationFieldSupportedVersion,
                                 node.Location,
                                 symbolName);
-                        }
-                        else
-                        {
-                            Diagnostics.Add(
-                                hasAssociatedProperty ? ErrorCode.ERR_UseDefViolationPropertyUnsupportedVersion : ErrorCode.ERR_UseDefViolationFieldUnsupportedVersion,
-                                node.Location,
-                                symbolName,
-                                new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureAutoDefaultStructs.RequiredVersion()));
                         }
                         return;
                     }

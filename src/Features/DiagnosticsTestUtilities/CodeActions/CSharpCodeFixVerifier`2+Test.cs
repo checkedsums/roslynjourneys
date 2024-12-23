@@ -55,11 +55,7 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.CodeActions
                 MarkupOptions = Testing.MarkupOptions.UseFirstDescriptor;
             }
 
-            /// <summary>
-            /// Gets or sets the language version to use for the test. The default value is
-            /// <see cref="LanguageVersion.CSharp8"/>.
-            /// </summary>
-            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.CSharp8;
+            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.CSharp13;
 
             /// <inheritdoc cref="SharedVerifierState.Options"/>
             internal OptionsCollection Options => _sharedState.Options;

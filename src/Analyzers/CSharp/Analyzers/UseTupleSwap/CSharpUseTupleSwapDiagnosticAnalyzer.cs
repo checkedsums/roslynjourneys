@@ -48,11 +48,6 @@ internal class CSharpUseTupleSwapDiagnosticAnalyzer : AbstractBuiltInCodeStyleDi
     {
         context.RegisterCompilationStartAction(context =>
         {
-            // Tuples are only available in C# 7 and above.
-            var compilation = context.Compilation;
-            if (compilation.LanguageVersion() < LanguageVersion.CSharp7)
-                return;
-
             context.RegisterSyntaxNodeAction(
                 AnalyzeLocalDeclarationStatement,
                 SyntaxKind.LocalDeclarationStatement);

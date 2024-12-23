@@ -471,8 +471,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         // additional preprocessor keywords (continued)
         /// <summary>Represents <see langword="load"/>.</summary>
         LoadKeyword = 8485,
-        /// <summary>Represents <see langword="nullable"/>.</summary>
-        NullableKeyword = 8486,
+        /// <summary></summary>
+        ContextKeyword = 8486,
         /// <summary>Represents <see langword="enable"/>.</summary>
         EnableKeyword = 8487,
 
@@ -890,8 +890,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ThrowExpression = 9052,
         ImplicitStackAllocArrayCreationExpression = 9053,
         SuppressNullableWarningExpression = 9054,
-        NullableDirectiveTrivia = 9055,
-
+        ///////////////////////////////////////////////////////////////////
         FunctionPointerType = 9056,
         FunctionPointerParameter = 9057,
         FunctionPointerParameterList = 9058,

@@ -15,11 +15,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static SourceConstructorSymbol CreateConstructorSymbol(
             SourceMemberContainerTypeSymbol containingType,
             ConstructorDeclarationSyntax syntax,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics)
         {
             var methodKind = syntax.Modifiers.Any(SyntaxKind.StaticKeyword) ? MethodKind.StaticConstructor : MethodKind.Constructor;
-            return new SourceConstructorSymbol(containingType, syntax.Identifier.GetLocation(), syntax, methodKind, isNullableAnalysisEnabled, diagnostics);
+            return new SourceConstructorSymbol(containingType, syntax.Identifier.GetLocation(), syntax, methodKind, diagnostics);
         }
 
         private SourceConstructorSymbol(
@@ -27,11 +26,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
              Location location,
              ConstructorDeclarationSyntax syntax,
              MethodKind methodKind,
-             bool isNullableAnalysisEnabled,
              BindingDiagnosticBag diagnostics) :
              base(containingType, location, syntax, SyntaxFacts.HasYieldOperations(syntax),
                   MakeModifiersAndFlags(
-                      containingType, syntax, methodKind, isNullableAnalysisEnabled, syntax.Initializer?.Kind() == SyntaxKind.ThisConstructorInitializer, location, diagnostics, out bool modifierErrors, out bool report_ERR_StaticConstructorWithAccessModifiers))
+                      containingType, syntax, methodKind, syntax.Initializer?.Kind() == SyntaxKind.ThisConstructorInitializer, location, diagnostics, out bool modifierErrors, out bool report_ERR_StaticConstructorWithAccessModifiers))
         {
             this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
 
@@ -61,11 +59,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            if (methodKind == MethodKind.StaticConstructor)
-            {
-                CheckFeatureAvailabilityAndRuntimeSupport(syntax, location, hasAnyBody, diagnostics);
-            }
-
             ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, isExplicitInterfaceImplementation: false, diagnostics, location);
 
             if (!modifierErrors)
@@ -81,18 +74,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             NamedTypeSymbol containingType,
             ConstructorDeclarationSyntax syntax,
             MethodKind methodKind,
-            bool isNullableAnalysisEnabled,
             bool hasThisInitializer,
             Location location,
             BindingDiagnosticBag diagnostics,
             out bool modifierErrors,
             out bool report_ERR_StaticConstructorWithAccessModifiers)
         {
-            DeclarationModifiers declarationModifiers = MakeModifiers(containingType, syntax, methodKind, syntax.HasAnyBody(), location, diagnostics, out modifierErrors, out report_ERR_StaticConstructorWithAccessModifiers);
+            DeclarationModifiers declarationModifiers = MakeModifiers(containingType, syntax, methodKind, location, diagnostics, out modifierErrors, out report_ERR_StaticConstructorWithAccessModifiers);
             Flags flags = MakeFlags(
                 methodKind, RefKind.None, declarationModifiers, returnsVoid: true, returnsVoidIsSet: true,
-                isExpressionBodied: syntax.IsExpressionBodied(), isExtensionMethod: false, isVarArg: syntax.IsVarArg(),
-                isNullableAnalysisEnabled: isNullableAnalysisEnabled, isExplicitInterfaceImplementation: false,
+                isExpressionBodied: syntax.IsExpressionBodied(), isExtensionMethod: false, isVarArg: syntax.IsVarArg(), isExplicitInterfaceImplementation: false,
                 hasThisInitializer: hasThisInitializer);
 
             return (declarationModifiers, flags);
@@ -120,20 +111,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         private static DeclarationModifiers MakeModifiers(
-            NamedTypeSymbol containingType, ConstructorDeclarationSyntax syntax, MethodKind methodKind, bool hasBody, Location location, BindingDiagnosticBag diagnostics,
+            NamedTypeSymbol containingType, ConstructorDeclarationSyntax syntax, MethodKind methodKind, Location location, BindingDiagnosticBag diagnostics,
             out bool modifierErrors, out bool report_ERR_StaticConstructorWithAccessModifiers)
         {
             var defaultAccess = (methodKind == MethodKind.StaticConstructor) ? DeclarationModifiers.None : DeclarationModifiers.Private;
 
             // Check that the set of modifiers is allowed
-            const DeclarationModifiers allowedModifiers =
+            const DeclarationModifiers AllowedModifiers =
                 DeclarationModifiers.AccessibilityMask |
                 DeclarationModifiers.Static |
                 DeclarationModifiers.Extern |
                 DeclarationModifiers.Unsafe;
 
             bool isInterface = containingType.IsInterface;
-            var mods = ModifierUtils.MakeAndCheckNonTypeMemberModifiers(isOrdinaryMethod: false, isForInterfaceMember: isInterface, syntax.Modifiers, defaultAccess, allowedModifiers, location, diagnostics, out modifierErrors);
+            var mods = ModifierUtils.MakeAndCheckNonTypeMemberModifiers(isOrdinaryMethod: false, isForInterfaceMember: isInterface, syntax.Modifiers, defaultAccess, AllowedModifiers, location, diagnostics, out modifierErrors);
 
             report_ERR_StaticConstructorWithAccessModifiers = false;
             if (methodKind == MethodKind.StaticConstructor)
@@ -153,9 +144,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 if (isInterface)
                 {
-                    ModifierUtils.ReportDefaultInterfaceImplementationModifiers(hasBody, mods,
-                                                                                DeclarationModifiers.Extern,
-                                                                                location, diagnostics);
+                    ModifierUtils.ReportDefaultInterfaceImplementationModifiers(mods, DeclarationModifiers.Extern, location, diagnostics);
                 }
             }
 
@@ -182,11 +171,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             return OneOrMany.Create(((ConstructorDeclarationSyntax)this.SyntaxNode).AttributeLists);
         }
-
-        internal override bool IsNullableAnalysisEnabled()
-            => flags.HasThisInitializer
-                ? flags.IsNullableAnalysisEnabled
-                : ((SourceMemberContainerTypeSymbol)ContainingType).IsNullableEnabledForConstructorsAndInitializers(IsStatic);
 
         protected override bool AllowRefOrOut
         {

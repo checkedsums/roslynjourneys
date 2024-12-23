@@ -83,16 +83,10 @@ internal sealed class CSharpUseLocalFunctionCodeFixProvider() : SyntaxEditorBase
         var root = editor.OriginalRoot;
         var currentRoot = root.TrackNodes(nodesToTrack);
 
-        var languageVersion = semanticModel.SyntaxTree.Options.LanguageVersion();
-        var makeStaticIfPossible = false;
+        var info = await document.GetCodeGenerationInfoAsync(CodeGenerationContext.Default, cancellationToken).ConfigureAwait(false);
 
-        if (languageVersion >= LanguageVersion.CSharp8)
-        {
-            var info = await document.GetCodeGenerationInfoAsync(CodeGenerationContext.Default, cancellationToken).ConfigureAwait(false);
-
-            var options = (CSharpCodeGenerationOptions)info.Options;
-            makeStaticIfPossible = options.PreferStaticLocalFunction.Value;
-        }
+        var options = (CSharpCodeGenerationOptions)info.Options;
+        var makeStaticIfPossible = options.PreferStaticLocalFunction.Value;
 
         // Process declarations in reverse order so that we see the effects of nested
         // declarations before processing the outer decls.

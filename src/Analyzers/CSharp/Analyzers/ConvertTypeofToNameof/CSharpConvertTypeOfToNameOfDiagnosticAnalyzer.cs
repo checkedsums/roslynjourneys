@@ -25,12 +25,6 @@ internal sealed class CSharpConvertTypeOfToNameOfDiagnosticAnalyzer : AbstractCo
     {
         var node = context.Operation.Syntax;
 
-        // nameof was added in CSharp 6.0, so don't offer it for any languages before that time
-        if (node.GetLanguageVersion() < LanguageVersion.CSharp6)
-        {
-            return false;
-        }
-
         // Make sure that the syntax that we're looking at is actually a typeof expression and that
         // the parent syntax is a member access expression otherwise the syntax is not the kind of
         // expression that we want to analyze

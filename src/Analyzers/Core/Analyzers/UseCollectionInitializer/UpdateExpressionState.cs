@@ -430,9 +430,7 @@ internal readonly struct UpdateExpressionState<
                 if (whenFalse is null)
                 {
                     // add the form `.. x ? [y] : []` to the result
-                    return @this.SyntaxFacts.SupportsCollectionExpressionNaturalType(ifStatement.SyntaxTree.Options)
-                        ? new(ifStatement, UseSpread: true)
-                        : null;
+                    return new(ifStatement, UseSpread: true);
                 }
 
                 var whenFalseStatements = whenFalse.ToImmutableArray();

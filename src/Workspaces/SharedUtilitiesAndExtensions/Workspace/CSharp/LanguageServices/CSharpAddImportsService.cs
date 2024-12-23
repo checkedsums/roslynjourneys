@@ -80,8 +80,7 @@ internal sealed class CSharpAddImportsService() : AbstractAddImportsService<
             _ => default,
         };
 
-    protected override bool IsEquivalentImport(SyntaxNode a, SyntaxNode b)
-        => SyntaxFactory.AreEquivalent(a, b, kind => kind == SyntaxKind.NullableDirectiveTrivia);
+    protected override bool IsEquivalentImport(SyntaxNode a, SyntaxNode b) => false;
 
     private sealed class Rewriter : CSharpSyntaxRewriter
     {

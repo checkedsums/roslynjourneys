@@ -191,8 +191,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Use the right binder to avoid seeing iteration variable
             BoundExpression collectionExpr = originalBinder.GetBinder(_syntax.Expression).BindRValueWithoutTargetType(_syntax.Expression, diagnostics);
 
-            TypeWithAnnotations inferredType;
-            bool hasErrors = !GetEnumeratorInfoAndInferCollectionElementType(_syntax, _syntax.Expression, ref collectionExpr, isAsync: IsAsync, isSpread: false, diagnostics, out inferredType, builder: out _);
+            _ = !GetEnumeratorInfoAndInferCollectionElementType(_syntax, _syntax.Expression, ref collectionExpr, isAsync: IsAsync, isSpread: false, diagnostics, out TypeWithAnnotations inferredType, builder: out _);
 
             ExpressionSyntax variables = ((ForEachVariableStatementSyntax)_syntax).Variable;
 
@@ -215,17 +214,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundForEachStatement BindForEachPartsWorker(BindingDiagnosticBag diagnostics, Binder originalBinder)
         {
-            if (IsAsync)
-            {
-                CheckFeatureAvailability(_syntax.AwaitKeyword, MessageID.IDS_FeatureAsyncStreams, diagnostics);
-            }
-
             // Use the right binder to avoid seeing iteration variable
             BoundExpression collectionExpr = originalBinder.GetBinder(_syntax.Expression).BindRValueWithoutTargetType(_syntax.Expression, diagnostics);
 
-            ForEachEnumeratorInfo.Builder builder;
-            TypeWithAnnotations inferredType;
-            bool hasErrors = !GetEnumeratorInfoAndInferCollectionElementType(_syntax, _syntax.Expression, ref collectionExpr, isAsync: IsAsync, isSpread: false, diagnostics, out inferredType, out builder);
+            bool hasErrors = !GetEnumeratorInfoAndInferCollectionElementType(_syntax, _syntax.Expression, ref collectionExpr, isAsync: IsAsync, isSpread: false, diagnostics, out TypeWithAnnotations inferredType, out ForEachEnumeratorInfo.Builder builder);
 
             // These occur when special types are missing or malformed, or the patterns are incompletely implemented.
             hasErrors |= builder.IsIncomplete;
@@ -238,9 +230,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 if (getEnumeratorMethod.IsExtensionMethod && !hasErrors)
                 {
-                    var messageId = IsAsync ? MessageID.IDS_FeatureExtensionGetAsyncEnumerator : MessageID.IDS_FeatureExtensionGetEnumerator;
-                    messageId.CheckFeatureAvailability(diagnostics, Compilation, collectionExpr.Syntax.Location);
-
                     if (getEnumeratorMethod.ParameterRefKinds is { IsDefault: false } refKinds && refKinds[0] == RefKind.Ref)
                     {
                         Error(diagnostics, ErrorCode.ERR_RefLvalueExpected, collectionExpr.Syntax);
@@ -283,14 +272,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         if (typeSyntax is ScopedTypeSyntax scopedType)
                         {
-                            // Check for support for 'scoped'.
-                            ModifierUtils.CheckScopedModifierAvailability(typeSyntax, scopedType.ScopedKeyword, diagnostics);
                             typeSyntax = scopedType.Type;
                         }
 
                         if (typeSyntax is RefTypeSyntax refType)
                         {
-                            MessageID.IDS_FeatureRefForEach.CheckFeatureAvailability(diagnostics, typeSyntax);
                             typeSyntax = refType.Type;
                         }
 
@@ -313,38 +299,20 @@ namespace Microsoft.CodeAnalysis.CSharp
                         SourceLocalSymbol local = this.IterationVariable;
                         local.SetTypeWithAnnotations(declType);
 
-                        CheckRestrictedTypeInAsyncMethod(this.ContainingMemberOrLambda, declType.Type, diagnostics, typeSyntax);
-
                         if (local.Scope == ScopedKind.ScopedValue && !declType.Type.IsErrorOrRefLikeOrAllowsRefLikeType())
                         {
                             diagnostics.Add(ErrorCode.ERR_ScopedRefAndRefStructOnly, typeSyntax.Location);
                         }
 
-                        if (local.RefKind != RefKind.None)
-                        {
-                            if (CheckRefLocalInAsyncOrIteratorMethod(local.IdentifierToken, diagnostics))
-                            {
-                                hasErrors = true;
-                            }
-                        }
-
                         if (!hasErrors)
                         {
-                            BindValueKind requiredCurrentKind;
-                            switch (local.RefKind)
+                            var requiredCurrentKind = local.RefKind switch
                             {
-                                case RefKind.None:
-                                    requiredCurrentKind = BindValueKind.RValue;
-                                    break;
-                                case RefKind.Ref:
-                                    requiredCurrentKind = BindValueKind.Assignable | BindValueKind.RefersToLocation;
-                                    break;
-                                case RefKind.RefReadOnly:
-                                    requiredCurrentKind = BindValueKind.RefersToLocation;
-                                    break;
-                                default:
-                                    throw ExceptionUtilities.UnexpectedValue(local.RefKind);
-                            }
+                                RefKind.None => BindValueKind.RValue,
+                                RefKind.Ref => BindValueKind.Assignable | BindValueKind.RefersToLocation,
+                                RefKind.RefReadOnly => BindValueKind.RefersToLocation,
+                                _ => throw ExceptionUtilities.UnexpectedValue(local.RefKind),
+                            };
 
                             if (builder.InlineArraySpanType == WellKnownType.Unknown)
                             {
@@ -524,11 +492,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             Conversion currentConversionClassification = this.Conversions.ClassifyConversionFromType(builder.CurrentPropertyGetter.ReturnType, builder.ElementType, isChecked: CheckOverflowAtRuntime, ref useSiteInfo);
 
             TypeSymbol getEnumeratorType = getEnumeratorMethod.ReturnType;
-
-            if (builder.InlineArraySpanType == WellKnownType.Unknown && getEnumeratorType.IsRestrictedType() && (IsDirectlyInIterator || IsInAsyncMethod()))
-            {
-                CheckFeatureAvailability(foreachKeyword, MessageID.IDS_FeatureRefUnsafeInIteratorAsync, diagnostics);
-            }
 
             diagnostics.Add(_syntax.ForEachKeyword, useSiteInfo);
 
@@ -842,13 +805,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 spanType = spanType.Construct(ImmutableArray.Create(elementField.TypeWithAnnotations));
 
-                if (!TypeSymbol.IsInlineArrayElementFieldSupported(elementField))
-                {
-                    diagnostics.Add(ErrorCode.ERR_InlineArrayForEachNotSupported, collectionExpr.Syntax.GetLocation(), collectionExpr.Type);
-                    builder = new ForEachEnumeratorInfo.Builder();
-                    return EnumeratorResult.FailedAndReported;
-                }
-
                 var enumeratorInfoDiagnostics = BindingDiagnosticBag.GetInstance(diagnostics);
                 BoundExpression span = new BoundValuePlaceholder(collectionExpr.Syntax, spanType).MakeCompilerGenerated();
 #if DEBUG
@@ -872,8 +828,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     builder.InlineArrayUsedAsValue = usedAsValue;
                     diagnostics.AddRangeAndFree(enumeratorInfoDiagnostics);
 
-                    CheckFeatureAvailability(collectionExpr.Syntax, MessageID.IDS_FeatureInlineArrays, diagnostics);
-
                     if (result == EnumeratorResult.Succeeded)
                     {
                         if (wellKnownSpan == WellKnownType.System_ReadOnlySpan_T)
@@ -892,7 +846,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 enumeratorInfoDiagnostics.Free();
 
-                diagnostics.Add(ErrorCode.ERR_InlineArrayForEachNotSupported, collectionExpr.Syntax.GetLocation(), collectionExpr.Type);
+                diagnostics.Add(ErrorCode.ERR_SyntaxError, collectionExpr.Syntax.GetLocation(), collectionExpr.Type);
                 builder = new ForEachEnumeratorInfo.Builder();
                 return EnumeratorResult.FailedAndReported;
             }
@@ -1222,12 +1176,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Debug.Assert(argsToParams.IsDefault);
                     builder.PatternDisposeInfo = new MethodArgumentInfo(patternDisposeMethod, argsBuilder.ToImmutableAndFree(), defaultArguments, expanded);
 
-                    if (!isAsync)
-                    {
-                        // We already checked feature availability for async scenarios
-                        CheckFeatureAvailability(expr.Syntax, MessageID.IDS_FeatureDisposalPattern, diagnostics);
-                    }
-
                     return;
                 }
             }
@@ -1265,12 +1213,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 diagnostics.Add(syntax, useSiteInfo);
 
-                if (needSupportForRefStructInterfaces &&
-                    enumeratorType.ContainingModule != Compilation.SourceModule)
-                {
-                    CheckFeatureAvailability(syntax, MessageID.IDS_FeatureRefStructInterfaces, diagnostics);
-                }
-
                 return result;
             }
         }
@@ -1283,8 +1225,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (collectionExprType.IsDynamic())
             {
                 builder.ElementTypeWithAnnotations = TypeWithAnnotations.Create(
-                    ((syntax as ForEachStatementSyntax)?.Type.IsVar == true) ?
-                        (TypeSymbol)DynamicTypeSymbol.Instance :
+                    syntax is ForEachStatementSyntax { Type.IsVar: true } ? DynamicTypeSymbol.Instance :
                         GetSpecialType(SpecialType.System_Object, diagnostics, syntax));
             }
             else
@@ -1771,11 +1712,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         implementedIEnumerable = implementedNonGeneric;
                     }
                 }
-            }
-
-            if (implementedIEnumerable is not null && needSupportForRefStructInterfaces && type.ContainingModule != Compilation.SourceModule)
-            {
-                CheckFeatureAvailability(collectionSyntax, MessageID.IDS_FeatureRefStructInterfaces, diagnostics);
             }
 
             diagnostics.Add(collectionSyntax, useSiteInfo);

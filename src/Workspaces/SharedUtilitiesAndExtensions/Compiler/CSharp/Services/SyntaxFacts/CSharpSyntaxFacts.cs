@@ -45,37 +45,6 @@ internal class CSharpSyntaxFacts : ISyntaxFacts
 
     public ISyntaxKinds SyntaxKinds { get; } = CSharpSyntaxKinds.Instance;
 
-    public bool SupportsIndexingInitializer(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp6;
-
-    public bool SupportsThrowExpression(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp7;
-
-    public bool SupportsLocalFunctionDeclaration(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp7;
-
-    public bool SupportsRecord(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp9;
-
-    public bool SupportsRecordStruct(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp10;
-
-    public bool SupportsTargetTypedConditionalExpression(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp9;
-
-    public bool SupportsConstantInterpolatedStrings(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp10;
-
-    public bool SupportsTupleDeconstruction(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp7;
-
-    // Should be supported in C# 13.
-    public bool SupportsCollectionExpressionNaturalType(ParseOptions options)
-        => false;
-
-    public bool SupportsImplicitImplementationOfNonPublicInterfaceMembers(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp10;
-
     public SyntaxToken ParseToken(string text)
         => SyntaxFactory.ParseToken(text);
 
@@ -1483,13 +1452,6 @@ internal class CSharpSyntaxFacts : ISyntaxFacts
         propertyPart = recursivePattern.PropertyPatternClause;
         designation = recursivePattern.Designation;
     }
-
-    public bool SupportsNotPattern(ParseOptions options)
-        => options.LanguageVersion() >= LanguageVersion.CSharp9;
-
-    // C# only supports the pattern form, not the expression form.
-    public bool SupportsIsNotTypeExpression(ParseOptions options)
-        => false;
 
     public bool IsBinaryPattern([NotNullWhen(true)] SyntaxNode? node)
         => node is BinaryPatternSyntax;

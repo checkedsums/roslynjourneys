@@ -18,10 +18,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal SourceDestructorSymbol(
             SourceMemberContainerTypeSymbol containingType,
             DestructorDeclarationSyntax syntax,
-            bool isNullableAnalysisEnabled,
             BindingDiagnosticBag diagnostics) :
             base(containingType, syntax.GetReference(), GetSymbolLocation(syntax, out Location location), isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
-                 MakeModifiersAndFlags(containingType, syntax, isNullableAnalysisEnabled, location, diagnostics, out bool modifierErrors))
+                 MakeModifiersAndFlags(containingType, syntax, location, diagnostics, out bool modifierErrors))
         {
             this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
 
@@ -61,13 +60,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 syntax.Body, syntax.ExpressionBody, syntax, diagnostics);
         }
 
-        private static (DeclarationModifiers, Flags) MakeModifiersAndFlags(NamedTypeSymbol containingType, DestructorDeclarationSyntax syntax, bool isNullableAnalysisEnabled, Location location, BindingDiagnosticBag diagnostics, out bool modifierErrors)
+        private static (DeclarationModifiers, Flags) MakeModifiersAndFlags(NamedTypeSymbol containingType, DestructorDeclarationSyntax syntax, Location location, BindingDiagnosticBag diagnostics, out bool modifierErrors)
         {
             DeclarationModifiers declarationModifiers = MakeModifiers(containingType, syntax.Modifiers, location, diagnostics, out modifierErrors);
             Flags flags = MakeFlags(
                                     MethodKind.Destructor, RefKind.None, declarationModifiers, returnsVoid: true, returnsVoidIsSet: true,
                                     isExpressionBodied: syntax.IsExpressionBodied(), isExtensionMethod: false,
-                                    isVarArg: false, isNullableAnalysisEnabled: isNullableAnalysisEnabled, isExplicitInterfaceImplementation: false, hasThisInitializer: false);
+                                    isVarArg: false, isExplicitInterfaceImplementation: false, hasThisInitializer: false);
 
             return (declarationModifiers, flags);
         }

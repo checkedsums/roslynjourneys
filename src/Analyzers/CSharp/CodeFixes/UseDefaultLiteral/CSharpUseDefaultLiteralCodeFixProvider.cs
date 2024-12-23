@@ -54,7 +54,7 @@ internal sealed partial class CSharpUseDefaultLiteralCodeFixProvider() : SyntaxE
 
         await editor.ApplyExpressionLevelSemanticEditsAsync(
             document, originalNodes,
-            (semanticModel, defaultExpression) => defaultExpression.CanReplaceWithDefaultLiteral(parseOptions, preferSimpleDefaultExpression, semanticModel, cancellationToken),
+            (semanticModel, defaultExpression) => defaultExpression.CanReplaceWithDefaultLiteral(preferSimpleDefaultExpression, semanticModel, cancellationToken),
             (_, currentRoot, defaultExpression) => currentRoot.ReplaceNode(
                 defaultExpression,
                 SyntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression).WithTriviaFrom(defaultExpression)),

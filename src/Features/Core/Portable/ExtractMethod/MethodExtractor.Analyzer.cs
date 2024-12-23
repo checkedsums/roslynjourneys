@@ -416,9 +416,7 @@ internal abstract partial class MethodExtractor<TSelectionResult, TStatementSynt
             // If there are any variables we'd make out/ref and this is async, then we need to make these the
             // return values of the method since we can't actually have out/ref with an async method.
             var outRefCount = numberOfOutParameters + numberOfRefParameters;
-            if (outRefCount > 0 &&
-                this.SelectionResult.CreateAsyncMethod() &&
-                this.SyntaxFacts.SupportsTupleDeconstruction(_semanticDocument.Document.Project.ParseOptions!))
+            if (outRefCount > 0 && this.SelectionResult.CreateAsyncMethod())
             {
                 var result = new FixedSizeArrayBuilder<VariableInfo>(variableInfo.Length);
                 foreach (var info in variableInfo)

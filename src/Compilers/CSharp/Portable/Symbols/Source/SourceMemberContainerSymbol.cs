@@ -342,12 +342,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     break;
             }
 
-            bool modifierErrors;
             var mods = MakeAndCheckTypeModifiers(
                 defaultAccess,
                 allowedModifiers,
                 diagnostics,
-                out modifierErrors);
+                out bool modifierErrors);
 
             this.CheckUnsafeModifier(mods, diagnostics);
 
@@ -405,10 +404,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 if (!modifierErrors)
                 {
-                    mods = ModifierUtils.CheckModifiers(
-                        isForTypeDeclaration: true, isForInterfaceMember: false,
-                        mods, allowedModifiers, declaration.Declarations[i].NameLocation, diagnostics,
-                        modifierTokens: null, modifierErrors: out modifierErrors);
+                    mods = ModifierUtils.CheckModifiers(isForTypeDeclaration: true, isForInterfaceMember: false,
+                        mods, allowedModifiers, declaration.Declarations[i].NameLocation, diagnostics, modifierErrors: out modifierErrors);
 
                     // It is an error for the same modifier to appear multiple times.
                     if (!modifierErrors)
@@ -488,28 +485,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return name is { Length: > 0 } && name.All(c => c >= 'a' && c <= 'z');
         }
 
-        internal static void ReportReservedTypeName(string? name, CSharpCompilation compilation, DiagnosticBag? diagnostics, Location location)
+        internal static void ReportReservedTypeName(string? name, DiagnosticBag? diagnostics, Location location)
         {
             if (diagnostics is null)
-            {
                 return;
-            }
 
-            if (reportIfContextual(SyntaxKind.RecordKeyword, MessageID.IDS_FeatureRecords, ErrorCode.WRN_RecordNamedDisallowed)
-                || reportIfContextual(SyntaxKind.RequiredKeyword, MessageID.IDS_FeatureRequiredMembers, ErrorCode.ERR_RequiredNameDisallowed)
-                || reportIfContextual(SyntaxKind.FileKeyword, MessageID.IDS_FeatureFileTypes, ErrorCode.ERR_FileTypeNameDisallowed)
-                || reportIfContextual(SyntaxKind.ScopedKeyword, MessageID.IDS_FeatureRefFields, ErrorCode.ERR_ScopedTypeNameDisallowed))
-            {
+            if (reportIfContextual(SyntaxKind.RecordKeyword, ErrorCode.WRN_RecordNamedDisallowed)
+                || reportIfContextual(SyntaxKind.RequiredKeyword, ErrorCode.ERR_RequiredNameDisallowed)
+                || reportIfContextual(SyntaxKind.FileKeyword, ErrorCode.ERR_FileTypeNameDisallowed)
+                || reportIfContextual(SyntaxKind.ScopedKeyword, ErrorCode.ERR_ScopedTypeNameDisallowed))
                 return;
-            }
             else if (IsReservedTypeName(name))
-            {
                 diagnostics.Add(ErrorCode.WRN_LowerCaseTypeName, location, name);
-            }
 
-            bool reportIfContextual(SyntaxKind contextualKind, MessageID featureId, ErrorCode error)
+            bool reportIfContextual(SyntaxKind contextualKind, ErrorCode error)
             {
-                if (name == SyntaxFacts.GetText(contextualKind) && compilation.LanguageVersion >= featureId.RequiredVersion())
+                if (name == SyntaxFacts.GetText(contextualKind))
                 {
                     diagnostics.Add(error, location);
                     return true;
@@ -718,8 +709,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     foreach (var member in membersAndInitializers.NonTypeMembers)
                     {
-                        FieldSymbol field;
-                        if (!member.IsFieldOrFieldLikeEvent(out field) || field.IsConst || field.IsFixedSizeBuffer)
+                        if (!member.IsFieldOrFieldLikeEvent(out FieldSymbol field) || field.IsConst || field.IsFixedSizeBuffer)
                         {
                             continue;
                         }
@@ -1049,17 +1039,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             internal readonly ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> StaticInitializers;
             internal readonly ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> InstanceInitializers;
             internal readonly bool HaveIndexers;
-            internal readonly bool IsNullableEnabledForInstanceConstructorsAndFields;
-            internal readonly bool IsNullableEnabledForStaticConstructorsAndFields;
 
             public MembersAndInitializers(
                 SynthesizedPrimaryConstructor? primaryConstructor,
                 ImmutableArray<Symbol> nonTypeMembers,
                 ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> staticInitializers,
                 ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> instanceInitializers,
-                bool haveIndexers,
-                bool isNullableEnabledForInstanceConstructorsAndFields,
-                bool isNullableEnabledForStaticConstructorsAndFields)
+                bool haveIndexers)
             {
                 Debug.Assert(!nonTypeMembers.IsDefault);
                 Debug.Assert(!staticInitializers.IsDefault);
@@ -1075,8 +1061,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 this.StaticInitializers = staticInitializers;
                 this.InstanceInitializers = instanceInitializers;
                 this.HaveIndexers = haveIndexers;
-                this.IsNullableEnabledForInstanceConstructorsAndFields = isNullableEnabledForInstanceConstructorsAndFields;
-                this.IsNullableEnabledForStaticConstructorsAndFields = isNullableEnabledForStaticConstructorsAndFields;
             }
         }
 
@@ -1110,8 +1094,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 throw ExceptionUtilities.Unreachable();
             }
 
-            int syntaxOffset;
-            if (TryCalculateSyntaxOffsetOfPositionInInitializer(position, tree, isStatic, ctorInitializerLength: 0, syntaxOffset: out syntaxOffset))
+            if (TryCalculateSyntaxOffsetOfPositionInInitializer(position, tree, isStatic, ctorInitializerLength: 0, syntaxOffset: out int syntaxOffset))
             {
                 return syntaxOffset;
             }
@@ -1283,8 +1266,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ImmutableArray<NamedTypeSymbol> GetTypeMembers(ReadOnlyMemory<char> name)
         {
-            ImmutableArray<NamedTypeSymbol> members;
-            if (GetTypeMembersDictionary().TryGetValue(name, out members))
+            if (GetTypeMembersDictionary().TryGetValue(name, out ImmutableArray<NamedTypeSymbol> members))
             {
                 return members;
             }
@@ -1332,8 +1314,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     this.CheckMemberNameDistinctFromType(t, diagnostics);
 
                     var key = (t.Name, t.Arity, t.AssociatedSyntaxTree);
-                    SourceNamedTypeSymbol? other;
-                    if (conflictDict.TryGetValue(key, out other))
+                    if (conflictDict.TryGetValue(key, out SourceNamedTypeSymbol? other))
                     {
                         if (Locations.Length == 1 || IsPartial)
                         {
@@ -1353,14 +1334,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
 
                     symbols.Add(t);
-                }
-
-                if (IsInterface)
-                {
-                    foreach (var t in symbols)
-                    {
-                        Binder.CheckFeatureAvailability(t.DeclaringSyntaxReferences[0].GetSyntax(), MessageID.IDS_DefaultInterfaceImplementation, diagnostics, t.GetFirstLocation());
-                    }
                 }
 
                 Debug.Assert(s_emptyTypeMembers.Count == 0);
@@ -1478,8 +1451,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public sealed override ImmutableArray<Symbol> GetMembers(string name)
         {
-            ImmutableArray<Symbol> members;
-            if (GetMembersByName().TryGetValue(name.AsMemory(), out members))
+            if (GetMembersByName().TryGetValue(name.AsMemory(), out ImmutableArray<Symbol> members))
             {
                 return members;
             }
@@ -1559,8 +1531,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal override ImmutableArray<Symbol> GetEarlyAttributeDecodingMembers(string name)
         {
-            ImmutableArray<Symbol> result;
-            return GetEarlyAttributeDecodingMembersDictionary().TryGetValue(name.AsMemory(), out result) ? result : ImmutableArray<Symbol>.Empty;
+            return GetEarlyAttributeDecodingMembersDictionary().TryGetValue(name.AsMemory(), out ImmutableArray<Symbol> result) ? result : ImmutableArray<Symbol>.Empty;
         }
 
         private Dictionary<ReadOnlyMemory<char>, ImmutableArray<Symbol>> GetEarlyAttributeDecodingMembersDictionary()
@@ -1825,26 +1796,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var baseType = BaseTypeNoUseSiteDiagnostics;
             var interfaces = GetInterfacesToEmit();
 
-            if (compilation.ShouldEmitNativeIntegerAttributes())
+            // https://github.com/dotnet/roslyn/issues/30080: Report diagnostics for base type and interfaces at more specific locations.
+            if (hasBaseTypeOrInterface(static t => t.ContainsNativeIntegerWrapperType()))
             {
-                // https://github.com/dotnet/roslyn/issues/30080: Report diagnostics for base type and interfaces at more specific locations.
-                if (hasBaseTypeOrInterface(static t => t.ContainsNativeIntegerWrapperType()))
-                {
-                    compilation.EnsureNativeIntegerAttributeExists(diagnostics, location, modifyCompilation: true);
-                }
-            }
-
-            if (compilation.ShouldEmitNullableAttributes(this))
-            {
-                if (ShouldEmitNullableContextValue(out _))
-                {
-                    compilation.EnsureNullableContextAttributeExists(diagnostics, location, modifyCompilation: true);
-                }
-
-                if (hasBaseTypeOrInterface(static t => t.NeedsNullableAttribute()))
-                {
-                    compilation.EnsureNullableAttributeExists(diagnostics, location, modifyCompilation: true);
-                }
+                compilation.EnsureNativeIntegerAttributeExists(diagnostics, location, modifyCompilation: true);
             }
 
             if (interfaces.Any(needsTupleElementNamesAttribute))
@@ -1865,7 +1820,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         _ => null
                     };
 
-                    ReportReservedTypeName(identifier?.Text, this.DeclaringCompilation, diagnostics.DiagnosticBag, identifier?.GetLocation() ?? Location.None);
+                    ReportReservedTypeName(identifier?.Text, diagnostics.DiagnosticBag, identifier?.GetLocation() ?? Location.None);
                 }
             }
 
@@ -2873,8 +2828,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 ImmutableArray<Symbol> typesAsSymbols = StaticCast<Symbol>.From(types);
 
-                ImmutableArray<Symbol> membersForName;
-                if (membersByName.TryGetValue(name, out membersForName))
+                if (membersByName.TryGetValue(name, out ImmutableArray<Symbol> membersForName))
                 {
                     membersByName[name] = membersForName.Concat(typesAsSymbols);
                 }
@@ -2894,8 +2848,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             public TypeDeclarationSyntax? DeclarationWithParameters;
 
             public SynthesizedPrimaryConstructor? PrimaryConstructor;
-            public bool IsNullableEnabledForInstanceConstructorsAndFields;
-            public bool IsNullableEnabledForStaticConstructorsAndFields;
 
             public DeclaredMembersAndInitializers ToReadOnlyAndFree(CSharpCompilation compilation)
             {
@@ -2906,26 +2858,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     HaveIndexers,
                     DeclarationWithParameters,
                     PrimaryConstructor,
-                    isNullableEnabledForInstanceConstructorsAndFields: IsNullableEnabledForInstanceConstructorsAndFields,
-                    isNullableEnabledForStaticConstructorsAndFields: IsNullableEnabledForStaticConstructorsAndFields,
                     compilation);
-            }
-
-            public void UpdateIsNullableEnabledForConstructorsAndFields(bool useStatic, CSharpCompilation compilation, CSharpSyntaxNode syntax)
-            {
-                ref bool isNullableEnabled = ref GetIsNullableEnabledForConstructorsAndFields(useStatic);
-                isNullableEnabled = isNullableEnabled || compilation.IsNullableAnalysisEnabledIn(syntax);
-            }
-
-            public void UpdateIsNullableEnabledForConstructorsAndFields(bool useStatic, bool value)
-            {
-                ref bool isNullableEnabled = ref GetIsNullableEnabledForConstructorsAndFields(useStatic);
-                isNullableEnabled = isNullableEnabled || value;
-            }
-
-            private ref bool GetIsNullableEnabledForConstructorsAndFields(bool useStatic)
-            {
-                return ref useStatic ? ref IsNullableEnabledForStaticConstructorsAndFields : ref IsNullableEnabledForInstanceConstructorsAndFields;
             }
 
             public void Free()
@@ -2954,8 +2887,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             public readonly bool HaveIndexers;
             public readonly TypeDeclarationSyntax? DeclarationWithParameters;
             public readonly SynthesizedPrimaryConstructor? PrimaryConstructor;
-            public readonly bool IsNullableEnabledForInstanceConstructorsAndFields;
-            public readonly bool IsNullableEnabledForStaticConstructorsAndFields;
 
             public static readonly DeclaredMembersAndInitializers UninitializedSentinel = new DeclaredMembersAndInitializers();
 
@@ -2970,8 +2901,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 bool haveIndexers,
                 TypeDeclarationSyntax? declarationWithParameters,
                 SynthesizedPrimaryConstructor? primaryConstructor,
-                bool isNullableEnabledForInstanceConstructorsAndFields,
-                bool isNullableEnabledForStaticConstructorsAndFields,
                 CSharpCompilation compilation)
             {
                 Debug.Assert(!nonTypeMembers.IsDefault);
@@ -2987,8 +2916,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 this.HaveIndexers = haveIndexers;
                 this.DeclarationWithParameters = declarationWithParameters;
                 this.PrimaryConstructor = primaryConstructor;
-                this.IsNullableEnabledForInstanceConstructorsAndFields = isNullableEnabledForInstanceConstructorsAndFields;
-                this.IsNullableEnabledForStaticConstructorsAndFields = isNullableEnabledForStaticConstructorsAndFields;
             }
 
             [Conditional("DEBUG")]
@@ -3029,15 +2956,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             private ArrayBuilder<Symbol>? NonTypeMembers;
             private ArrayBuilder<FieldOrPropertyInitializer>? InstanceInitializersForPositionalMembers;
-            private bool IsNullableEnabledForInstanceConstructorsAndFields;
-            private bool IsNullableEnabledForStaticConstructorsAndFields;
 
             public MembersAndInitializersBuilder(DeclaredMembersAndInitializers declaredMembersAndInitializers)
             {
                 Debug.Assert(declaredMembersAndInitializers != DeclaredMembersAndInitializers.UninitializedSentinel);
-
-                this.IsNullableEnabledForInstanceConstructorsAndFields = declaredMembersAndInitializers.IsNullableEnabledForInstanceConstructorsAndFields;
-                this.IsNullableEnabledForStaticConstructorsAndFields = declaredMembersAndInitializers.IsNullableEnabledForStaticConstructorsAndFields;
             }
 
             public MembersAndInitializers ToReadOnlyAndFree(DeclaredMembersAndInitializers declaredMembers)
@@ -3053,9 +2975,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     nonTypeMembers,
                     declaredMembers.StaticInitializers,
                     instanceInitializers,
-                    declaredMembers.HaveIndexers,
-                    isNullableEnabledForInstanceConstructorsAndFields: IsNullableEnabledForInstanceConstructorsAndFields,
-                    isNullableEnabledForStaticConstructorsAndFields: IsNullableEnabledForStaticConstructorsAndFields);
+                    declaredMembers.HaveIndexers);
 
                 ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> mergeInitializers()
                 {
@@ -3156,17 +3076,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 NonTypeMembers?.Free();
                 NonTypeMembers = members;
-            }
-
-            public void UpdateIsNullableEnabledForConstructorsAndFields(bool useStatic, CSharpCompilation compilation, CSharpSyntaxNode syntax)
-            {
-                ref bool isNullableEnabled = ref GetIsNullableEnabledForConstructorsAndFields(useStatic);
-                isNullableEnabled = isNullableEnabled || compilation.IsNullableAnalysisEnabledIn(syntax);
-            }
-
-            private ref bool GetIsNullableEnabledForConstructorsAndFields(bool useStatic)
-            {
-                return ref useStatic ? ref IsNullableEnabledForStaticConstructorsAndFields : ref IsNullableEnabledForInstanceConstructorsAndFields;
             }
 
             internal static ImmutableArray<ImmutableArray<FieldOrPropertyInitializer>> ToReadOnlyAndFree(ArrayBuilder<ArrayBuilder<FieldOrPropertyInitializer>> initializers)
@@ -3590,11 +3499,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     builder.PrimaryConstructor = ctor;
 
                     var compilation = DeclaringCompilation;
-                    builder.UpdateIsNullableEnabledForConstructorsAndFields(ctor.IsStatic, compilation, parameterList);
-                    if (syntax is { PrimaryConstructorBaseTypeIfClass: { ArgumentList: { } baseParamList } })
-                    {
-                        builder.UpdateIsNullableEnabledForConstructorsAndFields(ctor.IsStatic, compilation, baseParamList);
-                    }
                 }
                 else
                 {
@@ -4110,8 +4014,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             foreach (var s in members)
             {
-                var m = s as MethodSymbol;
-                if (!(m is null))
+                if (s is MethodSymbol m)
                 {
                     if (m.MethodKind == MethodKind.Constructor && m.ParameterCount == 0)
                     {
@@ -4122,7 +4025,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         }
                         else
                         {
-                            MessageID.IDS_FeatureParameterlessStructConstructors.CheckFeatureAvailability(diagnostics, m.DeclaringCompilation, location);
                             if (m.DeclaredAccessibility != Accessibility.Public)
                             {
                                 diagnostics.Add(ErrorCode.ERR_NonPublicParameterlessStructConstructor, location);
@@ -4150,8 +4052,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 foreach (FieldOrPropertyInitializer initializer in initializers)
                 {
                     hasInitializers = true;
-                    var symbol = initializer.FieldOpt.AssociatedSymbol ?? initializer.FieldOpt;
-                    MessageID.IDS_FeatureStructFieldInitializers.CheckFeatureAvailability(diagnostics, symbol.DeclaringCompilation, symbol.GetFirstLocation());
                 }
             }
 
@@ -4456,50 +4356,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     this,
                     MethodKind.Ordinary,
                     Cci.CallingConvention.HasThis,
-                    ImmutableArray<TypeParameterSymbol>.Empty,
-                    ImmutableArray<ParameterSymbol>.Empty,
-                    RefKind.None,
+                    [], [], RefKind.None,
                     isInitOnly: false,
                     isStatic: false,
                     returnType: TypeWithAnnotations.Create(compilation.GetSpecialType(SpecialType.System_String)),
-                    refCustomModifiers: ImmutableArray<CustomModifier>.Empty,
-                    explicitInterfaceImplementations: ImmutableArray<MethodSymbol>.Empty);
+                    refCustomModifiers: [], explicitInterfaceImplementations: []);
 
                 var baseToStringMethod = getBaseToStringMethod();
 
-                if (baseToStringMethod is { IsSealed: true })
-                {
-                    if (baseToStringMethod.ContainingModule != this.ContainingModule && !this.DeclaringCompilation.IsFeatureEnabled(MessageID.IDS_FeatureSealedToStringInRecord))
-                    {
-                        var languageVersion = ((CSharpParseOptions)this.GetFirstLocation().SourceTree!.Options).LanguageVersion;
-                        var requiredVersion = MessageID.IDS_FeatureSealedToStringInRecord.RequiredVersion();
-                        diagnostics.Add(
-                            ErrorCode.ERR_InheritingFromRecordWithSealedToString,
-                            this.GetFirstLocation(),
-                            languageVersion.ToDisplayString(),
-                            new CSharpRequiredLanguageVersion(requiredVersion));
-                    }
-                }
-                else
+                if (baseToStringMethod is { IsSealed: false })
                 {
                     if (!memberSignatures.TryGetValue(targetMethod, out Symbol? existingToStringMethod))
                     {
                         var toStringMethod = new SynthesizedRecordToString(
-                            this,
-                            printMethod,
-                            memberOffset: members.Count);
+                            this, printMethod, memberOffset: members.Count);
                         members.Add(toStringMethod);
-                    }
-                    else
-                    {
-                        var toStringMethod = (MethodSymbol)existingToStringMethod;
-                        if (!SynthesizedRecordObjectMethod.VerifyOverridesMethodFromObject(toStringMethod, SpecialMember.System_Object__ToString, diagnostics) && toStringMethod.IsSealed && !IsSealed)
-                        {
-                            MessageID.IDS_FeatureSealedToStringInRecord.CheckFeatureAvailability(
-                                diagnostics,
-                                this.DeclaringCompilation,
-                                toStringMethod.GetFirstLocation());
-                        }
                     }
                 }
 
@@ -4559,7 +4430,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     else if (existingMember is FieldSymbol { IsStatic: false } field
                         && field.TypeWithAnnotations.Equals(param.TypeWithAnnotations, TypeCompareKind.AllIgnoreOptions))
                     {
-                        Binder.CheckFeatureAvailability(syntax, MessageID.IDS_FeaturePositionalFieldsInRecords, diagnostics);
                         if (!isInherited || checkMemberNotHidden(field, param))
                         {
                             existingOrAddedMembers.Add(field);
@@ -4938,17 +4808,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     new SourceLocation(fieldSyntax.Declaration.Variables.First().Identifier));
                             }
 
-                            bool modifierErrors;
-                            var modifiers = SourceMemberFieldSymbol.MakeModifiers(this, fieldSyntax.Declaration.Variables[0].Identifier, fieldSyntax.Modifiers, isRefField: refKind != RefKind.None, diagnostics, out modifierErrors);
+                            var modifiers = SourceMemberFieldSymbol.MakeModifiers(this, fieldSyntax.Declaration.Variables[0].Identifier, fieldSyntax.Modifiers, isRefField: refKind != RefKind.None, diagnostics, out bool modifierErrors);
                             foreach (var variable in fieldSyntax.Declaration.Variables)
                             {
                                 var fieldSymbol = (modifiers & DeclarationModifiers.Fixed) == 0
                                     ? new SourceMemberFieldSymbolFromDeclarator(this, variable, modifiers, modifierErrors, diagnostics)
                                     : new SourceFixedFieldSymbol(this, variable, modifiers, modifierErrors, diagnostics);
                                 builder.NonTypeMembers.Add(fieldSymbol);
-                                // All fields are included in the nullable context for constructors and initializers, even fields without
-                                // initializers, to ensure warnings are reported for uninitialized non-nullable fields in NullableWalker.
-                                builder.UpdateIsNullableEnabledForConstructorsAndFields(useStatic: fieldSymbol.IsStatic, compilation, variable);
 
                                 if (IsScriptClass)
                                 {
@@ -4982,7 +4848,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     new SourceLocation(methodSyntax.Identifier));
                             }
 
-                            var method = SourceOrdinaryMethodSymbol.CreateMethodSymbol(this, bodyBinder, methodSyntax, compilation.IsNullableAnalysisEnabledIn(methodSyntax), diagnostics);
+                            var method = SourceOrdinaryMethodSymbol.CreateMethodSymbol(this, bodyBinder, methodSyntax, diagnostics);
                             builder.NonTypeMembers.Add(method);
                         }
                         break;
@@ -4996,13 +4862,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     new SourceLocation(constructorSyntax.Identifier));
                             }
 
-                            bool isNullableEnabled = compilation.IsNullableAnalysisEnabledIn(constructorSyntax);
-                            var constructor = SourceConstructorSymbol.CreateConstructorSymbol(this, constructorSyntax, isNullableEnabled, diagnostics);
+                            var constructor = SourceConstructorSymbol.CreateConstructorSymbol(this, constructorSyntax, diagnostics);
                             builder.NonTypeMembers.Add(constructor);
-                            if (constructorSyntax.Initializer?.Kind() != SyntaxKind.ThisConstructorInitializer)
-                            {
-                                builder.UpdateIsNullableEnabledForConstructorsAndFields(useStatic: constructor.IsStatic, isNullableEnabled);
-                            }
                         }
                         break;
 
@@ -5019,7 +4880,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             // runtime won't consider it a finalizer and it will not be marked as a destructor
                             // when it is loaded from metadata.  Perhaps we should just treat it as an Ordinary
                             // method in such cases?
-                            var destructor = new SourceDestructorSymbol(this, destructorSyntax, compilation.IsNullableAnalysisEnabledIn(destructorSyntax), diagnostics);
+                            var destructor = new SourceDestructorSymbol(this, destructorSyntax, diagnostics);
                             builder.NonTypeMembers.Add(destructor);
                         }
                         break;
@@ -5047,7 +4908,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             if (backingField is { })
                             {
                                 builder.NonTypeMembers.Add(backingField);
-                                builder.UpdateIsNullableEnabledForConstructorsAndFields(useStatic: backingField.IsStatic, compilation, propertySyntax);
 
                                 var initializer = propertySyntax.Initializer;
                                 if (initializer != null)
@@ -5104,8 +4964,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 {
                                     // NOTE: specifically don't add the associated field to the members list
                                     // (regard it as an implementation detail).
-
-                                    builder.UpdateIsNullableEnabledForConstructorsAndFields(useStatic: associatedField.IsStatic, compilation, declarator);
 
                                     if (declarator.Initializer != null)
                                     {
@@ -5176,7 +5034,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             }
 
                             var method = SourceUserDefinedConversionSymbol.CreateUserDefinedConversionSymbol(
-                                this, bodyBinder, conversionOperatorSyntax, compilation.IsNullableAnalysisEnabledIn(conversionOperatorSyntax), diagnostics);
+                                this, bodyBinder, conversionOperatorSyntax, diagnostics);
                             builder.NonTypeMembers.Add(method);
                         }
                         break;
@@ -5191,7 +5049,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             }
 
                             var method = SourceUserDefinedOperatorSymbol.CreateUserDefinedOperatorSymbol(
-                                this, bodyBinder, operatorSyntax, compilation.IsNullableAnalysisEnabledIn(operatorSyntax), diagnostics);
+                                this, bodyBinder, operatorSyntax, diagnostics);
                             builder.NonTypeMembers.Add(method);
                         }
                         break;
@@ -5276,8 +5134,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal override byte? GetLocalNullableContextValue()
         {
-            byte? value;
-            if (!_flags.TryGetNullableContext(out value))
+            if (!_flags.TryGetNullableContext(out byte? value))
             {
                 value = ComputeNullableContextValue();
                 _flags.SetNullableContext(value);
@@ -5315,18 +5172,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return builder.MostCommonValue;
         }
 
-        /// <summary>
-        /// Returns true if the overall nullable context is enabled for constructors and initializers.
-        /// </summary>
-        /// <param name="useStatic">Consider static constructor and fields rather than instance constructors and fields.</param>
-        internal bool IsNullableEnabledForConstructorsAndInitializers(bool useStatic)
-        {
-            var membersAndInitializers = GetMembersAndInitializers();
-            return useStatic ?
-                membersAndInitializers.IsNullableEnabledForStaticConstructorsAndFields :
-                membersAndInitializers.IsNullableEnabledForInstanceConstructorsAndFields;
-        }
-
         internal override void AddSynthesizedAttributes(PEModuleBuilder moduleBuilder, ref ArrayBuilder<SynthesizedAttributeData> attributes)
         {
             base.AddSynthesizedAttributes(moduleBuilder, ref attributes);
@@ -5341,27 +5186,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     AddSynthesizedAttribute(ref attributes, compilation.SynthesizeDynamicAttribute(baseType, customModifiersCount: 0));
                 }
 
-                if (compilation.ShouldEmitNativeIntegerAttributes(baseType))
-                {
-                    AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNativeIntegerAttribute(this, baseType));
-                }
-
                 if (baseType.ContainsTupleNames())
                 {
                     AddSynthesizedAttribute(ref attributes, compilation.SynthesizeTupleNamesAttribute(baseType));
-                }
-            }
-
-            if (compilation.ShouldEmitNullableAttributes(this))
-            {
-                if (ShouldEmitNullableContextValue(out byte nullableContextValue))
-                {
-                    AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNullableContextAttribute(this, nullableContextValue));
-                }
-
-                if (baseType is object)
-                {
-                    AddSynthesizedAttribute(ref attributes, moduleBuilder.SynthesizeNullableAttributeIfNecessary(this, nullableContextValue, TypeWithAnnotations.Create(baseType)));
                 }
             }
         }

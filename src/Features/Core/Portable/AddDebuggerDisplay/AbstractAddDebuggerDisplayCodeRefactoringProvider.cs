@@ -26,8 +26,6 @@ internal abstract class AbstractAddDebuggerDisplayCodeRefactoringProvider<
 
     protected abstract bool CanNameofAccessNonPublicMembersFromAttributeArgument { get; }
 
-    protected abstract bool SupportsConstantInterpolatedStrings(Document document);
-
     public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
     {
         var (document, _, cancellationToken) = context;
@@ -121,25 +119,14 @@ internal abstract class AbstractAddDebuggerDisplayCodeRefactoringProvider<
         SyntaxNode attributeArgument;
         if (CanNameofAccessNonPublicMembersFromAttributeArgument)
         {
-            if (SupportsConstantInterpolatedStrings(document))
-            {
-                attributeArgument = generator.InterpolatedStringExpression(
-                    generator.CreateInterpolatedStringStartToken(isVerbatim: false),
-                    [
-                        generator.InterpolatedStringText(generator.InterpolatedStringTextToken("{{", "{{")),
-                        generator.Interpolation(generator.NameOfExpression(generator.IdentifierName(DebuggerDisplayMethodName))),
-                        generator.InterpolatedStringText(generator.InterpolatedStringTextToken("(),nq}}", "(),nq}}")),
-                    ],
-                    generator.CreateInterpolatedStringEndToken());
-            }
-            else
-            {
-                attributeArgument = generator.AddExpression(
-                    generator.AddExpression(
-                        generator.LiteralExpression(DebuggerDisplayPrefix),
-                        generator.NameOfExpression(generator.IdentifierName(DebuggerDisplayMethodName))),
-                    generator.LiteralExpression(DebuggerDisplaySuffix));
-            }
+            attributeArgument = generator.InterpolatedStringExpression(
+                generator.CreateInterpolatedStringStartToken(isVerbatim: false),
+                [
+                    generator.InterpolatedStringText(generator.InterpolatedStringTextToken("{{", "{{")),
+                    generator.Interpolation(generator.NameOfExpression(generator.IdentifierName(DebuggerDisplayMethodName))),
+                    generator.InterpolatedStringText(generator.InterpolatedStringTextToken("(),nq}}", "(),nq}}")),
+                ],
+                generator.CreateInterpolatedStringEndToken());
         }
         else
         {

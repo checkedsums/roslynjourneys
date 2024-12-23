@@ -38,8 +38,7 @@ internal static class UseConditionalExpressionForAssignmentHelpers
         }
 
         var anyAssignment = trueAssignment ?? falseAssignment;
-        if (UseConditionalExpressionHelpers.HasInconvertibleThrowStatement(
-                syntaxFacts, anyAssignment?.IsRef == true, trueThrow, falseThrow))
+        if (UseConditionalExpressionHelpers.HasInconvertibleThrowStatement(anyAssignment?.IsRef == true, trueThrow, falseThrow))
         {
             return false;
         }

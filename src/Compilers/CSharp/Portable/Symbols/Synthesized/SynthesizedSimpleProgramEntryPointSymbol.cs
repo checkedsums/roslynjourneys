@@ -67,7 +67,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             DeclarationModifiers declarationModifiers = DeclarationModifiers.Static | DeclarationModifiers.Private | (hasAwait ? DeclarationModifiers.Async : DeclarationModifiers.None);
             CSharpCompilation compilation = containingType.DeclaringCompilation;
             var compilationUnit = (CompilationUnitSyntax)declaration.SyntaxReference.GetSyntax();
-            bool isNullableAnalysisEnabled = IsNullableAnalysisEnabled(compilation, compilationUnit);
             Flags flags = MakeFlags(
                                     MethodKind.Ordinary,
                                     RefKind.None,
@@ -76,7 +75,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     returnsVoidIsSet: true,
                                     isExpressionBodied: false,
                                     isExtensionMethod: false,
-                                    isNullableAnalysisEnabled: isNullableAnalysisEnabled,
                                     isVarArg: false,
                                     isExplicitInterfaceImplementation: false,
                                     hasThisInitializer: false);
@@ -279,18 +277,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         public SyntaxNode ReturnTypeSyntax => CompilationUnit.Members.First(m => m.Kind() == SyntaxKind.GlobalStatement);
-
-        private static bool IsNullableAnalysisEnabled(CSharpCompilation compilation, CompilationUnitSyntax syntax)
-        {
-            foreach (var member in syntax.Members)
-            {
-                if (member.Kind() == SyntaxKind.GlobalStatement && compilation.IsNullableAnalysisEnabledIn(member))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         internal sealed override int TryGetOverloadResolutionPriority()
         {

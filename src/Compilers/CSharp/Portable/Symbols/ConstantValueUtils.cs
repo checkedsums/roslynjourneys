@@ -83,7 +83,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             BindingDiagnosticBag diagnostics)
         {
             var value = ConstantValue.Bad;
-            CheckLangVersionForConstantValue(boundValue, diagnostics);
+            CheckConstantValue(boundValue, diagnostics);
             if (!boundValue.HasAnyErrors)
             {
                 if (typeSymbol.TypeKind == TypeKind.TypeParameter)
@@ -155,14 +155,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             public override BoundNode VisitInterpolatedString(BoundInterpolatedString node)
             {
-                Binder.CheckFeatureAvailability(node.Syntax, MessageID.IDS_FeatureConstantInterpolatedStrings, diagnostics);
                 return null;
             }
         }
 
-        internal static void CheckLangVersionForConstantValue(BoundExpression expression, BindingDiagnosticBag diagnostics)
+        internal static void CheckConstantValue(BoundExpression expression, BindingDiagnosticBag diagnostics)
         {
-            if (!(expression.Type is null) && expression.Type.IsStringType())
+            if (expression.Type is not null && expression.Type.IsStringType())
             {
                 var visitor = new CheckConstantInterpolatedStringValidity(diagnostics);
                 visitor.Visit(expression);

@@ -268,7 +268,7 @@ public abstract class EditAndContinueWorkspaceTestBase : TestBase, IDisposable
     {
         encoding ??= Encoding.UTF8;
 
-        var parseOptions = TestOptions.RegularPreview.WithNoRefSafetyRulesAttribute();
+        var parseOptions = TestOptions.RegularPreview;
 
         var trees = sources.Select(source =>
         {

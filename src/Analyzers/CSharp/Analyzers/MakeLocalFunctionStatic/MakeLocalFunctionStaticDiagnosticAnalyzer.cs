@@ -29,8 +29,7 @@ internal sealed class MakeLocalFunctionStaticDiagnosticAnalyzer : AbstractBuiltI
     protected override void InitializeWorker(AnalysisContext context)
         => context.RegisterCompilationStartAction(context =>
         {
-            if (MakeLocalFunctionStaticHelper.IsStaticLocalFunctionSupported(context.Compilation.LanguageVersion()))
-                context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.LocalFunctionStatement);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.LocalFunctionStatement);
         });
 
     private void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
@@ -55,7 +54,7 @@ internal sealed class MakeLocalFunctionStaticDiagnosticAnalyzer : AbstractBuiltI
                 localFunction.Identifier.GetLocation(),
                 option.Notification,
                 context.Options,
-                additionalLocations: ImmutableArray.Create(localFunction.GetLocation()),
+                additionalLocations: [localFunction.GetLocation()],
                 properties: null));
         }
     }

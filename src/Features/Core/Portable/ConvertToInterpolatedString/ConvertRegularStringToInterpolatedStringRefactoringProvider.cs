@@ -54,23 +54,6 @@ internal sealed class ConvertRegularStringToInterpolatedStringRefactoringProvide
 
         var syntaxFacts = document.GetRequiredLanguageService<ISyntaxFactsService>();
 
-        if (!syntaxFacts.SupportsConstantInterpolatedStrings(document.Project.ParseOptions!))
-        {
-            // If there is a const keyword, do not offer the refactoring (an interpolated string is not const)
-            var declarator = literalExpression.FirstAncestorOrSelf<SyntaxNode>(syntaxFacts.IsVariableDeclarator);
-            if (declarator != null)
-            {
-                var generator = SyntaxGenerator.GetGenerator(document);
-                if (generator.GetModifiers(declarator).IsConst)
-                    return;
-            }
-
-            // Attributes also only allow constant values.
-            var attribute = literalExpression.FirstAncestorOrSelf<SyntaxNode>(syntaxFacts.IsAttribute);
-            if (attribute != null)
-                return;
-        }
-
         context.RegisterRefactoring(
             CodeAction.Create(
                 FeaturesResources.Convert_to_interpolated_string,

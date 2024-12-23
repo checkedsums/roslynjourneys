@@ -64,7 +64,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool displayLangVersions = false;
             bool optimize = false;
             bool checkOverflow = false;
-            NullableContextOptions nullableContextOptions = NullableContextOptions.Disable;
             bool allowUnsafe = false;
             bool concurrentBuild = true;
             bool deterministic = false; // TODO(5431): Enable deterministic mode by default
@@ -405,63 +404,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 break;
 
                             checkOverflow = false;
-                            continue;
-
-                        case "nullable":
-
-                            value = RemoveQuotesAndSlashes(valueMemory);
-                            if (value != null)
-                            {
-                                if (value.IsEmpty())
-                                {
-                                    AddDiagnostic(diagnostics, ErrorCode.ERR_SwitchNeedsString, MessageID.IDS_Text.Localize(), name);
-                                    continue;
-                                }
-
-                                string loweredValue = value.ToLower();
-                                switch (loweredValue)
-                                {
-                                    case "disable":
-                                        Debug.Assert(loweredValue == nameof(NullableContextOptions.Disable).ToLower());
-                                        nullableContextOptions = NullableContextOptions.Disable;
-                                        break;
-                                    case "enable":
-                                        Debug.Assert(loweredValue == nameof(NullableContextOptions.Enable).ToLower());
-                                        nullableContextOptions = NullableContextOptions.Enable;
-                                        break;
-                                    case "warnings":
-                                        Debug.Assert(loweredValue == nameof(NullableContextOptions.Warnings).ToLower());
-                                        nullableContextOptions = NullableContextOptions.Warnings;
-                                        break;
-                                    case "annotations":
-                                        Debug.Assert(loweredValue == nameof(NullableContextOptions.Annotations).ToLower());
-                                        nullableContextOptions = NullableContextOptions.Annotations;
-                                        break;
-                                    default:
-                                        AddDiagnostic(diagnostics, ErrorCode.ERR_BadNullableContextOption, value);
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                nullableContextOptions = NullableContextOptions.Enable;
-                            }
-                            continue;
-
-                        case "nullable+":
-                            if (valueMemory is not null)
-                            {
-                                break;
-                            }
-
-                            nullableContextOptions = NullableContextOptions.Enable;
-                            continue;
-
-                        case "nullable-":
-                            if (valueMemory is not null)
-                                break;
-
-                            nullableContextOptions = NullableContextOptions.Disable;
                             continue;
 
                         case "instrument":
@@ -1371,8 +1313,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                             continue;
                     }
                 }
-
-                AddDiagnostic(diagnostics, ErrorCode.ERR_BadSwitch, arg);
             }
 
             foreach (var o in warnAsErrors)
@@ -1480,7 +1420,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // We want to report diagnostics with source suppression in the error log file.
             // However, these diagnostics won't be reported on the command line.
-            var reportSuppressedDiagnostics = errorLogOptions is object;
+            var reportSuppressedDiagnostics = errorLogOptions is not null;
 
             var options = new CSharpCompilationOptions
             (
@@ -1491,7 +1431,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 usings: usings,
                 optimizationLevel: optimize ? OptimizationLevel.Release : OptimizationLevel.Debug,
                 checkOverflow: checkOverflow,
-                nullableContextOptions: nullableContextOptions,
                 allowUnsafe: allowUnsafe,
                 deterministic: deterministic,
                 concurrentBuild: concurrentBuild,
@@ -1532,13 +1471,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             // add option incompatibility errors if any
             diagnostics.AddRange(options.Errors);
             diagnostics.AddRange(parseOptions.Errors);
-
-            if (nullableContextOptions != NullableContextOptions.Disable && parseOptions.LanguageVersion < MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion())
-            {
-                diagnostics.Add(new CSDiagnostic(new CSDiagnosticInfo(ErrorCode.ERR_NullableOptionNotAvailable,
-                                                 "nullable", nullableContextOptions, parseOptions.LanguageVersion.ToDisplayString(),
-                                                 new CSharpRequiredLanguageVersion(MessageID.IDS_FeatureNullableReferenceTypes.RequiredVersion())), Location.None));
-            }
 
             pathMap = SortPathMap(pathMap);
 
@@ -2105,8 +2037,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         ids.Add(errorCode);
                     }
 
-                    ids.Add(CSharp.MessageProvider.Instance.GetIdForErrorCode((int)ErrorCode.WRN_MissingNonNullTypesContextForAnnotation));
-                    ids.Add(CSharp.MessageProvider.Instance.GetIdForErrorCode((int)ErrorCode.WRN_MissingNonNullTypesContextForAnnotationInGeneratedCode));
                     continue;
                 }
 

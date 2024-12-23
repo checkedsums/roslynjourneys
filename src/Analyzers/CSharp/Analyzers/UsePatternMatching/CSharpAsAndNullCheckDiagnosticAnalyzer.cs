@@ -56,11 +56,6 @@ internal sealed partial class CSharpAsAndNullCheckDiagnosticAnalyzer()
         var node = syntaxContext.Node;
         var syntaxTree = node.SyntaxTree;
 
-        // "x is Type y" is only available in C# 7.0 and above. Don't offer this refactoring
-        // in projects targeting a lesser version.
-        if (syntaxTree.Options.LanguageVersion() < LanguageVersion.CSharp7)
-            return;
-
         var styleOption = syntaxContext.GetCSharpAnalyzerOptions().PreferPatternMatchingOverAsWithNullCheck;
         if (!styleOption.Value || ShouldSkipAnalysis(syntaxContext, styleOption.Notification))
         {

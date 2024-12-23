@@ -2,15 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.Cci;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using CS = Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.CodeAnalysis.Rebuild
 {
@@ -58,17 +55,16 @@ namespace Microsoft.CodeAnalysis.Rebuild
             var pdbOptions = optionsReader.GetMetadataCompilationOptions();
 
             var langVersionString = pdbOptions.GetUniqueOption(CompilationOptionNames.LanguageVersion);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Optimization, out var optimization);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Platform, out var platform);
+            _ = pdbOptions.TryGetUniqueOption(CompilationOptionNames.Optimization, out var optimization);
+            _ = pdbOptions.TryGetUniqueOption(CompilationOptionNames.Platform, out var platform);
 
             // TODO: Check portability policy if needed
             // pdbCompilationOptions.TryGetValue("portability-policy", out var portabilityPolicyString);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Define, out var define);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Checked, out var checkedString);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Nullable, out var nullable);
-            pdbOptions.TryGetUniqueOption(CompilationOptionNames.Unsafe, out var unsafeString);
+            _ = pdbOptions.TryGetUniqueOption(CompilationOptionNames.Define, out var define);
+            _ = pdbOptions.TryGetUniqueOption(CompilationOptionNames.Checked, out var checkedString);
+            _ = pdbOptions.TryGetUniqueOption(CompilationOptionNames.Unsafe, out var unsafeString);
 
-            CS.LanguageVersionFacts.TryParse(langVersionString, out var langVersion);
+            _ = LanguageVersionFacts.TryParse(langVersionString, out var langVersion);
 
             var preprocessorSymbols = define == null
                 ? ImmutableArray<string>.Empty
@@ -78,10 +74,6 @@ namespace Microsoft.CodeAnalysis.Rebuild
                 .WithPreprocessorSymbols(preprocessorSymbols);
 
             var (optimizationLevel, plus) = GetOptimizationLevel(optimization);
-
-            var nullableOptions = nullable is null
-                ? NullableContextOptions.Disable
-                : (NullableContextOptions)Enum.Parse(typeof(NullableContextOptions), nullable);
 
             var compilationOptions = new CSharpCompilationOptions(
                 pdbOptions.OptionToEnum<OutputKind>(CompilationOptionNames.OutputKind) ?? OutputKind.DynamicallyLinkedLibrary,
@@ -116,8 +108,7 @@ namespace Microsoft.CodeAnalysis.Rebuild
                 strongNameProvider: null,
                 publicSign: false,
 
-                metadataImportOptions: MetadataImportOptions.Public,
-                nullableContextOptions: nullableOptions);
+                metadataImportOptions: MetadataImportOptions.Public);
             compilationOptions.DebugPlusMode = plus;
 
             return (compilationOptions, parseOptions);

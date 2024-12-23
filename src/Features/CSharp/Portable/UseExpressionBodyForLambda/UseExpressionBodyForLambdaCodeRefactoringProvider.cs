@@ -169,7 +169,7 @@ internal sealed class UseExpressionBodyForLambdaCodeRefactoringProvider() : Code
         var root = await document.GetRequiredSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
         using var result = TemporaryArray<CodeAction>.Empty;
-        if (UseExpressionBodyForLambdaHelpers.CanOfferUseExpressionBody(option, lambdaNode, root.GetLanguageVersion(), cancellationToken))
+        if (UseExpressionBodyForLambdaHelpers.CanOfferUseExpressionBody(option, lambdaNode, cancellationToken))
         {
             var title = UseExpressionBodyForLambdaHelpers.UseExpressionBodyTitle.ToString();
             result.Add(CodeAction.Create(

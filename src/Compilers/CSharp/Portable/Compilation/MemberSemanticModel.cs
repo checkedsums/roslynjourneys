@@ -155,14 +155,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected virtual NullableWalker.SnapshotManager GetSnapshotManager()
         {
             EnsureNullabilityAnalysisPerformedIfNecessary();
-            Debug.Assert(_lazySnapshotManager is object || this is AttributeSemanticModel || !IsNullableAnalysisEnabled());
+            Debug.Assert(_lazySnapshotManager is not null || this is AttributeSemanticModel);
             return _lazySnapshotManager;
         }
 
         internal ImmutableDictionary<Symbol, Symbol> GetRemappedSymbols()
         {
             EnsureNullabilityAnalysisPerformedIfNecessary();
-            Debug.Assert(_lazyRemappedSymbols is object || this is AttributeSemanticModel || !IsNullableAnalysisEnabled());
+            Debug.Assert(_lazyRemappedSymbols is not null || this is AttributeSemanticModel);
             return _lazyRemappedSymbols;
         }
 
@@ -724,7 +724,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (_lazyRemappedSymbols.TryGetValue(originalSymbol, out Symbol? remappedSymbol))
             {
-                RoslynDebug.Assert(remappedSymbol is object);
+                RoslynDebug.Assert(remappedSymbol is not null);
                 return (T)remappedSymbol;
             }
 
@@ -1507,12 +1507,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     NodeMapBuilder.AddToMap(bound, _guardedBoundNodeMap, SyntaxTree, syntax);
                 }
 
-                Debug.Assert((manager is null && (!IsNullableAnalysisEnabled() || syntax != Root || syntax is TypeSyntax ||
+                Debug.Assert((manager is null && (syntax != Root || syntax is TypeSyntax ||
                                                   // Supporting attributes is tracked by
                                                   // https://github.com/dotnet/roslyn/issues/36066
                                                   this is AttributeSemanticModel)) ||
-                             (manager is object && remappedSymbols is object && syntax == Root && IsNullableAnalysisEnabled() && _lazySnapshotManager is null));
-                if (manager is object)
+                             (manager is not null && remappedSymbols is not null && syntax == Root && _lazySnapshotManager is null));
+                if (manager is not null)
                 {
                     _lazySnapshotManager = manager;
                     _lazyRemappedSymbols = remappedSymbols;
@@ -1723,12 +1723,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 BoundNode boundOuterExpression = this.Bind(incrementalBinder, lambdaOrQuery, BindingDiagnosticBag.Discarded);
 
-                // https://github.com/dotnet/roslyn/issues/35038: We need to do a rewrite here, and create a test that can hit this.
-                if (!IsNullableAnalysisEnabled() && Compilation.IsNullableAnalysisEnabledAlways)
-                {
-                    AnalyzeBoundNodeNullability(boundOuterExpression, incrementalBinder, diagnostics: new DiagnosticBag(), createSnapshots: false);
-                }
-
                 nodes = GuardedAddBoundTreeAndGetBoundNodeFromMap(lambdaOrQuery, boundOuterExpression);
             }
 
@@ -1749,7 +1743,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     result = GetLambdaEnclosingBinder(position, node, innerLambdaOrQuery, ((BoundLambda)boundInnerLambdaOrQuery).Binder);
                     break;
                 case BoundKind.QueryClause:
-                    result = GetQueryEnclosingBinder(position, node, ((BoundQueryClause)boundInnerLambdaOrQuery));
+                    result = GetQueryEnclosingBinder(position, node, (BoundQueryClause)boundInnerLambdaOrQuery);
                     break;
                 default:
                     return GetEnclosingBinderInternalWithinRoot(node, position); // Known to return non-null with BinderFlags.SemanticModel.
@@ -1921,18 +1915,10 @@ done:
             }
 #endif
 
-            bool isNullableAnalysisEnabled = IsNullableAnalysisEnabled();
-            // When 'isNullableAnalysisEnabled' is false but 'Compilation.IsNullableAnalysisEnabledAlways' is true here,
-            // we still need to perform a nullable analysis whose results are discarded for debug verification purposes.
-            if (!isNullableAnalysisEnabled && !Compilation.IsNullableAnalysisEnabledAlways)
-            {
-                return;
-            }
-
             // If we have a snapshot manager, then we've already done
             // all the work necessary and we should avoid taking an
             // unnecessary read lock.
-            if (_lazySnapshotManager is object)
+            if (_lazySnapshotManager is not null)
             {
                 return;
             }
@@ -1948,8 +1934,7 @@ done:
             // first BoundNode corresponds to the underlying EqualsValueSyntax of the initializer)
             if (_guardedBoundNodeMap.Count > 0)
             {
-                Debug.Assert(!isNullableAnalysisEnabled ||
-                             _guardedBoundNodeMap.ContainsKey(bindableRoot) ||
+                Debug.Assert(_guardedBoundNodeMap.ContainsKey(bindableRoot) ||
                              _guardedBoundNodeMap.ContainsKey(bind(bindableRoot, out _).Syntax));
                 return;
             }
@@ -1968,7 +1953,7 @@ done:
                 // TypeSyntaxes, and MethodBodies do not depend on existing state in a member,
                 // and so the SnapshotManager can be null in these cases.
                 var parentSnapshotManagerOpt = ((SpeculativeSemanticModelWithMemberModel)_containingPublicSemanticModel).ParentSnapshotManagerOpt;
-                if (parentSnapshotManagerOpt is null || !isNullableAnalysisEnabled)
+                if (parentSnapshotManagerOpt is null)
                 {
                     rewriteAndCache();
                     return;
@@ -1991,15 +1976,6 @@ done:
             void rewriteAndCache()
             {
                 var diagnostics = DiagnosticBag.GetInstance();
-#if DEBUG
-                if (!isNullableAnalysisEnabled)
-                {
-                    Debug.Assert(Compilation.IsNullableAnalysisEnabledAlways);
-                    AnalyzeBoundNodeNullability(boundRoot, binder, diagnostics, createSnapshots: true);
-                    diagnostics.Free();
-                    return;
-                }
-#endif
 
                 boundRoot = RewriteNullableBoundNodesWithSnapshots(boundRoot, binder, diagnostics, createSnapshots: true, out snapshotManager, ref remappedSymbols);
                 diagnostics.Free();
@@ -2051,14 +2027,6 @@ done:
         /// through "run-nullable-analysis=always" or when the compiler is running in DEBUG.
         /// </summary>
         protected abstract void AnalyzeBoundNodeNullability(BoundNode boundRoot, Binder binder, DiagnosticBag diagnostics, bool createSnapshots);
-
-        protected abstract bool IsNullableAnalysisEnabledCore();
-
-        protected bool IsNullableAnalysisEnabled()
-#pragma warning disable RSEXPERIMENTAL001 // internal use of experimental API
-            => !NullableAnalysisIsDisabled && IsNullableAnalysisEnabledCore();
-#pragma warning restore RSEXPERIMENTAL001
-#nullable disable
 
         /// <summary>
         /// Get all bounds nodes associated with a node, ordered from highest to lowest in the bound tree.
@@ -2458,7 +2426,7 @@ foundParent:;
             {
                 BoundBlock block = (BoundBlock)TryGetBoundNodeFromMap(node);
 
-                if (block is object)
+                if (block is not null)
                 {
                     return block;
                 }
@@ -2489,7 +2457,7 @@ foundParent:;
             {
                 BoundNode boundNode = TryGetBoundNodeFromMap(node);
 
-                if (boundNode is object)
+                if (boundNode is not null)
                 {
                     return boundNode;
                 }
@@ -2513,7 +2481,7 @@ foundParent:;
             {
                 BoundBlock block = (BoundBlock)TryGetBoundNodeFromMap(node);
 
-                if (block is object)
+                if (block is not null)
                 {
                     return block;
                 }

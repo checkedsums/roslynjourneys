@@ -148,26 +148,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 Debug.Assert(containingType.IsInterface);
 
-                Binder.CheckFeatureAvailability(syntax, MessageID.IDS_DefaultInterfaceImplementation, diagnostics, this.GetFirstLocation());
-
-                if (!ContainingAssembly.RuntimeSupportsDefaultInterfaceImplementation)
-                {
-                    diagnostics.Add(ErrorCode.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation, this.GetFirstLocation());
-                }
-
                 _addMethod = new SynthesizedEventAccessorSymbol(this, isAdder: true, isExpressionBodied: false, explicitlyImplementedEvent, aliasQualifierOpt);
                 _removeMethod = new SynthesizedEventAccessorSymbol(this, isAdder: false, isExpressionBodied: false, explicitlyImplementedEvent, aliasQualifierOpt);
             }
             else
             {
-                _addMethod = CreateAccessorSymbol(DeclaringCompilation, addSyntax, explicitlyImplementedEvent, aliasQualifierOpt, diagnostics);
-                _removeMethod = CreateAccessorSymbol(DeclaringCompilation, removeSyntax, explicitlyImplementedEvent, aliasQualifierOpt, diagnostics);
+                _addMethod = CreateAccessorSymbol(addSyntax, explicitlyImplementedEvent, aliasQualifierOpt, diagnostics);
+                _removeMethod = CreateAccessorSymbol(removeSyntax, explicitlyImplementedEvent, aliasQualifierOpt, diagnostics);
             }
 
-            _explicitInterfaceImplementations =
-                (object?)explicitlyImplementedEvent == null ?
-                    ImmutableArray<EventSymbol>.Empty :
-                    ImmutableArray.Create<EventSymbol>(explicitlyImplementedEvent);
+            _explicitInterfaceImplementations = explicitlyImplementedEvent is null ? [] : [explicitlyImplementedEvent];
         }
 
         public override TypeWithAnnotations TypeWithAnnotations
@@ -230,7 +220,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         [return: NotNullIfNotNull(parameterName: nameof(syntaxOpt))]
-        private SourceCustomEventAccessorSymbol? CreateAccessorSymbol(CSharpCompilation compilation, AccessorDeclarationSyntax? syntaxOpt,
+        private SourceCustomEventAccessorSymbol? CreateAccessorSymbol(AccessorDeclarationSyntax? syntaxOpt,
             EventSymbol? explicitlyImplementedEventOpt, string? aliasQualifierOpt, BindingDiagnosticBag diagnostics)
         {
             if (syntaxOpt == null)
@@ -238,7 +228,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return null;
             }
 
-            return new SourceCustomEventAccessorSymbol(this, syntaxOpt, explicitlyImplementedEventOpt, aliasQualifierOpt, isNullableAnalysisEnabled: compilation.IsNullableAnalysisEnabledIn(syntaxOpt), diagnostics);
+            return new SourceCustomEventAccessorSymbol(this, syntaxOpt, explicitlyImplementedEventOpt, aliasQualifierOpt, diagnostics);
         }
     }
 }

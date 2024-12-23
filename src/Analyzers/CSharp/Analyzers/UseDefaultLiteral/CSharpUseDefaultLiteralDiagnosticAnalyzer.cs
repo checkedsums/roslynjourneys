@@ -38,10 +38,8 @@ internal class CSharpUseDefaultLiteralDiagnosticAnalyzer : AbstractBuiltInUnnece
             return;
 
         var cancellationToken = context.CancellationToken;
-        var syntaxTree = context.Node.SyntaxTree;
-        var parseOptions = (CSharpParseOptions)syntaxTree.Options;
         var defaultExpression = (DefaultExpressionSyntax)context.Node;
-        if (!defaultExpression.CanReplaceWithDefaultLiteral(parseOptions, preference.Value, context.SemanticModel, cancellationToken))
+        if (!defaultExpression.CanReplaceWithDefaultLiteral(preference.Value, context.SemanticModel, cancellationToken))
             return;
 
         var fadeSpan = TextSpan.FromBounds(defaultExpression.OpenParenToken.SpanStart, defaultExpression.CloseParenToken.Span.End);

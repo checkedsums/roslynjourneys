@@ -167,10 +167,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.CodeGeneration
             End Select
         End Function
 
-        Public Overrides Function IsNotTypeExpression(expression As SyntaxNode, type As SyntaxNode) As SyntaxNode
-            Return SyntaxFactory.TypeOfIsNotExpression(DirectCast(expression, ExpressionSyntax), DirectCast(type, TypeSyntax))
-        End Function
-
         Public Shared Function CustomEventDeclarationWithRaise(
             name As String,
             type As SyntaxNode,
@@ -457,10 +453,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.CodeGeneration
             Return _list
         End Function
 #Region "Patterns"
-
-        Public Overrides Function SupportsPatterns(options As ParseOptions) As Boolean
-            Return False
-        End Function
 
         Public Overrides Function IsPatternExpression(expression As SyntaxNode, isToken As SyntaxToken, pattern As SyntaxNode) As SyntaxNode
             Throw New NotImplementedException()

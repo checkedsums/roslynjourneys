@@ -247,56 +247,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         /// <summary>
-        /// Are we in a context where un-annotated types should be interpreted as non-null?
-        /// </summary>
-        internal bool AreNullableAnnotationsEnabled(SyntaxTree syntaxTree, int position)
-        {
-            CSharpSyntaxTree csTree = (CSharpSyntaxTree)syntaxTree;
-            Syntax.NullableContextState context = csTree.GetNullableContextState(position);
-
-            return context.AnnotationsState switch
-            {
-                Syntax.NullableContextState.State.Enabled => true,
-                Syntax.NullableContextState.State.Disabled => false,
-                Syntax.NullableContextState.State.ExplicitlyRestored => GetGlobalAnnotationState(),
-                Syntax.NullableContextState.State.Unknown =>
-                    // IsGeneratedCode may be slow, check global state first:
-                    AreNullableAnnotationsGloballyEnabled() &&
-                    !csTree.IsGeneratedCode(this.Compilation.Options.SyntaxTreeOptionsProvider, CancellationToken.None),
-                _ => throw ExceptionUtilities.UnexpectedValue(context.AnnotationsState)
-            };
-        }
-
-        internal bool AreNullableAnnotationsEnabled(SyntaxToken token)
-        {
-            RoslynDebug.Assert(token.SyntaxTree is object);
-            return AreNullableAnnotationsEnabled(token.SyntaxTree, token.SpanStart);
-        }
-
-        internal virtual bool AreNullableAnnotationsGloballyEnabled()
-        {
-            RoslynDebug.Assert(Next is object);
-            return Next.AreNullableAnnotationsGloballyEnabled();
-        }
-
-        protected bool GetGlobalAnnotationState()
-        {
-            switch (Compilation.Options.NullableContextOptions)
-            {
-                case NullableContextOptions.Enable:
-                case NullableContextOptions.Annotations:
-                    return true;
-
-                case NullableContextOptions.Disable:
-                case NullableContextOptions.Warnings:
-                    return false;
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(Compilation.Options.NullableContextOptions);
-            }
-        }
-
-        /// <summary>
         /// Is the contained code within a member method body?
         /// </summary>
         /// <remarks>

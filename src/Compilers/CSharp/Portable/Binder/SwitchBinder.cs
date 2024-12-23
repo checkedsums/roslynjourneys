@@ -32,9 +32,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             _breakLabel = new GeneratedLabelSymbol("break");
         }
 
-        protected bool PatternsEnabled =>
-            ((CSharpParseOptions)SwitchSyntax.SyntaxTree.Options)?.IsFeatureEnabled(MessageID.IDS_FeaturePatternMatching) != false;
-
         protected BoundExpression SwitchGoverningExpression
         {
             get
@@ -314,8 +311,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var labelsMap = LabelsByValue;
             if (labelsMap != null)
             {
-                SourceLabelSymbol label;
-                if (labelsMap.TryGetValue(key, out label))
+                if (labelsMap.TryGetValue(key, out SourceLabelSymbol label))
                 {
                     Debug.Assert((object)label != null);
                     return label;
@@ -395,21 +391,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (switchGoverningType.IsValidV6SwitchGoverningType())
                 {
                     // Condition (1) satisfied
-
-                    // Note: dev11 actually checks the stripped type, but nullable was introduced at the same
-                    // time, so it doesn't really matter.
-                    if (switchGoverningType.SpecialType == SpecialType.System_Boolean)
-                    {
-                        CheckFeatureAvailability(node, MessageID.IDS_FeatureSwitchOnBool, diagnostics);
-                    }
-
                     return switchGoverningExpression;
                 }
                 else
                 {
-                    TypeSymbol resultantGoverningType;
                     CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
-                    Conversion conversion = binder.Conversions.ClassifyImplicitUserDefinedConversionForV6SwitchGoverningType(switchGoverningType, out resultantGoverningType, ref useSiteInfo);
+                    Conversion conversion = binder.Conversions.ClassifyImplicitUserDefinedConversionForV6SwitchGoverningType(switchGoverningType, out TypeSymbol resultantGoverningType, ref useSiteInfo);
                     diagnostics.Add(node, useSiteInfo);
                     if (conversion.IsValid)
                     {
@@ -422,12 +409,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                     else if (!switchGoverningType.IsVoidType())
                     {
-                        // Otherwise (3) satisfied
-                        if (!PatternsEnabled)
-                        {
-                            diagnostics.Add(ErrorCode.ERR_V6SwitchGoverningTypeValueExpected, node.Location);
-                        }
-
                         return switchGoverningExpression;
                     }
                     else
@@ -508,7 +489,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         hasErrors = true;
                     }
 
-                    ConstantValueUtils.CheckLangVersionForConstantValue(gotoCaseExpressionOpt, diagnostics);
+                    ConstantValueUtils.CheckConstantValue(gotoCaseExpressionOpt, diagnostics);
 
                     // LabelSymbols for all the switch case labels are created by BuildLabels().
                     // Fetch the matching switch case label symbols

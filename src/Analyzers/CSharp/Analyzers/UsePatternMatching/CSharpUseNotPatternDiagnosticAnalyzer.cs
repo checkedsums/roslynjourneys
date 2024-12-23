@@ -37,11 +37,6 @@ internal sealed class CSharpUseNotPatternDiagnosticAnalyzer()
     {
         context.RegisterCompilationStartAction(context =>
         {
-            // "x is not Type y" is only available in C# 9.0 and above. Don't offer this refactoring
-            // in projects targeting a lesser version.
-            if (context.Compilation.LanguageVersion() < LanguageVersion.CSharp9)
-                return;
-
             var expressionOfTType = context.Compilation.ExpressionOfTType();
             context.RegisterSyntaxNodeAction(n => SyntaxNodeAction(n, expressionOfTType), SyntaxKind.LogicalNotExpression);
         });

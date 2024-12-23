@@ -15,13 +15,11 @@ internal static class UsePatternMatchingHelpers
         BinaryExpressionSyntax asExpression,
         [NotNullWhen(true)] out ConditionalAccessExpressionSyntax? conditionalAccessExpression,
         out BinaryExpressionSyntax? binaryExpression,
-        out IsPatternExpressionSyntax? isPatternExpression,
-        out LanguageVersion requiredLanguageVersion)
+        out IsPatternExpressionSyntax? isPatternExpression)
     {
         conditionalAccessExpression = null;
         binaryExpression = null;
         isPatternExpression = null;
-        requiredLanguageVersion = LanguageVersion.CSharp8;
 
         if (asExpression.Kind() == SyntaxKind.AsExpression)
         {
@@ -42,8 +40,6 @@ internal static class UsePatternMatchingHelpers
             var whenNotNull = parentConditionalAccess.WhenNotNull;
             while (whenNotNull is MemberAccessExpressionSyntax memberAccess)
             {
-                // Extended property patterns are only in 10 and up.
-                requiredLanguageVersion = LanguageVersion.CSharp10;
                 whenNotNull = memberAccess.Expression;
             }
 
@@ -73,9 +69,6 @@ internal static class UsePatternMatchingHelpers
                 //
                 // Can convert if other_expr is a constant (checked by caller).
                 binaryExpression = parentBinaryExpression2;
-
-                // relational patterns need c# 9 or above.
-                requiredLanguageVersion = (LanguageVersion)Math.Max((int)requiredLanguageVersion, (int)LanguageVersion.CSharp9);
                 return true;
             }
             else if (conditionalAccessExpression.Parent is IsPatternExpressionSyntax parentIsPatternExpression)

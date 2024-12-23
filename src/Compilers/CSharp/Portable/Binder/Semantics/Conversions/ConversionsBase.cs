@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable disable
-
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -74,9 +72,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         protected abstract Conversion GetInterpolatedStringConversion(BoundExpression source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo);
 
-#nullable enable
         protected abstract Conversion GetCollectionExpressionConversion(BoundUnconvertedCollectionExpression source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo);
-#nullable disable
 
         protected abstract bool IsAttributeArgumentBinding { get; }
 
@@ -84,7 +80,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal AssemblySymbol CorLibrary { get { return corLibrary; } }
 
-#nullable enable
 
         /// <summary>
         /// Derived types should provide non-null value for proper classification of conversions from expression.
@@ -221,7 +216,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(false);
             return Conversion.NoConversion;
         }
-#nullable disable
 
         /// <summary>
         /// Determines if the source expression of given type is convertible to the destination type via
@@ -936,7 +930,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             return impliedExplicitConversion;
         }
 
-#nullable enable
         /// <summary>
         /// IsBaseInterface returns true if baseType is on the base interface list of derivedType or
         /// any base class of derivedType. It may be on the base interface list either directly or
@@ -1024,7 +1017,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return false;
             }
         }
-#nullable disable
 
         private Conversion ClassifyImplicitBuiltInConversionFromExpression(BoundExpression sourceExpression, TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
@@ -1155,7 +1147,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             return Conversion.NoConversion;
         }
 
-#nullable enable
         private Conversion GetImplicitCollectionExpressionConversion(BoundUnconvertedCollectionExpression collectionExpression, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             var collectionExpressionConversion = GetCollectionExpressionConversion(collectionExpression, destination, ref useSiteInfo);
@@ -1179,8 +1170,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return Conversion.NoConversion;
         }
-#nullable disable
-
         private Conversion GetSwitchExpressionConversion(BoundExpression source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(Compilation is not null);
@@ -1397,7 +1386,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             return false;
         }
 
-#nullable enable
         private Conversion ClassifyExplicitOnlyConversionFromExpression(BoundExpression sourceExpression, TypeSymbol destination, bool isChecked, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo, bool forCast)
         {
             Debug.Assert(sourceExpression != null);
@@ -1716,7 +1704,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             elementType = default;
             return false;
         }
-#nullable disable
 
         internal Conversion ClassifyImplicitUserDefinedConversionForV6SwitchGoverningType(TypeSymbol sourceType, out TypeSymbol switchGoverningType, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
@@ -2029,8 +2016,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-#nullable enable
-
         private static ConversionKind GetNumericConversion(TypeSymbol source, TypeSymbol destination)
         {
             Debug.Assert((object)source != null);
@@ -2233,7 +2218,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return false;
         }
-#nullable disable
 
         private Conversion ClassifyImplicitNullableConversion(TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
@@ -2619,7 +2603,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             return HasImplicitReferenceConversion(source.Type, destination.Type, ref useSiteInfo);
         }
 
-#nullable enable
         internal bool HasImplicitReferenceConversion(TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert((object)source != null);
@@ -2846,7 +2829,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             // delegate types where the type parameters are invariant.
             return HasDelegateVarianceConversion(sourceDelegate, destinationDelegate, ref useSiteInfo);
         }
-#nullable disable
 
         public bool HasImplicitTypeParameterConversion(TypeParameterSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
@@ -3065,7 +3047,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         // * if the ith parameter of U is contravariant then either Si is exactly
         //   equal to Ti, or there is an implicit reference conversion from Ti to Si.
 
-#nullable enable
         private bool HasInterfaceVarianceConversion(TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert((object)source != null);
@@ -3428,7 +3409,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
         }
-#nullable disable
 
         private bool HasIdentityOrReferenceConversion(TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
@@ -3940,19 +3920,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             return false;
         }
 
-#nullable enable
-        private bool IsFeatureFirstClassSpanEnabled
-        {
-            get
-            {
-                // Note: when Compilation is null, we assume latest LangVersion.
-                return Compilation?.IsFeatureEnabled(MessageID.IDS_FeatureFirstClassSpan) != false;
-            }
-        }
-
         private bool HasImplicitSpanConversion(TypeSymbol? source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
-            if (source is null || !IsFeatureFirstClassSpanEnabled)
+            if (source is null)
             {
                 return false;
             }
@@ -4015,11 +3985,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         private bool HasExplicitSpanConversion(TypeSymbol? source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
-            if (!IsFeatureFirstClassSpanEnabled)
-            {
-                return false;
-            }
-
             // SPEC: From any single-dimensional `array_type` with element type `Ti`
             // to `System.Span<Ui>` or `System.ReadOnlySpan<Ui>`
             // provided an explicit reference conversion exists from `Ti` to `Ui`.

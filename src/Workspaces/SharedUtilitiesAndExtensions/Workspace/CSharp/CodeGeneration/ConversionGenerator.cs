@@ -86,8 +86,7 @@ internal static class ConversionGenerator
     {
         if (declaration.ExpressionBody == null)
         {
-            if (declaration.Body?.TryConvertToArrowExpressionBody(
-                declaration.Kind(), info.LanguageVersion, info.Options.PreferExpressionBodiedOperators.Value, cancellationToken,
+            if (declaration.Body?.TryConvertToArrowExpressionBody(info.Options.PreferExpressionBodiedOperators.Value, cancellationToken,
                 out var expressionBody, out var semicolonToken) == true)
             {
                 return declaration.WithBody(null)
