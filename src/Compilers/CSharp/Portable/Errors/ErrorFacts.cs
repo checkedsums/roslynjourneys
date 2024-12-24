@@ -1120,7 +1120,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_MemberNeedsType
                 or ErrorCode.ERR_BadBaseType
                 or ErrorCode.WRN_EmptySwitch
-                or ErrorCode.ERR_ExpectedEndTry
                 or ErrorCode.ERR_InvalidExprTerm
                 or ErrorCode.ERR_BadNewExpr
                 or ErrorCode.ERR_NoNamespacePrivate
