@@ -68,7 +68,7 @@ namespace Microsoft.CodeAnalysis
 
             public bool TryGetNextInSpan(in TextSpan span, out SyntaxNodeOrToken value)
             {
-                Debug.Assert(_stack is object);
+                Debug.Assert(_stack is not null);
                 while (_stack[_stackPtr].TryMoveNextAndGetCurrent(out value))
                 {
                     if (IsInSpan(in span, value.FullSpan))
@@ -83,7 +83,7 @@ namespace Microsoft.CodeAnalysis
 
             public SyntaxNode? TryGetNextAsNodeInSpan(in TextSpan span)
             {
-                Debug.Assert(_stack is object);
+                Debug.Assert(_stack is not null);
                 SyntaxNode? nodeValue;
                 while ((nodeValue = _stack[_stackPtr].TryMoveNextAndGetCurrentAsNode()) != null)
                 {
@@ -99,7 +99,7 @@ namespace Microsoft.CodeAnalysis
 
             public void PushChildren(SyntaxNode node)
             {
-                Debug.Assert(_stack is object);
+                Debug.Assert(_stack is not null);
                 if (++_stackPtr >= _stack.Length)
                 {
                     // Geometric growth
@@ -215,7 +215,7 @@ namespace Microsoft.CodeAnalysis
 
             public Which PeekNext()
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 return _discriminatorStack.Peek();
             }
 
@@ -226,7 +226,7 @@ namespace Microsoft.CodeAnalysis
                     return true;
                 }
 
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _discriminatorStack.Pop();
                 return false;
             }
@@ -238,7 +238,7 @@ namespace Microsoft.CodeAnalysis
                     return true;
                 }
 
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _discriminatorStack.Pop();
                 return false;
             }
@@ -247,7 +247,7 @@ namespace Microsoft.CodeAnalysis
             {
                 if (descendIntoChildren == null || descendIntoChildren(node))
                 {
-                    Debug.Assert(_discriminatorStack is object);
+                    Debug.Assert(_discriminatorStack is not null);
                     _nodeStack.PushChildren(node);
                     _discriminatorStack.Push(Which.Node);
                 }
@@ -255,14 +255,14 @@ namespace Microsoft.CodeAnalysis
 
             public void PushLeadingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _triviaStack.PushLeadingTrivia(in token);
                 _discriminatorStack.Push(Which.Trivia);
             }
 
             public void PushTrailingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _triviaStack.PushTrailingTrivia(in token);
                 _discriminatorStack.Push(Which.Trivia);
             }
@@ -310,7 +310,7 @@ namespace Microsoft.CodeAnalysis
 
             public Which PeekNext()
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 return _discriminatorStack.Peek();
             }
 
@@ -321,7 +321,7 @@ namespace Microsoft.CodeAnalysis
                     return true;
                 }
 
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _discriminatorStack.Pop();
                 return false;
             }
@@ -333,15 +333,15 @@ namespace Microsoft.CodeAnalysis
                     return true;
                 }
 
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _discriminatorStack.Pop();
                 return false;
             }
 
             public SyntaxNodeOrToken PopToken()
             {
-                Debug.Assert(_discriminatorStack is object);
-                Debug.Assert(_tokenStack is object);
+                Debug.Assert(_discriminatorStack is not null);
+                Debug.Assert(_tokenStack is not null);
                 _discriminatorStack.Pop();
                 return _tokenStack.Pop();
             }
@@ -350,7 +350,7 @@ namespace Microsoft.CodeAnalysis
             {
                 if (descendIntoChildren == null || descendIntoChildren(node))
                 {
-                    Debug.Assert(_discriminatorStack is object);
+                    Debug.Assert(_discriminatorStack is not null);
                     _nodeStack.PushChildren(node);
                     _discriminatorStack.Push(Which.Node);
                 }
@@ -358,22 +358,22 @@ namespace Microsoft.CodeAnalysis
 
             public void PushLeadingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _triviaStack.PushLeadingTrivia(in token);
                 _discriminatorStack.Push(Which.Trivia);
             }
 
             public void PushTrailingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(_discriminatorStack is object);
+                Debug.Assert(_discriminatorStack is not null);
                 _triviaStack.PushTrailingTrivia(in token);
                 _discriminatorStack.Push(Which.Trivia);
             }
 
             public void PushToken(in SyntaxNodeOrToken value)
             {
-                Debug.Assert(_discriminatorStack is object);
-                Debug.Assert(_tokenStack is object);
+                Debug.Assert(_discriminatorStack is not null);
+                Debug.Assert(_tokenStack is not null);
                 _tokenStack.Push(value);
                 _discriminatorStack.Push(Which.Token);
             }

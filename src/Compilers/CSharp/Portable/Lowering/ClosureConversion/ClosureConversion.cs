@@ -169,7 +169,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             : base(slotAllocator, compilationState, diagnostics)
         {
             RoslynDebug.Assert(analysis != null);
-            RoslynDebug.Assert((object)thisType != null);
+            RoslynDebug.Assert(thisType is not null);
             RoslynDebug.Assert(method != null);
             RoslynDebug.Assert(compilationState != null);
             RoslynDebug.Assert(diagnostics != null);
@@ -371,7 +371,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 DebugId closureId = _analysis.GetClosureId(env, syntax, closureDebugInfo, out var rudeEdit);
 
                 var containingMethod = scope.ContainingFunctionOpt?.OriginalMethodSymbol ?? _topLevelMethod;
-                if ((object)_substitutedSourceMethod != null && containingMethod == _topLevelMethod)
+                if (_substitutedSourceMethod is not null && containingMethod == _topLevelMethod)
                 {
                     containingMethod = _substitutedSourceMethod;
                 }
@@ -503,7 +503,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </param>
         private SynthesizedClosureEnvironment GetStaticFrame(BindingDiagnosticBag diagnostics, SyntaxNode syntax)
         {
-            if ((object)_lazyStaticLambdaFrame == null)
+            if (_lazyStaticLambdaFrame is null)
             {
                 var isNonGeneric = !_topLevelMethod.IsGenericMethod;
                 if (isNonGeneric)
@@ -511,7 +511,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     _lazyStaticLambdaFrame = CompilationState.StaticLambdaFrame;
                 }
 
-                if ((object)_lazyStaticLambdaFrame == null)
+                if (_lazyStaticLambdaFrame is null)
                 {
                     DebugId methodId;
                     if (isNonGeneric)
@@ -594,7 +594,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(frameClass.IsDefinition);
 
             // If in an instance method of the right type, we can just return the "this" pointer.
-            if ((object)_currentFrameThis != null && TypeSymbol.Equals(_currentFrameThis.Type, frameClass, TypeCompareKind.ConsiderEverything2))
+            if (_currentFrameThis is not null && TypeSymbol.Equals(_currentFrameThis.Type, frameClass, TypeCompareKind.ConsiderEverything2))
             {
                 return new BoundThisReference(syntax, frameClass);
             }
@@ -671,7 +671,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var prologue = ArrayBuilder<BoundExpression>.GetInstance();
 
-            if ((object)frame.Constructor != null)
+            if (frame.Constructor is not null)
             {
                 MethodSymbol constructor = frame.Constructor.AsMember(frameType);
                 Debug.Assert(TypeSymbol.Equals(frameType, constructor.ContainingType, TypeCompareKind.ConsiderEverything2));
@@ -683,7 +683,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             CapturedSymbolReplacement oldInnermostFrameProxy = null;
-            if ((object)_innermostFramePointer != null)
+            if (_innermostFramePointer is not null)
             {
                 proxies.TryGetValue(_innermostFramePointer, out oldInnermostFrameProxy);
                 if (env.CapturesParent)
@@ -726,7 +726,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             _innermostFramePointer = oldInnermostFramePointer;
 
-            if ((object)_innermostFramePointer != null)
+            if (_innermostFramePointer is not null)
             {
                 if (oldInnermostFrameProxy != null)
                 {
@@ -1028,7 +1028,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 realTypeArguments = realTypeArguments.Concat(typeArgumentsOpt);
             }
 
-            if ((object)containerAsFrame != null && containerAsFrame.Arity != 0)
+            if (containerAsFrame is not null && containerAsFrame.Arity != 0)
             {
                 var containerTypeArguments = ImmutableArray.Create(realTypeArguments, 0, containerAsFrame.Arity);
                 realTypeArguments = ImmutableArray.Create(realTypeArguments, containerAsFrame.Arity, realTypeArguments.Length - containerAsFrame.Arity);
@@ -1686,7 +1686,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 try
                 {
                     BoundExpression cache;
-                    if (shouldCacheForStaticMethod || shouldCacheInLoop && (object)containerAsFrame != null)
+                    if (shouldCacheForStaticMethod || shouldCacheInLoop && containerAsFrame is not null)
                     {
                         // Since the cache variable will be in a container with possibly alpha-rewritten generic parameters, we need to
                         // substitute the original type according to the type map for that container. That substituted type may be

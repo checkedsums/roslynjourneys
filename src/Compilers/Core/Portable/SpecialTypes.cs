@@ -91,7 +91,7 @@ namespace Microsoft.CodeAnalysis
             for (i = 1; i < s_emittedNames.Length; i++)
             {
                 string? name = s_emittedNames[i];
-                RoslynDebug.Assert(name is object);
+                RoslynDebug.Assert(name is not null);
                 Debug.Assert(name.IndexOf('+') < 0); // Compilers aren't prepared to lookup for a nested special type.
                 s_nameToTypeIdMap.Add(name, (ExtendedSpecialType)i);
             }

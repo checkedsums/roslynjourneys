@@ -162,7 +162,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var value = CreateMetadataExpression(argument, context);
             TypeSymbol type;
             var fieldSymbol = symbol as FieldSymbol;
-            if ((object)fieldSymbol != null)
+            if (fieldSymbol is not null)
             {
                 type = fieldSymbol.Type;
             }
@@ -178,7 +178,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private Symbol LookupName(string name)
         {
             var type = this.AttributeClass;
-            while ((object)type != null)
+            while (type is not null)
             {
                 foreach (var member in type.GetMembers(name))
                 {

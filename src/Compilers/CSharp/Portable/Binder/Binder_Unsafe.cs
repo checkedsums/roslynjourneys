@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns>True if a diagnostic was reported</returns>
         internal bool ReportUnsafeIfNotAllowed(SyntaxNode node, BindingDiagnosticBag diagnostics, TypeSymbol sizeOfTypeOpt = null)
         {
-            Debug.Assert((node.Kind() == SyntaxKind.SizeOfExpression) == ((object)sizeOfTypeOpt != null), "Should have a type for (only) sizeof expressions.");
+            Debug.Assert((node.Kind() == SyntaxKind.SizeOfExpression) == (sizeOfTypeOpt is not null), "Should have a type for (only) sizeof expressions.");
             var diagnosticInfo = GetUnsafeDiagnosticInfo(sizeOfTypeOpt);
             if (diagnosticInfo == null)
             {
@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else if (!this.InUnsafeRegion)
             {
-                return ((object)sizeOfTypeOpt == null)
+                return (sizeOfTypeOpt is null)
                     ? new CSDiagnosticInfo(ErrorCode.ERR_UnsafeNeeded)
                     : new CSDiagnosticInfo(ErrorCode.ERR_SizeofUnsafe, sizeOfTypeOpt);
             }

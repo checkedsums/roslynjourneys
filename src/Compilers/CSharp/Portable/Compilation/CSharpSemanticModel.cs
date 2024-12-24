@@ -560,7 +560,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 var symbol = GetDeclaredSymbol((SingleVariableDesignationSyntax)declaration.Designation, cancellationToken);
-                if ((object)symbol == null)
+                if (symbol is null)
                 {
                     return SymbolInfo.None;
                 }
@@ -1572,7 +1572,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxToken token;
             position = CheckAndAdjustPosition(position, out token);
 
-            if ((object)container == null || container.Kind == SymbolKind.Namespace)
+            if (container is null || container.Kind == SymbolKind.Namespace)
             {
                 options &= ~LookupOptions.IncludeExtensionMethods;
             }
@@ -1585,17 +1585,17 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (useBaseReferenceAccessibility)
             {
-                Debug.Assert((object)container == null);
+                Debug.Assert(container is null);
                 TypeSymbol containingType = binder.ContainingType;
                 TypeSymbol baseType = null;
 
                 // For a script class or a submission class base should have no members.
-                if ((object)containingType != null && containingType.Kind == SymbolKind.NamedType && ((NamedTypeSymbol)containingType).IsScriptClass)
+                if (containingType is not null && containingType.Kind == SymbolKind.NamedType && ((NamedTypeSymbol)containingType).IsScriptClass)
                 {
                     return ImmutableArray<ISymbol>.Empty;
                 }
 
-                if ((object)containingType == null || (object)(baseType = containingType.BaseTypeNoUseSiteDiagnostics) == null)
+                if (containingType is null || (baseType = containingType.BaseTypeNoUseSiteDiagnostics) is null)
                 {
                     throw new ArgumentException(
                         "Not a valid position for a call to LookupBaseMembers (must be in a type with a base type)",
@@ -1622,7 +1622,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var info = LookupSymbolsInfo.GetInstance();
             info.FilterName = name;
 
-            if ((object)container == null)
+            if (container is null)
             {
                 binder.AddLookupSymbolsInfo(info, options);
             }
@@ -1666,7 +1666,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     foreach (MethodSymbol extensionMethod in lookupResult.Symbols)
                     {
                         var reduced = extensionMethod.ReduceExtensionMethod(containingType, Compilation);
-                        if ((object)reduced != null)
+                        if (reduced is not null)
                         {
                             results.Add(reduced.GetPublicSymbol());
                         }
@@ -1689,7 +1689,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (info.TryGetAritiesAndUniqueSymbol(name, out arities, out uniqueSymbol))
             {
-                if ((object)uniqueSymbol != null)
+                if (uniqueSymbol is not null)
                 {
                     // This name mapped to something unique.  We don't need to proceed
                     // with a costly lookup.  Just add it straight to the results.
@@ -1812,7 +1812,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             position = CheckAndAdjustPosition(position);
 
-            if ((object)symbol == null)
+            if (symbol is null)
             {
                 throw new ArgumentNullException(nameof(symbol));
             }
@@ -1990,7 +1990,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static void AddUnwrappingErrorTypes(ArrayBuilder<Symbol> builder, Symbol s)
         {
             var originalErrorSymbol = s.OriginalDefinition as ErrorTypeSymbol;
-            if ((object)originalErrorSymbol != null)
+            if (originalErrorSymbol is not null)
             {
                 builder.AddRange(originalErrorSymbol.CandidateSymbols);
             }
@@ -2307,16 +2307,16 @@ namespace Microsoft.CodeAnalysis.CSharp
         // as a type whose OriginalDefinition is an error symbol from which the ResultKind can be retrieved.
         internal static SymbolInfo GetSymbolInfoForSymbol(Symbol symbol, SymbolInfoOptions options)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             // Determine type. Dig through aliases if necessary.
             Symbol unwrapped = UnwrapAlias(symbol);
             TypeSymbol type = unwrapped as TypeSymbol;
 
             // Determine symbols and resultKind.
-            var originalErrorSymbol = (object)type != null ? type.OriginalDefinition as ErrorTypeSymbol : null;
+            var originalErrorSymbol = type is not null ? type.OriginalDefinition as ErrorTypeSymbol : null;
 
-            if ((object)originalErrorSymbol != null)
+            if (originalErrorSymbol is not null)
             {
                 // Error case.
                 var symbols = OneOrMany<Symbol>.Empty;
@@ -2345,7 +2345,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         // Gets TypeInfo for a type or namespace or alias reference.
         internal static CSharpTypeInfo GetTypeInfoForSymbol(Symbol symbol)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             // Determine type. Dig through aliases if necessary.
             TypeSymbol type = UnwrapAlias(symbol) as TypeSymbol;
@@ -2823,7 +2823,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// type), use Compilation.ClassifyConversion.</remarks>
         public Conversion ClassifyConversion(int position, ExpressionSyntax expression, ITypeSymbol destination, bool isExplicitInSource = false)
         {
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -2892,7 +2892,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// type), use Compilation.ClassifyConversion.</remarks>
         internal Conversion ClassifyConversionForCast(int position, ExpressionSyntax expression, TypeSymbol destination)
         {
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -3316,7 +3316,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             catchBinder = enclosingBinder.GetBinder(catchClause);
             LocalSymbol local = catchBinder.GetDeclaredLocalsForScope(catchClause).FirstOrDefault();
-            return ((object)local != null && local.DeclarationKind == LocalDeclarationKind.CatchVariable)
+            return (local is not null && local.DeclarationKind == LocalDeclarationKind.CatchVariable)
                 ? local.GetPublicSymbol()
                 : null;
         }
@@ -3404,7 +3404,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var typeSymbol = boundType.AliasOpt ?? (Symbol)boundType.Type;
 
                         var originalErrorType = typeSymbol.OriginalDefinition as ErrorTypeSymbol;
-                        if ((object)originalErrorType != null)
+                        if (originalErrorType is not null)
                         {
                             resultKind = originalErrorType.ResultKind;
                             symbols = OneOrMany.Create(originalErrorType.CandidateSymbols);
@@ -3436,7 +3436,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var call = (BoundCall)boundNode;
                         if (call.OriginalMethodsOpt.IsDefault)
                         {
-                            if ((object)call.Method != null)
+                            if (call.Method is not null)
                             {
                                 symbols = CreateReducedExtensionMethodIfPossible(call);
                                 resultKind = call.ResultKind;
@@ -3477,7 +3477,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // As for BoundCall, pull out stashed candidates if overload resolution failed.
 
                         BoundIndexerAccess indexerAccess = (BoundIndexerAccess)boundNode;
-                        Debug.Assert((object)indexerAccess.Indexer != null);
+                        Debug.Assert(indexerAccess.Indexer is not null);
 
                         resultKind = indexerAccess.ResultKind;
 
@@ -3495,7 +3495,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     isDynamic = eventAssignment.IsDynamic;
                     var eventSymbol = eventAssignment.Event;
                     var methodSymbol = eventAssignment.IsAddition ? eventSymbol.AddMethod : eventSymbol.RemoveMethod;
-                    if ((object)methodSymbol == null)
+                    if (methodSymbol is null)
                     {
                         symbols = OneOrMany<Symbol>.Empty;
                         resultKind = LookupResultKind.Empty;
@@ -3526,7 +3526,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         if ((conversion.ConversionKind == ConversionKind.MethodGroup) && conversion.IsExtensionMethod)
                         {
                             var symbol = conversion.SymbolOpt;
-                            Debug.Assert((object)symbol != null);
+                            Debug.Assert(symbol is not null);
                             symbols = OneOrMany.Create<Symbol>(ReducedExtensionMethodSymbol.Create(symbol));
                             resultKind = conversion.ResultKind;
                         }
@@ -3613,9 +3613,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         var query = (BoundQueryClause)boundNode;
                         var builder = ArrayBuilder<Symbol>.GetInstance();
-                        if (query.Operation != null && (object)query.Operation.ExpressionSymbol != null) builder.Add(query.Operation.ExpressionSymbol);
-                        if ((object)query.DefinedSymbol != null) builder.Add(query.DefinedSymbol);
-                        if (query.Cast != null && (object)query.Cast.ExpressionSymbol != null) builder.Add(query.Cast.ExpressionSymbol);
+                        if (query.Operation != null && query.Operation.ExpressionSymbol is not null) builder.Add(query.Operation.ExpressionSymbol);
+                        if (query.DefinedSymbol is not null) builder.Add(query.DefinedSymbol);
+                        if (query.Cast != null && query.Cast.ExpressionSymbol is not null) builder.Add(query.Cast.ExpressionSymbol);
                         symbols = builder.ToOneOrManyAndFree();
                     }
                     break;
@@ -3645,7 +3645,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     break;
 
                 case BoundKind.DynamicMemberAccess:
-                    Debug.Assert((object)boundNode.ExpressionSymbol == null);
+                    Debug.Assert(boundNode.ExpressionSymbol is null);
                     isDynamic = true;
                     break;
 
@@ -3659,7 +3659,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case BoundKind.ObjectCreationExpression:
                     var boundObjectCreation = (BoundObjectCreationExpression)boundNode;
 
-                    if ((object)boundObjectCreation.Constructor != null)
+                    if (boundObjectCreation.Constructor is not null)
                     {
                         Debug.Assert(boundObjectCreation.ConstructorsGroup.Contains(boundObjectCreation.Constructor));
                         symbols = OneOrMany.Create<Symbol>(boundObjectCreation.Constructor);
@@ -3688,7 +3688,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case BoundKind.FromEndIndexExpression:
                     {
                         var fromEndIndexExpression = (BoundFromEndIndexExpression)boundNode;
-                        if ((object)fromEndIndexExpression.MethodOpt != null)
+                        if (fromEndIndexExpression.MethodOpt is not null)
                         {
                             symbols = OneOrMany.Create<Symbol>(fromEndIndexExpression.MethodOpt);
                         }
@@ -3698,7 +3698,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case BoundKind.RangeExpression:
                     {
                         var rangeExpression = (BoundRangeExpression)boundNode;
-                        if ((object)rangeExpression.MethodOpt != null)
+                        if (rangeExpression.MethodOpt is not null)
                         {
                             symbols = OneOrMany.Create<Symbol>(rangeExpression.MethodOpt);
                         }
@@ -3727,7 +3727,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static ParameterSymbol GetThisParameter(TypeSymbol typeOfThis, NamedTypeSymbol containingType, Symbol containingMember, out LookupResultKind resultKind)
         {
-            if ((object)containingMember == null || (object)containingType == null)
+            if (containingMember is null || containingType is null)
             {
                 // not in a member of a type (can happen when speculating)
                 resultKind = LookupResultKind.NotReferencable;
@@ -3802,7 +3802,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                Debug.Assert((object)unaryOperator.MethodOpt == null && unaryOperator.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
+                Debug.Assert(unaryOperator.MethodOpt is null && unaryOperator.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
                 UnaryOperatorKind op = unaryOperator.OperatorKind.Operator();
                 symbols = OneOrMany.Create<Symbol>(new SynthesizedIntrinsicOperatorSymbol(unaryOperator.Operand.Type.StrippedType(),
                                                                                           OperatorFacts.UnaryOperatorNameFromOperatorKind(op, isChecked: unaryOperator.OperatorKind.IsChecked()),
@@ -3825,7 +3825,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                Debug.Assert((object)increment.MethodOpt == null && increment.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
+                Debug.Assert(increment.MethodOpt is null && increment.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
                 UnaryOperatorKind op = increment.OperatorKind.Operator();
                 TypeSymbol opType = increment.Operand.Type.StrippedType();
                 symbols = OneOrMany.Create<Symbol>(new SynthesizedIntrinsicOperatorSymbol(opType,
@@ -3850,7 +3850,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                Debug.Assert((object)binaryOperator.Method == null && binaryOperator.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
+                Debug.Assert(binaryOperator.Method is null && binaryOperator.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
 
                 if (!isDynamic &&
                     (op == BinaryOperatorKind.Equal || op == BinaryOperatorKind.NotEqual) &&
@@ -3891,12 +3891,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 Debug.Assert(returnType.IsDynamic());
 
-                if ((object)leftType == null)
+                if (leftType is null)
                 {
                     Debug.Assert(rightType.IsDynamic());
                     leftType = rightType;
                 }
-                else if ((object)rightType == null)
+                else if (rightType is null)
                 {
                     Debug.Assert(leftType.IsDynamic());
                     rightType = leftType;
@@ -3923,7 +3923,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                Debug.Assert((object)compoundAssignment.Operator.Method == null && compoundAssignment.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
+                Debug.Assert(compoundAssignment.Operator.Method is null && compoundAssignment.OriginalUserDefinedOperatorsOpt.IsDefaultOrEmpty);
 
                 symbols = OneOrMany.Create(GetIntrinsicOperatorSymbol(op, isDynamic,
                                                                       compoundAssignment.Operator.LeftType,
@@ -4020,7 +4020,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(lowestBoundNode != null);
             Debug.Assert(binderOpt != null || IsInTree(lowestBoundNode.Syntax));
 
-            if ((object)typeSymbolOpt != null)
+            if (typeSymbolOpt is not null)
             {
                 Debug.Assert(lowestBoundNode.Syntax != null);
 
@@ -4032,14 +4032,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 if (binder != null)
                 {
-                    var instanceConstructors = typeSymbolOpt.IsInterfaceType() && (object)typeSymbolOpt.ComImportCoClass != null ?
+                    var instanceConstructors = typeSymbolOpt.IsInterfaceType() && typeSymbolOpt.ComImportCoClass is not null ?
                         typeSymbolOpt.ComImportCoClass.InstanceConstructors :
                         typeSymbolOpt.InstanceConstructors;
 
                     var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;
                     candidateConstructors = binder.FilterInaccessibleConstructors(instanceConstructors, allowProtectedConstructorsOfBaseType: false, useSiteInfo: ref discardedUseSiteInfo);
 
-                    if ((object)constructorOpt == null ? !candidateConstructors.Any() : !candidateConstructors.Contains(constructorOpt))
+                    if (constructorOpt is null ? !candidateConstructors.Any() : !candidateConstructors.Contains(constructorOpt))
                     {
                         // All instance constructors are inaccessible or if the specified constructor
                         // isn't a candidate, then we retain all of them for correct semantic info.
@@ -4052,7 +4052,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     candidateConstructors = ImmutableArray<MethodSymbol>.Empty;
                 }
 
-                if ((object)constructorOpt != null)
+                if (constructorOpt is not null)
                 {
                     Debug.Assert(candidateConstructors.Contains(constructorOpt));
                     symbols = OneOrMany.Create<Symbol>(constructorOpt);
@@ -4261,7 +4261,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // chose for M.
                         var call = (BoundCall)boundNodeForSyntacticParent;
                         InvocationExpressionSyntax invocation = call.Syntax as InvocationExpressionSyntax;
-                        if (invocation != null && invocation.Expression.SkipParens() == ((ExpressionSyntax)boundNode.Syntax).SkipParens() && (object)call.Method != null)
+                        if (invocation != null && invocation.Expression.SkipParens() == ((ExpressionSyntax)boundNode.Syntax).SkipParens() && call.Method is not null)
                         {
                             if (call.OriginalMethodsOpt.IsDefault)
                             {
@@ -4281,7 +4281,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // If we are looking for info on "M" in "new Action(M)" 
                         // we want to get the symbol that overload resolution chose for M, not the whole method group M.
                         var delegateCreation = (BoundDelegateCreationExpression)boundNodeForSyntacticParent;
-                        if (delegateCreation.Argument == boundNode && (object)delegateCreation.MethodOpt != null)
+                        if (delegateCreation.Argument == boundNode && delegateCreation.MethodOpt is not null)
                         {
                             symbols = CreateReducedExtensionMethodIfPossible(delegateCreation, boundNode.ReceiverOpt);
                         }
@@ -4302,7 +4302,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             method = nestedMethodGroupConversion.SymbolOpt;
                         }
 
-                        if ((object)method != null)
+                        if (method is not null)
                         {
                             if (conversion.IsExtensionMethod)
                             {
@@ -4410,7 +4410,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // chose for P.
                         var indexer = (BoundIndexerAccess)boundNodeForSyntacticParent;
                         var elementAccess = indexer.Syntax as ElementAccessExpressionSyntax;
-                        if (elementAccess != null && elementAccess.Expression == boundNode.Syntax && (object)indexer.Indexer != null)
+                        if (elementAccess != null && elementAccess.Expression == boundNode.Syntax && indexer.Indexer is not null)
                         {
                             if (indexer.OriginalIndexersOpt.IsDefault)
                             {
@@ -4493,7 +4493,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var tupleArgument = (ArgumentSyntax)identifierNameSyntax.Parent.Parent;
                 var tupleElement = GetDeclaredSymbol(tupleArgument, cancellationToken);
-                return (object)tupleElement == null ? SymbolInfo.None : new SymbolInfo(tupleElement);
+                return tupleElement is null ? SymbolInfo.None : new SymbolInfo(tupleElement);
             }
 
             if (parent3.IsKind(SyntaxKind.PropertyPatternClause) || parent3.IsKind(SyntaxKind.PositionalPatternClause))
@@ -4504,10 +4504,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             CSharpSyntaxNode containingInvocation = parent3.Parent;
             SymbolInfo containingInvocationInfo = GetSymbolInfoWorker(containingInvocation, SymbolInfoOptions.PreferConstructorsToType | SymbolInfoOptions.ResolveAliases, cancellationToken);
 
-            if ((object)containingInvocationInfo.Symbol != null)
+            if (containingInvocationInfo.Symbol is not null)
             {
                 ParameterSymbol param = FindNamedParameter(containingInvocationInfo.Symbol.GetSymbol().GetParameters(), argumentName);
-                return (object)param == null ? SymbolInfo.None : new SymbolInfo(param.GetPublicSymbol());
+                return param is null ? SymbolInfo.None : new SymbolInfo(param.GetPublicSymbol());
             }
             else
             {
@@ -4524,7 +4524,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             continue; // Definitely doesn't have parameters.
                     }
                     ParameterSymbol param = FindNamedParameter(invocationSym.GetSymbol().GetParameters(), argumentName);
-                    if ((object)param != null)
+                    if (param is not null)
                     {
                         symbols.Add(param.GetPublicSymbol());
                     }
@@ -4587,7 +4587,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             else
             {
                 var otherSymbol = node.LookupSymbolOpt;
-                if (((object)otherSymbol != null) && (otherSymbol.Kind == SymbolKind.Method))
+                if ((otherSymbol is not null) && (otherSymbol.Kind == SymbolKind.Method))
                 {
                     MergeReducedAndFilteredMethodGroupSymbol(
                         methods,
@@ -4669,17 +4669,17 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!typeArguments.IsDefaultOrEmpty && method.Arity == typeArguments.Length)
             {
                 constructedMethod = method.Construct(typeArguments);
-                Debug.Assert((object)constructedMethod != null);
+                Debug.Assert(constructedMethod is not null);
             }
             else
             {
                 constructedMethod = method;
             }
 
-            if ((object)receiverType != null)
+            if (receiverType is not null)
             {
                 constructedMethod = constructedMethod.ReduceExtensionMethod(receiverType, compilation);
-                if ((object)constructedMethod == null)
+                if (constructedMethod is null)
                 {
                     return false;
                 }
@@ -4761,7 +4761,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     extensionThisType = call.Arguments[0].Type;
                 }
 
-                Debug.Assert((object)extensionThisType != null);
+                Debug.Assert(extensionThisType is not null);
             }
 
             var methodBuilder = ArrayBuilder<MethodSymbol>.GetInstance();
@@ -4782,7 +4782,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private OneOrMany<Symbol> CreateReducedExtensionMethodIfPossible(BoundCall call)
         {
             var method = call.Method;
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             if (call.InvokedAsExtensionMethod && method.IsExtensionMethod && method.MethodKind != MethodKind.ReducedExtension)
             {
@@ -4799,7 +4799,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private OneOrMany<Symbol> CreateReducedExtensionMethodIfPossible(BoundDelegateCreationExpression delegateCreation, BoundExpression receiverOpt)
         {
             var method = delegateCreation.MethodOpt;
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             if (delegateCreation.IsExtensionMethod && method.IsExtensionMethod && (receiverOpt != null))
             {

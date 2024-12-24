@@ -123,7 +123,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             // Quirk of the way we represent lambda parameters.                
-            SymbolKind newSymbolKind = (object)newSymbol == null ? SymbolKind.Parameter : newSymbol.Kind;
+            SymbolKind newSymbolKind = newSymbol is null ? SymbolKind.Parameter : newSymbol.Kind;
 
             switch (newSymbolKind)
             {

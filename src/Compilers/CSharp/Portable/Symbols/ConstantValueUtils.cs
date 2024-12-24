@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             collisionDetector = new ExecutableCodeBinder(initializer, fieldSymbol, collisionDetector);
             BoundFieldEqualsValue result;
 
-            if ((object)enumConstant != null)
+            if (enumConstant is not null)
             {
                 result = collisionDetector.BindEnumConstantInitializer(enumConstant, initializer, diagnostics);
             }

@@ -166,7 +166,7 @@ namespace Microsoft.CodeAnalysis
         internal GreenNode GetRequiredSlot(int index)
         {
             var node = GetSlot(index);
-            RoslynDebug.Assert(node is object);
+            RoslynDebug.Assert(node is not null);
             return node;
         }
 

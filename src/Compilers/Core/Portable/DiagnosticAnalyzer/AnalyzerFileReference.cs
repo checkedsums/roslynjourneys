@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 return true;
             }
 
-            return other is object &&
+            return other is not null &&
                 ReferenceEquals(_assemblyLoader, other._assemblyLoader) &&
                 FullPath == other.FullPath;
         }
@@ -610,7 +610,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                     if (!_allowNetFramework)
                     {
                         var targetFrameworkAttribute = analyzerAssembly.GetCustomAttribute<TargetFrameworkAttribute>();
-                        if (targetFrameworkAttribute is object && targetFrameworkAttribute.FrameworkName.StartsWith(".NETFramework", StringComparison.OrdinalIgnoreCase))
+                        if (targetFrameworkAttribute is not null && targetFrameworkAttribute.FrameworkName.StartsWith(".NETFramework", StringComparison.OrdinalIgnoreCase))
                         {
                             _reference.AnalyzerLoadFailed?.Invoke(_reference, new AnalyzerLoadFailureEventArgs(
                                 AnalyzerLoadFailureEventArgs.FailureErrorCode.ReferencesFramework,

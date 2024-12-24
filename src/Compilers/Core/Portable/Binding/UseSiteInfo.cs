@@ -422,7 +422,7 @@ namespace Microsoft.CodeAnalysis
                 {
                     self = other;
                 }
-                else if (other is object)
+                else if (other is not null)
                 {
                     self.AddAll(other);
                 }
@@ -546,7 +546,7 @@ namespace Microsoft.CodeAnalysis
         public UseSiteInfo<TAssemblySymbol> InterlockedInitializeFromDefault(TAssemblySymbol? primaryDependency, UseSiteInfo<TAssemblySymbol> value)
         {
             object? info = Compact(value.DiagnosticInfo, GetDependenciesToCache(primaryDependency, value));
-            Debug.Assert(info is object);
+            Debug.Assert(info is not null);
 
             info = Interlocked.CompareExchange(ref _info, info, null);
             if (info == null)

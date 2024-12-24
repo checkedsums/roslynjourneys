@@ -562,7 +562,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var rewritten = (BoundObjectCreationExpression?)base.VisitObjectCreationExpression(node);
             Debug.Assert(rewritten != null);
-            if (!TypeSymbol.Equals(rewritten.Type, node.Type, TypeCompareKind.ConsiderEverything2) && (object)node.Constructor != null)
+            if (!TypeSymbol.Equals(rewritten.Type, node.Type, TypeCompareKind.ConsiderEverything2) && node.Constructor is not null)
             {
                 MethodSymbol ctor = VisitMethodSymbol(node.Constructor);
                 rewritten = rewritten.Update(

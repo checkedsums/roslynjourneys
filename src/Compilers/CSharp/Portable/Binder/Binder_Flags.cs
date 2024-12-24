@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal Binder WithContainingMemberOrLambda(Symbol containing)
         {
-            Debug.Assert((object)containing != null);
+            Debug.Assert(containing is not null);
             return new BinderWithContainingMemberOrLambda(this, containing);
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         internal Binder WithAdditionalFlagsAndContainingMemberOrLambda(BinderFlags flags, Symbol containing)
         {
-            Debug.Assert((object)containing != null);
+            Debug.Assert(containing is not null);
             return new BinderWithContainingMemberOrLambda(this, this.Flags | flags, containing);
         }
 

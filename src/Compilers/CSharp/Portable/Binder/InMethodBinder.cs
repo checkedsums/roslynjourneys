@@ -41,7 +41,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             : base(enclosing, enclosing.Flags & ~BinderFlags.AllClearedAtExecutableCodeBoundary)
         {
             Debug.Assert(!enclosing.Flags.Includes(BinderFlags.InCatchFilter));
-            Debug.Assert((object)owner != null);
+            Debug.Assert(owner is not null);
             _methodSymbol = owner;
         }
 
@@ -251,7 +251,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SymbolKind parameterKind = parameter.Kind;
 
             // Quirk of the way we represent lambda parameters.                
-            SymbolKind newSymbolKind = (object)newSymbol == null ? SymbolKind.Parameter : newSymbol.Kind;
+            SymbolKind newSymbolKind = newSymbol is null ? SymbolKind.Parameter : newSymbol.Kind;
 
             if (newSymbolKind == SymbolKind.ErrorType)
             {

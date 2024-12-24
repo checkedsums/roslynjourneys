@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(binders.Any());
             Debug.Assert(attributesToBind.Any());
-            Debug.Assert((object)ownerSymbol != null);
+            Debug.Assert(ownerSymbol is not null);
             Debug.Assert(binders.Length == attributesToBind.Length);
             RoslynDebug.Assert(boundAttributeTypes != null);
 
@@ -284,7 +284,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var attributeType = (NamedTypeSymbol)boundAttribute.Type;
             var attributeConstructor = boundAttribute.Constructor;
 
-            RoslynDebug.Assert((object)attributeType != null);
+            RoslynDebug.Assert(attributeType is not null);
             Debug.Assert(boundAttribute.Syntax.Kind() == SyntaxKind.Attribute);
 
             bool hasErrors = boundAttribute.HasAnyErrors;
@@ -417,7 +417,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            Debug.Assert((object)attributeType != null);
+            Debug.Assert(attributeType is not null);
             Debug.Assert(!attributeType.IsErrorType());
 
             if (attributeType.IsConditional)
@@ -430,7 +430,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 var baseType = attributeType.BaseTypeWithDefinitionUseSiteDiagnostics(ref useSiteInfo);
-                if ((object)baseType != null && baseType.IsConditional)
+                if (baseType is not null && baseType.IsConditional)
                 {
                     return IsAttributeConditionallyOmitted(baseType, syntaxTree, ref useSiteInfo);
                 }
@@ -626,7 +626,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         invalidNamedArgument |= propertySymbol.IsReadOnly;
                         var getMethod = propertySymbol.GetMethod;
                         var setMethod = propertySymbol.SetMethod;
-                        invalidNamedArgument = invalidNamedArgument || (object)getMethod == null || (object)setMethod == null;
+                        invalidNamedArgument = invalidNamedArgument || getMethod is null || setMethod is null;
                         if (!invalidNamedArgument)
                         {
                             invalidNamedArgument =
@@ -689,7 +689,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BindingDiagnosticBag diagnostics,
             ref bool hasErrors)
         {
-            RoslynDebug.Assert((object)attributeConstructor != null);
+            RoslynDebug.Assert(attributeConstructor is not null);
             Debug.Assert(!constructorArgsArray.IsDefault);
             Debug.Assert(!hasErrors);
 
@@ -906,7 +906,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return VisitArrayCollectionExpression(type, (BoundCollectionExpression)operand, diagnostics, ref attrHasErrors, curArgumentHasErrors);
                 }
 
-                if ((object)type != null && operandType is not null)
+                if (type is not null && operandType is not null)
                 {
                     if (type.SpecialType == SpecialType.System_Object ||
                         operandType.IsArray() && type.IsArray() &&

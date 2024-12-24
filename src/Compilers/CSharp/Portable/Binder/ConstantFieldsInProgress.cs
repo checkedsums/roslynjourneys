@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public bool IsEmpty
         {
-            get { return (object)_fieldOpt == null; }
+            get { return _fieldOpt is null; }
         }
 
         internal void AddDependency(SourceFieldSymbolWithSyntaxReference field)

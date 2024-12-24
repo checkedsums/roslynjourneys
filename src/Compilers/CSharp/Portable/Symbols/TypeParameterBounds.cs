@@ -28,8 +28,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(!constraintTypes.IsDefault);
             Debug.Assert(!interfaces.IsDefault);
-            Debug.Assert((object)effectiveBaseClass != null);
-            Debug.Assert((object)deducedBaseType != null);
+            Debug.Assert(effectiveBaseClass is not null);
+            Debug.Assert(deducedBaseType is not null);
 
             this.ConstraintTypes = constraintTypes;
             this.Interfaces = interfaces;

@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         public MethodReference(MethodSymbol underlyingMethod)
         {
-            Debug.Assert((object)underlyingMethod != null);
+            Debug.Assert(underlyingMethod is not null);
 
             this.UnderlyingMethod = underlyingMethod;
         }

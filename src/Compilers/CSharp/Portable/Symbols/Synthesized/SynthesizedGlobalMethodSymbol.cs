@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal SynthesizedGlobalMethodSymbol(SynthesizedPrivateImplementationDetailsType privateImplType, TypeSymbol returnType, string name)
             : this(privateImplType, name)
         {
-            Debug.Assert((object)returnType != null);
+            Debug.Assert(returnType is not null);
             _returnType = returnType;
             _typeParameters = ImmutableArray<TypeParameterSymbol>.Empty;
         }

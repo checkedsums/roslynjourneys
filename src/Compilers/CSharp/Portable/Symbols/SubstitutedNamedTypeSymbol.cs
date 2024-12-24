@@ -60,7 +60,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             // if we're substituting to create a new unconstructed type as a member of a constructed type,
             // then we must alpha rename the type parameters.
-            if ((object)constructedFrom != null)
+            if (constructedFrom is not null)
             {
                 Debug.Assert(ReferenceEquals(constructedFrom.ConstructedFrom, constructedFrom));
                 _lazyTypeParameters = constructedFrom.TypeParameters;

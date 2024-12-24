@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.CodeAnalysis
 {
@@ -67,12 +65,6 @@ namespace Microsoft.CodeAnalysis
 
         internal static ReadOnlyMemory<char> Trim(this ReadOnlyMemory<char> memory) => memory.TrimStart().TrimEnd();
 #endif
-
-        internal static bool IsNullOrEmpty(this ReadOnlyMemory<char>? memory) =>
-            memory is not { Length: > 0 };
-
-        internal static bool IsNullOrWhiteSpace(this ReadOnlyMemory<char>? memory) =>
-            memory is not { } m || IsWhiteSpace(m);
 
         internal static bool IsWhiteSpace(this ReadOnlyMemory<char> memory)
         {

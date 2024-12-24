@@ -190,7 +190,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             NamedTypeSymbol? result;
             NamespaceSymbol? scope = this.GlobalNamespace.LookupNestedNamespace(emittedName.NamespaceSegmentsMemory);
 
-            if ((object?)scope == null)
+            if (scope is null)
             {
                 // We failed to locate the namespace
                 result = null;

@@ -908,7 +908,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             BoundStatement result = node.Update(tryBlock, catchBlocks, finallyBlockOpt, node.FinallyLabelOpt, node.PreferFaultHandler);
 
-            if ((object)dispatchLabel != null)
+            if (dispatchLabel is not null)
             {
                 result = F.Block(
                     F.HiddenSequencePoint(),
@@ -941,7 +941,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected BoundStatement CacheThisIfNeeded()
         {
             // restore "this" cache, if there is a cache
-            if ((object)this.cachedThis != null)
+            if (this.cachedThis is not null)
             {
                 CapturedSymbolReplacement proxy = proxies[this.OriginalMethod.ThisParameter];
                 var fetchThis = proxy.Replacement(F.Syntax, static (frameType, F) => F.This(), F);
@@ -955,14 +955,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         public sealed override BoundNode VisitThisReference(BoundThisReference node)
         {
             // if "this" is cached, return it.
-            if ((object)this.cachedThis != null)
+            if (this.cachedThis is not null)
             {
                 return F.Local(this.cachedThis);
             }
 
             var thisParameter = this.OriginalMethod.ThisParameter;
             CapturedSymbolReplacement proxy;
-            if ((object)thisParameter == null || !proxies.TryGetValue(thisParameter, out proxy))
+            if (thisParameter is null || !proxies.TryGetValue(thisParameter, out proxy))
             {
                 // This can occur in a delegate creation expression because the method group
                 // in the argument can have a "this" receiver even when "this"
@@ -989,7 +989,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // TODO: fix up the type of the resulting node to be the base type
 
             // if "this" is cached, return it.
-            if ((object)this.cachedThis != null)
+            if (this.cachedThis is not null)
             {
                 return F.Local(this.cachedThis);
             }

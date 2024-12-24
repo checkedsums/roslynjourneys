@@ -1020,13 +1020,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 BoundExpression boundArgument = BindValue(argumentSyntax.Expression, diagnostics, BindValueKind.RValue);
-                if (boundArgument.Type?.SpecialType == SpecialType.System_Void)
-                {
-                    diagnostics.Add(ErrorCode.ERR_VoidInTuple, argumentSyntax.Location);
-                    boundArgument = new BoundBadExpression(
-                        argumentSyntax, LookupResultKind.Empty, [], [boundArgument], CreateErrorType("void"));
-                }
-
                 boundArguments.Add(boundArgument);
 
                 var elementTypeWithAnnotations = TypeWithAnnotations.Create(boundArgument.Type);

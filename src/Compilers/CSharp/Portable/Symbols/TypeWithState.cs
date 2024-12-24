@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public static TypeWithState Create(TypeWithAnnotations typeWithAnnotations, FlowAnalysisAnnotations annotations = FlowAnalysisAnnotations.None)
         {
             var type = typeWithAnnotations.Type;
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
 
             NullableFlowState state;
             if (type.CanContainNull())

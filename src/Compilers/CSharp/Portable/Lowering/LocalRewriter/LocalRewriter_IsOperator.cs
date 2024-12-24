@@ -84,7 +84,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol type)
         {
             Debug.Assert(constantValue == ConstantValue.True || constantValue == ConstantValue.False);
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
 
             return new BoundSequence(
                 syntax: syntax,

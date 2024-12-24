@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool isForOverride = false)
         {
             Debug.Assert(this.Flags.Includes(BinderFlags.GenericConstraintsClause));
-            RoslynDebug.Assert((object)containingSymbol != null);
+            RoslynDebug.Assert(containingSymbol is not null);
             Debug.Assert((containingSymbol.Kind == SymbolKind.NamedType) || (containingSymbol.Kind == SymbolKind.Method));
             Debug.Assert(typeParameters.Length > 0);
             Debug.Assert(clauses.Count > 0);

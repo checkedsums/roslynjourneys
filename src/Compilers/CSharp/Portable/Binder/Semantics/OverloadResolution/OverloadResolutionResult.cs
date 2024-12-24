@@ -862,7 +862,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // error CS1739: The best overload for 'M' does not have a parameter named 'x'
             // Error CS1746: The delegate 'D' does not have a parameter named 'x'
 
-            ErrorCode code = (object)delegateTypeBeingInvoked != null ?
+            ErrorCode code = delegateTypeBeingInvoked is not null ?
                 ErrorCode.ERR_BadNamedArgumentForDelegateInvoke :
                 ErrorCode.ERR_BadNamedArgument;
 

@@ -54,7 +54,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             DeclarationTable declarations,
             string moduleName)
         {
-            Debug.Assert((object)assemblySymbol != null);
+            Debug.Assert(assemblySymbol is not null);
 
             _assemblySymbol = assemblySymbol;
             _sources = declarations;
@@ -193,7 +193,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                if ((object)_globalNamespace == null)
+                if (_globalNamespace is null)
                 {
                     var diagnostics = BindingDiagnosticBag.GetInstance();
                     var globalNS = new SourceNamespaceSymbol(
@@ -550,7 +550,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected override void DecodeWellKnownAttributeImpl(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
 
             var attribute = arguments.Attribute;
             Debug.Assert(!attribute.HasErrors);

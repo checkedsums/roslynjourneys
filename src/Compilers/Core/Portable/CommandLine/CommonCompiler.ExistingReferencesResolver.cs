@@ -75,7 +75,7 @@ namespace Microsoft.CodeAnalysis
             public bool Equals(ExistingReferencesResolver? other)
             {
                 return
-                    other is object &&
+                    other is not null &&
                     _resolver.Equals(other._resolver) &&
                     _availableReferences.SequenceEqual(other._availableReferences);
             }

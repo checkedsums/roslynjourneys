@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal SynthesizedInstanceConstructor(NamedTypeSymbol containingType)
         {
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(containingType is not null);
             _containingType = containingType;
         }
 
@@ -196,7 +196,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // Synthesized constructors of ComImport type are extern
                 NamedTypeSymbol containingType = this.ContainingType;
-                return (object)containingType != null && containingType.IsComImport;
+                return containingType is not null && containingType.IsComImport;
             }
         }
 

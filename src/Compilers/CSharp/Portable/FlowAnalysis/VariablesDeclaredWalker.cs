@@ -160,7 +160,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (IsInside)
             {
-                if ((object)node.DefinedSymbol != null)
+                if (node.DefinedSymbol is not null)
                 {
                     _variablesDeclared.Add(node.DefinedSymbol);
                 }

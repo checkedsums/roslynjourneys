@@ -17,8 +17,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         internal static bool TypeDependsOn(NamedTypeSymbol depends, NamedTypeSymbol on)
         {
-            Debug.Assert((object)depends != null);
-            Debug.Assert((object)on != null);
+            Debug.Assert(depends is not null);
+            Debug.Assert(on is not null);
             Debug.Assert(on.IsDefinition);
 
             var hs = PooledHashSet<Symbol>.GetInstance();
@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static void TypeDependsClosure(NamedTypeSymbol type, CSharpCompilation currentCompilation, HashSet<Symbol> partialClosure)
         {
-            if ((object)type == null)
+            if (type is null)
             {
                 return;
             }
@@ -62,8 +62,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static bool StructDependsOn(NamedTypeSymbol depends, NamedTypeSymbol on)
         {
-            Debug.Assert((object)depends != null);
-            Debug.Assert((object)on != null);
+            Debug.Assert(depends is not null);
+            Debug.Assert(on is not null);
             Debug.Assert(on.IsDefinition);
 
             var hs = PooledHashSet<NamedTypeSymbol>.GetInstance();
@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static void StructDependsClosure(NamedTypeSymbol type, HashSet<NamedTypeSymbol> partialClosure, HashSet<NamedTypeSymbol> typesWithCycle, ConsList<NamedTypeSymbol> on)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
 
             if (typesWithCycle.Contains(type.OriginalDefinition))
             {
@@ -172,7 +172,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             static (bool definitelyManaged, bool hasGenerics) dependsOnDefinitelyManagedType(NamedTypeSymbol type, HashSet<Symbol> partialClosure, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
             {
-                Debug.Assert((object)type != null);
+                Debug.Assert(type is not null);
 
                 var hasGenerics = false;
                 if (partialClosure.Add(type))
@@ -185,7 +185,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             case SymbolKind.Field:
                                 field = (FieldSymbol)member;
-                                Debug.Assert((object)(field.AssociatedSymbol as EventSymbol) == null,
+                                Debug.Assert((field.AssociatedSymbol as EventSymbol) is null,
                                     "Didn't expect to find a field-like event backing field in the member list.");
                                 break;
                             case SymbolKind.Event:
@@ -195,7 +195,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 throw ExceptionUtilities.UnexpectedValue(member.Kind);
                         }
 
-                        if ((object)field == null)
+                        if (field is null)
                         {
                             continue;
                         }
@@ -215,7 +215,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                         fieldType.AddUseSiteInfo(ref useSiteInfo);
                         NamedTypeSymbol fieldNamedType = fieldType as NamedTypeSymbol;
-                        if ((object)fieldNamedType == null)
+                        if (fieldNamedType is null)
                         {
                             if (fieldType.IsManagedType(ref useSiteInfo))
                             {

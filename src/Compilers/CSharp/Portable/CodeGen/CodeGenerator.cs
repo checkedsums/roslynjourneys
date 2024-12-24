@@ -89,7 +89,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             OptimizationLevel optimizations,
             bool emittingPdb)
         {
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
             Debug.Assert(boundBody != null);
             Debug.Assert(builder != null);
             Debug.Assert(moduleBuilder != null);

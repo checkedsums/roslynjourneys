@@ -494,7 +494,7 @@ namespace Microsoft.CodeAnalysis.CodeGen
 
             public int Compare(SynthesizedStaticField? x, SynthesizedStaticField? y)
             {
-                RoslynDebug.Assert(x is object && y is object);
+                RoslynDebug.Assert(x is not null && y is not null);
 
                 // Fields are always synthesized with non-null names.
                 RoslynDebug.Assert(x.Name != null && y.Name != null);

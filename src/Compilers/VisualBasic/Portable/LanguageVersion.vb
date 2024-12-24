@@ -199,7 +199,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
     End Module
 
     Friend Class VisualBasicRequiredLanguageVersion
-        Inherits RequiredLanguageVersion
 
         Friend ReadOnly Property Version As LanguageVersion
 

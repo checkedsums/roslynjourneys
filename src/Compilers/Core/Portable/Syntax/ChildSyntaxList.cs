@@ -405,7 +405,7 @@ namespace Microsoft.CodeAnalysis
         /// <returns><see cref="Reversed"/> which contains all children of <see cref="ChildSyntaxList"/> in reversed order</returns>
         public Reversed Reverse()
         {
-            Debug.Assert(_node is object);
+            Debug.Assert(_node is not null);
             return new Reversed(_node, _count);
         }
 

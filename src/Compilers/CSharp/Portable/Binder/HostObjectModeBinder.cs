@@ -24,7 +24,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol result = this.Compilation.GetHostObjectTypeSymbol();
 
             // This binder shouldn't be created if the compilation doesn't have host object type:
-            Debug.Assert((object)result != null);
+            Debug.Assert(result is not null);
 
             return result;
         }

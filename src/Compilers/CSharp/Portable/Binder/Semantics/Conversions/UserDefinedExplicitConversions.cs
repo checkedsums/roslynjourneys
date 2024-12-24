@@ -25,8 +25,8 @@ namespace Microsoft.CodeAnalysis.CSharp
            ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(sourceExpression is null || Compilation is not null);
-            Debug.Assert(sourceExpression != null || (object)source != null);
-            Debug.Assert((object)target != null);
+            Debug.Assert(sourceExpression != null || source is not null);
+            Debug.Assert(target is not null);
 
             // SPEC: A user-defined explicit conversion from type S to type T is processed
             // SPEC: as follows:
@@ -50,14 +50,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // SPEC: Find the most specific source type SX of the operators in U...
             TypeSymbol sx = MostSpecificSourceTypeForExplicitUserDefinedConversion(u, sourceExpression, source, ref useSiteInfo);
-            if ((object)sx == null)
+            if (sx is null)
             {
                 return UserDefinedConversionResult.NoBestSourceType(u);
             }
 
             // SPEC: Find the most specific target type TX of the operators in U...
             TypeSymbol tx = MostSpecificTargetTypeForExplicitUserDefinedConversion(u, target, ref useSiteInfo);
-            if ((object)tx == null)
+            if (tx is null)
             {
                 return UserDefinedConversionResult.NoBestTargetType(u);
             }
@@ -92,8 +92,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(sourceExpression is null || Compilation is not null);
-            Debug.Assert(sourceExpression != null || (object)source != null);
-            Debug.Assert((object)target != null);
+            Debug.Assert(sourceExpression != null || source is not null);
+            Debug.Assert(target is not null);
             Debug.Assert(d != null);
             Debug.Assert(u != null);
 
@@ -150,10 +150,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(sourceExpression is null || Compilation is not null);
-            Debug.Assert(sourceExpression != null || (object)source != null);
-            Debug.Assert((object)target != null);
+            Debug.Assert(sourceExpression != null || source is not null);
+            Debug.Assert(target is not null);
             Debug.Assert(u != null);
-            Debug.Assert((object)declaringType != null);
+            Debug.Assert(declaringType is not null);
 
             // SPEC: Find the set of applicable user-defined and lifted conversion operators, U.
             // SPEC: The set consists of the user-defined and lifted implicit or explicit 
@@ -207,7 +207,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // DELIBERATE SPEC VIOLATION: See the comment regarding bug 17021 in 
             // UserDefinedImplicitConversions.cs.
 
-            if ((object)source != null && source.IsInterfaceType() || target.IsInterfaceType())
+            if (source is not null && source.IsInterfaceType() || target.IsInterfaceType())
             {
                 return;
             }
@@ -276,7 +276,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // We accept candidates for which the parameter type encompasses the *underlying* source type.
                 if (!fromConversion.Exists &&
-                    (object)source != null &&
+                    source is not null &&
                     source.IsNullableType() &&
                     EncompassingExplicitConversion(source.GetNullableUnderlyingType(), convertsFrom, ref useSiteInfo).Exists)
                 {
@@ -285,7 +285,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // As in dev11 (and the revised spec), we also accept candidates for which the return type is encompassed by the *stripped* target type.
                 if (!toConversion.Exists &&
-                    (object)target != null &&
+                    target is not null &&
                     target.IsNullableType() &&
                     EncompassingExplicitConversion(convertsTo, target.GetNullableUnderlyingType(), ref useSiteInfo).Exists)
                 {
@@ -319,7 +319,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 if (fromConversion.Exists && toConversion.Exists)
                 {
-                    if ((object)source != null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() && target.CanBeAssignedNull())
+                    if (source is not null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() && target.CanBeAssignedNull())
                     {
                         TypeSymbol nullableFrom = MakeNullableType(convertsFrom);
                         TypeSymbol nullableTo = convertsTo.IsValidNullableTypeArgument() ? MakeNullableType(convertsTo) : convertsTo;
@@ -353,7 +353,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             toConversion = EncompassingExplicitConversion(convertsTo, target, ref useSiteInfo);
                         }
 
-                        if ((object)source != null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument())
+                        if (source is not null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument())
                         {
                             convertsFrom = MakeNullableType(convertsFrom);
                             fromConversion = EncompassingExplicitConversion(convertsFrom, source, ref useSiteInfo);
@@ -404,7 +404,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // We have already written the "FromType" into the conversion analysis to
             // perpetuate this fiction.
 
-            if ((object)source != null)
+            if (source is not null)
             {
                 if (u.Any(static (conv, source) => TypeSymbol.Equals(conv.FromType, source, TypeCompareKind.ConsiderEverything2), source))
                 {
@@ -481,8 +481,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         private Conversion EncompassingExplicitConversion(BoundExpression expr, TypeSymbol a, TypeSymbol b, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(expr is null || Compilation is not null);
-            Debug.Assert(expr != null || (object)a != null);
-            Debug.Assert((object)b != null);
+            Debug.Assert(expr != null || a is not null);
+            Debug.Assert(b is not null);
 
             // SPEC: If a standard implicit conversion exists from a type A to a type B
             // SPEC: and if neither A nor B is an interface type then A is said to be

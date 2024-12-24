@@ -816,7 +816,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var method = (MethodSymbol)_compilation.Assembly.GetSpecialTypeMember(member);
-            Debug.Assert((object)method != null); // Should have been checked during Warnings pass
+            Debug.Assert(method is not null); // Should have been checked during Warnings pass
             return method;
         }
 

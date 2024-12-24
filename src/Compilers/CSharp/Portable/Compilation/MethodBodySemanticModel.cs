@@ -48,7 +48,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ImmutableDictionary<Symbol, Symbol> parentRemappedSymbolsOpt = null)
             : base(syntax, owner, rootBinder, containingPublicSemanticModel, parentRemappedSymbolsOpt)
         {
-            Debug.Assert((object)owner != null);
+            Debug.Assert(owner is not null);
             Debug.Assert(owner.Kind == SymbolKind.Method);
             Debug.Assert(syntax != null);
             Debug.Assert(parentRemappedSymbolsOpt is null || IsSpeculativeSemanticModel);

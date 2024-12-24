@@ -189,7 +189,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (defaultValueSyntax != null && defaultValueSyntax.FullSpan.Contains(node.Span))
             {
                 var parameterSymbol = containing.GetDeclaredSymbol(paramDecl).GetSymbol<ParameterSymbol>();
-                if ((object)parameterSymbol != null)
+                if (parameterSymbol is not null)
                 {
                     return ImmutableInterlocked.GetOrAdd(ref _childMemberModels, defaultValueSyntax,
                                                          (equalsValue, tuple) =>

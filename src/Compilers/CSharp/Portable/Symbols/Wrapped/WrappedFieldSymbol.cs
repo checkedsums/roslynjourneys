@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public WrappedFieldSymbol(FieldSymbol underlyingField)
         {
-            Debug.Assert((object)underlyingField != null);
+            Debug.Assert(underlyingField is not null);
             _underlyingField = underlyingField;
         }
 

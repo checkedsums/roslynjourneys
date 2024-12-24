@@ -36,13 +36,13 @@ namespace Microsoft.CodeAnalysis
         public SourceLocation(in SyntaxNodeOrToken nodeOrToken)
             : this(nodeOrToken.SyntaxTree!, nodeOrToken.Span)
         {
-            Debug.Assert(nodeOrToken.SyntaxTree is object);
+            Debug.Assert(nodeOrToken.SyntaxTree is not null);
         }
 
         public SourceLocation(in SyntaxTrivia trivia)
             : this(trivia.SyntaxTree!, trivia.Span)
         {
-            Debug.Assert(trivia.SyntaxTree is object);
+            Debug.Assert(trivia.SyntaxTree is not null);
         }
 
         public SourceLocation(SyntaxReference syntaxRef)

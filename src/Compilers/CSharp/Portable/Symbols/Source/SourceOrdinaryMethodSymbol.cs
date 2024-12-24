@@ -214,7 +214,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     diagnostics.Add(ErrorCode.ERR_InExtensionMustBeValueType, _location, Name);
                 }
-                else if ((object)ContainingType.ContainingType != null)
+                else if (ContainingType.ContainingType is not null)
                 {
                     diagnostics.Add(ErrorCode.ERR_ExtensionMethodsDecl, _location, ContainingType.Name);
                 }
@@ -237,7 +237,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     var attributeConstructor = Binder.GetWellKnownTypeMember(DeclaringCompilation, WellKnownMember.System_Runtime_CompilerServices_ExtensionAttribute__ctor, out var useSiteInfo);
 
                     var thisKeyword = syntax.ParameterList.Parameters[0].Modifiers.FirstOrDefault(SyntaxKind.ThisKeyword);
-                    if ((object)attributeConstructor == null)
+                    if (attributeConstructor is null)
                     {
                         var memberDescriptor = WellKnownMembers.GetDescriptor(WellKnownMember.System_Runtime_CompilerServices_ExtensionAttribute__ctor);
                         // do not use Binder.ReportUseSiteErrorForAttributeCtor in this case, because we'll need to report a special error id, not a generic use site error.
@@ -388,7 +388,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // If this symbol has a non-null PartialDefinitionPart, we should have accessed this method through that definition symbol instead
             Debug.Assert(PartialDefinitionPart is null);
 
-            if ((object)this.SourcePartialImplementation != null)
+            if (this.SourcePartialImplementation is not null)
             {
                 return OneOrMany.Create(ImmutableArray.Create(AttributeDeclarationSyntaxList, this.SourcePartialImplementation.AttributeDeclarationSyntaxList));
             }
@@ -403,7 +403,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var sourceContainer = this.ContainingType as SourceMemberContainerTypeSymbol;
-                if ((object)sourceContainer != null && sourceContainer.AnyMemberHasAttributes)
+                if (sourceContainer is not null && sourceContainer.AnyMemberHasAttributes)
                 {
                     return this.GetSyntax().AttributeLists;
                 }
@@ -421,7 +421,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal sealed override void ForceComplete(SourceLocation locationOpt, Predicate<Symbol> filter, CancellationToken cancellationToken)
         {
             var implementingPart = this.SourcePartialImplementation;
-            if ((object)implementingPart != null)
+            if (implementingPart is not null)
             {
                 implementingPart.ForceComplete(locationOpt, filter, cancellationToken);
             }
@@ -447,7 +447,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         protected sealed override void PartialMethodChecks(BindingDiagnosticBag diagnostics)
         {
             var implementingPart = this.SourcePartialImplementation;
-            if ((object)implementingPart != null)
+            if (implementingPart is not null)
             {
                 PartialMethodChecks(this, implementingPart, diagnostics);
             }
@@ -1060,7 +1060,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             protected sealed override void CheckConstraintsForExplicitInterfaceType(ConversionsBase conversions, BindingDiagnosticBag diagnostics)
             {
-                if ((object)_explicitInterfaceType != null)
+                if (_explicitInterfaceType is not null)
                 {
                     var syntax = this.GetSyntax();
                     Debug.Assert(syntax.ExplicitInterfaceSpecifier != null);
@@ -1114,7 +1114,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, diagnostics.DiagnosticBag, location);
 
                     var tpEnclosing = ContainingType.FindEnclosingTypeParameter(name);
-                    if ((object)tpEnclosing != null)
+                    if (tpEnclosing is not null)
                     {
                         // Type parameter '{0}' has the same name as the type parameter from outer type '{1}'
                         diagnostics.Add(ErrorCode.WRN_TypeParameterSameAsOuterTypeParameter, location, name, tpEnclosing.ContainingType);

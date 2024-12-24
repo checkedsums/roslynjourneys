@@ -141,7 +141,7 @@ namespace Microsoft.CodeAnalysis.Text
                 // For small streams, see if we can read the byte buffer directly.
                 if (encoding.TryGetMaxCharCount(data.Length, out int maxCharCount) && maxCharCount < LargeObjectHeapLimitInChars)
                 {
-                    if (TryGetBytesFromStream(data, out ArraySegment<byte> bytes) && bytes.Offset == 0 && bytes.Array is object)
+                    if (TryGetBytesFromStream(data, out ArraySegment<byte> bytes) && bytes.Offset == 0 && bytes.Array is not null)
                     {
                         return SourceText.From(bytes.Array,
                                                (int)data.Length,

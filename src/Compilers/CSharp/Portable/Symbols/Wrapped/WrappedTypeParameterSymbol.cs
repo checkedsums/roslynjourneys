@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public WrappedTypeParameterSymbol(TypeParameterSymbol underlyingTypeParameter)
         {
-            Debug.Assert((object)underlyingTypeParameter != null);
+            Debug.Assert(underlyingTypeParameter is not null);
             _underlyingTypeParameter = underlyingTypeParameter;
         }
 

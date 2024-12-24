@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public WrappedEventSymbol(EventSymbol underlyingEvent)
         {
-            RoslynDebug.Assert((object)underlyingEvent != null);
+            RoslynDebug.Assert(underlyingEvent is not null);
             _underlyingEvent = underlyingEvent;
         }
 

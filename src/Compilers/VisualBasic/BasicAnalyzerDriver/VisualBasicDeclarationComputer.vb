@@ -78,18 +78,18 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                         ComputeDeclarationsCore(model, decl, shouldSkip, getSymbol, builder, newLevel, cancellationToken)
                     Next
                     Dim attributes = GetAttributes(t.EnumStatement.AttributeLists)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes))
                     Return
                 Case SyntaxKind.EnumStatement
                     Dim t = DirectCast(node, EnumStatementSyntax)
                     Dim attributes = GetAttributes(t.AttributeLists)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes))
                     Return
                 Case SyntaxKind.EnumMemberDeclaration
                     Dim t = DirectCast(node, EnumMemberDeclarationSyntax)
                     Dim attributes = GetAttributes(t.AttributeLists)
                     Dim codeBlocks = SpecializedCollections.SingletonEnumerable(Of SyntaxNode)(t.Initializer).Concat(attributes)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                     Return
                 Case SyntaxKind.EventBlock
                     Dim t = DirectCast(node, EventBlockSyntax)
@@ -97,7 +97,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                         ComputeDeclarationsCore(model, decl, shouldSkip, getSymbol, builder, newLevel, cancellationToken)
                     Next
                     Dim codeBlocks = GetMethodBaseCodeBlocks(t.EventStatement)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                     Return
                 Case SyntaxKind.FieldDeclaration
                     Dim t = DirectCast(node, FieldDeclarationSyntax)
@@ -106,7 +106,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                         Dim initializer = GetInitializerNode(decl)
                         Dim codeBlocks = SpecializedCollections.SingletonEnumerable(initializer).Concat(attributes)
                         For Each identifier In decl.Names
-                            builder.Add(GetDeclarationInfo(model, identifier, getSymbol, codeBlocks, cancellationToken))
+                            builder.Add(GetDeclarationInfo(model, identifier, getSymbol, cancellationToken, codeBlocks))
                         Next
                     Next
                     Return
@@ -116,12 +116,12 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                         ComputeDeclarationsCore(model, decl, shouldSkip, getSymbol, builder, newLevel, cancellationToken)
                     Next
                     Dim codeBlocks = GetPropertyStatementCodeBlocks(t.PropertyStatement)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                     Return
                 Case SyntaxKind.PropertyStatement
                     Dim t = DirectCast(node, PropertyStatementSyntax)
                     Dim codeBlocks = GetPropertyStatementCodeBlocks(t)
-                    builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                    builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                     Return
                 Case SyntaxKind.CompilationUnit
                     Dim t = DirectCast(node, CompilationUnitSyntax)
@@ -131,7 +131,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
 
                     If Not t.Attributes.IsEmpty Then
                         Dim attributes = GetAttributes(t.Attributes)
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken))
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes))
                     End If
                     Return
                 Case Else
@@ -141,14 +141,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                             ComputeDeclarationsCore(model, decl, shouldSkip, getSymbol, builder, newLevel, cancellationToken)
                         Next
                         Dim attributes = GetAttributes(typeBlock.BlockStatement.AttributeLists)
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken))
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes))
                         Return
                     End If
 
                     Dim typeStatement = TryCast(node, TypeStatementSyntax)
                     If typeStatement IsNot Nothing Then
                         Dim attributes = GetAttributes(typeStatement.AttributeLists)
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken))
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes))
                         Return
                     End If
 
@@ -156,14 +156,14 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                     If methodBlock IsNot Nothing Then
                         Dim codeBlocks = SpecializedCollections.SingletonEnumerable(Of SyntaxNode)(methodBlock).
                             Concat(GetMethodBaseCodeBlocks(methodBlock.BlockStatement))
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                         Return
                     End If
 
                     Dim methodStatement = TryCast(node, MethodBaseSyntax)
                     If methodStatement IsNot Nothing Then
                         Dim codeBlocks = GetMethodBaseCodeBlocks(methodStatement)
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken))
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks))
                         Return
                     End If
 

@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis
 
         public bool Equals(MetadataLocation? other)
         {
-            return other is object && other._module == _module;
+            return other is not null && other._module == _module;
         }
     }
 }

@@ -224,7 +224,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 if (_constructorInitializers.TryGetValue(next, out next))
                 {
-                    RoslynDebug.Assert((object)next != null);
+                    RoslynDebug.Assert(next is not null);
                     if (method1 == next)
                     {
                         // We found a (new) cycle containing the edge (method1, method2). Report an

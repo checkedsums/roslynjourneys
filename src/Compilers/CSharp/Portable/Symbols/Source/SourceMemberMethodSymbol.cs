@@ -780,7 +780,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal sealed override bool TryGetThisParameter(out ParameterSymbol thisParameter)
         {
             thisParameter = _lazyThisParameter;
-            if ((object)thisParameter != null || IsStatic)
+            if (thisParameter is not null || IsStatic)
             {
                 return true;
             }

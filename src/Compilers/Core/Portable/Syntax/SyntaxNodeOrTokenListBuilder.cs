@@ -39,7 +39,7 @@ namespace Microsoft.CodeAnalysis.Syntax
             get
             {
                 var innerNode = _nodes[index];
-                RoslynDebug.Assert(innerNode is object);
+                RoslynDebug.Assert(innerNode is not null);
                 if (innerNode.IsToken == true)
                 {
                     // getting internal token so we do not know the position
@@ -74,13 +74,13 @@ namespace Microsoft.CodeAnalysis.Syntax
 
         public void Add(in SyntaxToken item)
         {
-            RoslynDebug.Assert(item.Node is object);
+            RoslynDebug.Assert(item.Node is not null);
             this.Add(item.Node);
         }
 
         public void Add(in SyntaxNodeOrToken item)
         {
-            RoslynDebug.Assert(item.UnderlyingNode is object);
+            RoslynDebug.Assert(item.UnderlyingNode is not null);
             this.Add(item.UnderlyingNode);
         }
 

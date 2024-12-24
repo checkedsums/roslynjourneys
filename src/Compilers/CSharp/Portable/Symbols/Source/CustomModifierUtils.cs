@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             out ImmutableArray<ParameterSymbol> parameters,
             bool alsoCopyParamsModifier) // Last since always named.
         {
-            Debug.Assert((object)sourceMethod != null);
+            Debug.Assert(sourceMethod is not null);
 
             // Assert: none of the method's type parameters have been substituted
             Debug.Assert((object)sourceMethod == sourceMethod.ConstructedFrom);

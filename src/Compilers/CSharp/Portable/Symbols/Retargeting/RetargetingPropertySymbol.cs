@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         public RetargetingPropertySymbol(RetargetingModuleSymbol retargetingModule, PropertySymbol underlyingProperty)
             : base(underlyingProperty)
         {
-            Debug.Assert((object)retargetingModule != null);
+            Debug.Assert(retargetingModule is not null);
             Debug.Assert(!(underlyingProperty is RetargetingPropertySymbol));
 
             _retargetingModule = retargetingModule;
@@ -124,7 +124,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                return (object)_underlyingProperty.GetMethod == null
+                return _underlyingProperty.GetMethod is null
                     ? null
                     : this.RetargetingTranslator.Retarget(_underlyingProperty.GetMethod);
             }
@@ -134,7 +134,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                return (object)_underlyingProperty.SetMethod == null
+                return _underlyingProperty.SetMethod is null
                     ? null
                     : this.RetargetingTranslator.Retarget(_underlyingProperty.SetMethod);
             }
@@ -180,7 +180,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             for (int i = 0; i < impls.Length; i++)
             {
                 var retargeted = this.RetargetingTranslator.Retarget(impls[i], MemberSignatureComparer.RetargetedExplicitImplementationComparer);
-                if ((object)retargeted != null)
+                if (retargeted is not null)
                 {
                     builder.Add(retargeted);
                 }

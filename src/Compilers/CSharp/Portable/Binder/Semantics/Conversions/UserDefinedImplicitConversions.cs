@@ -29,8 +29,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(sourceExpression is null || Compilation is not null);
-            Debug.Assert(sourceExpression != null || (object)source != null);
-            Debug.Assert((object)target != null);
+            Debug.Assert(sourceExpression != null || source is not null);
+            Debug.Assert(target is not null);
 
             // User-defined conversions that involve generics can be quite strange. There
             // are two basic problems: first, that generic user-defined conversions can be
@@ -94,14 +94,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // SPEC: Find the most specific source type SX of the operators in U...
             TypeSymbol sx = MostSpecificSourceTypeForImplicitUserDefinedConversion(u, source, ref useSiteInfo);
-            if ((object)sx == null)
+            if (sx is null)
             {
                 return UserDefinedConversionResult.NoBestSourceType(u);
             }
 
             // SPEC: Find the most specific target type TX of the operators in U...
             TypeSymbol tx = MostSpecificTargetTypeForImplicitUserDefinedConversion(u, target, ref useSiteInfo);
-            if ((object)tx == null)
+            if (tx is null)
             {
                 return UserDefinedConversionResult.NoBestTargetType(u);
             }
@@ -149,8 +149,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool allowAnyTarget = false)
         {
             Debug.Assert(sourceExpression is null || Compilation is not null);
-            Debug.Assert(sourceExpression != null || (object)source != null);
-            Debug.Assert(((object)target != null) == !allowAnyTarget);
+            Debug.Assert(sourceExpression != null || source is not null);
+            Debug.Assert((target is not null) == !allowAnyTarget);
             Debug.Assert(d != null);
             Debug.Assert(u != null);
 
@@ -240,7 +240,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Unfortunately, we know of several real programs that rely upon this bug, so we are going
             // to reproduce it here.
 
-            if ((object)source != null && source.IsInterfaceType() || (object)target != null && target.IsInterfaceType())
+            if (source is not null && source.IsInterfaceType() || target is not null && target.IsInterfaceType())
             {
                 return;
             }
@@ -318,7 +318,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // defines a type such as int or long to be a ref struct (see
                         // LiftedConversion_InvalidTypeArgument02).
 
-                        if ((object)target != null && target.IsNullableType() && convertsTo.IsValidNullableTypeArgument())
+                        if (target is not null && target.IsNullableType() && convertsTo.IsValidNullableTypeArgument())
                         {
                             convertsTo = MakeNullableType(convertsTo);
                             toConversion = allowAnyTarget ? Conversion.Identity :
@@ -327,7 +327,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         u.Add(UserDefinedConversionAnalysis.Normal(constrainedToTypeOpt, op, fromConversion, toConversion, convertsFrom, convertsTo));
                     }
-                    else if ((object)source != null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() &&
+                    else if (source is not null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() &&
                         (allowAnyTarget || target.CanBeAssignedNull()))
                     {
                         // As mentioned above, here we diverge from the specification, in two ways.
@@ -365,7 +365,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private TypeSymbol MostSpecificSourceTypeForImplicitUserDefinedConversion(ImmutableArray<UserDefinedConversionAnalysis> u, TypeSymbol source, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             // SPEC: If any of the operators in U convert from S then SX is S.
-            if ((object)source != null)
+            if (source is not null)
             {
                 if (u.Any(static (conv, source) => TypeSymbol.Equals(conv.FromType, source, TypeCompareKind.ConsiderEverything2), source))
                 {
@@ -575,8 +575,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         private bool IsEncompassedBy(BoundExpression aExpr, TypeSymbol a, TypeSymbol b, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(aExpr is null || Compilation is not null);
-            Debug.Assert((object)a != null);
-            Debug.Assert((object)b != null);
+            Debug.Assert(a is not null);
+            Debug.Assert(b is not null);
 
             // SPEC: If a standard implicit conversion exists from a type A to a type B
             // SPEC: and if neither A nor B is an interface type then A is said to be
@@ -594,8 +594,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         private Conversion EncompassingImplicitConversion(BoundExpression aExpr, TypeSymbol a, TypeSymbol b, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             Debug.Assert(aExpr is null || Compilation is not null);
-            Debug.Assert(aExpr != null || (object)a != null);
-            Debug.Assert((object)b != null);
+            Debug.Assert(aExpr != null || a is not null);
+            Debug.Assert(b is not null);
 
             // DELIBERATE SPEC VIOLATION: 
             // We ought to be saying that an encompassing conversion never exists when one of
@@ -903,7 +903,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // SPEC:       corresponding to one of those types
 
             // NOTE:    This method implements part (2) above, it should be called only if (1) is false for source type.
-            Debug.Assert((object)source != null);
+            Debug.Assert(source is not null);
             Debug.Assert(!source.IsValidV6SwitchGoverningType());
 
             // NOTE: For (2) we use an approach similar to native compiler's approach, but call into the common code for analyzing user defined implicit conversions.

@@ -100,7 +100,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
 #if DEBUG
-                if ((object)param != null)
+                if (param is not null)
                 {
                     _assignedInside.Add(param);
                 }
@@ -171,7 +171,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         {
                             var eventAccess = (BoundEventAccess)node;
                             FieldSymbol associatedField = eventAccess.EventSymbol.AssociatedField;
-                            if ((object)associatedField != null)
+                            if (associatedField is not null)
                             {
                                 if (MayRequireTracking(eventAccess.ReceiverOpt, associatedField))
                                 {
@@ -205,7 +205,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 #if DEBUG
                 {
                     Symbol variable = GetNodeSymbol(node);
-                    if ((object)variable != null)
+                    if (variable is not null)
                     {
                         _assignedInside.Add(variable);
                     }
@@ -229,7 +229,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private bool FlowsOut(ParameterSymbol param)
         {
-            return (object)param != null &&
+            return param is not null &&
                    ((param.RefKind != RefKind.None && !param.IsImplicitlyDeclared && !RegionContains(param.GetFirstLocation().SourceSpan)) ||
                     param.ContainingSymbol is SynthesizedPrimaryConstructor); // Primary constructor parameter can be used in other initializers and methods 
         }

@@ -314,7 +314,7 @@ namespace Microsoft.CodeAnalysis
                     break;
                 }
 
-                Debug.Assert(normalizedPath is object);
+                Debug.Assert(normalizedPath is not null);
                 var directory = Path.GetDirectoryName(normalizedPath) ?? normalizedPath;
                 var editorConfig = AnalyzerConfig.Parse(fileContent, normalizedPath);
 
@@ -423,7 +423,7 @@ namespace Microsoft.CodeAnalysis
 
         private ImmutableArray<EmbeddedText?> AcquireEmbeddedTexts(Compilation compilation, DiagnosticBag diagnostics)
         {
-            Debug.Assert(compilation.Options.SourceReferenceResolver is object);
+            Debug.Assert(compilation.Options.SourceReferenceResolver is not null);
             if (Arguments.EmbeddedFiles.IsEmpty)
             {
                 return ImmutableArray<EmbeddedText?>.Empty;
@@ -826,7 +826,7 @@ namespace Microsoft.CodeAnalysis
             bool disableCache =
                 !Arguments.ParseOptions.Features.ContainsKey("enable-generator-cache") ||
                 string.IsNullOrWhiteSpace(Arguments.OutputFileName);
-            if (this.GeneratorDriverCache is object && !disableCache)
+            if (this.GeneratorDriverCache is not null && !disableCache)
             {
                 cacheKey = deriveCacheKey();
                 driver = this.GeneratorDriverCache.TryGetDriver(cacheKey)?
@@ -1063,7 +1063,7 @@ namespace Microsoft.CodeAnalysis
             var analyzerConfigProvider = CompilerAnalyzerConfigOptionsProvider.Empty;
             if (Arguments.AnalyzerConfigPaths.Length > 0)
             {
-                Debug.Assert(analyzerConfigSet is object);
+                Debug.Assert(analyzerConfigSet is not null);
                 analyzerConfigProvider = analyzerConfigProvider.WithGlobalOptions(new DictionaryAnalyzerConfigOptions(analyzerConfigSet.GetOptionsForSourcePath(string.Empty).AnalyzerOptions));
 
                 // https://github.com/dotnet/roslyn/issues/31916: The compiler currently doesn't support
@@ -1165,7 +1165,7 @@ namespace Microsoft.CodeAnalysis
 
                             // embed the generated text and get analyzer options for it if needed
                             embeddedTextBuilder.Add(EmbeddedText.FromSource(tree.FilePath, sourceText));
-                            if (analyzerOptionsBuilder is object)
+                            if (analyzerOptionsBuilder is not null)
                             {
                                 analyzerOptionsBuilder.Add(analyzerConfigSet!.GetOptionsForSourcePath(tree.FilePath));
                             }
@@ -1181,9 +1181,9 @@ namespace Microsoft.CodeAnalysis
                                 }
 
                                 var fileStream = OpenFile(path, diagnostics, FileMode.Create, FileAccess.Write, FileShare.ReadWrite | FileShare.Delete);
-                                if (fileStream is object)
+                                if (fileStream is not null)
                                 {
-                                    Debug.Assert(tree.Encoding is object);
+                                    Debug.Assert(tree.Encoding is not null);
 
                                     using var disposer = new NoThrowStreamDisposer(fileStream, path, diagnostics, MessageProvider);
                                     using var writer = new StreamWriter(fileStream, tree.Encoding);
@@ -1195,7 +1195,7 @@ namespace Microsoft.CodeAnalysis
                         }
 
                         embeddedTexts = embeddedTexts.AddRange(embeddedTextBuilder);
-                        if (analyzerOptionsBuilder is object)
+                        if (analyzerOptionsBuilder is not null)
                         {
                             analyzerConfigProvider = UpdateAnalyzerConfigOptionsProvider(
                                analyzerConfigProvider,

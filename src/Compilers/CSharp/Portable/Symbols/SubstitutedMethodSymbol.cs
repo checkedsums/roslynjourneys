@@ -45,12 +45,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected SubstitutedMethodSymbol(Symbol containingSymbol, TypeMap map, MethodSymbol originalDefinition, MethodSymbol constructedFrom)
         {
-            Debug.Assert((object)originalDefinition != null);
+            Debug.Assert(originalDefinition is not null);
             Debug.Assert(originalDefinition.IsDefinition);
             _containingSymbol = containingSymbol;
             _underlyingMethod = originalDefinition;
             _inputMap = map;
-            if ((object)constructedFrom != null)
+            if (constructedFrom is not null)
             {
                 _constructedFrom = constructedFrom;
                 Debug.Assert(ReferenceEquals(constructedFrom.ConstructedFrom, constructedFrom));
@@ -151,7 +151,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var method = OriginalDefinition.ReducedFrom;
-                return ((object)method == null) ? null : method.Construct(this.TypeArgumentsWithAnnotations);
+                return (method is null) ? null : method.Construct(this.TypeArgumentsWithAnnotations);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var reduced = this.CallsiteReducedFromMethod;
-                if ((object)reduced == null)
+                if (reduced is null)
                 {
                     return this.ContainingType;
                 }
@@ -174,7 +174,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // This will throw if API shouldn't be supported or there is a problem with the argument.
             var notUsed = OriginalDefinition.GetTypeInferredDuringReduction(reducedFromTypeParameter);
 
-            Debug.Assert((object)notUsed == null && (object)OriginalDefinition.ReducedFrom != null);
+            Debug.Assert(notUsed is null && OriginalDefinition.ReducedFrom is not null);
             return this.TypeArgumentsWithAnnotations[reducedFromTypeParameter.Ordinal].Type;
         }
 
@@ -220,7 +220,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 Symbol underlying = OriginalDefinition.AssociatedSymbol;
-                return ((object)underlying == null) ? null : underlying.SymbolAsMember(ContainingType);
+                return (underlying is null) ? null : underlying.SymbolAsMember(ContainingType);
             }
         }
 
@@ -322,7 +322,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return false;
             }
 
-            thisParameter = (object)originalThisParameter != null
+            thisParameter = originalThisParameter is not null
                 ? new ThisParameterSymbol(this)
                 : null;
             return true;
@@ -423,7 +423,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public sealed override bool Equals(Symbol obj, TypeCompareKind compareKind)
         {
             MethodSymbol other = obj as MethodSymbol;
-            if ((object)other == null) return false;
+            if (other is null) return false;
 
             if ((object)this.OriginalDefinition != (object)other.OriginalDefinition &&
                 this.OriginalDefinition != other.OriginalDefinition)

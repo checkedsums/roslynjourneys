@@ -68,7 +68,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(node.AccessorKind != AccessorKind.Unknown);
             Debug.Assert(node.Indexer.IsIndexer || node.Indexer.IsIndexedProperty);
-            Debug.Assert((object?)node.Indexer.GetOwnOrInheritedGetMethod() != null);
+            Debug.Assert(node.Indexer.GetOwnOrInheritedGetMethod() is not null);
 
             return VisitIndexerAccess(node, isLeftOfAssignment: false);
         }

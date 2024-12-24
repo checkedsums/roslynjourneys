@@ -31,7 +31,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         // CONSIDER: the 99% case is a very small set.  A list might be more efficient in such cases.
         private static ISet<T> GetSymbolsForExplicitlyImplementedAccessor<T>(MethodSymbol accessor) where T : Symbol
         {
-            if ((object)accessor == null)
+            if (accessor is null)
             {
                 return SpecializedCollections.EmptySet<T>();
             }
@@ -59,11 +59,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         // restrictive level that is no more restrictive than the getter/adder and setter/remover.
         internal static Accessibility GetDeclaredAccessibilityFromAccessors(MethodSymbol accessor1, MethodSymbol accessor2)
         {
-            if ((object)accessor1 == null)
+            if (accessor1 is null)
             {
-                return ((object)accessor2 == null) ? Accessibility.NotApplicable : accessor2.DeclaredAccessibility;
+                return (accessor2 is null) ? Accessibility.NotApplicable : accessor2.DeclaredAccessibility;
             }
-            else if ((object)accessor2 == null)
+            else if (accessor2 is null)
             {
                 return accessor1.DeclaredAccessibility;
             }

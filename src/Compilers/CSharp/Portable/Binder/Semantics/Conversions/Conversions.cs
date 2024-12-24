@@ -50,7 +50,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var (methodSymbol, isFunctionPointer, callingConventionInfo) = GetDelegateInvokeOrFunctionPointerMethodIfAvailable(destination);
-            if ((object)methodSymbol == null)
+            if (methodSymbol is null)
             {
                 return Conversion.NoConversion;
             }
@@ -248,7 +248,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private static MethodGroupResolution ResolveDelegateOrFunctionPointerMethodGroup(Binder binder, BoundMethodGroup source, MethodSymbol delegateInvokeMethodOpt, bool isFunctionPointer, in CallingConventionInfo callingConventionInfo, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
-            if ((object)delegateInvokeMethodOpt != null)
+            if (delegateInvokeMethodOpt is not null)
             {
                 var analyzedArguments = AnalyzedArguments.GetInstance();
                 GetDelegateOrFunctionPointerArguments(source.Syntax, analyzedArguments, delegateInvokeMethodOpt.Parameters, binder.Compilation);
@@ -278,13 +278,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var delegateType = type.GetDelegateType();
-            if ((object)delegateType == null)
+            if (delegateType is null)
             {
                 return (null, false, default);
             }
 
             MethodSymbol methodSymbol = delegateType.DelegateInvokeMethod;
-            if ((object)methodSymbol == null || methodSymbol.HasUseSiteError)
+            if (methodSymbol is null || methodSymbol.HasUseSiteError)
             {
                 return (null, false, default);
             }
@@ -322,7 +322,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (result.Succeeded)
                     {
                         var method = result.BestResult.Member;
-                        Debug.Assert((object)method != null);
+                        Debug.Assert(method is not null);
                         if (resolution.MethodGroup.IsExtensionMethodGroup)
                         {
                             Debug.Assert(method.IsExtensionMethod);
@@ -379,7 +379,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var result = OverloadResolutionResult<MethodSymbol>.GetInstance();
             var delegateInvokeMethod = delegateType.DelegateInvokeMethod;
 
-            Debug.Assert((object)delegateInvokeMethod != null && !delegateInvokeMethod.HasUseSiteError,
+            Debug.Assert(delegateInvokeMethod is not null && !delegateInvokeMethod.HasUseSiteError,
                          "This method should only be called for valid delegate types");
             GetDelegateOrFunctionPointerArguments(syntax, analyzedArguments, delegateInvokeMethod.Parameters, Compilation);
             _binder.OverloadResolution.MethodInvocationOverloadResolution(
@@ -485,8 +485,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (sourceExpression.NeedsToBeConverted())
             {
-                Debug.Assert((object)sourceExpression.Type == null);
-                Debug.Assert((object)sourceExpression.ElementType != null);
+                Debug.Assert(sourceExpression.Type is null);
+                Debug.Assert(sourceExpression.ElementType is not null);
 
                 var sourceAsPointer = new PointerTypeSymbol(TypeWithAnnotations.Create(sourceExpression.ElementType));
                 var pointerConversion = ClassifyImplicitConversionFromType(sourceAsPointer, destination, ref useSiteInfo);

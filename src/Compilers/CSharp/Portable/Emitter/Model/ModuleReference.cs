@@ -22,7 +22,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         internal ModuleReference(PEModuleBuilder moduleBeingBuilt, ModuleSymbol underlyingModule)
         {
             Debug.Assert(moduleBeingBuilt != null);
-            Debug.Assert((object)underlyingModule != null);
+            Debug.Assert(underlyingModule is not null);
 
             _moduleBeingBuilt = moduleBeingBuilt;
             _underlyingModule = underlyingModule;

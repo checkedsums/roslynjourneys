@@ -873,13 +873,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     declTypeOpt = TypeWithAnnotations.Create(initializerType);
 
-                    if (declTypeOpt.IsVoidType())
-                    {
-                        Error(localDiagnostics, ErrorCode.ERR_ImplicitlyTypedVariableAssignedBadValue, declarator, declTypeOpt.Type);
-                        declTypeOpt = TypeWithAnnotations.Create(CreateErrorType("var"));
-                        hasErrors = true;
-                    }
-
                     if (!declTypeOpt.Type.IsErrorType())
                     {
                         if (declTypeOpt.IsStatic)
@@ -1151,11 +1144,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private MethodSymbol GetFixedPatternMethodOpt(BoundExpression initializer, BindingDiagnosticBag additionalDiagnostics)
         {
-            if (initializer.Type.IsVoidType())
-            {
-                return null;
-            }
-
             const string methodName = "GetPinnableReference";
 
             var result = PerformPatternMethodLookup(initializer, methodName, initializer.Syntax, additionalDiagnostics, out var patternMethodSymbol, out bool isExpanded);
@@ -1291,9 +1279,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return op1.FailInference(this, diagnostics);
             }
 
-            if (inferredType.IsVoidType())
+            if (inferredType.SpecialType == SpecialType.System_Void)
             {
-                diagnostics.Add(ErrorCode.ERR_VoidAssignment, op1.Syntax.Location);
+                diagnostics.Add(ErrorCode.ERR_NoExplicitConv, op1.Syntax.Location, "void", "object");
             }
 
             return op1.SetInferredTypeWithAnnotations(TypeWithAnnotations.Create(inferredType));
@@ -2140,12 +2128,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return;
             }
 
-            if (targetType.IsVoidType())
-            {
-                Error(diagnostics, ErrorCode.ERR_NoImplicitConv, syntax, operand.Display, targetType);
-                return;
-            }
-
             switch (operand.Kind)
             {
                 case BoundKind.BadExpression:
@@ -2871,7 +2853,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // on a lambda expression of unknown return type.
             if (retType is not null)
             {
-                if (retType.IsVoidType() || IsEffectivelyTaskReturningAsyncMethod())
+                if (retType.SpecialType is SpecialType.System_Void || IsEffectivelyTaskReturningAsyncMethod())
                 {
                     if (arg != null)
                     {
@@ -2879,7 +2861,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         if (container is LambdaSymbol)
                         {
                             // Error case: void-returning or async task-returning method or lambda with "return x;"
-                            if (retType.IsVoidType())
+                            if (retType.SpecialType is SpecialType.System_Void)
                             {
                                 Error(diagnostics, ErrorCode.ERR_RetNoObjectRequiredLambda, syntax.ReturnKeyword);
                             }
@@ -2899,7 +2881,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         else
                         {
                             // Error case: void-returning or async task-returning method or lambda with "return x;"
-                            if (retType.IsVoidType())
+                            if (retType.SpecialType is SpecialType.System_Void)
                             {
                                 Error(diagnostics, ErrorCode.ERR_RetNoObjectRequired, syntax.ReturnKeyword, container);
                             }
@@ -2928,15 +2910,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         arg = CreateReturnConversion(syntax, diagnostics, arg, sigRefKind, retType);
                     }
-                }
-            }
-            else
-            {
-                // Check that the returned expression is not void.
-                if (arg?.Type is not null && arg.Type.IsVoidType())
-                {
-                    Error(diagnostics, ErrorCode.ERR_CantReturnVoid, expressionSyntax);
-                    hasErrors = true;
                 }
             }
 
@@ -3284,7 +3257,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     expression = BindToTypeForErrorRecovery(expression);
                     statement = new BoundReturnStatement(syntax, RefKind.None, expression, @checked: CheckOverflowAtRuntime) { WasCompilerGenerated = true };
                 }
-                else if (returnType.IsVoidType() || IsEffectivelyTaskReturningAsyncMethod())
+                else if (returnType.SpecialType is SpecialType.System_Void || IsEffectivelyTaskReturningAsyncMethod())
                 {
                     // If the return type is void then the expression is required to be a legal
                     // statement expression.

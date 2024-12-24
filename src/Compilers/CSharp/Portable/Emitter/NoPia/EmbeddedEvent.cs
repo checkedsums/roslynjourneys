@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
                     {
                         sourceInterface = attrData.CommonConstructorArguments[0].ValueInternal as NamedTypeSymbol;
 
-                        if ((object)sourceInterface != null)
+                        if (sourceInterface is not null)
                         {
                             foundMatch = EmbedMatchingInterfaceMethods(sourceInterface, syntaxNodeOpt, diagnostics);
 
@@ -104,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
 
                     if (!foundMatch && isUsedForComAwareEventBinding)
                     {
-                        if ((object)sourceInterface == null)
+                        if (sourceInterface is null)
                         {
                             // ERRID_SourceInterfaceMustBeInterface/ERR_MissingSourceInterface
                             EmbeddedTypesManager.Error(diagnostics, ErrorCode.ERR_MissingSourceInterface, syntaxNodeOpt, underlyingContainingType, UnderlyingEvent.AdaptedEventSymbol);

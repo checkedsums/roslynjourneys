@@ -310,7 +310,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // starting with the "this" proxy
             if (!method.IsStatic)
             {
-                Debug.Assert((object)method.ThisParameter != null);
+                Debug.Assert(method.ThisParameter is not null);
 
                 CapturedSymbolReplacement proxy;
                 if (proxies.TryGetValue(method.ThisParameter, out proxy))
@@ -384,10 +384,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Environment.CurrentManagedThreadId. If that method is not present (pre 4.5) fall back to the old behavior.
 
             var currentManagedThreadIdProperty = (PropertySymbol)F.WellKnownMember(WellKnownMember.System_Environment__CurrentManagedThreadId, isOptional: true);
-            if ((object)currentManagedThreadIdProperty != null)
+            if (currentManagedThreadIdProperty is not null)
             {
                 MethodSymbol currentManagedThreadIdMethod = currentManagedThreadIdProperty.GetMethod;
-                if ((object)currentManagedThreadIdMethod != null)
+                if (currentManagedThreadIdMethod is not null)
                 {
                     return F.Call(null, currentManagedThreadIdMethod);
                 }
@@ -430,7 +430,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var thisInitialized = F.GenerateLabel("thisInitialized");
 
-            if ((object)initialThreadIdField != null)
+            if (initialThreadIdField is not null)
             {
                 managedThreadId = MakeCurrentThreadId();
 
@@ -529,8 +529,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         protected bool CanGetThreadId()
         {
-            return (object)F.WellKnownMember(WellKnownMember.System_Threading_Thread__ManagedThreadId, isOptional: true) != null ||
-                (object)F.WellKnownMember(WellKnownMember.System_Environment__CurrentManagedThreadId, isOptional: true) != null;
+            return F.WellKnownMember(WellKnownMember.System_Threading_Thread__ManagedThreadId, isOptional: true) is not null ||
+                F.WellKnownMember(WellKnownMember.System_Environment__CurrentManagedThreadId, isOptional: true) is not null;
         }
     }
 }

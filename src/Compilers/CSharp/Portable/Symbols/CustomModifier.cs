@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private CSharpCustomModifier(NamedTypeSymbol modifier)
         {
-            Debug.Assert((object)modifier != null);
+            Debug.Assert(modifier is not null);
             this.modifier = modifier;
         }
 

@@ -69,7 +69,7 @@ namespace Microsoft.CodeAnalysis
             var id = MessageIdentifier;
             var helpLinkUri = baseDescriptor.HelpLinkUri;
 
-            if (urlFormat is object)
+            if (urlFormat is not null)
             {
                 try
                 {

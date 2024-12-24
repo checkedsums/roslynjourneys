@@ -4351,7 +4351,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 _placeholderLocalsOpt.Add(identifier, placeholder);
             }
 
-            Debug.Assert((object)placeholder != null);
+            Debug.Assert(placeholder is not null);
             return GetOrCreateSlot(placeholder, forceSlotEvenIfEmpty: true);
         }
 
@@ -8041,7 +8041,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private static Symbol AsMemberOfType(TypeSymbol? type, Symbol symbol)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             var containingType = type as NamedTypeSymbol;
             if (containingType is null || containingType.IsErrorType() || symbol is ErrorMethodSymbol)
@@ -8105,7 +8105,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return result;
                     }
                     containingType = containingType.BaseTypeNoUseSiteDiagnostics;
-                    if ((object)containingType == null)
+                    if (containingType is null)
                     {
                         break;
                     }
@@ -10673,7 +10673,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (member.Kind == SymbolKind.Property)
             {
                 var getMethod = ((PropertySymbol)member.OriginalDefinition).GetMethod;
-                if ((object)getMethod != null && getMethod.ContainingType.SpecialType == SpecialType.System_Nullable_T)
+                if (getMethod is not null && getMethod.ContainingType.SpecialType == SpecialType.System_Nullable_T)
                 {
                     if (getMethod == compilation.GetSpecialTypeMember(SpecialMember.System_Nullable_T_get_Value))
                     {
@@ -11207,7 +11207,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // Update method based on inferred operand types: see https://github.com/dotnet/roslyn/issues/29605.
             // Analyze operator result properly (honoring [Maybe|NotNull] and [Maybe|NotNullWhen] attribute annotations) https://github.com/dotnet/roslyn/issues/32671
-            if ((object)node.LogicalOperator != null && node.LogicalOperator.ParameterCount == 2)
+            if (node.LogicalOperator is not null && node.LogicalOperator.ParameterCount == 2)
             {
                 return GetReturnTypeWithState(node.LogicalOperator);
             }
@@ -11239,7 +11239,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         left = binary.Left;
                         trueFalseOperator = isAnd ? binary.FalseOperator : binary.TrueOperator;
 
-                        if ((object)trueFalseOperator != null && trueFalseOperator.ParameterCount != 1)
+                        if (trueFalseOperator is not null && trueFalseOperator.ParameterCount != 1)
                         {
                             trueFalseOperator = null;
                         }

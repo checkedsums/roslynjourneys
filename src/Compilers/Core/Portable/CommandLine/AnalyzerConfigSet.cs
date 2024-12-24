@@ -551,7 +551,7 @@ namespace Microsoft.CodeAnalysis
 
             private Section GetSection(string sectionName)
             {
-                Debug.Assert(_values is object);
+                Debug.Assert(_values is not null);
 
                 var dict = _values[sectionName];
                 var result = dict.ToImmutableDictionary(d => d.Key, d => d.Value.value, Section.PropertiesKeyComparer);
@@ -560,8 +560,8 @@ namespace Microsoft.CodeAnalysis
 
             private void MergeSection(string configPath, Section section, int globalLevel, bool isGlobalSection)
             {
-                Debug.Assert(_values is object);
-                Debug.Assert(_duplicates is object);
+                Debug.Assert(_values is not null);
+                Debug.Assert(_duplicates is not null);
 
                 if (!_values.TryGetValue(section.Name, out var sectionDict))
                 {

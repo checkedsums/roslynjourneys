@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal ExtendedErrorTypeSymbol(NamespaceOrTypeSymbol? containingSymbol, string name, int arity, DiagnosticInfo? errorInfo, bool unreported = false, bool variableUsedBeforeDeclaration = false)
         {
-            Debug.Assert(((object?)containingSymbol == null) ||
+            Debug.Assert((containingSymbol is null) ||
                 (containingSymbol.Kind == SymbolKind.Namespace) ||
                 (containingSymbol.Kind == SymbolKind.NamedType) ||
                 (containingSymbol.Kind == SymbolKind.ErrorType));
@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private static ImmutableArray<Symbol> UnwrapErrorCandidates(ImmutableArray<Symbol> candidateSymbols)
         {
             var candidate = candidateSymbols.IsEmpty ? null : candidateSymbols[0] as ErrorTypeSymbol;
-            return ((object?)candidate != null && !candidate.CandidateSymbols.IsEmpty) ? candidate.CandidateSymbols : candidateSymbols;
+            return (candidate is not null && !candidate.CandidateSymbols.IsEmpty) ? candidate.CandidateSymbols : candidateSymbols;
         }
 
         protected override NamedTypeSymbol WithTupleDataCore(TupleExtraData newData)
@@ -221,7 +221,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </remarks>
         internal static TypeSymbol? ExtractNonErrorType(TypeSymbol? oldSymbol)
         {
-            if ((object?)oldSymbol == null || oldSymbol.TypeKind != TypeKind.Error)
+            if (oldSymbol is null || oldSymbol.TypeKind != TypeKind.Error)
             {
                 return oldSymbol;
             }
@@ -236,10 +236,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // If the original definition isn't a CSErrorTypeSymbol, then we don't know how to
             // pull out a non-error type.  If it is, then if there is a unambiguous type inside it,
             // use that.
-            if ((object?)oldError != null && !oldError._candidateSymbols.IsDefault && oldError._candidateSymbols.Length == 1)
+            if (oldError is not null && !oldError._candidateSymbols.IsDefault && oldError._candidateSymbols.Length == 1)
             {
                 TypeSymbol? type = oldError._candidateSymbols[0] as TypeSymbol;
-                if ((object?)type != null)
+                if (type is not null)
                     return type.GetNonErrorGuess();
             }
 
@@ -265,12 +265,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // pull out a non-error type.  If it is, then if there is a unambiguous type inside it,
             // use that.
             TypeKind commonTypeKind = TypeKind.Error;
-            if ((object?)oldError != null && !oldError._candidateSymbols.IsDefault && oldError._candidateSymbols.Length > 0)
+            if (oldError is not null && !oldError._candidateSymbols.IsDefault && oldError._candidateSymbols.Length > 0)
             {
                 foreach (Symbol sym in oldError._candidateSymbols)
                 {
                     TypeSymbol? type = sym as TypeSymbol;
-                    if ((object?)type != null && type.TypeKind != TypeKind.Error)
+                    if (type is not null && type.TypeKind != TypeKind.Error)
                     {
                         if (commonTypeKind == TypeKind.Error)
                             commonTypeKind = type.TypeKind;
@@ -291,21 +291,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             var other = t2 as ExtendedErrorTypeSymbol;
-            if ((object?)other == null || _unreported || other._unreported)
+            if (other is null || _unreported || other._unreported)
             {
                 return false;
             }
 
             return
-                ((object)this.ContainingType != null ? this.ContainingType.Equals(other.ContainingType, comparison) :
-                 (object?)this.ContainingSymbol == null ? (object?)other.ContainingSymbol == null : this.ContainingSymbol.Equals(other.ContainingSymbol)) &&
+                (this.ContainingType is not null ? this.ContainingType.Equals(other.ContainingType, comparison) :
+                 this.ContainingSymbol is null ? other.ContainingSymbol is null : this.ContainingSymbol.Equals(other.ContainingSymbol)) &&
                 this.Name == other.Name && this.Arity == other.Arity;
         }
 
         public override int GetHashCode()
         {
             return Hash.Combine(this.Arity,
-                        Hash.Combine((object?)this.ContainingSymbol != null ? this.ContainingSymbol.GetHashCode() : 0,
+                        Hash.Combine(this.ContainingSymbol is not null ? this.ContainingSymbol.GetHashCode() : 0,
                                      this.Name != null ? this.Name.GetHashCode() : 0));
         }
 

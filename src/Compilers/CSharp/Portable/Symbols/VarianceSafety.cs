@@ -24,7 +24,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static void CheckInterfaceVarianceSafety(this NamedTypeSymbol interfaceType, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert((object)interfaceType != null && interfaceType.IsInterface);
+            Debug.Assert(interfaceType is not null && interfaceType.IsInterface);
 
             foreach (NamedTypeSymbol baseInterface in interfaceType.InterfacesNoUseSiteDiagnostics())
             {
@@ -207,7 +207,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return false;
             }
 
-            while ((object)namedType != null)
+            while (namedType is not null)
             {
                 for (int i = 0; i < namedType.Arity; i++)
                 {

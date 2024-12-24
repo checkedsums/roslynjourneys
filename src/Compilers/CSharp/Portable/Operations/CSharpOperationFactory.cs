@@ -853,7 +853,7 @@ namespace Microsoft.CodeAnalysis.Operations
             ITypeSymbol? type = boundObjectInitializerMember.GetPublicTypeSymbol();
             bool isImplicit = boundObjectInitializerMember.WasCompilerGenerated;
 
-            if ((object?)memberSymbol == null)
+            if (memberSymbol is null)
             {
                 Debug.Assert(boundObjectInitializerMember.Type.IsDynamic());
 

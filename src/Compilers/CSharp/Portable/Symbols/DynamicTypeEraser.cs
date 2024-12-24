@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public DynamicTypeEraser(TypeSymbol objectType)
         {
-            Debug.Assert((object)objectType != null);
+            Debug.Assert(objectType is not null);
             _objectType = objectType;
         }
 

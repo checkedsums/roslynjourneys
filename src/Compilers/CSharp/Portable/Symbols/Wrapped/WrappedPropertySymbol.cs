@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public WrappedPropertySymbol(PropertySymbol underlyingProperty)
         {
-            Debug.Assert((object)underlyingProperty != null);
+            Debug.Assert(underlyingProperty is not null);
             _underlyingProperty = underlyingProperty;
         }
 

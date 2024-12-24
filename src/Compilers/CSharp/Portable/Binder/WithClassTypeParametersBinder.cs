@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal WithClassTypeParametersBinder(NamedTypeSymbol container, Binder next)
             : base(next)
         {
-            Debug.Assert((object)container != null);
+            Debug.Assert(container is not null);
             _namedType = container;
         }
 

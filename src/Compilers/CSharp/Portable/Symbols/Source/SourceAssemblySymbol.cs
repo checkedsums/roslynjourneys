@@ -412,7 +412,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var attributeValue = AssemblyVersionAttributeSetting;
-                return (object)attributeValue == null || (attributeValue.Build != ushort.MaxValue && attributeValue.Revision != ushort.MaxValue) ? null : attributeValue;
+                return attributeValue is null || (attributeValue.Build != ushort.MaxValue && attributeValue.Revision != ushort.MaxValue) ? null : attributeValue;
             }
         }
 
@@ -648,7 +648,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (!compilationOptions.OutputKind.IsNetModule())
             {
                 TypeSymbol compilationRelaxationsAttribute = compilation.GetWellKnownType(WellKnownType.System_Runtime_CompilerServices_CompilationRelaxationsAttribute);
-                Debug.Assert((object)compilationRelaxationsAttribute != null, "GetWellKnownType unexpectedly returned null");
+                Debug.Assert(compilationRelaxationsAttribute is not null, "GetWellKnownType unexpectedly returned null");
                 if (!(compilationRelaxationsAttribute is MissingMetadataTypeSymbol))
                 {
                     // As in Dev10 (see GlobalAttrBind::EmitCompilerGeneratedAttrs), we only synthesize this attribute if CompilationRelaxationsAttribute is found.
@@ -657,7 +657,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
 
                 TypeSymbol runtimeCompatibilityAttribute = compilation.GetWellKnownType(WellKnownType.System_Runtime_CompilerServices_RuntimeCompatibilityAttribute);
-                Debug.Assert((object)runtimeCompatibilityAttribute != null, "GetWellKnownType unexpectedly returned null");
+                Debug.Assert(runtimeCompatibilityAttribute is not null, "GetWellKnownType unexpectedly returned null");
                 if (!(runtimeCompatibilityAttribute is MissingMetadataTypeSymbol))
                 {
                     // As in Dev10 (see GlobalAttrBind::EmitCompilerGeneratedAttrs), we only synthesize this attribute if RuntimeCompatibilityAttribute is found.
@@ -690,7 +690,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             TypeSymbol unverifiableCodeAttribute = compilation.GetWellKnownType(WellKnownType.System_Security_UnverifiableCodeAttribute);
-            Debug.Assert((object)unverifiableCodeAttribute != null, "GetWellKnownType unexpectedly returned null");
+            Debug.Assert(unverifiableCodeAttribute is not null, "GetWellKnownType unexpectedly returned null");
             if (unverifiableCodeAttribute is MissingMetadataTypeSymbol)
             {
                 return;
@@ -702,14 +702,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 WellKnownMember.System_Security_UnverifiableCodeAttribute__ctor, diagnostics, NoLocation.Singleton);
 
             TypeSymbol securityPermissionAttribute = compilation.GetWellKnownType(WellKnownType.System_Security_Permissions_SecurityPermissionAttribute);
-            Debug.Assert((object)securityPermissionAttribute != null, "GetWellKnownType unexpectedly returned null");
+            Debug.Assert(securityPermissionAttribute is not null, "GetWellKnownType unexpectedly returned null");
             if (securityPermissionAttribute is MissingMetadataTypeSymbol)
             {
                 return;
             }
 
             TypeSymbol securityAction = compilation.GetWellKnownType(WellKnownType.System_Security_Permissions_SecurityAction);
-            Debug.Assert((object)securityAction != null, "GetWellKnownType unexpectedly returned null");
+            Debug.Assert(securityAction is not null, "GetWellKnownType unexpectedly returned null");
             if (securityAction is MissingMetadataTypeSymbol)
             {
                 return;
@@ -971,7 +971,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var fileRef = pair.Key as PortableExecutableReference;
 
-                if ((object)fileRef != null && (object)fileRef.FilePath != null)
+                if (fileRef is not null && fileRef.FilePath is not null)
                 {
                     string fileName = FileNameUtilities.GetFileName(fileRef.FilePath);
                     string moduleName = _modules[pair.Value].Name;
@@ -1054,7 +1054,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var mergedNs = ns as MergedNamespaceSymbol;
 
-            if ((object)mergedNs == null)
+            if (mergedNs is null)
             {
                 return;
             }
@@ -1418,7 +1418,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 {
                                     DiagnosticInfo info = ((ErrorTypeSymbol)forwarded).ErrorInfo;
 
-                                    if ((object)info != null)
+                                    if (info is not null)
                                     {
                                         diagnostics.Add(info, NoLocation.Singleton);
                                     }
@@ -1824,7 +1824,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         var fieldRequestMinimum = (FieldSymbol)_compilation.GetWellKnownTypeMember(WellKnownMember.System_Security_Permissions_SecurityAction__RequestMinimum);
 
                         // NOTE: Dev10 handles missing enum value.
-                        object constantValue = (object)fieldRequestMinimum == null || fieldRequestMinimum.HasUseSiteError ? 0 : fieldRequestMinimum.ConstantValue;
+                        object constantValue = fieldRequestMinimum is null || fieldRequestMinimum.HasUseSiteError ? 0 : fieldRequestMinimum.ConstantValue;
                         var typedConstantRequestMinimum = new TypedConstant(securityActionType, TypedConstantKind.Enum, constantValue);
 
                         var boolType = _compilation.GetSpecialType(SpecialType.System_Boolean);
@@ -2154,7 +2154,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (_lazyStrongNameKeys == null)
             {
                 var assemblyWhoseKeysAreBeingComputed = t_assemblyForWhichCurrentThreadIsComputingKeys;
-                if ((object)assemblyWhoseKeysAreBeingComputed != null)
+                if (assemblyWhoseKeysAreBeingComputed is not null)
                 {
                     //ThrowIfFalse(assemblyWhoseKeysAreBeingComputed Is Me);
                     if (!potentialGiverOfAccess.GetInternalsVisibleToPublicKeys(this.Name).IsEmpty())
@@ -2195,7 +2195,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static Location GetAssemblyAttributeLocationForDiagnostic(AttributeSyntax attributeSyntaxOpt)
         {
-            return (object)attributeSyntaxOpt != null ? attributeSyntaxOpt.Location : NoLocation.Singleton;
+            return attributeSyntaxOpt is not null ? attributeSyntaxOpt.Location : NoLocation.Singleton;
         }
 
         private void DecodeTypeForwardedToAttribute(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
@@ -2207,7 +2207,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             TypeSymbol forwardedType = (TypeSymbol)arguments.Attribute.CommonConstructorArguments[0].ValueInternal;
 
             // This can happen if the argument is the null literal.
-            if ((object)forwardedType == null)
+            if (forwardedType is null)
             {
                 diagnostics.Add(ErrorCode.ERR_InvalidFwdType, GetAssemblyAttributeLocationForDiagnostic(arguments.AttributeSyntaxOpt));
                 return;
@@ -2228,7 +2228,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return;
             }
 
-            if ((object)forwardedType.ContainingType != null)
+            if (forwardedType.ContainingType is not null)
             {
                 diagnostics.Add(ErrorCode.ERR_ForwardedTypeIsNested, GetAssemblyAttributeLocationForDiagnostic(arguments.AttributeSyntaxOpt), forwardedType, forwardedType.ContainingType);
                 return;
@@ -2560,7 +2560,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
             else if (attribute.IsTargetAttribute(AttributeDescription.CaseSensitiveExtensionAttribute))
             {
-                if ((object)arguments.AttributeSyntaxOpt != null)
+                if (arguments.AttributeSyntaxOpt is not null)
                 {
                     // [Extension] attribute should not be set explicitly.
                     diagnostics.Add(ErrorCode.ERR_ExplicitExtension, arguments.AttributeSyntaxOpt.Location);
@@ -2601,7 +2601,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (arg < 0)
                 {
                     // CS0591: Invalid value for argument to '{0}' attribute
-                    diagnostics.Add(ErrorCode.ERR_InvalidAttributeArgument, attribute.GetAttributeArgumentLocation(i), (object)nodeOpt != null ? nodeOpt.GetErrorDisplayName() : "");
+                    diagnostics.Add(ErrorCode.ERR_InvalidAttributeArgument, attribute.GetAttributeArgumentLocation(i), nodeOpt is not null ? nodeOpt.GetErrorDisplayName() : "");
                 }
             }
         }
@@ -2609,7 +2609,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal void NoteFieldAccess(FieldSymbol field, bool read, bool write)
         {
             var container = field.ContainingType as SourceMemberContainerTypeSymbol;
-            if ((object)container == null)
+            if (container is null)
             {
                 // field is not in source.
                 return;
@@ -2703,7 +2703,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
 
                     var containingType = field.ContainingType as SourceNamedTypeSymbol;
-                    if ((object)containingType == null)
+                    if (containingType is null)
                     {
                         continue;
                     }
@@ -2729,7 +2729,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
 
                     Symbol associatedPropertyOrEvent = field.AssociatedSymbol;
-                    if ((object)associatedPropertyOrEvent != null && associatedPropertyOrEvent.Kind == SymbolKind.Event)
+                    if (associatedPropertyOrEvent is not null && associatedPropertyOrEvent.Kind == SymbolKind.Event)
                     {
                         if (unread)
                         {
@@ -2764,7 +2764,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
 
                     var containingType = field.ContainingType as SourceNamedTypeSymbol;
-                    if ((object)containingType != null && !containingType.HasStructLayoutAttribute && !containingType.HasInlineArrayAttribute(out _))
+                    if (containingType is not null && !containingType.HasStructLayoutAttribute && !containingType.HasInlineArrayAttribute(out _))
                     {
                         diagnostics.Add(ErrorCode.WRN_UnreferencedFieldAssg, field.GetFirstLocationOrNone(), field);
                     }
@@ -2835,7 +2835,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     foreach (NamedTypeSymbol forwardedType in forwardedTypes)
                     {
                         NamedTypeSymbol originalDefinition = forwardedType.OriginalDefinition;
-                        Debug.Assert((object)originalDefinition.ContainingType == null, "How did a nested type get forwarded?");
+                        Debug.Assert(originalDefinition.ContainingType is null, "How did a nested type get forwarded?");
 
                         string fullEmittedName = MetadataHelpers.BuildQualifiedName(originalDefinition.ContainingSymbol.ToDisplayString(SymbolDisplayFormat.QualifiedNameOnlyFormat),
                                                                                     originalDefinition.MetadataName);
@@ -2873,9 +2873,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     (AssemblySymbol firstSymbol, AssemblySymbol secondSymbol) = peModuleSymbol.GetAssembliesForForwardedType(ref emittedName);
 
-                    if ((object)firstSymbol != null)
+                    if (firstSymbol is not null)
                     {
-                        if ((object)secondSymbol != null)
+                        if (secondSymbol is not null)
                         {
                             return CreateMultipleForwardingErrorTypeSymbol(ref emittedName, peModuleSymbol, firstSymbol, secondSymbol);
                         }

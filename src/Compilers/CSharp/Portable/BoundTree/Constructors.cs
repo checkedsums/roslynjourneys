@@ -543,7 +543,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public BoundTypeExpression(SyntaxNode syntax, AliasSymbol? aliasOpt, BoundTypeExpression? boundContainingTypeOpt, ImmutableArray<BoundExpression> boundDimensionsOpt, TypeWithAnnotations typeWithAnnotations, bool hasErrors = false)
             : this(syntax, aliasOpt, boundContainingTypeOpt, boundDimensionsOpt, typeWithAnnotations, typeWithAnnotations.Type, hasErrors)
         {
-            Debug.Assert((object)typeWithAnnotations.Type != null, "Field 'type' cannot be null");
+            Debug.Assert(typeWithAnnotations.Type is not null, "Field 'type' cannot be null");
         }
 
         public BoundTypeExpression(SyntaxNode syntax, AliasSymbol? aliasOpt, BoundTypeExpression? boundContainingTypeOpt, TypeWithAnnotations typeWithAnnotations, bool hasErrors = false)
@@ -599,7 +599,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public BoundBadExpression(SyntaxNode syntax, LookupResultKind resultKind, ImmutableArray<Symbol?> symbols, ImmutableArray<BoundExpression> childBoundNodes, TypeSymbol type)
             : this(syntax, resultKind, symbols, childBoundNodes, type, true)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
         }
     }
 

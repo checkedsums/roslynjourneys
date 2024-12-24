@@ -214,7 +214,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 case BoundKind.ThisReference:
                 case BoundKind.BaseReference:
-                    return (object)MethodThisParameter != null ? GetOrCreateSlot(MethodThisParameter) : -1;
+                    return MethodThisParameter is not null ? GetOrCreateSlot(MethodThisParameter) : -1;
                 case BoundKind.Local:
                     return GetOrCreateSlot(((BoundLocal)node).LocalSymbol);
                 case BoundKind.Parameter:

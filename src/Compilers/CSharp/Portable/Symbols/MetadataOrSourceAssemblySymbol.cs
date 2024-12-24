@@ -51,7 +51,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 #endif
 
-            if (_lazySpecialTypes == null || (object)_lazySpecialTypes[(int)type] == null)
+            if (_lazySpecialTypes == null || _lazySpecialTypes[(int)type] is null)
             {
                 MetadataTypeName emittedName = MetadataTypeName.FromFullName(type.GetMetadataName(), useCLSCompliantNameArityEncoding: true);
                 ModuleSymbol module = this.Modules[0];
@@ -91,7 +91,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     new NamedTypeSymbol[(int)InternalSpecialType.NextAvailable], null);
             }
 
-            if ((object)Interlocked.CompareExchange(ref _lazySpecialTypes[(int)typeId], corType, null) != null)
+            if (Interlocked.CompareExchange(ref _lazySpecialTypes[(int)typeId], corType, null) is not null)
             {
                 Debug.Assert(ReferenceEquals(corType, _lazySpecialTypes[(int)typeId]) ||
                                         (corType.Kind == SymbolKind.ErrorType &&

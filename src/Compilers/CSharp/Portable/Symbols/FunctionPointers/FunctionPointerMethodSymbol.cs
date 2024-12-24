@@ -70,11 +70,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 returnType = typeBinder.BindType(returnTypeParameter.Type, diagnostics, basesBeingResolved, suppressUseSiteDiagnostics);
 
-                if (returnType.IsVoidType() && refKind != RefKind.None)
-                {
-                    diagnostics.Add(ErrorCode.ERR_NoVoidHere, returnTypeParameter.Location);
-                }
-                else if (returnType.IsStatic)
+                if (returnType.IsStatic)
                 {
                     diagnostics.Add(ErrorFacts.GetStaticClassReturnCode(useWarning: false), returnTypeParameter.Location, returnType);
                 }

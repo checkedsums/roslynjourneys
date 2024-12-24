@@ -466,7 +466,7 @@ namespace Microsoft.CodeAnalysis.Emit
                     return _synthesizedTypes;
                 }
 
-                Debug.Assert(LazyMetadataSymbols is object);
+                Debug.Assert(LazyMetadataSymbols is not null);
                 return LazyMetadataSymbols.SynthesizedTypes;
             }
         }

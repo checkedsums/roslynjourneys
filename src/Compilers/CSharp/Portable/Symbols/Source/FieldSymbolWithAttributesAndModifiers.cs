@@ -161,7 +161,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected override void DecodeWellKnownAttributeImpl(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
 
             var attribute = arguments.Attribute;
@@ -275,7 +275,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     {
                         constValue = this.GetConstantValue(ConstantFieldsInProgress.Empty, earlyDecodingWellKnownAttributes: false);
 
-                        if ((object)constValue != null && !constValue.IsBad && constValue != attrValue)
+                        if (constValue is not null && !constValue.IsBad && constValue != attrValue)
                         {
                             diagnostics.Add(ErrorCode.ERR_FieldHasMultipleDistinctConstantValues, arguments.AttributeSyntaxOpt.Location);
                         }

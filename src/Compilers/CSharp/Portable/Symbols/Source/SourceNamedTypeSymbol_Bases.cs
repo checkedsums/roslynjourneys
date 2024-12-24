@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     // force resolution of bases in containing type
                     // to make base resolution errors more deterministic
-                    if ((object)ContainingType != null &&
+                    if (ContainingType is not null &&
                         TypeKind is not (TypeKind.Enum or TypeKind.Delegate or TypeKind.Submission))
                     {
                         var tmp = ContainingType.BaseTypeNoUseSiteDiagnostics;
@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var localBase = this.BaseTypeNoUseSiteDiagnostics;
 
-            if ((object)localBase == null)
+            if (localBase is null)
             {
                 // nothing to verify
                 return;
@@ -292,25 +292,25 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             foreach (var decl in this.declaration.Declarations)
             {
                 Tuple<NamedTypeSymbol, ImmutableArray<NamedTypeSymbol>> one = MakeOneDeclaredBases(newBasesBeingResolved, decl, diagnostics);
-                if ((object)one == null) continue;
+                if (one is null) continue;
 
                 var partBase = one.Item1;
                 var partInterfaces = one.Item2;
                 if (!reportedPartialConflict)
                 {
-                    if ((object)baseType == null)
+                    if (baseType is null)
                     {
                         baseType = partBase;
                         baseTypeLocation = decl.NameLocation;
                     }
-                    else if (baseType.TypeKind == TypeKind.Error && (object)partBase != null)
+                    else if (baseType.TypeKind == TypeKind.Error && partBase is not null)
                     {
                         // if the old base was an error symbol, copy it to the interfaces list so it doesn't get lost
                         partInterfaces = partInterfaces.Add(baseType);
                         baseType = partBase;
                         baseTypeLocation = decl.NameLocation;
                     }
-                    else if ((object)partBase != null && !TypeSymbol.Equals(partBase, baseType, TypeCompareKind.ConsiderEverything) && partBase.TypeKind != TypeKind.Error)
+                    else if (partBase is not null && !TypeSymbol.Equals(partBase, baseType, TypeCompareKind.ConsiderEverything) && partBase.TypeKind != TypeKind.Error)
                     {
                         // the parts do not agree
                         if (partBase.Equals(baseType, TypeCompareKind.ObliviousNullableModifierMatchesAny))
@@ -371,7 +371,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            if ((object)baseType != null)
+            if (baseType is not null)
             {
                 Debug.Assert(baseTypeLocation != null);
                 if (baseType.IsStatic)
@@ -515,10 +515,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                          baseType.TypeKind == TypeKind.Delegate ||
                          baseType.TypeKind == TypeKind.Struct ||
                          baseTypeIsErrorWithoutInterfaceGuess) &&
-                        ((object)localBase == null))
+                        (localBase is null))
                     {
                         localBase = (NamedTypeSymbol)baseType;
-                        Debug.Assert((object)localBase != null);
+                        Debug.Assert(localBase is not null);
                         if (this.IsStatic && localBase.SpecialType != SpecialType.System_Object)
                         {
                             // Static class '{0}' cannot derive from type '{1}'. Static classes must derive from object.
@@ -572,7 +572,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case TypeKind.Class:
                         if (TypeKind == TypeKind.Class)
                         {
-                            if ((object)localBase == null)
+                            if (localBase is null)
                             {
                                 localBase = (NamedTypeSymbol)baseType;
                                 diagnostics.Add(ErrorCode.ERR_BaseClassMustBeFirst, location, baseType);
@@ -608,7 +608,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            if (this.SpecialType == SpecialType.System_Object && ((object)localBase != null || localInterfaces.Count != 0))
+            if (this.SpecialType == SpecialType.System_Object && (localBase is not null || localInterfaces.Count != 0))
             {
                 var name = GetName(bases.Parent);
                 diagnostics.Add(ErrorCode.ERR_ObjectCantHaveBases, new SourceLocation(name));
@@ -702,7 +702,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             NamedTypeSymbol declaredBase;
             if (typeKind == TypeKind.Enum)
             {
-                Debug.Assert((object)GetDeclaredBaseType(basesBeingResolved: null) == null, "Computation skipped for enums");
+                Debug.Assert(GetDeclaredBaseType(basesBeingResolved: null) is null, "Computation skipped for enums");
                 declaredBase = compilation.GetSpecialType(SpecialType.System_Enum);
             }
             else
@@ -710,7 +710,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 declaredBase = GetDeclaredBaseType(basesBeingResolved: null);
             }
 
-            if ((object)declaredBase == null)
+            if (declaredBase is null)
             {
                 switch (typeKind)
                 {
@@ -761,7 +761,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 current.AddUseSiteInfo(ref useSiteInfo);
                 current = current.BaseTypeNoUseSiteDiagnostics;
             }
-            while ((object)current != null);
+            while (current is not null);
 
             diagnostics.Add(useSiteInfo.Diagnostics.IsNullOrEmpty() ? Location.None : (FindBaseRefSyntax(declaredBase) ?? GetFirstLocation()), useSiteInfo);
 

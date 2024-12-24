@@ -48,7 +48,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool CanBeConst(this TypeSymbol typeSymbol)
         {
-            RoslynDebug.Assert((object)typeSymbol != null);
+            RoslynDebug.Assert(typeSymbol is not null);
 
             return typeSymbol.IsReferenceType || typeSymbol.IsEnumType() || typeSymbol.SpecialType.CanBeConst() || typeSymbol.IsNativeIntegerType;
         }
@@ -100,11 +100,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             return !IsNullableTypeOrTypeParameter(typeArgument);
-        }
-
-        public static bool IsVoidType(this TypeSymbol type)
-        {
-            return type.SpecialType == SpecialType.System_Void;
         }
 
         public static bool IsNullableTypeOrTypeParameter(this TypeSymbol? type)
@@ -169,7 +164,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static TypeWithAnnotations GetNullableUnderlyingTypeWithAnnotations(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             RoslynDebug.Assert(IsNullableType(type));
             RoslynDebug.Assert(type is NamedTypeSymbol);  //not testing Kind because it may be an ErrorType
 
@@ -218,7 +213,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsEnumType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Enum;
         }
 
@@ -259,7 +254,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // or named parameter in an attribute specification.
 
             TypedConstantKind kind = TypedConstantKind.Error;
-            if ((object)type == null)
+            if (type is null)
             {
                 return TypedConstantKind.Error;
             }
@@ -325,25 +320,25 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsInterfaceType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.Kind == SymbolKind.NamedType && ((NamedTypeSymbol)type).IsInterface;
         }
 
         public static bool IsClassType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Class;
         }
 
         public static bool IsStructType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Struct;
         }
 
         public static bool IsErrorType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.Kind == SymbolKind.ErrorType;
         }
 
@@ -359,19 +354,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsTypeParameter(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.TypeParameter;
         }
 
         public static bool IsArray(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Array;
         }
 
         public static bool IsSZArray(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Array && ((ArrayTypeSymbol)type).IsSZArray;
         }
 
@@ -557,7 +552,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             for (int i = 0; i < names.Length; i++)
             {
-                if ((object)symbol == null || symbol.Name != names[i]) return false;
+                if (symbol is null || symbol.Name != names[i]) return false;
                 symbol = symbol.ContainingSymbol;
             }
 
@@ -566,7 +561,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsDelegateType(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             return type.TypeKind == TypeKind.Delegate;
         }
 
@@ -608,7 +603,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static MethodSymbol? DelegateInvokeMethod(this TypeSymbol type)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             RoslynDebug.Assert(type.IsDelegateType() || type.IsExpressionTree());
             return type.GetDelegateType()!.DelegateInvokeMethod;
         }
@@ -625,7 +620,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // SPEC:    one of the following value types:
             // SPEC:    sbyte, byte, short, ushort, int, uint, long, ulong, char, float, double, decimal, bool, or any enumeration type.
 
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
 
             if (type.IsErrorType())
             {
@@ -780,7 +775,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case TypeKind.Delegate:
                         {
                             var containingType = current.ContainingType;
-                            if ((object)containingType != null)
+                            if (containingType is not null)
                             {
                                 isNestedNamedType = true;
                                 var result = VisitType(default, containingType, typeWithAnnotationsPredicate, typePredicate, arg, canDigThroughNullable, useDefaultType, visitCustomModifiers);
@@ -793,7 +788,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         break;
 
                     case TypeKind.Submission:
-                        RoslynDebug.Assert((object)current.ContainingType == null);
+                        RoslynDebug.Assert(current.ContainingType is null);
                         break;
                 }
 
@@ -1041,7 +1036,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             var parent1 = s1.ContainingType;
 
-                            if ((object)parent1 == null)
+                            if (parent1 is null)
                             {
                                 // not helpful
                             }
@@ -1049,7 +1044,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             {
                                 // if s2 is private and within s1's parent or within a subclass of s1's parent,
                                 // then this is at least as restrictive as s1's protected.
-                                for (var parent2 = s2.ContainingType; (object)parent2 != null; parent2 = parent2.ContainingType)
+                                for (var parent2 = s2.ContainingType; parent2 is not null; parent2 = parent2.ContainingType)
                                 {
                                     if (parent1.IsAccessibleViaInheritance(parent2, ref useSiteInfo))
                                     {
@@ -1062,7 +1057,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 // if s2 is protected, and it's parent is a subclass (or the same as) s1's parent
                                 // then this is at least as restrictive as s1's protected
                                 var parent2 = s2.ContainingType;
-                                if ((object)parent2 != null && parent1.IsAccessibleViaInheritance(parent2, ref useSiteInfo))
+                                if (parent2 is not null && parent1.IsAccessibleViaInheritance(parent2, ref useSiteInfo))
                                 {
                                     return true;
                                 }
@@ -1075,7 +1070,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         {
                             var parent1 = s1.ContainingType;
 
-                            if ((object)parent1 == null)
+                            if (parent1 is null)
                             {
                                 break;
                             }
@@ -1091,7 +1086,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                         return true;
                                     }
 
-                                    for (var parent2 = s2.ContainingType; (object)parent2 != null; parent2 = parent2.ContainingType)
+                                    for (var parent2 = s2.ContainingType; parent2 is not null; parent2 = parent2.ContainingType)
                                     {
                                         if (parent1.IsAccessibleViaInheritance(parent2, ref useSiteInfo))
                                         {
@@ -1153,13 +1148,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             // least as restrictive as s1's private.
                             NamedTypeSymbol parent1 = s1.ContainingType;
 
-                            if ((object)parent1 == null)
+                            if (parent1 is null)
                             {
                                 break;
                             }
 
                             var parent1OriginalDefinition = parent1.OriginalDefinition;
-                            for (var parent2 = s2.ContainingType; (object)parent2 != null; parent2 = parent2.ContainingType)
+                            for (var parent2 = s2.ContainingType; parent2 is not null; parent2 = parent2.ContainingType)
                             {
                                 if (ReferenceEquals(parent2.OriginalDefinition, parent1OriginalDefinition) || parent1OriginalDefinition.TypeKind == TypeKind.Submission && parent2.TypeKind == TypeKind.Submission)
                                 {
@@ -1185,7 +1180,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsTopLevelType(this NamedTypeSymbol type)
         {
-            return (object)type.ContainingType == null;
+            return type.ContainingType is null;
         }
 
         /// <summary>
@@ -1205,7 +1200,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool ContainsTypeParameter(this TypeSymbol type, MethodSymbol parameterContainer)
         {
-            RoslynDebug.Assert((object)parameterContainer != null);
+            RoslynDebug.Assert(parameterContainer is not null);
 
             var result = type.VisitType(s_isTypeParameterWithSpecificContainerPredicate, parameterContainer);
             return result is not null;
@@ -1299,7 +1294,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static TypeSymbol? GetNonErrorGuess(this TypeSymbol type)
         {
             var result = ExtendedErrorTypeSymbol.ExtractNonErrorType(type);
-            RoslynDebug.Assert((object?)result == null || !result.IsErrorType());
+            RoslynDebug.Assert(result is null || !result.IsErrorType());
             return result;
         }
 
@@ -1328,7 +1323,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // SPEC:       sbyte, byte, short, ushort, int, uint, long, ulong, char, string, or, a nullable type
             // SPEC:       corresponding to one of those types
 
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             if (type.IsNullableType())
             {
                 type = type.GetNullableUnderlyingType();
@@ -1432,7 +1427,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                                 bool ignoreSpanLikeTypes = false)
         {
             // See Dev10 C# compiler, "type.cpp", bool Type::isSpecialByRefType() const
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
             switch (type.SpecialType)
             {
                 case SpecialType.System_TypedReference:
@@ -1548,7 +1543,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static bool IsVoidPointer(this TypeSymbol type)
         {
-            return type is PointerTypeSymbol p && p.PointedAtType.IsVoidType();
+            return type is PointerTypeSymbol p && p.PointedAtType.SpecialType is SpecialType.System_Void;
         }
 
         /// <summary>
@@ -1649,7 +1644,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (type.SpecialType == SpecialType.System_Object)
             {
                 AssemblySymbol assembly = containingType.ContainingAssembly;
-                if ((object)assembly != null &&
+                if (assembly is not null &&
                     assembly.IsLinked &&
                     containingType.IsComImport)
                 {
@@ -1684,7 +1679,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static ImmutableArray<TypeParameterSymbol> GetAllTypeParameters(this NamedTypeSymbol type)
         {
             // Avoid allocating a builder in the common case.
-            if ((object)type.ContainingType == null)
+            if (type.ContainingType is null)
             {
                 return type.TypeParameters;
             }
@@ -1701,7 +1696,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static void GetAllTypeParameters(this NamedTypeSymbol type, ArrayBuilder<TypeParameterSymbol> result)
         {
             var containingType = type.ContainingType;
-            if ((object)containingType != null)
+            if (containingType is not null)
             {
                 containingType.GetAllTypeParameters(result);
             }
@@ -1836,7 +1831,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 return true;
             }
-            if (namedType.IsVoidType())
+            if (namedType.SpecialType is SpecialType.System_Void)
             {
                 return false;
             }
@@ -1888,7 +1883,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </remarks>
         internal static bool IsCustomTaskType(this NamedTypeSymbol type, [NotNullWhen(true)] out TypeSymbol? builderArgument)
         {
-            RoslynDebug.Assert((object)type != null);
+            RoslynDebug.Assert(type is not null);
 
             var arity = type.Arity;
             if (arity < 2)
@@ -2225,7 +2220,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case SpecialType.System_Decimal: return 16;
 
                 case SpecialType.None:
-                    if ((object)type != null && type.IsNullableType())
+                    if (type is not null && type.IsNullableType())
                     {
                         TypeSymbol underlyingType = type.GetNullableUnderlyingType();
 

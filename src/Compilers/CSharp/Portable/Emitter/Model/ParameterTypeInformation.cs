@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         public ParameterTypeInformation(ParameterSymbol underlyingParameter)
         {
-            Debug.Assert((object)underlyingParameter != null);
+            Debug.Assert(underlyingParameter is not null);
 
             _underlyingParameter = underlyingParameter;
         }

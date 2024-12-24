@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Consumers will separate the types as appropriate because the sets cannot contain the same types
             // and interfaces can be easily identified.
 
-            if ((object)type == null)
+            if (type is null)
             {
                 return;
             }
@@ -128,7 +128,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamedTypeSymbol t = type.BaseTypeWithDefinitionUseSiteDiagnostics(ref useSiteInfo);
-                while ((object)t != null)
+                while (t is not null)
                 {
                     if (!excludeExisting || !HasIdentityConversionToAny(t, result))
                     {

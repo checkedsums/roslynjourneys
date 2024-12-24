@@ -25,7 +25,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal SourceClonedParameterSymbol(SourceParameterSymbol originalParam, Symbol newOwner, int newOrdinal, bool suppressOptional)
             : base(newOwner, newOrdinal)
         {
-            Debug.Assert((object)originalParam != null);
+            Debug.Assert(originalParam is not null);
             _suppressOptional = suppressOptional;
             _originalParam = originalParam;
         }

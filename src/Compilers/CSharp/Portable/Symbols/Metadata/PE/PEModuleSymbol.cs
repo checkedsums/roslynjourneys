@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         private PEModuleSymbol(AssemblySymbol assemblySymbol, PEModule module, MetadataImportOptions importOptions, int ordinal)
         {
-            Debug.Assert((object)assemblySymbol != null);
+            Debug.Assert(assemblySymbol is not null);
             Debug.Assert(module != null);
 
             _assemblySymbol = assemblySymbol;
@@ -536,7 +536,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             get
             {
                 var assembly = _assemblySymbol as PEAssemblySymbol;
-                if ((object)assembly != null)
+                if (assembly is not null)
                 {
                     return assembly.DocumentationProvider;
                 }
@@ -553,14 +553,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         {
             get
             {
-                if ((object?)_lazyEventRegistrationTokenSymbol == null)
+                if (_lazyEventRegistrationTokenSymbol is null)
                 {
                     Interlocked.CompareExchange(ref _lazyEventRegistrationTokenSymbol,
                                                 GetTypeSymbolForWellKnownType(
                                                     WellKnownType.System_Runtime_InteropServices_WindowsRuntime_EventRegistrationToken
                                                     ),
                                                 null);
-                    Debug.Assert((object)_lazyEventRegistrationTokenSymbol != null);
+                    Debug.Assert(_lazyEventRegistrationTokenSymbol is not null);
                 }
                 return _lazyEventRegistrationTokenSymbol;
             }
@@ -570,14 +570,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         {
             get
             {
-                if ((object?)_lazyEventRegistrationTokenTableSymbol == null)
+                if (_lazyEventRegistrationTokenTableSymbol is null)
                 {
                     Interlocked.CompareExchange(ref _lazyEventRegistrationTokenTableSymbol,
                                                 GetTypeSymbolForWellKnownType(
                                                     WellKnownType.System_Runtime_InteropServices_WindowsRuntime_EventRegistrationTokenTable_T
                                                     ),
                                                 null);
-                    Debug.Assert((object)_lazyEventRegistrationTokenTableSymbol != null);
+                    Debug.Assert(_lazyEventRegistrationTokenTableSymbol is not null);
                 }
                 return _lazyEventRegistrationTokenTableSymbol;
             }
@@ -587,12 +587,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         {
             get
             {
-                if ((object?)_lazySystemTypeSymbol == null)
+                if (_lazySystemTypeSymbol is null)
                 {
                     Interlocked.CompareExchange(ref _lazySystemTypeSymbol,
                                                 GetTypeSymbolForWellKnownType(WellKnownType.System_Type),
                                                 null);
-                    Debug.Assert((object)_lazySystemTypeSymbol != null);
+                    Debug.Assert(_lazySystemTypeSymbol is not null);
                 }
                 return _lazySystemTypeSymbol;
             }
@@ -621,7 +621,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 NamedTypeSymbol currResult = assembly.LookupDeclaredOrForwardedTopLevelMetadataType(ref emittedName, visitedAssemblies: null);
                 if (isAcceptableSystemTypeSymbol(currResult))
                 {
-                    if ((object?)referencedAssemblyResult == null)
+                    if (referencedAssemblyResult is null)
                     {
                         referencedAssemblyResult = currResult;
                     }
@@ -640,7 +640,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 }
             }
 
-            if ((object?)referencedAssemblyResult != null)
+            if (referencedAssemblyResult is not null)
             {
                 Debug.Assert(isAcceptableSystemTypeSymbol(referencedAssemblyResult));
                 return referencedAssemblyResult;
@@ -703,7 +703,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             NamedTypeSymbol? result;
             var scope = (PENamespaceSymbol?)this.GlobalNamespace.LookupNestedNamespace(emittedName.NamespaceSegmentsMemory);
 
-            if ((object?)scope == null)
+            if (scope is null)
             {
                 // We failed to locate the namespace
                 result = null;
@@ -769,12 +769,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
                 Debug.Assert(forwarder.Value.FirstIndex >= 0, "First index should never be negative");
                 AssemblySymbol firstSymbol = this.GetReferencedAssemblySymbol(forwarder.Value.FirstIndex);
-                Debug.Assert((object)firstSymbol != null, "Invalid indexes (out of bound) are discarded during reading metadata in PEModule.EnsureForwardTypeToAssemblyMap()");
+                Debug.Assert(firstSymbol is not null, "Invalid indexes (out of bound) are discarded during reading metadata in PEModule.EnsureForwardTypeToAssemblyMap()");
 
                 if (forwarder.Value.SecondIndex >= 0)
                 {
                     var secondSymbol = this.GetReferencedAssemblySymbol(forwarder.Value.SecondIndex);
-                    Debug.Assert((object)secondSymbol != null, "Invalid indexes (out of bound) are discarded during reading metadata in PEModule.EnsureForwardTypeToAssemblyMap()");
+                    Debug.Assert(secondSymbol is not null, "Invalid indexes (out of bound) are discarded during reading metadata in PEModule.EnsureForwardTypeToAssemblyMap()");
 
                     yield return ContainingAssembly.CreateMultipleForwardingErrorTypeSymbol(ref name, this, firstSymbol, secondSymbol);
                 }

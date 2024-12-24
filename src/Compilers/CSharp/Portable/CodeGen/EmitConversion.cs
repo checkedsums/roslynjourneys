@@ -371,7 +371,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             _builder.EmitOpCode(ILOpCode.Newobj, -1); // pop 2 args and push delegate object
 
             var ctor = DelegateConstructor(node.Syntax, delegateType);
-            if ((object)ctor != null) EmitSymbolToken(ctor, node.Syntax, null);
+            if (ctor is not null) EmitSymbolToken(ctor, node.Syntax, null);
         }
 
         private MethodSymbol DelegateConstructor(SyntaxNode syntax, TypeSymbol delegateType)
@@ -379,7 +379,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             foreach (var possibleCtor in delegateType.GetMembers(WellKnownMemberNames.InstanceConstructorName))
             {
                 var m = possibleCtor as MethodSymbol;
-                if ((object)m == null) continue;
+                if (m is null) continue;
                 var parameters = m.Parameters;
                 if (parameters.Length != 2) continue;
                 if (parameters[0].Type.SpecialType != SpecialType.System_Object) continue;

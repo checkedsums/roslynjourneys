@@ -948,7 +948,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             private CustomModifier VisitCustomModifier(CustomModifier modifier)
             {
                 var translatedType = (NamedTypeSymbol)this.Visit(((CSharpCustomModifier)modifier).ModifierSymbol);
-                Debug.Assert((object)translatedType != null);
+                Debug.Assert(translatedType is not null);
                 return modifier.IsOptional ?
                     CSharpCustomModifier.CreateOptional(translatedType) :
                     CSharpCustomModifier.CreateRequired(translatedType);

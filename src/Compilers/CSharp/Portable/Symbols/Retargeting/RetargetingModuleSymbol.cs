@@ -79,8 +79,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         /// </param>
         public RetargetingModuleSymbol(RetargetingAssemblySymbol retargetingAssembly, SourceModuleSymbol underlyingModule)
         {
-            Debug.Assert((object)retargetingAssembly != null);
-            Debug.Assert((object)underlyingModule != null);
+            Debug.Assert(retargetingAssembly is not null);
+            Debug.Assert(underlyingModule is not null);
 
             _retargetingAssembly = retargetingAssembly;
             _underlyingModule = underlyingModule;

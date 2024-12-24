@@ -113,7 +113,7 @@ namespace Microsoft.CodeAnalysis.Operations
 
         private bool IsCallVirtual(MethodSymbol? targetMethod, BoundExpression? receiver)
         {
-            return (object?)targetMethod != null && receiver != null &&
+            return targetMethod is not null && receiver != null &&
                    (targetMethod.IsVirtual || targetMethod.IsAbstract || targetMethod.IsOverride) &&
                    !receiver.SuppressVirtualCalls;
         }

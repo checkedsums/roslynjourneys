@@ -536,7 +536,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // "Inconsistent accessibility: indexer return type '{1}' is less accessible than indexer '{0}'"
                 // "Inconsistent accessibility: property type '{1}' is less accessible than property '{0}'"
-                diagnostics.Add((this.IsIndexer ? ErrorCode.ERR_BadVisIndexerReturn : ErrorCode.ERR_BadVisPropertyType), Location, this, type.Type);
+                diagnostics.Add(this.IsIndexer ? ErrorCode.ERR_BadVisIndexerReturn : ErrorCode.ERR_BadVisPropertyType, Location, this, type.Type);
             }
 
             if (type.Type.HasFileLocalTypes() && !ContainingType.HasFileLocalTypes())
@@ -546,13 +546,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             diagnostics.Add(Location, useSiteInfo);
 
-            if (type.IsVoidType())
-            {
-                if (this.IsIndexer)
-                    diagnostics.Add(ErrorCode.ERR_IndexerCantHaveVoidType, Location);
-                else
-                    diagnostics.Add(ErrorCode.ERR_PropertyCantHaveVoidType, Location, this);
-            }
+            if (this.IsIndexer && type.IsVoidType())
+                diagnostics.Add(ErrorCode.ERR_IndexerCantHaveVoidType, Location);
 
             return type;
         }

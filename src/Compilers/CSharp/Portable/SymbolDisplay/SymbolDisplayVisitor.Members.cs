@@ -308,7 +308,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // symbol then we do not know its accessibility, modifiers, etc, all of which require knowing
             // the containing type, so we'll skip them.
 
-            if ((object?)symbol.ContainingType != null || (symbol.ContainingSymbol is ITypeSymbol))
+            if (symbol.ContainingType is not null || (symbol.ContainingSymbol is ITypeSymbol))
             {
                 AddAccessibilityIfNeeded(symbol);
                 AddMemberModifiersIfNeeded(symbol);
@@ -398,7 +398,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         containingType = symbol.ContainingType;
 
-                        if ((object?)containingType != null)
+                        if (containingType is not null)
                         {
                             includeType = IncludeNamedType(symbol.ContainingType);
                         }

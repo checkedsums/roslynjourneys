@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         private DynamicTypeDecoder(ImmutableArray<bool> dynamicTransformFlags, bool haveCustomModifierFlags, bool checkLength, AssemblySymbol containingAssembly)
         {
             Debug.Assert(!dynamicTransformFlags.IsEmpty);
-            Debug.Assert((object)containingAssembly != null);
+            Debug.Assert(containingAssembly is not null);
 
             _dynamicTransformFlags = dynamicTransformFlags;
             _containingAssembly = containingAssembly;
@@ -68,7 +68,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             PEModuleSymbol containingModule,
             RefKind targetSymbolRefKind = RefKind.None)
         {
-            Debug.Assert((object)metadataType != null);
+            Debug.Assert(metadataType is not null);
 
             ImmutableArray<bool> dynamicTransformFlags;
             if (containingModule.Module.HasDynamicAttribute(targetSymbolToken, out dynamicTransformFlags))
@@ -109,8 +109,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             bool haveCustomModifierFlags,
             bool checkLength)
         {
-            Debug.Assert((object)metadataType != null);
-            Debug.Assert((object)containingAssembly != null);
+            Debug.Assert(metadataType is not null);
+            Debug.Assert(containingAssembly is not null);
             Debug.Assert(!dynamicTransformFlags.IsDefault);
 
             if (dynamicTransformFlags.Length == 0)
@@ -125,7 +125,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             {
                 TypeSymbol transformedType = decoder.TransformType(metadataType);
 
-                if ((object)transformedType != null && (!checkLength || decoder._index == dynamicTransformFlags.Length))
+                if (transformedType is not null && (!checkLength || decoder._index == dynamicTransformFlags.Length))
                 {
                     // Even when we're not checking the length, there shouldn't be any unconsumed "true"s.
                     Debug.Assert(checkLength || decoder._dynamicTransformFlags.LastIndexOf(true) < decoder._index);
@@ -223,10 +223,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
             NamedTypeSymbol containingType = namedType.ContainingType;
             NamedTypeSymbol newContainingType;
-            if ((object)containingType != null && containingType.IsGenericType)
+            if (containingType is not null && containingType.IsGenericType)
             {
                 newContainingType = TransformNamedType(namedType.ContainingType, isContaining: true);
-                if ((object)newContainingType == null)
+                if (newContainingType is null)
                 {
                     return null;
                 }
@@ -279,7 +279,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             foreach (var typeArg in typeArguments)
             {
                 TypeSymbol transformedTypeArg = TransformType(typeArg.Type);
-                if ((object)transformedTypeArg == null)
+                if (transformedTypeArg is null)
                 {
                     transformedTypeArgsBuilder.Free();
                     return default(ImmutableArray<TypeWithAnnotations>);
@@ -310,7 +310,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
 
             TypeSymbol transformedElementType = TransformType(arrayType.ElementType);
-            if ((object)transformedElementType == null)
+            if (transformedElementType is null)
             {
                 return null;
             }
@@ -333,7 +333,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
 
             TypeSymbol transformedPointedAtType = TransformType(pointerType.PointedAtType);
-            if ((object)transformedPointedAtType == null)
+            if (transformedPointedAtType is null)
             {
                 return null;
             }

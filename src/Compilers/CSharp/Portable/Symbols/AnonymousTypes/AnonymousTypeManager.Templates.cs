@@ -754,7 +754,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static ImmutableArray<MethodSymbol> GetAnonymousTypeHiddenMethods(NamedTypeSymbol type)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
             return ((AnonymousTypeTemplateSymbol)type).SpecialMembers;
         }
 
@@ -763,7 +763,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static NamedTypeSymbol TranslateAnonymousTypeSymbol(NamedTypeSymbol type)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
             Debug.Assert(type.IsAnonymousType);
 
             var anonymous = (AnonymousTypeOrDelegatePublicSymbol)type;
@@ -775,7 +775,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static MethodSymbol TranslateAnonymousTypeMethodSymbol(MethodSymbol method)
         {
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
             NamedTypeSymbol translatedType = TranslateAnonymousTypeSymbol(method.ContainingType);
             // find a method in anonymous type template by name
             foreach (var member in ((NamedTypeSymbol)translatedType.OriginalDefinition).GetMembers(method.Name))

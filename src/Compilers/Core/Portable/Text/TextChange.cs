@@ -87,7 +87,7 @@ namespace Microsoft.CodeAnalysis.Text
         /// <param name="change"></param>
         public static implicit operator TextChangeRange(TextChange change)
         {
-            Debug.Assert(change.NewText is object);
+            Debug.Assert(change.NewText is not null);
             return new TextChangeRange(change.Span, change.NewText.Length);
         }
 

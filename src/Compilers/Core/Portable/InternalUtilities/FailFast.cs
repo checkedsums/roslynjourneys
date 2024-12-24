@@ -61,15 +61,15 @@ namespace Microsoft.CodeAnalysis
         internal static void DumpStackTrace(Exception? exception = null, string? message = null)
         {
             Console.WriteLine("Dumping info before call to failfast");
-            if (message is object)
+            if (message is not null)
             {
                 Console.WriteLine(message);
             }
 
-            if (exception is object)
+            if (exception is not null)
             {
                 Console.WriteLine("Exception info");
-                for (Exception? current = exception; current is object; current = current.InnerException)
+                for (Exception? current = exception; current is not null; current = current.InnerException)
                 {
                     Console.WriteLine(current.Message);
                     Console.WriteLine(current.StackTrace);

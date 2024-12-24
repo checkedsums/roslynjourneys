@@ -1483,7 +1483,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // For consistency with Dev10, emit value__ field first.
                 var valueField = ((SourceNamedTypeSymbol)this).EnumValueField;
-                RoslynDebug.Assert((object)valueField != null);
+                RoslynDebug.Assert(valueField is not null);
                 yield return valueField;
             }
 
@@ -1501,7 +1501,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         break;
                     case SymbolKind.Event:
                         FieldSymbol? associatedField = ((EventSymbol)m).AssociatedField;
-                        if ((object?)associatedField != null)
+                        if (associatedField is not null)
                         {
                             yield return associatedField;
                         }
@@ -1838,7 +1838,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     diagnostics.Add(ErrorCode.ERR_FilePathCannotBeConvertedToUtf8, location, this, errorMessage);
                 }
 
-                if ((object?)ContainingType != null)
+                if (ContainingType is not null)
                 {
                     diagnostics.Add(ErrorCode.ERR_FileTypeNested, location, this);
                 }
@@ -1848,7 +1848,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             bool hasBaseTypeOrInterface(Func<NamedTypeSymbol, bool> predicate)
             {
-                return ((object)baseType != null && predicate(baseType)) ||
+                return (baseType is not null && predicate(baseType)) ||
                     interfaces.Any(predicate);
             }
 
@@ -2356,7 +2356,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         continue;
                     }
                     var type = field.NonPointerType();
-                    if (((object)type != null) &&
+                    if ((type is not null) &&
                         (type.TypeKind == TypeKind.Struct) &&
                         BaseTypeAnalysis.StructDependsOn((NamedTypeSymbol)type, this) &&
                         !type.IsPrimitiveRecursiveStruct()) // allow System.Int32 to contain a field of its own type
@@ -3756,7 +3756,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             MethodSymbol accessor = getNotSet ? propertySymbol.GetMethod : propertySymbol.SetMethod;
             string accessorName;
-            if ((object)accessor != null)
+            if (accessor is not null)
             {
                 accessorName = accessor.Name;
             }
@@ -4960,7 +4960,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                                             associatedField);
                                 }
 
-                                if ((object?)associatedField != null)
+                                if (associatedField is not null)
                                 {
                                     // NOTE: specifically don't add the associated field to the members list
                                     // (regard it as an implementation detail).
@@ -4978,8 +4978,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     }
                                 }
 
-                                Debug.Assert((object)@event.AddMethod != null);
-                                Debug.Assert((object)@event.RemoveMethod != null);
+                                Debug.Assert(@event.AddMethod is not null);
+                                Debug.Assert(@event.RemoveMethod is not null);
 
                                 AddAccessorIfAvailable(builder.NonTypeMembers, @event.AddMethod);
                                 AddAccessorIfAvailable(builder.NonTypeMembers, @event.RemoveMethod);

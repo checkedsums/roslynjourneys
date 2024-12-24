@@ -454,7 +454,7 @@ namespace Microsoft.CodeAnalysis
             else
             {
                 // If outputDirectory were null, then outputFileName would be null (see ParseAndNormalizeFile)
-                Debug.Assert(outputDirectory is object);
+                Debug.Assert(outputDirectory is not null);
                 pdbPath = Path.ChangeExtension(Path.Combine(outputDirectory, outputFileName), ".pdb");
             }
 

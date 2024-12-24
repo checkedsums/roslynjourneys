@@ -128,7 +128,7 @@ namespace Roslyn.Utilities
             }
             catch (TargetInvocationException e)
             {
-                Debug.Assert(e.InnerException is object);
+                Debug.Assert(e.InnerException is not null);
                 ExceptionDispatchInfo.Capture(e.InnerException).Throw();
                 Debug.Assert(false, "Unreachable");
                 return default;

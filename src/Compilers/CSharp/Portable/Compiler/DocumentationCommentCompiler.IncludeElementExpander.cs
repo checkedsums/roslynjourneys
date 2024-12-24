@@ -550,7 +550,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // All binders should have a containing symbol.
                 Symbol containingSymbol = memberSymbol.ContainingSymbol;
-                Debug.Assert((object)containingSymbol != null);
+                Debug.Assert(containingSymbol is not null);
                 binder = binder.WithContainingMemberOrLambda(containingSymbol);
 
                 if (isParameter)

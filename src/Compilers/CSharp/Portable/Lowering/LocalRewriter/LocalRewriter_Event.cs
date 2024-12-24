@@ -270,7 +270,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 MethodSymbol invocationListAccessor = invocationListProperty.GetMethod;
 
-                if ((object)invocationListAccessor == null)
+                if (invocationListAccessor is null)
                 {
                     string accessorName = SourcePropertyAccessorSymbol.GetAccessorName(invocationListProperty.Name,
                         getNotSet: true,
@@ -300,12 +300,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var ctor = _factory.WellKnownMethod(WellKnownMember.System_Runtime_InteropServices_ComAwareEventInfo__ctor);
 
-            if ((object)ctor != null)
+            if (ctor is not null)
             {
                 var addRemove = _factory.WellKnownMethod(node.IsAddition ? WellKnownMember.System_Runtime_InteropServices_ComAwareEventInfo__AddEventHandler :
                                                                           WellKnownMember.System_Runtime_InteropServices_ComAwareEventInfo__RemoveEventHandler);
 
-                if ((object)addRemove != null)
+                if (addRemove is not null)
                 {
                     BoundExpression eventInfo = _factory.New(ctor, _factory.Typeof(node.Event.ContainingType, ctor.Parameters[0].Type), _factory.Literal(node.Event.MetadataName));
                     result = _factory.Call(eventInfo, addRemove,

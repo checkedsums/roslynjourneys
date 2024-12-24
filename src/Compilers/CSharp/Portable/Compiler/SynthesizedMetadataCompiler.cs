@@ -64,7 +64,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             _cancellationToken.ThrowIfCancellationRequested();
 
             var sourceTypeSymbol = symbol as SourceMemberContainerTypeSymbol;
-            if ((object)sourceTypeSymbol != null)
+            if (sourceTypeSymbol is not null)
             {
                 if (_moduleBeingBuilt != null)
                 {
@@ -103,10 +103,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         public override void VisitProperty(PropertySymbol symbol)
         {
             var sourceProperty = symbol as SourcePropertySymbolBase;
-            if ((object)sourceProperty != null && sourceProperty.IsSealed)
+            if (sourceProperty is not null && sourceProperty.IsSealed)
             {
                 var synthesizedAccessor = sourceProperty.SynthesizedSealedAccessorOpt;
-                if ((object)synthesizedAccessor != null)
+                if (synthesizedAccessor is not null)
                 {
                     _moduleBeingBuilt.AddSynthesizedDefinition(sourceProperty.ContainingType, synthesizedAccessor.GetCciAdapter());
                 }

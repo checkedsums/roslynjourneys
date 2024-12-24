@@ -21,10 +21,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         public static MethodSymbol? GetOwnOrInheritedGetMethod(this PropertySymbol? property)
         {
-            while ((object?)property != null)
+            while (property is not null)
             {
                 MethodSymbol getMethod = property.GetMethod;
-                if ((object?)getMethod != null)
+                if (getMethod is not null)
                 {
                     return getMethod;
                 }
@@ -41,10 +41,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         public static MethodSymbol? GetOwnOrInheritedSetMethod(this PropertySymbol? property)
         {
-            while ((object?)property != null)
+            while (property is not null)
             {
                 MethodSymbol setMethod = property.SetMethod;
-                if ((object?)setMethod != null)
+                if (setMethod is not null)
                 {
                     return setMethod;
                 }

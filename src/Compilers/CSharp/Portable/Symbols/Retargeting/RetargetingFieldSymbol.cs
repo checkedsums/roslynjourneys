@@ -35,7 +35,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         public RetargetingFieldSymbol(RetargetingModuleSymbol retargetingModule, FieldSymbol underlyingField)
             : base(underlyingField)
         {
-            Debug.Assert((object)retargetingModule != null);
+            Debug.Assert(retargetingModule is not null);
             Debug.Assert(!(underlyingField is RetargetingFieldSymbol));
 
             _retargetingModule = retargetingModule;
@@ -114,7 +114,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             get
             {
                 var associated = _underlyingField.AssociatedSymbol;
-                return (object)associated == null ? null : this.RetargetingTranslator.Retarget(associated);
+                return associated is null ? null : this.RetargetingTranslator.Retarget(associated);
             }
         }
 

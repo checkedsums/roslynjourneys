@@ -57,7 +57,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (!AdaptedMethodSymbol.IsDefinition &&
                     (!AdaptedMethodSymbol.IsGenericMethod || PEModuleBuilder.IsGenericType(AdaptedMethodSymbol.ContainingType)))
                 {
-                    Debug.Assert((object)AdaptedMethodSymbol.ContainingType != null &&
+                    Debug.Assert(AdaptedMethodSymbol.ContainingType is not null &&
                             PEModuleBuilder.IsGenericType(AdaptedMethodSymbol.ContainingType));
                     return this;
                 }
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(this.IsDefinitionOrDistinct());
 
             var synthesizedGlobalMethod = AdaptedMethodSymbol.OriginalDefinition as SynthesizedGlobalMethodSymbol;
-            if ((object)synthesizedGlobalMethod != null)
+            if (synthesizedGlobalMethod is not null)
             {
                 return synthesizedGlobalMethod.ContainingPrivateImplementationDetailsType;
             }
@@ -164,7 +164,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (AdaptedMethodSymbol.IsDefinition && // can't be generic instantiation
                 AdaptedMethodSymbol.ContainingModule == moduleBeingBuilt.SourceModule) // must be declared in the module we are building
             {
-                Debug.Assert((object)AdaptedMethodSymbol.PartialDefinitionPart == null); // must be definition
+                Debug.Assert(AdaptedMethodSymbol.PartialDefinitionPart is null); // must be definition
                 return this;
             }
 
@@ -612,7 +612,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // Note that we don't force methods marked with MethodImplAttributes.InternalCall or MethodImplAttributes.Runtime
                 // to be external, so it is possible to mark methods with bodies by these flags. It's up to the VM to interpret these flags
                 // and throw runtime exception if they are applied incorrectly.
-                return this.IsExtern || (object)ContainingType != null && ContainingType.TypeKind == TypeKind.Delegate;
+                return this.IsExtern || ContainingType is not null && ContainingType.TypeKind == TypeKind.Delegate;
             }
         }
 

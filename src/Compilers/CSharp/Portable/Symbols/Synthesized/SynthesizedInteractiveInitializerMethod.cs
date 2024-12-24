@@ -255,7 +255,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // System.Object from the target corlib. This allows cross compiling scripts
             // to run on a target corlib that may differ from the host compiler's corlib.
             // cf. https://github.com/dotnet/roslyn/issues/8506
-            resultType = (object)submissionReturnTypeOpt == null
+            resultType = submissionReturnTypeOpt is null
                 ? compilation.GetSpecialType(SpecialType.System_Object)
                 : compilation.GetTypeByReflectionType(submissionReturnTypeOpt, diagnostics);
             returnType = taskT.Construct(resultType);

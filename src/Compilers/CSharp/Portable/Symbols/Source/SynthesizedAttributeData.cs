@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal FromMethodAndArguments(CSharpCompilation compilation, MethodSymbol wellKnownMember, ImmutableArray<TypedConstant> arguments, ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments)
             {
-                Debug.Assert((object)wellKnownMember != null);
+                Debug.Assert(wellKnownMember is not null);
                 Debug.Assert(!arguments.IsDefault);
                 Debug.Assert(!namedArguments.IsDefault); // Frequently empty though.
 

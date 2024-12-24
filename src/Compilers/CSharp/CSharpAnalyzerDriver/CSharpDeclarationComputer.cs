@@ -130,7 +130,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
 
                         var attributes = GetAttributes(t.AttributeLists).Concat(GetTypeParameterListAttributes(t.TypeParameterList));
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes));
                         return;
                     }
 
@@ -143,7 +143,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
 
                         var attributes = GetAttributes(t.AttributeLists);
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes));
                         return;
                     }
 
@@ -152,7 +152,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var t = (EnumMemberDeclarationSyntax)node;
                         var attributes = GetAttributes(t.AttributeLists);
                         var codeBlocks = SpecializedCollections.SingletonEnumerable(t.EqualsValue).Concat(attributes);
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks));
                         return;
                     }
 
@@ -162,7 +162,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var attributes = GetAttributes(t.AttributeLists)
                             .Concat(GetParameterListInitializersAndAttributes(t.ParameterList))
                             .Concat(GetTypeParameterListAttributes(t.TypeParameterList));
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes));
                         return;
                     }
 
@@ -177,7 +177,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             }
                         }
                         var attributes = GetAttributes(t.AttributeLists);
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, attributes, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, attributes));
                         return;
                     }
 
@@ -189,7 +189,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         foreach (var decl in t.Declaration.Variables)
                         {
                             var codeBlocks = SpecializedCollections.SingletonEnumerable(decl.Initializer).Concat(attributes);
-                            builder.Add(GetDeclarationInfo(model, decl, getSymbol, codeBlocks, cancellationToken));
+                            builder.Add(GetDeclarationInfo(model, decl, getSymbol, cancellationToken, codeBlocks));
                         }
 
                         return;
@@ -224,7 +224,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         var attributes = GetAttributes(t.AttributeLists);
                         var codeBlocks = SpecializedCollections.SingletonEnumerable(t.Initializer).Concat(attributes);
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks));
                         return;
                     }
 
@@ -248,7 +248,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var attributes = GetAttributes(t.AttributeLists);
                         codeBlocks = codeBlocks.Concat(attributes);
 
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks));
                         return;
                     }
 
@@ -263,7 +263,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         blocks.AddIfNotNull(t.Body);
                         blocks.AddIfNotNull(t.ExpressionBody);
                         blocks.AddRange(GetAttributes(t.AttributeLists));
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, blocks, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, blocks));
                         blocks.Free();
 
                         return;
@@ -297,7 +297,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             codeBlocks = codeBlocks.Concat(GetTypeParameterListAttributes(methodDecl.TypeParameterList));
                         }
 
-                        builder.Add(GetDeclarationInfo(model, node, getSymbol, codeBlocks, cancellationToken));
+                        builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, codeBlocks));
                         return;
                     }
 
@@ -307,7 +307,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         if (associatedSymbol is IMethodSymbol)
                         {
-                            builder.Add(GetDeclarationInfo(model, node, getSymbol, new[] { t }, cancellationToken));
+                            builder.Add(GetDeclarationInfo(model, node, getSymbol, cancellationToken, [t]));
                         }
                         else
                         {
@@ -319,7 +319,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             if (t.AttributeLists.Any())
                             {
                                 var attributes = GetAttributes(t.AttributeLists);
-                                builder.Add(GetDeclarationInfo(model, node, getSymbol: false, attributes, cancellationToken));
+                                builder.Add(GetDeclarationInfo(model, node, getSymbol: false, cancellationToken, attributes));
                             }
                         }
 

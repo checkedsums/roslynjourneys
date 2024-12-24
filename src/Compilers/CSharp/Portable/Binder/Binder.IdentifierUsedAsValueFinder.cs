@@ -272,7 +272,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Symbol symbol = enclosingBinder.GetSymbolOrMethodOrPropertyGroup(lookupResult, memberAccessNode, memberName, targetMemberArity, members, BindingDiagnosticBag.Discarded, wasError: out _,
                                                                                      qualifierOpt: null);
 
-                    if ((object)symbol == null)
+                    if (symbol is null)
                     {
                         Debug.Assert(members.Count > 0);
 

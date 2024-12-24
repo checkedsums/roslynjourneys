@@ -860,7 +860,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_CantOverrideNonProperty
                 or ErrorCode.ERR_NoGetToOverride
                 or ErrorCode.ERR_NoSetToOverride
-                or ErrorCode.ERR_PropertyCantHaveVoidType
                 or ErrorCode.ERR_PropertyWithNoAccessors
                 or ErrorCode.ERR_NewVirtualInSealed
                 or ErrorCode.ERR_ExplicitPropertyAddingAccessor
@@ -938,7 +937,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ComImportWithUserCtor
                 or ErrorCode.ERR_FieldCantHaveVoidType
                 or ErrorCode.WRN_NonObsoleteOverridingObsolete
-                or ErrorCode.ERR_SystemVoid
                 or ErrorCode.ERR_ExplicitParamArrayOrCollection
                 or ErrorCode.WRN_BitwiseOrSignExtend
                 or ErrorCode.ERR_VolatileStruct
@@ -1132,13 +1130,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_UsingAfterElements
                 or ErrorCode.ERR_BadBinOpArgs
                 or ErrorCode.ERR_BadUnOpArgs
-                or ErrorCode.ERR_NoVoidParameter
                 or ErrorCode.ERR_DuplicateAlias
                 or ErrorCode.ERR_BadProtectedAccess
                 or ErrorCode.ERR_AddModuleAssembly
                 or ErrorCode.ERR_BindToBogusProp2
                 or ErrorCode.ERR_BindToBogusProp1
-                or ErrorCode.ERR_NoVoidHere
                 or ErrorCode.ERR_IndexerNeedsParam
                 or ErrorCode.ERR_BadArraySyntax
                 or ErrorCode.ERR_BadOperatorSyntax
@@ -1468,11 +1464,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_CallerMemberNameParamForUnconsumedLocation
                 or ErrorCode.ERR_DoesntImplementAwaitInterface
                 or ErrorCode.ERR_BadAwaitArg_NeedSystem
-                or ErrorCode.ERR_CantReturnVoid
                 or ErrorCode.ERR_SecurityCriticalOrSecuritySafeCriticalOnAsync
                 or ErrorCode.ERR_SecurityCriticalOrSecuritySafeCriticalOnAsyncInClassOrStruct
                 or ErrorCode.ERR_BadAwaitWithoutAsyncMethod
-                or ErrorCode.ERR_BadAwaitWithoutVoidAsyncMethod
                 or ErrorCode.ERR_BadAwaitWithoutAsyncLambda
                 or ErrorCode.ERR_NoSuchMemberOrExtensionNeedUsing
                 or ErrorCode.ERR_UnexpectedAliasedName
@@ -1710,8 +1704,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_TypeForwardedToMultipleAssemblies
                 or ErrorCode.ERR_ExpressionTreeContainsDiscard
                 or ErrorCode.ERR_PatternDynamicType
-                or ErrorCode.ERR_VoidAssignment
-                or ErrorCode.ERR_VoidInTuple
                 or ErrorCode.ERR_Merge_conflict_marker_encountered
                 or ErrorCode.ERR_InvalidPreprocessingSymbol
                 or ErrorCode.ERR_LanguageVersionCannotHaveLeadingZeroes

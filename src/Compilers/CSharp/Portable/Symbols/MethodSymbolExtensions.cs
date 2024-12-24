@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static bool IsSynthesizedLambda(this MethodSymbol method)
         {
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
             return method.IsImplicitlyDeclared && method.MethodKind == MethodKind.AnonymousFunction;
         }
 
@@ -42,13 +42,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // to runtime-finalizer (since it will also be marked newslot), so it is safe to use
             // IsMetadataVirtualIgnoringInterfaceImplementationChanges.  This also has the advantage of making
             // this method safe to call before declaration diagnostics have been computed.
-            if ((object)method == null || method.Name != WellKnownMemberNames.DestructorName ||
+            if (method is null || method.Name != WellKnownMemberNames.DestructorName ||
                 method.ParameterCount != 0 || method.Arity != 0 || !method.IsMetadataVirtual(MethodSymbol.IsMetadataVirtualOption.IgnoreInterfaceImplementationChanges))
             {
                 return false;
             }
 
-            while ((object)method != null)
+            while (method is not null)
             {
                 if (!skipFirstMethodKindCheck && method.MethodKind == MethodKind.Destructor)
                 {
@@ -94,7 +94,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         public static bool CanBeHiddenByMemberKind(this MethodSymbol hiddenMethod, SymbolKind hidingMemberKind)
         {
-            Debug.Assert((object)hiddenMethod != null);
+            Debug.Assert(hiddenMethod is not null);
 
             // Nothing can hide a destructor (see SymbolPreparer::ReportHiding)
             if (hiddenMethod.MethodKind == MethodKind.Destructor)

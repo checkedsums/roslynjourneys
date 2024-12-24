@@ -22,7 +22,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public MissingNamespaceSymbol(MissingModuleSymbol containingModule)
         {
-            Debug.Assert((object)containingModule != null);
+            Debug.Assert(containingModule is not null);
 
             _containingSymbol = containingModule;
             _name = string.Empty;
@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public MissingNamespaceSymbol(NamespaceSymbol containingNamespace, string name)
         {
-            Debug.Assert((object)containingNamespace != null);
+            Debug.Assert(containingNamespace is not null);
             Debug.Assert(name != null);
 
             _containingSymbol = containingNamespace;
@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             MissingNamespaceSymbol other = obj as MissingNamespaceSymbol;
 
-            return (object)other != null && _name.Equals(other._name) && _containingSymbol.Equals(other._containingSymbol, compareKind);
+            return other is not null && _name.Equals(other._name) && _containingSymbol.Equals(other._containingSymbol, compareKind);
         }
 
         public override ImmutableArray<Location> Locations

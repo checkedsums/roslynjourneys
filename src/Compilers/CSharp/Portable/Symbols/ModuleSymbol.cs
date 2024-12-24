@@ -342,21 +342,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (namespaceSymbol.NamespaceKind == NamespaceKind.Module)
             {
                 var moduleNs = (namespaceSymbol as PublicModel.NamespaceSymbol)?.UnderlyingNamespaceSymbol;
-                if ((object)moduleNs != null && moduleNs.ContainingModule == this)
+                if (moduleNs is not null && moduleNs.ContainingModule == this)
                 {
                     // this is already the correct module namespace
                     return moduleNs;
                 }
             }
 
-            if (namespaceSymbol.IsGlobalNamespace || (object)namespaceSymbol.ContainingNamespace == null)
+            if (namespaceSymbol.IsGlobalNamespace || namespaceSymbol.ContainingNamespace is null)
             {
                 return this.GlobalNamespace;
             }
             else
             {
                 var cns = GetModuleNamespace(namespaceSymbol.ContainingNamespace);
-                if ((object)cns != null)
+                if (cns is not null)
                 {
                     return cns.GetNestedNamespace(namespaceSymbol.Name);
                 }
@@ -380,14 +380,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return namespaceSymbol;
             }
 
-            if (namespaceSymbol.IsGlobalNamespace || (object)namespaceSymbol.ContainingNamespace == null)
+            if (namespaceSymbol.IsGlobalNamespace || namespaceSymbol.ContainingNamespace is null)
             {
                 return this.GlobalNamespace;
             }
             else
             {
                 var cns = GetModuleNamespace(namespaceSymbol.ContainingNamespace);
-                if ((object)cns != null)
+                if (cns is not null)
                 {
                     return cns.GetNestedNamespace(namespaceSymbol.Name);
                 }

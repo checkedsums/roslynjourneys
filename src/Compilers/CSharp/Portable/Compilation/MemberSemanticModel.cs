@@ -50,7 +50,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ImmutableDictionary<Symbol, Symbol> parentRemappedSymbolsOpt)
         {
             Debug.Assert(root != null);
-            Debug.Assert((object)memberSymbol != null);
+            Debug.Assert(memberSymbol is not null);
             Debug.Assert(containingPublicSemanticModel.IsSpeculativeSemanticModel == (containingPublicSemanticModel is SpeculativeSemanticModelWithMemberModel));
 
             _root = root;
@@ -368,7 +368,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (ownerOfTypeParametersInScope != null)
             {
                 LocalFunctionSymbol function = GetDeclaredLocalFunction(binder, ownerOfTypeParametersInScope.Identifier);
-                if ((object)function != null)
+                if (function is not null)
                 {
                     binder = function.WithTypeParametersBinder;
                 }
@@ -431,7 +431,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ITypeSymbol destination,
             bool isExplicitInSource = false)
         {
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -489,7 +489,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             CheckSyntaxNode(expression);
 
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -850,7 +850,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             else if (paramList.Parent.Kind() == SyntaxKind.LocalFunctionStatement)
             {
                 var localFunction = GetDeclaredSymbol((LocalFunctionStatementSyntax)paramList.Parent, cancellationToken).GetSymbol<MethodSymbol>();
-                if ((object)localFunction != null)
+                if (localFunction is not null)
                 {
                     return GetParameterSymbol(localFunction.Parameters, parameter, cancellationToken);
                 }
@@ -872,7 +872,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SymbolInfo symbolInfo = this.GetSymbolInfo(lambda, cancellationToken);
 
             LambdaSymbol lambdaSymbol;
-            if ((object)symbolInfo.Symbol != null)
+            if (symbolInfo.Symbol is not null)
             {
                 lambdaSymbol = symbolInfo.Symbol.GetSymbol<LambdaSymbol>();
             }
@@ -1085,7 +1085,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var anonymousType = bound.Type as NamedTypeSymbol;
-            if ((object)anonymousType == null)
+            if (anonymousType is null)
             {
                 return null;
             }
@@ -1123,7 +1123,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var tupleLiteralType = GetTypeOfTupleLiteral(tupleLiteral);
 
-            if ((object)tupleLiteralType != null)
+            if (tupleLiteralType is not null)
             {
                 var elements = tupleLiteralType.TupleElements;
 

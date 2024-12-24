@@ -450,7 +450,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // See InternalsVisibleToAndStrongNameTests: IvtVirtualCall1, IvtVirtualCall2, IvtVirtual_ParamsAndDynamic.
                 MethodSymbol overridden = m.OverriddenMethod;
                 var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;
-                if ((object)overridden == null ||
+                if (overridden is null ||
                     (accessingTypeOpt is { } && !AccessCheck.IsSymbolAccessible(overridden, accessingTypeOpt, ref discardedUseSiteInfo)) ||
                     (requireSameReturnType && !this.ReturnType.Equals(overridden.ReturnType, TypeCompareKind.AllIgnoreOptions)))
                 {
@@ -535,7 +535,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (this.IsOverride)
                 {
                     var overriddenMethod = this.OverriddenMethod;
-                    if ((object)overriddenMethod != null && overriddenMethod.IsConditional)
+                    if (overriddenMethod is not null && overriddenMethod.IsConditional)
                     {
                         return overriddenMethod.CallsAreConditionallyOmitted(syntaxTree);
                     }
@@ -573,7 +573,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (this.IsOverride)
                 {
                     var overriddenMethod = this.OverriddenMethod;
-                    if ((object)overriddenMethod != null)
+                    if (overriddenMethod is not null)
                     {
                         return overriddenMethod.IsConditional;
                     }
@@ -749,7 +749,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// language version.</param>
         public MethodSymbol ReduceExtensionMethod(TypeSymbol receiverType, CSharpCompilation compilation, out bool wasFullyInferred)
         {
-            if ((object)receiverType == null)
+            if (receiverType is null)
             {
                 throw new ArgumentNullException(nameof(receiverType));
             }
@@ -1079,7 +1079,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 DiagnosticInfo info = GetUseSiteInfo().DiagnosticInfo;
-                return (object)info != null && info.Code is (int)ErrorCode.ERR_BindToBogus or (int)ErrorCode.ERR_UnsupportedCompilerFeature;
+                return info is not null && info.Code is (int)ErrorCode.ERR_BindToBogus or (int)ErrorCode.ERR_UnsupportedCompilerFeature;
             }
         }
 

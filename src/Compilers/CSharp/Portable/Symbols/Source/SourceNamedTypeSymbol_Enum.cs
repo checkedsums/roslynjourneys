@@ -91,9 +91,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return null;
                 }
 
-                if ((object)_lazyEnumValueField == null)
+                if (_lazyEnumValueField is null)
                 {
-                    Debug.Assert((object)this.EnumUnderlyingType != null);
+                    Debug.Assert(this.EnumUnderlyingType is not null);
                     Interlocked.CompareExchange(ref _lazyEnumValueField, new SynthesizedEnumValueFieldSymbol(this), null);
                 }
 

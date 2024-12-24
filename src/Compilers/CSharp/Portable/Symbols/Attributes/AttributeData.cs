@@ -338,7 +338,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private DeclarativeSecurityAction DecodeSecurityAttributeAction(Symbol targetSymbol, CSharpCompilation compilation, AttributeSyntax? nodeOpt, out bool hasErrors, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert((object)targetSymbol != null);
+            Debug.Assert(targetSymbol is not null);
             Debug.Assert(targetSymbol.Kind == SymbolKind.Assembly || targetSymbol.Kind == SymbolKind.NamedType || targetSymbol.Kind == SymbolKind.Method);
             Debug.Assert(this.IsSecurityAttribute(compilation));
 
@@ -381,7 +381,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private DeclarativeSecurityAction DecodeSecurityAction(TypedConstant typedValue, Symbol targetSymbol, AttributeSyntax? nodeOpt, BindingDiagnosticBag diagnostics, out bool hasErrors)
         {
-            Debug.Assert((object)targetSymbol != null);
+            Debug.Assert(targetSymbol is not null);
             Debug.Assert(targetSymbol.Kind == SymbolKind.Assembly || targetSymbol.Kind == SymbolKind.NamedType || targetSymbol.Kind == SymbolKind.Method);
             Debug.Assert(typedValue.ValueInternal is not null);
 
@@ -560,7 +560,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var property = (PropertySymbol)members[0];
                 if (property.TypeWithAnnotations.HasType && property.Type.SpecialType == SpecialType.System_String &&
                     property.DeclaredAccessibility == Accessibility.Public && property.GetMemberArity() == 0 &&
-                    (object)property.SetMethod != null && property.SetMethod.DeclaredAccessibility == Accessibility.Public)
+                    property.SetMethod is not null && property.SetMethod.DeclaredAccessibility == Accessibility.Public)
                 {
                     return true;
                 }

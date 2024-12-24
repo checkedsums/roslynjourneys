@@ -305,9 +305,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     var nts = symbol as SourceMemberContainerTypeSymbol;
                     // It should be impossible to have a type member of a source namespace symbol which is not a SourceMemberContainerTypeSymbol
-                    Debug.Assert((object)nts != null || symbol is not TypeSymbol);
+                    Debug.Assert(nts is not null || symbol is not TypeSymbol);
 
-                    var arity = ((object)nts != null) ? nts.Arity : 0;
+                    var arity = (nts is not null) ? nts.Arity : 0;
                     if (arity >= memberOfArity.Length)
                     {
                         Array.Resize(ref memberOfArity, arity + 1);
@@ -315,7 +315,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     var other = memberOfArity[arity];
 
-                    if ((object)other == null && (object)mergedAssemblyNamespace != null)
+                    if (other is null && mergedAssemblyNamespace is not null)
                     {
                         // Check for collision with declarations from added modules.
                         foreach (NamespaceSymbol constituent in mergedAssemblyNamespace.ConstituentNamespaces)
@@ -339,7 +339,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         }
                     }
 
-                    if ((object)other != null)
+                    if (other is not null)
                     {
                         // To decide whether type declarations are duplicates, we need to access members which are only meaningful on source original definition symbols.
                         Debug.Assert((object)nts?.OriginalDefinition == nts && (object)other.OriginalDefinition == other);
@@ -364,7 +364,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     memberOfArity[arity] = symbol;
 
-                    if ((object)nts != null)
+                    if (nts is not null)
                     {
                         //types declared at the namespace level may only have declared accessibility of public or internal (Section 3.5.1)
                         Accessibility declaredAccessibility = nts.DeclaredAccessibility;
@@ -439,7 +439,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     {
                         var type = member as NamedTypeSymbol;
 
-                        if ((object)type != null && type.SpecialType != SpecialType.None)
+                        if (type is not null && type.SpecialType != SpecialType.None)
                         {
                             containingAssembly.RegisterDeclaredSpecialType(type);
 

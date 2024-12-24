@@ -101,7 +101,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         /// </param>
         public RetargetingAssemblySymbol(SourceAssemblySymbol underlyingAssembly, bool isLinked)
         {
-            Debug.Assert((object)underlyingAssembly != null);
+            Debug.Assert(underlyingAssembly is not null);
 
             _underlyingAssembly = underlyingAssembly;
 
@@ -297,7 +297,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             NamedTypeSymbol? underlying = _underlyingAssembly.TryLookupForwardedMetadataTypeWithCycleDetection(ref emittedName, visitedAssemblies: null);
 
-            if ((object?)underlying == null)
+            if (underlying is null)
             {
                 return null;
             }

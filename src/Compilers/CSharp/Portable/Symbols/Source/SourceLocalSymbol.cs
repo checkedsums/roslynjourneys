@@ -393,11 +393,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // In the event that we race to set the type of a local, we should
             // always deduce the same type, or deduce that the type is an error.
 
-            Debug.Assert((object)originalType?.DefaultType == null ||
+            Debug.Assert(originalType?.DefaultType is null ||
                 originalType.Value.DefaultType.IsErrorType() && newType.Type.IsErrorType() ||
                 originalType.Value.TypeSymbolEquals(newType, TypeCompareKind.ConsiderEverything));
 
-            if ((object)_type == null)
+            if (_type is null)
             {
                 Interlocked.CompareExchange(ref _type, new TypeWithAnnotations.Boxed(newType), null);
             }

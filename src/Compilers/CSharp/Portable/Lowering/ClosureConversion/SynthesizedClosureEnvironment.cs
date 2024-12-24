@@ -111,7 +111,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (_members.IsDefault)
             {
                 var builder = _membersBuilder;
-                if ((object)StaticConstructor != null)
+                if (StaticConstructor is not null)
                 {
                     builder.Add(StaticConstructor);
                     builder.Add(SingletonCache);
@@ -129,12 +129,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <see cref="CommonPEModuleBuilder" />, so we don't want to duplicate them here.
         /// </summary>
         internal override IEnumerable<FieldSymbol> GetFieldsToEmit()
-            => (object)SingletonCache != null
+            => SingletonCache is not null
             ? SpecializedCollections.SingletonEnumerable(SingletonCache)
             : SpecializedCollections.EmptyEnumerable<FieldSymbol>();
 
         // display classes for static lambdas do not have any data and can be serialized.
-        public override bool IsSerializable => (object)SingletonCache != null;
+        public override bool IsSerializable => SingletonCache is not null;
 
         public override Symbol ContainingSymbol => TopLevelMethod.ContainingSymbol;
 

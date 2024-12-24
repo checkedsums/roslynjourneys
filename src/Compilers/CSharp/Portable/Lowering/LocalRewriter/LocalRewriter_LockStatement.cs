@@ -196,7 +196,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 BoundExpression enterCallExpr;
 
-                if ((object?)enterMethod != null)
+                if (enterMethod is not null)
                 {
                     Debug.Assert(enterMethod.ParameterCount == 1);
 

@@ -232,7 +232,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal void CheckConstraints(BindingDiagnosticBag diagnostics)
         {
             var target = this.Target as TypeSymbol;
-            if ((object?)target != null && Locations.Length > 0)
+            if (target is not null && Locations.Length > 0)
             {
                 var corLibrary = this.ContainingAssembly.CorLibrary;
                 var conversions = corLibrary.TypeConversions;
@@ -254,7 +254,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             AliasSymbol? other = obj as AliasSymbol;
 
-            return (object?)other != null &&
+            return other is not null &&
                 Equals(this.TryGetFirstLocation(), other.TryGetFirstLocation()) &&
                 Equals(this.ContainingSymbol, other.ContainingSymbol, compareKind);
         }

@@ -280,7 +280,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(!ReferenceEquals(copyFrom, this));
 
             bool bagCreatedOnThisThread;
-            if ((object)copyFrom != null)
+            if (copyFrom is not null)
             {
                 var attributesBag = forReturnType ? copyFrom.GetReturnTypeAttributesBag() : copyFrom.GetAttributesBag();
                 bagCreatedOnThisThread = Interlocked.CompareExchange(ref lazyCustomAttributesBag, attributesBag, null) == null;
@@ -524,7 +524,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void DecodeWellKnownAttributeAppliedToMethod(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
 
             var attribute = arguments.Attribute;
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
@@ -763,7 +763,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void DecodeWellKnownAttributeAppliedToReturnValue(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
 
             var attribute = arguments.Attribute;
             var diagnostics = (BindingDiagnosticBag)arguments.Diagnostics;
@@ -1539,7 +1539,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // for lambda expressions and is not a .NET Core scenario so it's not necessary to handle.)
                 if (this.MethodKind != MethodKind.LambdaMethod)
                 {
-                    for (NamedTypeSymbol curr = this.ContainingType; (object)curr != null; curr = curr.ContainingType)
+                    for (NamedTypeSymbol curr = this.ContainingType; curr is not null; curr = curr.ContainingType)
                     {
                         if (curr is SourceNamedTypeSymbol { HasSecurityCriticalAttributes: true })
                         {

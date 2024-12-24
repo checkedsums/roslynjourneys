@@ -73,7 +73,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             IEnumerable<IGrouping<string, TypeDefinitionHandle>> typesByNS)
         {
             Debug.Assert(name != null);
-            Debug.Assert((object)containingNamespace != null);
+            Debug.Assert(containingNamespace is not null);
             Debug.Assert(typesByNS != null);
 
             _containingNamespaceSymbol = containingNamespace;

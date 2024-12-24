@@ -83,7 +83,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 enclosing = new ExpressionVariableBinder(syntax, enclosing);
 
-                if ((object)binderUpdatedHandler != null)
+                if (binderUpdatedHandler is not null)
                 {
                     binderUpdatedHandler(enclosing, syntax);
                 }
@@ -96,7 +96,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 CSharpSyntaxNode embeddedScopeDesignator;
                 enclosing = builder.GetBinderForPossibleEmbeddedStatement(statement, enclosing, out embeddedScopeDesignator);
 
-                if ((object)binderUpdatedHandler != null)
+                if (binderUpdatedHandler is not null)
                 {
                     binderUpdatedHandler(enclosing, embeddedScopeDesignator);
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                if ((object)binderUpdatedHandler != null)
+                if (binderUpdatedHandler is not null)
                 {
                     binderUpdatedHandler(enclosing, null);
                 }
@@ -134,7 +134,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private LocalBinderFactory(Symbol containingMemberOrLambda, SyntaxNode root, Binder enclosing)
         {
-            Debug.Assert((object)containingMemberOrLambda != null);
+            Debug.Assert(containingMemberOrLambda is not null);
             Debug.Assert(containingMemberOrLambda.Kind != SymbolKind.Local && containingMemberOrLambda.Kind != SymbolKind.RangeVariable && containingMemberOrLambda.Kind != SymbolKind.Parameter);
 
             _map = new SmallDictionary<SyntaxNode, Binder>(ReferenceEqualityComparer.Instance);
@@ -408,7 +408,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Binder binder = _enclosing;
             LocalFunctionSymbol match = FindLocalFunction(node, _enclosing);
 
-            if ((object)match != null)
+            if (match is not null)
             {
                 _containingMemberOrLambda = match;
 

@@ -244,7 +244,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     overriddenOrImplementedProperty = explicitlyImplementedProperty;
                 }
 
-                if ((object)overriddenOrImplementedProperty != null)
+                if (overriddenOrImplementedProperty is not null)
                 {
                     _lazyRefCustomModifiers = _refKind != RefKind.None ? overriddenOrImplementedProperty.RefCustomModifiers : ImmutableArray<CustomModifier>.Empty;
 
@@ -1004,7 +1004,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // property name location for any such errors. We'll do the same for return
             // type errors but for parameter errors, we'll use the parameter location.
 
-            if ((object)_explicitInterfaceType != null)
+            if (_explicitInterfaceType is not null)
             {
                 var explicitInterfaceSpecifier = GetExplicitInterfaceSpecifier();
                 Debug.Assert(explicitInterfaceSpecifier != null);
@@ -1120,7 +1120,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void CheckAccessibilityMoreRestrictive(SourcePropertyAccessorSymbol accessor, BindingDiagnosticBag diagnostics)
         {
-            if (((object)accessor != null) &&
+            if ((accessor is not null) &&
                 !IsAccessibilityMoreRestrictive(this.DeclaredAccessibility, accessor.LocalAccessibility))
             {
                 diagnostics.Add(ErrorCode.ERR_InvalidPropertyAccessMod, accessor.GetFirstLocation(), accessor, this);
@@ -1159,7 +1159,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         // which depend on the explicitly implemented property
         private void CheckExplicitImplementationAccessor(MethodSymbol thisAccessor, MethodSymbol otherAccessor, PropertySymbol explicitlyImplementedProperty, BindingDiagnosticBag diagnostics)
         {
-            var thisHasAccessor = (object)thisAccessor != null;
+            var thisHasAccessor = thisAccessor is not null;
             var otherHasAccessor = otherAccessor.IsImplementable();
 
             if (otherHasAccessor && !thisHasAccessor)
@@ -1207,7 +1207,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // This has to be cached because the CCI layer depends on reference equality.
                 // However, there's no point in having more than one field, since we don't
                 // expect to have to synthesize more than one accessor.
-                if ((object)_lazySynthesizedSealedAccessor == null)
+                if (_lazySynthesizedSealedAccessor is null)
                 {
                     Interlocked.CompareExchange(ref _lazySynthesizedSealedAccessor, MakeSynthesizedSealedAccessor(), null);
                 }
@@ -1226,13 +1226,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 // need to synthesize setter
                 MethodSymbol overriddenAccessor = this.GetOwnOrInheritedSetMethod();
-                return (object)overriddenAccessor == null ? null : new SynthesizedSealedPropertyAccessor(this, overriddenAccessor);
+                return overriddenAccessor is null ? null : new SynthesizedSealedPropertyAccessor(this, overriddenAccessor);
             }
             else if (SetMethod is not null)
             {
                 // need to synthesize getter
                 MethodSymbol overriddenAccessor = this.GetOwnOrInheritedGetMethod();
-                return (object)overriddenAccessor == null ? null : new SynthesizedSealedPropertyAccessor(this, overriddenAccessor);
+                return overriddenAccessor is null ? null : new SynthesizedSealedPropertyAccessor(this, overriddenAccessor);
             }
             else
             {

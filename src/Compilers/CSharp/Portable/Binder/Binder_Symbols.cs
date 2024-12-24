@@ -240,7 +240,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         var type = UnwrapAlias(symbol, diagnostics, syntax) as TypeSymbol;
 
-                        if ((object)type != null)
+                        if (type is not null)
                         {
                             // Case (2)(a)(1)
                             isKeyword = false;
@@ -1054,7 +1054,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 alias = (AliasSymbol)symbol;
                 var result = alias.GetAliasTarget(basesBeingResolved);
                 var type = result as TypeSymbol;
-                if ((object)type != null)
+                if (type is not null)
                 {
                     // pass args in a value tuple to avoid allocating a closure
                     var args = (this, diagnostics, syntax);
@@ -1191,7 +1191,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             LookupOptions options)
         {
             var errorResult = CreateErrorIfLookupOnTypeParameter(node.Parent, qualifierOpt, plainName, arity, diagnostics);
-            if ((object)errorResult != null)
+            if (errorResult is not null)
             {
                 return errorResult;
             }
@@ -1223,7 +1223,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             NamedTypeSymbol type = lookupResultSymbol as NamedTypeSymbol;
 
-            if ((object)type == null)
+            if (type is null)
             {
                 // We did a lookup with a generic arity, filtered to types and namespaces. If
                 // we got back something other than a type, there had better be an error info
@@ -1249,7 +1249,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             int arity,
             BindingDiagnosticBag diagnostics)
         {
-            if (((object)qualifierOpt != null) && (qualifierOpt.Kind == SymbolKind.TypeParameter))
+            if ((qualifierOpt is not null) && (qualifierOpt.Kind == SymbolKind.TypeParameter))
             {
                 var diagnosticInfo = new CSDiagnosticInfo(ErrorCode.ERR_LookupInTypeVariable, qualifierOpt);
                 diagnostics.Add(diagnosticInfo, node.Location);
@@ -1528,7 +1528,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             NamespaceOrTypeOrAliasSymbolWithAnnotations convertToUnboundGenericType()
             {
                 var namedTypeRight = right.Symbol as NamedTypeSymbol;
-                if ((object)namedTypeRight != null && namedTypeRight.IsGenericType)
+                if (namedTypeRight is not null && namedTypeRight.IsGenericType)
                 {
                     TypeWithAnnotations type = right.TypeWithAnnotations;
                     return type.WithTypeAndModifiers(namedTypeRight.AsUnboundGenericType(), type.CustomModifiers);
@@ -1546,7 +1546,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static NamedTypeSymbol GetSpecialType(CSharpCompilation compilation, SpecialType typeId, SyntaxNode node, BindingDiagnosticBag diagnostics)
         {
             NamedTypeSymbol typeSymbol = compilation.GetSpecialType(typeId);
-            Debug.Assert((object)typeSymbol != null, "Expect an error type if special type isn't found");
+            Debug.Assert(typeSymbol is not null, "Expect an error type if special type isn't found");
             ReportUseSite(typeSymbol, diagnostics, node);
             return typeSymbol;
         }
@@ -1554,7 +1554,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static NamedTypeSymbol GetSpecialType(CSharpCompilation compilation, SpecialType typeId, Location location, BindingDiagnosticBag diagnostics)
         {
             NamedTypeSymbol typeSymbol = compilation.GetSpecialType(typeId);
-            Debug.Assert((object)typeSymbol != null, "Expect an error type if special type isn't found");
+            Debug.Assert(typeSymbol is not null, "Expect an error type if special type isn't found");
             ReportUseSite(typeSymbol, diagnostics, location);
             return typeSymbol;
         }
@@ -1683,7 +1683,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static NamedTypeSymbol GetWellKnownType(CSharpCompilation compilation, WellKnownType type, BindingDiagnosticBag diagnostics, Location location)
         {
             NamedTypeSymbol typeSymbol = compilation.GetWellKnownType(type);
-            Debug.Assert((object)typeSymbol != null, "Expect an error type if well-known type isn't found");
+            Debug.Assert(typeSymbol is not null, "Expect an error type if well-known type isn't found");
             ReportUseSite(typeSymbol, diagnostics, location);
             return typeSymbol;
         }
@@ -1695,7 +1695,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal NamedTypeSymbol GetWellKnownType(WellKnownType type, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             NamedTypeSymbol typeSymbol = this.Compilation.GetWellKnownType(type);
-            Debug.Assert((object)typeSymbol != null, "Expect an error type if well-known type isn't found");
+            Debug.Assert(typeSymbol is not null, "Expect an error type if well-known type isn't found");
             typeSymbol.AddUseSiteInfo(ref useSiteInfo);
             return typeSymbol;
         }
@@ -1727,7 +1727,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Symbol memberSymbol = compilation.GetWellKnownTypeMember(member);
 
-            if ((object)memberSymbol != null)
+            if (memberSymbol is not null)
             {
                 useSiteInfo = GetUseSiteInfoForWellKnownMemberOrContainingType(memberSymbol);
                 if (useSiteInfo.DiagnosticInfo != null)
@@ -1772,8 +1772,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             public int Compare(Symbol fst, Symbol snd)
             {
                 if (snd == fst) return 0;
-                if ((object)fst == null) return -1;
-                if ((object)snd == null) return 1;
+                if (fst is null) return -1;
+                if (snd is null) return 1;
                 if (snd.Name != fst.Name) return string.CompareOrdinal(fst.Name, snd.Name);
                 if (snd.Kind != fst.Kind) return (int)fst.Kind - (int)snd.Kind;
                 int aLocationsCount = !snd.Locations.IsDefault ? snd.Locations.Length : 0;
@@ -2032,7 +2032,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                                     // Merged namespaces that span multiple modules don't have a containing module,
                                     // so just use module with the smallest ordinal from the containing assembly.
-                                    if ((object)arg2 == null)
+                                    if (arg2 is null)
                                     {
                                         foreach (NamespaceSymbol ns in ((NamespaceSymbol)second).ConstituentNamespaces)
                                         {
@@ -2040,7 +2040,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                             {
                                                 ModuleSymbol module = ns.ContainingModule;
 
-                                                if ((object)arg2 == null || arg2.Ordinal > module.Ordinal)
+                                                if (arg2 is null || arg2.Ordinal > module.Ordinal)
                                                 {
                                                     arg2 = module;
                                                 }
@@ -2137,52 +2137,40 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // Single viable result.
                         var singleResult = symbols[0];
 
-                        // Cannot reference System.Void directly.
                         var singleType = singleResult as TypeSymbol;
-                        if ((object)singleType != null && singleType.PrimitiveTypeCode == Cci.PrimitiveTypeCode.Void && simpleName == "Void")
+
+                        if (singleResult.Kind == SymbolKind.NamedType &&
+                            ((SourceModuleSymbol)this.Compilation.SourceModule).AnyReferencedAssembliesAreLinked)
                         {
-                            wasError = true;
-                            var errorInfo = new CSDiagnosticInfo(ErrorCode.ERR_SystemVoid);
-                            diagnostics.Add(errorInfo, where.Location);
-                            singleResult = new ExtendedErrorTypeSymbol(GetContainingNamespaceOrType(singleResult), singleResult, LookupResultKind.NotReferencable, errorInfo); // UNDONE: Review resultkind.
-                        }
-                        // Check for bad symbol.
-                        else
-                        {
-                            if (singleResult.Kind == SymbolKind.NamedType &&
-                                ((SourceModuleSymbol)this.Compilation.SourceModule).AnyReferencedAssembliesAreLinked)
+                            // Complain about unembeddable types from linked assemblies.
+                            if (diagnostics.DiagnosticBag is not null)
                             {
-                                // Complain about unembeddable types from linked assemblies.
-                                if (diagnostics.DiagnosticBag is not null)
-                                {
-                                    Emit.NoPia.EmbeddedTypesManager.IsValidEmbeddableType((NamedTypeSymbol)singleResult, where, diagnostics.DiagnosticBag);
-                                }
-                            }
-
-                            if (!suppressUseSiteDiagnostics)
-                            {
-                                wasError = ReportUseSite(singleResult, diagnostics, where);
-                            }
-                            else if (singleResult.Kind == SymbolKind.ErrorType)
-                            {
-                                // We want to report ERR_CircularBase error on the spot to make sure
-                                // that the right location is used for it.
-                                var errorType = (ErrorTypeSymbol)singleResult;
-
-                                if (errorType.Unreported)
-                                {
-                                    DiagnosticInfo errorInfo = errorType.ErrorInfo;
-
-                                    if (errorInfo != null && errorInfo.Code == (int)ErrorCode.ERR_CircularBase)
-                                    {
-                                        wasError = true;
-                                        diagnostics.Add(errorInfo, where.Location);
-                                        singleResult = new ExtendedErrorTypeSymbol(GetContainingNamespaceOrType(errorType), errorType.Name, errorType.Arity, errorInfo, unreported: false);
-                                    }
-                                }
+                                Emit.NoPia.EmbeddedTypesManager.IsValidEmbeddableType((NamedTypeSymbol)singleResult, where, diagnostics.DiagnosticBag);
                             }
                         }
 
+                        if (!suppressUseSiteDiagnostics)
+                        {
+                            wasError = ReportUseSite(singleResult, diagnostics, where);
+                        }
+                        else if (singleResult.Kind == SymbolKind.ErrorType)
+                        {
+                            // We want to report ERR_CircularBase error on the spot to make sure
+                            // that the right location is used for it.
+                            var errorType = (ErrorTypeSymbol)singleResult;
+
+                            if (errorType.Unreported)
+                            {
+                                DiagnosticInfo errorInfo = errorType.ErrorInfo;
+
+                                if (errorInfo != null && errorInfo.Code == (int)ErrorCode.ERR_CircularBase)
+                                {
+                                    wasError = true;
+                                    diagnostics.Add(errorInfo, where.Location);
+                                    singleResult = new ExtendedErrorTypeSymbol(GetContainingNamespaceOrType(errorType), errorType.Name, errorType.Arity, errorInfo, unreported: false);
+                                }
+                            }
+                        }
                         return singleResult;
                     }
                 }
@@ -2222,7 +2210,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // result.Error might be null if we have already generated parser errors,
                 // e.g. when generic name is used for attribute name.
                 if (result.Error != null &&
-                    ((object)qualifierOpt == null || qualifierOpt.Kind != SymbolKind.ErrorType)) // Suppress cascading.
+                    (qualifierOpt is null || qualifierOpt.Kind != SymbolKind.ErrorType)) // Suppress cascading.
                 {
                     diagnostics.Add(new CSDiagnostic(result.Error, where.Location));
                 }
@@ -2451,12 +2439,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 NotFound(where, simpleName, arity, attributeName, diagnostics, aliasOpt, qualifierOpt, options | LookupOptions.VerbatimNameAttributeTypeOnly);
             }
 
-            if ((object)qualifierOpt != null)
+            if (qualifierOpt is not null)
             {
                 if (qualifierOpt.IsType)
                 {
                     var errorQualifier = qualifierOpt as ErrorTypeSymbol;
-                    if ((object)errorQualifier != null && errorQualifier.ErrorInfo != null)
+                    if (errorQualifier is not null && errorQualifier.ErrorInfo != null)
                     {
                         return (CSDiagnosticInfo)errorQualifier.ErrorInfo;
                     }
@@ -2472,7 +2460,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (ReferenceEquals(qualifierOpt, Compilation.GlobalNamespace))
                     {
                         Debug.Assert(aliasOpt == null || aliasOpt == SyntaxFacts.GetText(SyntaxKind.GlobalKeyword));
-                        return (object)forwardedToAssembly == null
+                        return forwardedToAssembly is null
                             ? diagnostics.Add(ErrorCode.ERR_GlobalSingleTypeNameNotFound, location, whereText)
                             : diagnostics.Add(ErrorCode.ERR_GlobalSingleTypeNameNotFoundFwd, location, whereText, forwardedToAssembly);
                     }
@@ -2487,7 +2475,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             container = aliasOpt;
                         }
 
-                        return (object)forwardedToAssembly == null
+                        return forwardedToAssembly is null
                             ? diagnostics.Add(ErrorCode.ERR_DottedTypeNameNotFoundInNS, location, whereText, container)
                             : diagnostics.Add(ErrorCode.ERR_DottedTypeNameNotFoundInNSFwd, location, whereText, container, forwardedToAssembly);
                     }
@@ -2507,7 +2495,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             forwardedToAssembly = GetForwardedToAssembly(simpleName, arity, ref qualifierOpt, diagnostics, location);
 
-            if ((object)forwardedToAssembly != null)
+            if (forwardedToAssembly is not null)
             {
                 return qualifierOpt == null
                     ? diagnostics.Add(ErrorCode.ERR_SingleTypeNameNotFoundFwd, location, whereText, forwardedToAssembly)
@@ -2529,7 +2517,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var forwardedType =
                     referencedAssembly.TryLookupForwardedMetadataTypeWithCycleDetection(ref metadataName, visitedAssemblies: null);
-                if ((object)forwardedType != null)
+                if (forwardedType is not null)
                 {
                     if (forwardedType.Kind == SymbolKind.ErrorType)
                     {
@@ -2537,7 +2525,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         if (diagInfo.Code == (int)ErrorCode.ERR_CycleInTypeForwarder)
                         {
-                            Debug.Assert((object)forwardedType.ContainingAssembly != null, "How did we find a cycle if there was no forwarding?");
+                            Debug.Assert(forwardedType.ContainingAssembly is not null, "How did we find a cycle if there was no forwarding?");
                             diagnostics.Add(ErrorCode.ERR_CycleInTypeForwarder, location, metadataName.FullName, forwardedType.ContainingAssembly.Name);
                         }
                         else if (diagInfo.Code == (int)ErrorCode.ERR_TypeForwardedToMultipleAssemblies)
@@ -2612,12 +2600,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MetadataTypeName.FromFullName(fullMetadataName),
                 diagnostics,
                 location);
-            if ((object)result != null)
+            if (result is not null)
             {
                 return result;
             }
 
-            if ((object)qualifierOpt == null)
+            if (qualifierOpt is null)
             {
                 return GetForwardedToAssemblyInUsingNamespaces(metadataName, ref qualifierOpt, diagnostics, location);
             }

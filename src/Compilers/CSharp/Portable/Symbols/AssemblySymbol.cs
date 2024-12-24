@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal void SetCorLibrary(AssemblySymbol corLibrary)
         {
-            Debug.Assert((object)_corLibrary == null);
+            Debug.Assert(_corLibrary is null);
             _corLibrary = corLibrary;
         }
 
@@ -145,7 +145,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             NamespaceSymbol container = namespaceSymbol.ContainingNamespace;
 
-            if ((object)container == null)
+            if (container is null)
             {
                 return this.GlobalNamespace;
             }
@@ -164,7 +164,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return namespaceSymbol;
             }
 
-            if ((object)assemblyContainer == null)
+            if (assemblyContainer is null)
             {
                 return null;
             }
@@ -914,7 +914,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return false;
             }
 
-            Debug.Assert((object)result.ContainingType == null || IsValidWellKnownType(result.ContainingType),
+            Debug.Assert(result.ContainingType is null || IsValidWellKnownType(result.ContainingType),
                 "Checking the containing type is the caller's responsibility.");
 
             return result.DeclaredAccessibility == Accessibility.Public || IsSymbolAccessible(result, this);

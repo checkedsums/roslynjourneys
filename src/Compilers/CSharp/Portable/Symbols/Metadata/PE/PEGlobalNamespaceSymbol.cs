@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         internal PEGlobalNamespaceSymbol(PEModuleSymbol moduleSymbol)
         {
-            Debug.Assert((object)moduleSymbol != null);
+            Debug.Assert(moduleSymbol is not null);
             _moduleSymbol = moduleSymbol;
         }
 

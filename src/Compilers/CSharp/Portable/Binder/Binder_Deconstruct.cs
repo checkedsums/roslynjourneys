@@ -106,7 +106,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(diagnostics.DiagnosticBag is not null);
 
-            if ((object?)boundRHS.Type == null || boundRHS.Type.IsErrorType())
+            if (boundRHS.Type is null || boundRHS.Type.IsErrorType())
             {
                 // we could still not infer a type for the RHS
                 FailRemainingInferences(checkedVariables, diagnostics);
@@ -205,12 +205,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // If we already have diagnostics at this point, it is not worth collecting likely duplicate diagnostics from making the merged type
                 bool hadErrors = diagnostics.HasAnyErrors();
                 TypeSymbol? mergedTupleType = MakeMergedTupleType(checkedVariables, (BoundTupleLiteral)boundRHS, syntax, hadErrors ? null : diagnostics);
-                if ((object?)mergedTupleType != null)
+                if (mergedTupleType is not null)
                 {
                     boundRHS = GenerateConversionForAssignment(mergedTupleType, boundRHS, diagnostics);
                 }
             }
-            else if ((object?)boundRHS.Type == null)
+            else if (boundRHS.Type is null)
             {
                 Error(diagnostics, ErrorCode.ERR_DeconstructRequiresExpression, boundRHS.Syntax);
             }
@@ -234,7 +234,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         ArrayBuilder<DeconstructionVariable> variables,
                         out Conversion conversion)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
             ImmutableArray<TypeSymbol> tupleOrDeconstructedTypes;
             conversion = Conversion.Deconstruction;
 
@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var variable = variables[i];
                 if (variable.Single is { } pending)
                 {
-                    if ((object?)pending.Type != null)
+                    if (pending.Type is not null)
                     {
                         continue;
                     }
@@ -363,7 +363,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case BoundKind.DiscardExpression:
                     {
                         var pending = (BoundDiscardExpression)expression;
-                        Debug.Assert((object?)pending.Type == null);
+                        Debug.Assert(pending.Type is null);
                         return pending.SetInferredTypeWithAnnotations(TypeWithAnnotations.Create(type));
                     }
                 default:
@@ -396,7 +396,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             break;
                         case BoundKind.DiscardExpression:
                             var pending = (BoundDiscardExpression)variable.Single;
-                            if ((object?)pending.Type == null)
+                            if (pending.Type is null)
                             {
                                 Error(diagnostics, ErrorCode.ERR_TypeInferenceFailedForImplicitlyTypedDeconstructionVariable, pending.Syntax, "_");
                                 variables[i] = new DeconstructionVariable(pending.FailInference(this, diagnostics), pending.Syntax);
@@ -405,7 +405,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
 
                     // at this point we expect to have a type for every lvalue
-                    Debug.Assert((object?)variables[i].Single!.Type != null);
+                    Debug.Assert(variables[i].Single!.Type is not null);
                 }
             }
         }
@@ -477,7 +477,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             // (variables) on the left and (elements) on the right
                             mergedType = MakeMergedTupleType(variable.NestedVariables, (BoundTupleLiteral)element, syntax, diagnostics);
                         }
-                        else if ((object?)mergedType == null && diagnostics is not null)
+                        else if (mergedType is null && diagnostics is not null)
                         {
                             // (variables) on the left and null on the right
                             Error(diagnostics, ErrorCode.ERR_DeconstructRequiresExpression, element.Syntax);
@@ -486,7 +486,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     else
                     {
                         Debug.Assert(variable.Single is not null);
-                        if ((object?)variable.Single.Type != null)
+                        if (variable.Single.Type is not null)
                         {
                             // typed-variable on the left
                             mergedType = variable.Single.Type;
@@ -495,7 +495,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
                 else
                 {
-                    if ((object?)mergedType == null && diagnostics is not null)
+                    if (mergedType is null && diagnostics is not null)
                     {
                         // a typeless element on the right, matching no variable on the left
                         Error(diagnostics, ErrorCode.ERR_DeconstructRequiresExpression, element.Syntax);
@@ -845,7 +845,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SourceLocalSymbol localSymbol = LookupLocal(designation.Identifier);
 
             // is this a local?
-            if ((object)localSymbol != null)
+            if (localSymbol is not null)
             {
                 if (designation.Parent is DeclarationExpressionSyntax declExpr && declExpr.Designation == designation)
                 {
@@ -885,7 +885,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Is this a field?
                 GlobalExpressionVariable field = LookupDeclaredField(designation);
 
-                if ((object)field == null)
+                if (field is null)
                 {
                     // We should have the right binder in the chain, cannot continue otherwise.
                     throw ExceptionUtilities.Unreachable();

@@ -292,7 +292,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (enumeratorInfo.IsAsync)
             {
                 disposeMethod = (MethodSymbol)Binder.GetWellKnownTypeMember(_compilation, WellKnownMember.System_IAsyncDisposable__DisposeAsync, _diagnostics, syntax: forEachSyntax);
-                return (object)disposeMethod != null;
+                return disposeMethod is not null;
             }
 
             return Binder.TryGetSpecialTypeMember(_compilation, SpecialMember.System_IDisposable__Dispose, forEachSyntax, _diagnostics, out disposeMethod);

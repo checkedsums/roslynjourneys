@@ -64,11 +64,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression? currentConversion,
             BinderFlags location)
         {
-            RoslynDebug.Assert((object)collectionType != null, $"Field '{nameof(collectionType)}' cannot be null");
+            RoslynDebug.Assert(collectionType is not null, $"Field '{nameof(collectionType)}' cannot be null");
             RoslynDebug.Assert(elementType.HasType, $"Field '{nameof(elementType)}' cannot be null");
-            RoslynDebug.Assert((object)getEnumeratorInfo != null, $"Field '{nameof(getEnumeratorInfo)}' cannot be null");
-            RoslynDebug.Assert((object)currentPropertyGetter != null, $"Field '{nameof(currentPropertyGetter)}' cannot be null");
-            RoslynDebug.Assert((object)moveNextInfo != null, $"Field '{nameof(moveNextInfo)}' cannot be null");
+            RoslynDebug.Assert(getEnumeratorInfo is not null, $"Field '{nameof(getEnumeratorInfo)}' cannot be null");
+            RoslynDebug.Assert(currentPropertyGetter is not null, $"Field '{nameof(currentPropertyGetter)}' cannot be null");
+            RoslynDebug.Assert(moveNextInfo is not null, $"Field '{nameof(moveNextInfo)}' cannot be null");
             Debug.Assert(patternDisposeInfo == null || needsDisposal);
             Debug.Assert(inlineArraySpanType is WellKnownType.Unknown or WellKnownType.System_Span_T or WellKnownType.System_ReadOnlySpan_T);
             Debug.Assert(inlineArraySpanType == WellKnownType.Unknown ||
@@ -115,8 +115,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public ForEachEnumeratorInfo Build(BinderFlags location)
             {
-                Debug.Assert((object)CollectionType != null, $"'{nameof(CollectionType)}' cannot be null");
-                Debug.Assert((object)ElementType != null, $"'{nameof(ElementType)}' cannot be null");
+                Debug.Assert(CollectionType is not null, $"'{nameof(CollectionType)}' cannot be null");
+                Debug.Assert(ElementType is not null, $"'{nameof(ElementType)}' cannot be null");
                 Debug.Assert(GetEnumeratorInfo != null, $"'{nameof(GetEnumeratorInfo)}' cannot be null");
 
                 Debug.Assert(MoveNextInfo != null);

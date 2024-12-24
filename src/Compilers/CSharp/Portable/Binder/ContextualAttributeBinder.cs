@@ -51,7 +51,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static Symbol GetAttributedMember(Symbol symbol)
         {
-            for (; (object)symbol != null; symbol = symbol.ContainingSymbol)
+            for (; symbol is not null; symbol = symbol.ContainingSymbol)
             {
                 switch (symbol.Kind)
                 {

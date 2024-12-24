@@ -151,7 +151,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     {
                         var field = (FieldSymbol)this.MemberSymbol;
                         var enumField = field as SourceEnumConstantSymbol;
-                        if ((object)enumField != null)
+                        if (enumField is not null)
                         {
                             return binder.BindEnumConstantInitializer(enumField, equalsValue, diagnostics);
                         }

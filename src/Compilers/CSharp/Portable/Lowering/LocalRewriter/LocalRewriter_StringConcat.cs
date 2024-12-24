@@ -372,7 +372,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(loweredRight.HasAnyErrors || loweredRight.Type is { } && loweredRight.Type.IsStringType());
 
             var method = UnsafeGetSpecialTypeMethod(syntax, SpecialMember.System_String__ConcatStringString);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, loweredLeft, loweredRight);
         }
@@ -384,7 +384,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(loweredThird.HasAnyErrors || loweredThird.Type is { } && loweredThird.Type.IsStringType());
 
             var method = UnsafeGetSpecialTypeMethod(syntax, SpecialMember.System_String__ConcatStringStringString);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, ImmutableArray.Create(loweredFirst, loweredSecond, loweredThird));
         }
@@ -397,7 +397,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(loweredFourth.HasAnyErrors || loweredFourth.Type is { } && loweredFourth.Type.IsStringType());
 
             var method = UnsafeGetSpecialTypeMethod(syntax, SpecialMember.System_String__ConcatStringStringStringString);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, ImmutableArray.Create(loweredFirst, loweredSecond, loweredThird, loweredFourth));
         }
@@ -408,7 +408,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(loweredArgs.All(a => a.HasErrors || a.Type is { } && a.Type.IsStringType()));
 
             var method = UnsafeGetSpecialTypeMethod(syntax, SpecialMember.System_String__ConcatStringArray);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             var array = _factory.ArrayOrEmpty(_factory.SpecialType(SpecialType.System_String), loweredArgs);
 
@@ -597,7 +597,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 SpecialMember.System_String__ConcatObjectObject;
 
             var method = UnsafeGetSpecialTypeMethod(syntax, member);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return new BoundBinaryOperator(syntax, operatorKind, constantValueOpt: null, method, constrainedToTypeOpt: null, default(LookupResultKind), loweredLeft, loweredRight, type);
         }

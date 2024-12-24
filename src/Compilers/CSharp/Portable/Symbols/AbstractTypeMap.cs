@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert((object)previous.ConstructedFrom == (object)previous);
 
             NamedTypeSymbol newContainingType = SubstituteNamedType(previous.ContainingType);
-            if ((object)newContainingType == null)
+            if (newContainingType is null)
             {
                 return previous;
             }

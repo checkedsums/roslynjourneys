@@ -216,7 +216,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             LocalSymbol localSymbol = localDeclaration.LocalSymbol;
             TypeSymbol localType = localSymbol.Type;
-            Debug.Assert((object)localType != null); //otherwise, there wouldn't be a conversion to IDisposable
+            Debug.Assert(localType is not null); //otherwise, there wouldn't be a conversion to IDisposable
 
             BoundLocal boundLocal = new BoundLocal(declarationSyntax, localSymbol, localDeclaration.InitializerOpt.ConstantValueOpt, localType);
 

@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.Syntax
 
         public void Add(SyntaxToken item)
         {
-            Debug.Assert(item.Node is object);
+            Debug.Assert(item.Node is not null);
             this.Add(item.Node);
         }
 
@@ -95,13 +95,13 @@ namespace Microsoft.CodeAnalysis.Syntax
                     case 1:
                         return new SyntaxTokenList(null, _nodes[0], 0, 0);
                     case 2:
-                        Debug.Assert(_nodes[0] is object);
-                        Debug.Assert(_nodes[1] is object);
+                        Debug.Assert(_nodes[0] is not null);
+                        Debug.Assert(_nodes[1] is not null);
                         return new SyntaxTokenList(null, InternalSyntax.SyntaxList.List(_nodes[0]!, _nodes[1]!), 0, 0);
                     case 3:
-                        Debug.Assert(_nodes[0] is object);
-                        Debug.Assert(_nodes[1] is object);
-                        Debug.Assert(_nodes[2] is object);
+                        Debug.Assert(_nodes[0] is not null);
+                        Debug.Assert(_nodes[1] is not null);
+                        Debug.Assert(_nodes[2] is not null);
                         return new SyntaxTokenList(null, InternalSyntax.SyntaxList.List(_nodes[0]!, _nodes[1]!, _nodes[2]!), 0, 0);
                     default:
                         return new SyntaxTokenList(null, InternalSyntax.SyntaxList.List(_nodes, _count), 0, 0);

@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool isMethodGroupConversion,
             bool expanded)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
             Debug.Assert(arguments != null);
 
             ImmutableArray<ParameterSymbol> parameters = symbol.GetParameters();

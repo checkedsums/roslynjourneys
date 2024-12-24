@@ -124,7 +124,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
         internal override CSharpAttributeData CreateSynthesizedAttribute(WellKnownMember constructor, ImmutableArray<TypedConstant> constructorArguments, ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments, SyntaxNode syntaxNodeOpt, DiagnosticBag diagnostics)
         {
             var ctor = GetWellKnownMethod(constructor, syntaxNodeOpt, diagnostics);
-            if ((object)ctor == null)
+            if (ctor is null)
             {
                 return null;
             }
@@ -296,7 +296,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
 
                     // We do not support nesting for embedded types.
                     // ERRID.ERR_InvalidInteropType/ERR_NoPIANestedType
-                    if ((object)namedType.ContainingType != null)
+                    if (namedType.ContainingType is not null)
                     {
                         error = ErrorCode.ERR_NoPIANestedType;
                         break;
@@ -415,7 +415,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
 
                 foreach (MethodSymbol m in namedType.GetMethodsToEmit())
                 {
-                    if ((object)m != null)
+                    if (m is not null)
                     {
                         EmbedMethod(embedded, m.GetCciAdapter(), syntaxNodeOpt, diagnostics);
                     }
@@ -507,7 +507,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
 
             // If this proc happens to belong to a property/event, we should include the property/event as well.
             Symbol propertyOrEvent = method.AdaptedMethodSymbol.AssociatedSymbol;
-            if ((object)propertyOrEvent != null)
+            if (propertyOrEvent is not null)
             {
                 switch (propertyOrEvent.Kind)
                 {
@@ -537,8 +537,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
             var getMethod = property.AdaptedPropertySymbol.GetMethod?.GetCciAdapter();
             var setMethod = property.AdaptedPropertySymbol.SetMethod?.GetCciAdapter();
 
-            EmbeddedMethod embeddedGet = (object)getMethod != null ? EmbedMethod(type, getMethod, syntaxNodeOpt, diagnostics) : null;
-            EmbeddedMethod embeddedSet = (object)setMethod != null ? EmbedMethod(type, setMethod, syntaxNodeOpt, diagnostics) : null;
+            EmbeddedMethod embeddedGet = getMethod is not null ? EmbedMethod(type, getMethod, syntaxNodeOpt, diagnostics) : null;
+            EmbeddedMethod embeddedSet = setMethod is not null ? EmbedMethod(type, setMethod, syntaxNodeOpt, diagnostics) : null;
 
             EmbeddedProperty embedded = new EmbeddedProperty(property, embeddedGet, embeddedSet);
             EmbeddedProperty cached = EmbeddedPropertiesMap.GetOrAdd(property, embedded);
@@ -572,8 +572,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
             var addMethod = @event.AdaptedEventSymbol.AddMethod?.GetCciAdapter();
             var removeMethod = @event.AdaptedEventSymbol.RemoveMethod?.GetCciAdapter();
 
-            EmbeddedMethod embeddedAdd = (object)addMethod != null ? EmbedMethod(type, addMethod, syntaxNodeOpt, diagnostics) : null;
-            EmbeddedMethod embeddedRemove = (object)removeMethod != null ? EmbedMethod(type, removeMethod, syntaxNodeOpt, diagnostics) : null;
+            EmbeddedMethod embeddedAdd = addMethod is not null ? EmbedMethod(type, addMethod, syntaxNodeOpt, diagnostics) : null;
+            EmbeddedMethod embeddedRemove = removeMethod is not null ? EmbedMethod(type, removeMethod, syntaxNodeOpt, diagnostics) : null;
 
             EmbeddedEvent embedded = new EmbeddedEvent(@event, embeddedAdd, embeddedRemove);
             EmbeddedEvent cached = EmbeddedEventsMap.GetOrAdd(@event, embedded);

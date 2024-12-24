@@ -68,7 +68,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private void CheckIfAssignedDuringLocalFunctionReplay(Symbol symbol, SyntaxNode node, int slot)
         {
             Debug.Assert(!IsConditionalState);
-            if ((object)symbol != null)
+            if (symbol is not null)
             {
                 NoteRead(symbol);
 

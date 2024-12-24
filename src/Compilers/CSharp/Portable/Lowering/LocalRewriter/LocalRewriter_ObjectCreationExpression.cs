@@ -337,7 +337,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return new BoundDefaultExpression(syntax, type: typeParameter, hasErrors: true);
             }
 
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
             method = method.Construct(ImmutableArray.Create<TypeSymbol>(typeParameter));
 
             method.CheckConstraints(new ConstraintsHelper.CheckConstraintsArgs(_compilation, _compilation.Conversions, syntax.GetLocation(), _diagnostics));
@@ -410,7 +410,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var createInstance = _factory.WellKnownMethod(WellKnownMember.System_Activator__CreateInstance);
             BoundExpression rewrittenObjectCreation;
 
-            if ((object)createInstance != null)
+            if (createInstance is not null)
             {
                 rewrittenObjectCreation = _factory.Convert(node.Type, _factory.Call(null, createInstance, callGetTypeFromCLSID));
             }

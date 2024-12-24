@@ -192,7 +192,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
 
                 var other = t2 as ErrorTypeParameterSymbol;
-                return (object?)other != null &&
+                return other is not null &&
                     other._ordinal == _ordinal &&
                     other.ContainingType.Equals(this.ContainingType, comparison);
             }

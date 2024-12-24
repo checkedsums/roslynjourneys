@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis
                 }
                 else
                 {
-                    Debug.Assert(model is object);
+                    Debug.Assert(model is not null);
 
                     // get the syntax nodes from cache, or a syntax walk using the filter
                     if (state != EntryState.Cached || !_filterTable.TryUseCachedEntries(TimeSpan.Zero, noInputStepsStepInfo, out NodeStateTable<SyntaxNode>.TableEntry entry))

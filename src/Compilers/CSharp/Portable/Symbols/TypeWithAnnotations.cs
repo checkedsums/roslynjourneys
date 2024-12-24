@@ -243,7 +243,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             TypeSymbol typeSymbol = other.Type;
             NullableAnnotation nullableAnnotation = this.NullableAnnotation.MergeNullableAnnotation(other.NullableAnnotation, variance);
             TypeSymbol type = Type.MergeEquivalentTypes(typeSymbol, variance);
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
             return Create(type, nullableAnnotation, CustomModifiers);
         }
 
@@ -324,7 +324,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private bool IsSafeToResolve()
         {
             var declaringMethod = (DefaultType as TypeParameterSymbol)?.DeclaringMethod as SourceOrdinaryMethodSymbol;
-            return !((object)declaringMethod != null && !declaringMethod.HasComplete(CompletionPart.FinishMethodChecks) &&
+            return !(declaringMethod is not null && !declaringMethod.HasComplete(CompletionPart.FinishMethodChecks) &&
                    (declaringMethod.IsOverride || declaringMethod.IsExplicitInterfaceImplementation));
         }
 
@@ -1050,7 +1050,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             private TypeSymbol GetResolvedType()
             {
-                if ((object)_resolved == null)
+                if (_resolved is null)
                 {
                     TryForceResolve(asValueType: _underlying.Type.IsValueType);
                 }
@@ -1075,7 +1075,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return resolvedType;
             }
 
-            internal override bool IsResolved => (object)_resolved != null;
+            internal override bool IsResolved => _resolved is not null;
             internal override TypeSymbol GetResolvedType(TypeSymbol defaultType) => GetResolvedType();
             internal override NullableAnnotation GetResolvedAnnotation(NullableAnnotation defaultAnnotation) => defaultAnnotation;
             internal override ImmutableArray<CustomModifier> CustomModifiers => ImmutableArray<CustomModifier>.Empty;
@@ -1122,7 +1122,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal override TypeWithAnnotations SubstituteType(TypeWithAnnotations type, AbstractTypeMap typeMap)
             {
-                if ((object)_resolved != null)
+                if (_resolved is not null)
                 {
                     return type.SubstituteTypeCore(typeMap);
                 }
@@ -1146,7 +1146,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             internal override void ReportDiagnosticsIfObsolete(TypeWithAnnotations type, Binder binder, SyntaxNode syntax, BindingDiagnosticBag diagnostics)
             {
-                if ((object)_resolved != null)
+                if (_resolved is not null)
                 {
                     type.ReportDiagnosticsIfObsoleteCore(binder, syntax, diagnostics);
                 }
@@ -1160,7 +1160,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var otherLazy = other._extensions as LazyNullableTypeParameter;
 
-                if ((object)otherLazy != null)
+                if (otherLazy is not null)
                 {
                     return _underlying.TypeSymbolEquals(otherLazy._underlying, comparison);
                 }

@@ -106,7 +106,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 if (TypeSymbol.Equals(i.OriginalDefinition, interfaceType, TypeCompareKind.ConsiderEverything2))
                 {
-                    if ((object)candidate == null)
+                    if (candidate is null)
                     {
                         candidate = i;
                     }
@@ -118,7 +118,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            return (object)candidate != null;
+            return candidate is not null;
         }
 
         private bool HasCastToQueryProvider(TypeSymbol instanceType, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
@@ -230,7 +230,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            if ((object)type == null || type.IsErrorType())
+            if (type is null || type.IsErrorType())
             {
                 return false;
             }

@@ -47,7 +47,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private SynthesizedEntryPointSymbol(NamedTypeSymbol containingType)
         {
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(containingType is not null);
 
             _containingType = containingType;
         }

@@ -46,7 +46,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(!IsStatic);
 
-            if ((object)_lazyThisParameter == null)
+            if (_lazyThisParameter is null)
             {
                 Interlocked.CompareExchange(ref _lazyThisParameter, new ThisParameterSymbol(this), null);
             }

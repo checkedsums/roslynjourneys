@@ -151,7 +151,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             var symbol = obj as SourceLabelSymbol;
-            return (object?)symbol != null
+            return symbol is not null
                 && symbol._identifierNodeOrToken.Kind() != SyntaxKind.None
                 && symbol._identifierNodeOrToken.Equals(_identifierNodeOrToken)
                 && symbol._containingMethod.Equals(_containingMethod, compareKind);

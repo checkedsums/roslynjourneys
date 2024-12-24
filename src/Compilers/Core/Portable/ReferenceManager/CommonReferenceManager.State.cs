@@ -550,7 +550,7 @@ namespace Microsoft.CodeAnalysis
                 var versionPattern = symbols[i].AssemblyVersionPattern;
                 var originalIdentity = originalIdentities[i];
 
-                if (versionPattern is object)
+                if (versionPattern is not null)
                 {
                     Debug.Assert(versionPattern.Build == ushort.MaxValue || versionPattern.Revision == ushort.MaxValue);
 
@@ -644,7 +644,7 @@ namespace Microsoft.CodeAnalysis
                         // push dependencies onto the stack:
                         // +1 for the assembly being built:
                         var referenceBinding = bindingResult[assemblyIndex + 1].ReferenceBinding;
-                        Debug.Assert(referenceBinding is object);
+                        Debug.Assert(referenceBinding is not null);
                         foreach (var binding in referenceBinding)
                         {
                             if (binding.IsBound)

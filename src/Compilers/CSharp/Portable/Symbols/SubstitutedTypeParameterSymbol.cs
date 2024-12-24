@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     MethodSymbol reducedFrom = ((MethodSymbol)_container).ReducedFrom;
 
-                    if ((object)reducedFrom != null)
+                    if (reducedFrom is not null)
                     {
                         return reducedFrom.TypeParameters[this.Ordinal];
                     }

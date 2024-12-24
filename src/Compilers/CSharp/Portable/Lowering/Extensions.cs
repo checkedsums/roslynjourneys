@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static bool NullableAlwaysHasValue(this BoundExpression expr)
         {
             Debug.Assert(expr != null);
-            if ((object)expr.Type == null)
+            if (expr.Type is null)
             {
                 return false;
             }
@@ -77,12 +77,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(expr != null);
 
-            if ((object)expr.Type == null && expr.ConstantValueOpt == ConstantValue.Null)
+            if (expr.Type is null && expr.ConstantValueOpt == ConstantValue.Null)
             {
                 return true;
             }
 
-            if ((object)expr.Type == null || !expr.Type.IsNullableType())
+            if (expr.Type is null || !expr.Type.IsNullableType())
             {
                 return false;
             }

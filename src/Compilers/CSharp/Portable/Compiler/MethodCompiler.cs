@@ -228,28 +228,28 @@ namespace Microsoft.CodeAnalysis.CSharp
             diagnostics.AddRange(entryPointAndDiagnostics.Diagnostics, allowMismatchInDependencyAccumulation: true);
             var entryPoint = entryPointAndDiagnostics.MethodSymbol;
 
-            if ((object)entryPoint == null)
+            if (entryPoint is null)
             {
                 return null;
             }
 
             // entryPoint can be a SynthesizedEntryPointSymbol if a script is being compiled.
             SynthesizedEntryPointSymbol synthesizedEntryPoint = entryPoint as SynthesizedEntryPointSymbol;
-            if ((object)synthesizedEntryPoint == null)
+            if (synthesizedEntryPoint is null)
             {
                 var returnType = entryPoint.ReturnType;
                 if (returnType.IsGenericTaskType(compilation) || returnType.IsNonGenericTaskType(compilation))
                 {
                     synthesizedEntryPoint = new SynthesizedEntryPointSymbol.AsyncForwardEntryPoint(compilation, entryPoint.ContainingType, entryPoint);
                     entryPoint = synthesizedEntryPoint;
-                    if ((object)moduleBeingBuilt != null)
+                    if (moduleBeingBuilt is not null)
                     {
                         moduleBeingBuilt.AddSynthesizedDefinition(entryPoint.ContainingType, synthesizedEntryPoint.GetCciAdapter());
                     }
                 }
             }
 
-            if (((object)synthesizedEntryPoint != null) &&
+            if ((synthesizedEntryPoint is not null) &&
                 (moduleBeingBuilt != null) &&
                 !hasDeclarationErrors &&
                 !diagnostics.HasAnyErrors())
@@ -462,8 +462,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 scriptCtor = containingType.GetScriptConstructor();
                 scriptInitializer = containingType.GetScriptInitializer();
                 scriptEntryPoint = containingType.GetScriptEntryPoint();
-                Debug.Assert((object)scriptCtor != null);
-                Debug.Assert((object)scriptInitializer != null);
+                Debug.Assert(scriptCtor is not null);
+                Debug.Assert(scriptInitializer is not null);
             }
 
             var synthesizedSubmissionFields = containingType.IsSubmissionClass ? new SynthesizedSubmissionFields(_compilation, containingType) : null;
@@ -472,7 +472,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var sourceTypeSymbol = containingType as SourceMemberContainerTypeSymbol;
 
-            if ((object)sourceTypeSymbol != null)
+            if (sourceTypeSymbol is not null)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
                 Binder.BindFieldInitializers(_compilation, scriptInitializer, sourceTypeSymbol.StaticInitializers, _diagnostics, ref processedStaticInitializers);
@@ -536,7 +536,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SymbolKind.Property:
                         {
                             var sourceProperty = member as SourcePropertySymbolBase;
-                            if ((object)sourceProperty != null && sourceProperty.IsSealed && compilationState.Emitting)
+                            if (sourceProperty is not null && sourceProperty.IsSealed && compilationState.Emitting)
                             {
                                 CompileSynthesizedSealedAccessors(sourceProperty, compilationState);
                             }
@@ -702,7 +702,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     var method = methodWithBody.Method;
                     var lambda = method as SynthesizedClosureMethod;
-                    var variableSlotAllocatorOpt = ((object)lambda != null) ?
+                    var variableSlotAllocatorOpt = (lambda is not null) ?
                         _moduleBeingBuiltOpt.TryCreateVariableSlotAllocator(lambda, lambda.TopLevelMethod, diagnosticsThisMethod.DiagnosticBag) :
                         _moduleBeingBuiltOpt.TryCreateVariableSlotAllocator(method, method, diagnosticsThisMethod.DiagnosticBag);
 
@@ -724,7 +724,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             AsyncStateMachine asyncStateMachine;
                             loweredBody = AsyncRewriter.Rewrite(loweredBody, method, methodOrdinal, stateMachineStateDebugInfoBuilder, variableSlotAllocatorOpt, compilationState, diagnosticsThisMethod, out asyncStateMachine);
 
-                            Debug.Assert((object)iteratorStateMachine == null || (object)asyncStateMachine == null);
+                            Debug.Assert(iteratorStateMachine is null || asyncStateMachine is null);
                             stateMachine = stateMachine ?? asyncStateMachine;
                         }
 
@@ -824,7 +824,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SynthesizedSealedPropertyAccessor synthesizedAccessor = sourceProperty.SynthesizedSealedAccessorOpt;
 
             // we are not generating any observable diagnostics here so it is ok to short-circuit on global errors.
-            if ((object)synthesizedAccessor != null && !_globalHasErrors)
+            if (synthesizedAccessor is not null && !_globalHasErrors)
             {
                 Debug.Assert(synthesizedAccessor.SynthesizesLoweredBoundBody);
                 var discardedDiagnostics = BindingDiagnosticBag.GetInstance(_diagnostics);
@@ -869,7 +869,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (methodSymbol.IsAbstract || methodSymbol.ContainingType?.IsDelegateType() == true)
             {
-                if ((object)sourceMethod != null)
+                if (sourceMethod is not null)
                 {
                     bool diagsWritten;
                     sourceMethod.SetDiagnostics([], out diagsWritten);
@@ -883,7 +883,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             // get cached diagnostics if not building and we have 'em
-            if (_moduleBeingBuiltOpt == null && (object)sourceMethod != null)
+            if (_moduleBeingBuiltOpt == null && sourceMethod is not null)
             {
                 var cachedDiagnostics = sourceMethod.Diagnostics;
 
@@ -1440,7 +1440,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 BoundStatement bodyWithoutAsync = AsyncRewriter.Rewrite(bodyWithoutIterators, method, methodOrdinal, stateMachineStateDebugInfoBuilder, lazyVariableSlotAllocator, compilationState, diagnostics,
                     out AsyncStateMachine asyncStateMachine);
 
-                Debug.Assert((object)iteratorStateMachine == null || (object)asyncStateMachine == null);
+                Debug.Assert(iteratorStateMachine is null || asyncStateMachine is null);
                 stateMachineTypeOpt = (StateMachineTypeSymbol)iteratorStateMachine ?? asyncStateMachine;
 
                 return bodyWithoutAsync;
@@ -1542,7 +1542,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     codeGen.Generate(out hasStackalloc);
 
-                    if ((object)kickoffMethod != null)
+                    if (kickoffMethod is not null)
                     {
                         moveNextBodyDebugInfoOpt = new IteratorMoveNextBodyDebugInfo(kickoffMethod.GetCciAdapter());
                     }
@@ -1550,7 +1550,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // Compiler-generated MoveNext methods have hoisted local scopes.
                 // These are built by call to CodeGen.Generate.
-                var stateMachineHoistedLocalScopes = ((object)kickoffMethod != null) ?
+                var stateMachineHoistedLocalScopes = (kickoffMethod is not null) ?
                     builder.GetHoistedLocalScopes() : default;
 
                 // Translate the imports even if we are not writing PDBs. The translation has an impact on generated metadata
@@ -1576,7 +1576,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 var stateMachineHoistedLocalSlots = default(ImmutableArray<EncHoistedLocalInfo>);
                 var stateMachineAwaiterSlots = default(ImmutableArray<Cci.ITypeReference>);
-                if (optimizations == OptimizationLevel.Debug && (object)stateMachineTypeOpt != null)
+                if (optimizations == OptimizationLevel.Debug && stateMachineTypeOpt is not null)
                 {
                     Debug.Assert(method.IsAsync || method.IsIterator);
                     GetStateMachineSlotDebugInfo(moduleBuilder, moduleBuilder.GetSynthesizedFields(stateMachineTypeOpt), variableSlotAllocatorOpt, diagnosticsForThisMethod, out stateMachineHoistedLocalSlots, out stateMachineAwaiterSlots);

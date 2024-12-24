@@ -434,7 +434,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (this.Format.CompilerInternalOptions.IncludesOption(SymbolDisplayCompilerInternalOptions.IncludeCustomModifiers))
             {
-                if ((object?)underlyingTypeSymbol != null)
+                if (underlyingTypeSymbol is not null)
                 {
                     return underlyingTypeSymbol.TypeArgumentsWithAnnotationsNoUseSiteDiagnostics.SelectAsArray(a => a.CustomModifiers);
                 }

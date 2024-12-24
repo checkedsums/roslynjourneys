@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxNode syntax = loweredBody.Syntax;
 
             // base constructor call:
-            Debug.Assert((object)constructor.ContainingType.BaseTypeNoUseSiteDiagnostics == null || constructor.ContainingType.BaseTypeNoUseSiteDiagnostics.SpecialType == SpecialType.System_Object);
+            Debug.Assert(constructor.ContainingType.BaseTypeNoUseSiteDiagnostics is null || constructor.ContainingType.BaseTypeNoUseSiteDiagnostics.SpecialType == SpecialType.System_Object);
             var objectType = constructor.ContainingAssembly.GetSpecialType(SpecialType.System_Object);
 
             BoundExpression receiver = new BoundThisReference(syntax, constructor.ContainingType) { WasCompilerGenerated = true };
@@ -113,7 +113,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             { WasCompilerGenerated = true });
 
             var hostObjectField = synthesizedFields.GetHostObjectField();
-            if ((object)hostObjectField != null)
+            if (hostObjectField is not null)
             {
                 // <host_object> = (<host_object_type>)<submission_array>[0]
                 statements.Add(
@@ -234,10 +234,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             CSharpSyntaxNode syntax = eventSymbol.CSharpSyntaxNode;
 
             MethodSymbol accessor = isAddMethod ? eventSymbol.AddMethod : eventSymbol.RemoveMethod;
-            Debug.Assert((object)accessor != null);
+            Debug.Assert(accessor is not null);
 
             FieldSymbol field = eventSymbol.AssociatedField;
-            Debug.Assert((object)field != null);
+            Debug.Assert(field is not null);
 
             NamedTypeSymbol fieldType = (NamedTypeSymbol)field.Type;
             Debug.Assert(fieldType.Name == "EventRegistrationTokenTable");
@@ -248,7 +248,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics,
                 syntax: syntax);
 
-            if ((object)getOrCreateMethod == null)
+            if (getOrCreateMethod is null)
             {
                 Debug.Assert(diagnostics.DiagnosticBag is null || diagnostics.HasAnyErrors());
                 return null;
@@ -266,7 +266,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 diagnostics,
                 syntax: syntax);
 
-            if ((object)processHandlerMethod == null)
+            if (processHandlerMethod is null)
             {
                 Debug.Assert(diagnostics.DiagnosticBag is null || diagnostics.HasAnyErrors());
                 return null;
@@ -391,7 +391,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             MethodSymbol compareExchangeMethod = (MethodSymbol)compilation.GetWellKnownTypeMember(WellKnownMember.System_Threading_Interlocked__CompareExchange_T);
 
-            if ((object)compareExchangeMethod == null)
+            if (compareExchangeMethod is null)
             {
                 // (DelegateType)Delegate.Combine(_event, value)
                 delegateUpdate = BoundConversion.SynthesizedNonUserDefined(syntax,
@@ -537,7 +537,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // NOTE: the Finalize method need not be a destructor or be overridden by the current method.
             MethodSymbol baseTypeFinalize = GetBaseTypeFinalizeMethod(method);
 
-            if ((object)baseTypeFinalize != null)
+            if (baseTypeFinalize is not null)
             {
                 BoundStatement baseFinalizeCall = new BoundExpressionStatement(
                     syntax,
@@ -593,7 +593,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static MethodSymbol GetBaseTypeFinalizeMethod(MethodSymbol method)
         {
             NamedTypeSymbol baseType = method.ContainingType.BaseTypeNoUseSiteDiagnostics;
-            while ((object)baseType != null)
+            while (baseType is not null)
             {
                 foreach (Symbol member in baseType.GetMembers(WellKnownMemberNames.DestructorName))
                 {

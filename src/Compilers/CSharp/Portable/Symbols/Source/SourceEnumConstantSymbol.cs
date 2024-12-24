@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             int otherConstantOffset,
             BindingDiagnosticBag diagnostics)
         {
-            if ((object)otherConstant == null)
+            if (otherConstant is null)
             {
                 Debug.Assert(otherConstantOffset == 0);
                 return new ZeroValuedEnumConstantSymbol(containingEnum, syntax, diagnostics);
@@ -191,7 +191,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 BindingDiagnosticBag diagnostics) :
                 base(containingEnum, syntax, diagnostics)
             {
-                Debug.Assert((object)otherConstant != null);
+                Debug.Assert(otherConstant is not null);
                 Debug.Assert(otherConstantOffset > 0);
 
                 _otherConstant = otherConstant;

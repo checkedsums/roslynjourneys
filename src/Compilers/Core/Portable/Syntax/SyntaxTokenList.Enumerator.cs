@@ -92,9 +92,9 @@ namespace Microsoft.CodeAnalysis
                     _position += _current.FullWidth;
                 }
 
-                Debug.Assert(_singleNodeOrList is object);
+                Debug.Assert(_singleNodeOrList is not null);
                 _current = GetGreenNodeAt(_singleNodeOrList, _index);
-                Debug.Assert(_current is object);
+                Debug.Assert(_current is not null);
                 return true;
             }
 

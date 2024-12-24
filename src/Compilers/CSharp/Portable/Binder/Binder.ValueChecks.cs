@@ -611,7 +611,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     Debug.Assert(methodGroup.ResultKind != LookupResultKind.Viable);
                     var receiver = methodGroup.ReceiverOpt;
-                    if ((object)otherSymbol != null && receiver?.Kind == BoundKind.TypeOrValueExpression)
+                    if (otherSymbol is not null && receiver?.Kind == BoundKind.TypeOrValueExpression)
                     {
                         // Since we're not accessing a method, this can't be a Color Color case, so TypeOrValueExpression should not have been used.
                         // CAVEAT: otherSymbol could be invalid in some way (e.g. inaccessible), in which case we would have fallen back on a
@@ -627,7 +627,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return new BoundBadExpression(
                         expr.Syntax,
                         methodGroup.ResultKind,
-                        (object)otherSymbol == null ? ImmutableArray<Symbol>.Empty : ImmutableArray.Create(otherSymbol),
+                        otherSymbol is null ? ImmutableArray<Symbol>.Empty : ImmutableArray.Create(otherSymbol),
                         receiver == null ? ImmutableArray<BoundExpression>.Empty : ImmutableArray.Create(receiver),
                         GetNonMethodMemberType(otherSymbol));
                 }
@@ -1413,7 +1413,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var canModifyReadonly = false;
 
             Symbol containing = this.ContainingMemberOrLambda;
-            if ((object)containing != null &&
+            if (containing is not null &&
                 fieldIsStatic == containing.IsStatic &&
                 (fieldIsStatic || receiverIsThis) &&
                 (Compilation.FeatureStrictEnabled
@@ -1684,7 +1684,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxNode propertySyntax;
             var propertySymbol = GetPropertySymbol(expr, out receiver, out propertySyntax);
 
-            Debug.Assert((object)propertySymbol != null);
+            Debug.Assert(propertySymbol is not null);
             Debug.Assert(propertySyntax != null);
 
             if ((RequiresReferenceToLocation(valueKind) || checkingReceiver) &&
@@ -1786,7 +1786,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var getMethod = propertySymbol.GetOwnOrInheritedGetMethod();
 
-                if ((object)getMethod == null)
+                if (getMethod is null)
                 {
                     Error(diagnostics, ErrorCode.ERR_PropertyLacksGet, node, propertySymbol);
                     return false;
@@ -3057,7 +3057,7 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private static void ReportReadonlyLocalError(SyntaxNode node, LocalSymbol local, BindValueKind kind, bool checkingReceiver, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert((object)local != null);
+            Debug.Assert(local is not null);
             Debug.Assert(kind != BindValueKind.RValue);
 
             MessageID cause;
@@ -3216,7 +3216,7 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private static void ReportReadOnlyFieldError(FieldSymbol field, SyntaxNode node, BindValueKind kind, bool checkingReceiver, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert((object)field != null);
+            Debug.Assert(field is not null);
             Debug.Assert(field.RefKind == RefKind.None ? RequiresAssignableVariable(kind) : RequiresRefAssignableVariable(kind));
             Debug.Assert(field.Type != (object)null);
 
@@ -3252,7 +3252,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static void ReportReadOnlyError(Symbol symbol, SyntaxNode node, BindValueKind kind, bool checkingReceiver, BindingDiagnosticBag diagnostics)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
             Debug.Assert(RequiresAssignableVariable(kind));
 
             // It's clearer to say that the address can't be taken than to say that the parameter can't be modified

@@ -220,7 +220,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // If we didn't get anything and were in Type/Namespace only context, let's bind normally and see
                 // if any symbol comes out.
-                if ((object)result.Symbol == null && result.CandidateReason == CandidateReason.None && node is ExpressionSyntax && SyntaxFacts.IsInNamespaceOrTypeContext((ExpressionSyntax)node))
+                if (result.Symbol is null && result.CandidateReason == CandidateReason.None && node is ExpressionSyntax && SyntaxFacts.IsInNamespaceOrTypeContext((ExpressionSyntax)node))
                 {
                     var binder = this.GetEnclosingBinder(GetAdjustedNodePosition(node));
 
@@ -233,7 +233,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         BoundExpression bound = binder.BindExpression((ExpressionSyntax)node, BindingDiagnosticBag.Discarded);
 
                         SymbolInfo info = GetSymbolInfoForNode(options, bound, bound, boundNodeForSyntacticParent: null, binderOpt: null);
-                        if ((object)info.Symbol != null)
+                        if (info.Symbol is not null)
                         {
                             result = new SymbolInfo(ImmutableArray.Create<ISymbol>(info.Symbol), CandidateReason.NotATypeOrNamespace);
                         }
@@ -282,7 +282,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // if expression is not part of a member context then caller may really just have a
                 // reference to a type or namespace name
                 var symbol = GetSemanticInfoSymbolInNonMemberContext(node, bindVarAsAliasFirst: (options & SymbolInfoOptions.PreserveAliases) != 0);
-                result = (object)symbol != null ? GetSymbolInfoForSymbol(symbol, options) : SymbolInfo.None;
+                result = symbol is not null ? GetSymbolInfoForSymbol(symbol, options) : SymbolInfo.None;
             }
 
             return result;
@@ -320,7 +320,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // if expression is not part of a member context then caller may really just have a
                 // reference to a type or namespace name
                 var symbol = GetSemanticInfoSymbolInNonMemberContext(node, bindVarAsAliasFirst: false); // Don't care about aliases here.
-                return (object)symbol != null ? GetTypeInfoForSymbol(symbol) : CSharpTypeInfo.None;
+                return symbol is not null ? GetTypeInfoForSymbol(symbol) : CSharpTypeInfo.None;
             }
         }
 
@@ -337,7 +337,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // if expression is not part of a member context then caller may really just have a
                 // reference to a type or namespace name
                 var type = node as TypeSyntax;
-                if ((object)type != null)
+                if (type is not null)
                 {
                     // determine if this type is part of a base declaration being resolved
                     var basesBeingResolved = GetBasesBeingResolved(type);
@@ -363,7 +363,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // probably need to have the FieldSymbol retain alias info when it does its own
                         // binding and expose it to us here.
 
-                        if ((object)result == null || result.Kind == SymbolKind.ErrorType)
+                        if (result is null || result.Kind == SymbolKind.ErrorType)
                         {
                             // We might be in a field declaration with "var" keyword as the type name.
                             // Implicitly typed field symbols are not allowed in regular C#,
@@ -375,7 +375,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             if (variableDecl != null && variableDecl.Variables.Any())
                             {
                                 var fieldSymbol = GetDeclaredFieldSymbol(variableDecl.Variables.First());
-                                if ((object)fieldSymbol != null)
+                                if (fieldSymbol is not null)
                                 {
                                     result = fieldSymbol.Type;
                                 }
@@ -534,7 +534,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             CheckSyntaxNode(expression);
 
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -559,7 +559,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             CheckSyntaxNode(expression);
 
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -1002,7 +1002,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (defaultValueSyntax != null && defaultValueSyntax.FullSpan.Contains(span))
             {
                 var parameterSymbol = containing.GetDeclaredSymbol(paramDecl).GetSymbol<ParameterSymbol>();
-                if ((object)parameterSymbol != null)
+                if (parameterSymbol is not null)
                 {
                     return ImmutableInterlocked.GetOrAdd(ref _memberModels, defaultValueSyntax,
                                                          (equalsValue, tuple) =>
@@ -1137,7 +1137,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 // because lambdas only appear in code with associated member models.
                                 ParameterSyntax parameterDecl = (ParameterSyntax)node.Parent;
                                 ParameterSymbol parameterSymbol = GetDeclaredNonLambdaParameterSymbol(parameterDecl);
-                                if ((object)parameterSymbol == null)
+                                if (parameterSymbol is null)
                                     return null;
 
                                 return InitializerSemanticModel.Create(
@@ -1152,7 +1152,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             {
                                 var enumDecl = (EnumMemberDeclarationSyntax)node.Parent;
                                 var enumSymbol = GetDeclaredSymbol(enumDecl).GetSymbol<FieldSymbol>();
-                                if ((object)enumSymbol == null)
+                                if (enumSymbol is null)
                                     return null;
 
                                 return InitializerSemanticModel.Create(
@@ -1197,11 +1197,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // TODO (tomat): handle misplaced global statements
                         if (parent.Kind() == SyntaxKind.CompilationUnit &&
                             !this.IsRegularCSharp &&
-                            (object)_compilation.ScriptClass != null)
+                            _compilation.ScriptClass is not null)
                         {
                             var scriptInitializer = _compilation.ScriptClass.GetScriptInitializer();
-                            Debug.Assert((object)scriptInitializer != null);
-                            if ((object)scriptInitializer == null)
+                            Debug.Assert(scriptInitializer is not null);
+                            if (scriptInitializer is null)
                             {
                                 return null;
                             }
@@ -1246,7 +1246,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var declaredSymbol = GetDeclaredSymbol(variableDecl);
 
-            if ((object)declaredSymbol != null)
+            if (declaredSymbol is not null)
             {
                 switch (variableDecl.Parent.Parent.Kind())
                 {
@@ -1320,15 +1320,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                 container = GetDeclaredNamespaceOrType(declarationSyntax.Parent);
             }
 
-            Debug.Assert((object)container != null);
+            Debug.Assert(container is not null);
 
             // We should get a namespace symbol since we match the symbol location with a namespace declaration syntax location.
             var symbol = GetDeclaredNamespace(container, declarationSyntax.Span, declarationSyntax.Name);
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             // Map to compilation-scoped namespace (Roslyn bug 9538)
             symbol = _compilation.GetCompilationNamespace(symbol);
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             return symbol;
         }
@@ -1383,7 +1383,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(declarationSyntax != null);
 
             var container = GetDeclaredTypeMemberContainer(declarationSyntax);
-            Debug.Assert((object)container != null);
+            Debug.Assert(container is not null);
 
             // try cast as we might get a non-type in error recovery scenarios:
             return GetDeclaredMember(container, declarationSyntax.Span, isKnownToBeANamespace: false, name) as NamedTypeSymbol;
@@ -1573,7 +1573,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // NOTE: it's an error for field-like events to have accessors, 
                     // but we want to bind them anyway for error tolerance reasons.
                     var container = GetDeclaredTypeMemberContainer(propertyOrEventDecl);
-                    Debug.Assert((object)container != null);
+                    Debug.Assert(container is not null);
                     Debug.Assert(declarationSyntax.Keyword.Kind() != SyntaxKind.IdentifierToken);
                     return (this.GetDeclaredMember(container, declarationSyntax.Span, isKnownToBeANamespace: false) as MethodSymbol).GetPublicSymbol();
 
@@ -1594,7 +1594,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.PropertyDeclaration:
                 case SyntaxKind.IndexerDeclaration:
                     container = GetDeclaredTypeMemberContainer(containingMemberSyntax);
-                    Debug.Assert((object)container != null);
+                    Debug.Assert(container is not null);
                     // We are looking for the SourcePropertyAccessorSymbol here,
                     // not the SourcePropertySymbol, so use declarationSyntax
                     // to exclude the property symbol from being retrieved.
@@ -1716,7 +1716,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.QualifiedName:
                     var qn = (QualifiedNameSyntax)name;
                     var left = GetDeclaredNamespace(container, declarationSpan, qn.Left) as NamespaceOrTypeSymbol;
-                    Debug.Assert((object)left != null);
+                    Debug.Assert(left is not null);
                     return GetDeclaredNamespace(left, declarationSpan, qn.Right);
 
                 case SyntaxKind.AliasQualifiedName:
@@ -1738,7 +1738,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <see cref="NamespaceSymbol"/>.</param>
         private Symbol GetDeclaredMember(NamespaceOrTypeSymbol container, TextSpan declarationSpan, bool isKnownToBeANamespace, string name = null)
         {
-            if ((object)container == null)
+            if (container is null)
             {
                 return null;
             }
@@ -1768,11 +1768,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             foreach (var symbol in collection)
             {
                 var namedType = symbol as ImplicitNamedTypeSymbol;
-                if ((object)namedType != null && namedType.IsImplicitClass)
+                if (namedType is not null && namedType.IsImplicitClass)
                 {
                     // look inside wrapper around illegally placed members in namespaces
                     var result = GetDeclaredMember(namedType, declarationSpan, isKnownToBeANamespace, name);
-                    if ((object)result != null)
+                    if (result is not null)
                     {
                         return result;
                     }
@@ -1795,7 +1795,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     _ => null
                 };
 
-                if ((object)partial != null)
+                if (partial is not null)
                 {
                     var loc = partial.GetFirstLocation();
                     if (loc.IsInSource && loc.SourceTree == this.SyntaxTree && declarationSpan.Contains(loc.SourceSpan))
@@ -1826,10 +1826,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (field != null)
             {
                 var container = GetDeclaredTypeMemberContainer(field);
-                Debug.Assert((object)container != null);
+                Debug.Assert(container is not null);
 
                 var result = this.GetDeclaredMember(container, declarationSyntax.Span, isKnownToBeANamespace: false, declarationSyntax.Identifier.ValueText);
-                Debug.Assert((object)result != null);
+                Debug.Assert(result is not null);
 
                 return result.GetPublicSymbol();
             }
@@ -2020,7 +2020,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 method = (GetDeclaredSymbol(memberDecl, cancellationToken) as IMethodSymbol).GetSymbol();
             }
 
-            if ((object)method == null)
+            if (method is null)
             {
                 return null;
             }
@@ -2047,7 +2047,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var property = (GetDeclaredSymbol(memberDecl, cancellationToken) as IPropertySymbol).GetSymbol();
-            if ((object)property == null)
+            if (property is null)
             {
                 return null;
             }
@@ -2074,13 +2074,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var delegateType = (GetDeclaredSymbol(memberDecl, cancellationToken) as INamedTypeSymbol).GetSymbol();
-            if ((object)delegateType == null)
+            if (delegateType is null)
             {
                 return null;
             }
 
             var delegateInvoke = delegateType.DelegateInvokeMethod;
-            if ((object)delegateInvoke == null || delegateInvoke.HasUseSiteError)
+            if (delegateInvoke is null || delegateInvoke.HasUseSiteError)
             {
                 return null;
             }
@@ -2311,7 +2311,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var container = GetDeclaredNamespaceOrType(memberDeclaration.Parent);
-            Debug.Assert((object)container != null);
+            Debug.Assert(container is not null);
 
             // member in a type:
             if (!container.IsNamespace)

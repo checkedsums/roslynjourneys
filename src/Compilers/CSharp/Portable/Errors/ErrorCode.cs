@@ -364,7 +364,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_CantOverrideNonProperty = 544,
         ERR_NoGetToOverride = 545,
         ERR_NoSetToOverride = 546,
-        ERR_PropertyCantHaveVoidType = 547,
         ERR_PropertyWithNoAccessors = 548,
         ERR_NewVirtualInSealed = 549,
         ERR_ExplicitPropertyAddingAccessor = 550,
@@ -456,18 +455,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_LiteralDoubleCast = 664,
         WRN_IncorrectBooleanAssg = 665,
         ERR_ProtectedInStruct = 666,
-        //ERR_FeatureDeprecated = 667,
-        ERR_InconsistentIndexerNames = 668, // Named 'ERR_InconsistantIndexerNames' in native compiler
+
+        ERR_InconsistentIndexerNames = 668,
         ERR_ComImportWithUserCtor = 669,
         ERR_FieldCantHaveVoidType = 670,
         WRN_NonObsoleteOverridingObsolete = 672,
-        ERR_SystemVoid = 673,
+
         ERR_ExplicitParamArrayOrCollection = 674,
         WRN_BitwiseOrSignExtend = 675,
         ERR_VolatileStruct = 677,
         ERR_VolatileAndReadonly = 678,
-        // WRN_OldWarning_ProtectedInternal = 679,    // This error code is unused.
-        // WRN_OldWarning_AccessibleReadonly = 680,    // This error code is unused.
+
         ERR_AbstractField = 681,
         ERR_BogusExplicitImpl = 682,
         ERR_ExplicitMethodImplAccessor = 683,
@@ -476,12 +474,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_AccessorImplementingMethod = 686,
         ERR_AliasQualAsExpression = 687,
         ERR_DerivingFromATyVar = 689,
-        //FTL_MalformedMetadata = 690,
+
         ERR_DuplicateTypeParameter = 692,
         WRN_TypeParameterSameAsOuterTypeParameter = 693,
         ERR_TypeVariableSameAsParent = 694,
         ERR_UnifyingInterfaceInstantiations = 695,
-        // ERR_GenericDerivingFromAttribute = 698,
+
         ERR_TyVarNotFoundInConstraint = 699,
         ERR_BadBoundType = 701,
         ERR_SpecialTypeAsBound = 702,
@@ -705,14 +703,13 @@ namespace Microsoft.CodeAnalysis.CSharp
         //ERR_DontUseInvoke = 1533,
         ERR_BadBinOpArgs = 1534,
         ERR_BadUnOpArgs = 1535,
-        ERR_NoVoidParameter = 1536,
+
         ERR_DuplicateAlias = 1537,
         ERR_BadProtectedAccess = 1540,
         //ERR_CantIncludeDirectory = 1541,
         ERR_AddModuleAssembly = 1542,
         ERR_BindToBogusProp2 = 1545,
         ERR_BindToBogusProp1 = 1546,
-        ERR_NoVoidHere = 1547,
         //ERR_CryptoFailed = 1548,
         //ERR_CryptoNotFound = 1549,
         ERR_IndexerNeedsParam = 1551,
@@ -1123,11 +1120,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         WRN_CallerMemberNameParamForUnconsumedLocation = 4026,
         ERR_DoesntImplementAwaitInterface = 4027,
         ERR_BadAwaitArg_NeedSystem = 4028,
-        ERR_CantReturnVoid = 4029,
+
         ERR_SecurityCriticalOrSecuritySafeCriticalOnAsync = 4030,
         ERR_SecurityCriticalOrSecuritySafeCriticalOnAsyncInClassOrStruct = 4031,
         ERR_BadAwaitWithoutAsyncMethod = 4032,
-        ERR_BadAwaitWithoutVoidAsyncMethod = 4033,
+
         ERR_BadAwaitWithoutAsyncLambda = 4034,
         // ERR_BadAwaitWithoutAsyncAnonMeth = 4035,         Merged with ERR_BadAwaitWithoutAsyncLambda in Roslyn
         ERR_NoSuchMemberOrExtensionNeedUsing = 4036,
@@ -1460,8 +1457,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_TypeForwardedToMultipleAssemblies = 8206,
         ERR_ExpressionTreeContainsDiscard = 8207,
         ERR_PatternDynamicType = 8208,
-        ERR_VoidAssignment = 8209,
-        ERR_VoidInTuple = 8210,
+
         #endregion more stragglers for C# 7
 
         #region diagnostics introduced for C# 7.1

@@ -100,13 +100,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return true;
             }
 
-            if ((object)t2 == null)
+            if (t2 is null)
             {
                 return false;
             }
 
             CrefTypeParameterSymbol other = t2 as CrefTypeParameterSymbol;
-            return (object)other != null &&
+            return other is not null &&
                 other._name == _name &&
                 other._ordinal == _ordinal &&
                 other._declaringSyntax.GetSyntax() == _declaringSyntax.GetSyntax();

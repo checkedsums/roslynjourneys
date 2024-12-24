@@ -60,7 +60,7 @@ namespace Microsoft.CodeAnalysis
             get
             {
                 var node = UnderlyingNode;
-                Debug.Assert(node is object);
+                Debug.Assert(node is not null);
                 return node;
             }
         }
@@ -212,7 +212,7 @@ namespace Microsoft.CodeAnalysis
         internal bool TryGetStructure([NotNullWhen(true)] out SyntaxNode? structure)
         {
             structure = GetStructure();
-            return structure is object;
+            return structure is not null;
         }
 
         /// <summary> 

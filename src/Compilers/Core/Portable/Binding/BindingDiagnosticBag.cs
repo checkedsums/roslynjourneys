@@ -16,17 +16,12 @@ namespace Microsoft.CodeAnalysis
     /// This is base class for a bag used to accumulate information while binding is performed.
     /// Including diagnostic messages and dependencies in the form of "used" assemblies. 
     /// </summary>
-    internal abstract class BindingDiagnosticBag
+    internal abstract class BindingDiagnosticBag(DiagnosticBag? diagnosticBag)
     {
-        public readonly DiagnosticBag? DiagnosticBag;
-
-        protected BindingDiagnosticBag(DiagnosticBag? diagnosticBag)
-        {
-            DiagnosticBag = diagnosticBag;
-        }
+        public readonly DiagnosticBag? DiagnosticBag = diagnosticBag;
 
         [MemberNotNullWhen(true, nameof(DiagnosticBag))]
-        internal bool AccumulatesDiagnostics => DiagnosticBag is object;
+        internal bool AccumulatesDiagnostics => DiagnosticBag is not null;
 
         internal void AddRange<T>(ImmutableArray<T> diagnostics) where T : Diagnostic
         {
@@ -40,13 +35,13 @@ namespace Microsoft.CodeAnalysis
 
         internal bool HasAnyResolvedErrors()
         {
-            Debug.Assert(DiagnosticBag is object);
+            Debug.Assert(DiagnosticBag is not null);
             return DiagnosticBag?.HasAnyResolvedErrors() == true;
         }
 
         internal bool HasAnyErrors()
         {
-            Debug.Assert(DiagnosticBag is object);
+            Debug.Assert(DiagnosticBag is not null);
             return DiagnosticBag?.HasAnyErrors() == true;
         }
 
@@ -113,7 +108,7 @@ namespace Microsoft.CodeAnalysis
 
         internal void AddRange(BindingDiagnosticBag<TAssemblySymbol>? other, bool allowMismatchInDependencyAccumulation = false)
         {
-            if (other is object)
+            if (other is not null)
             {
                 AddRange(other.DiagnosticBag);
                 Debug.Assert(allowMismatchInDependencyAccumulation || !other.AccumulatesDependencies || this.AccumulatesDependencies);
@@ -123,7 +118,7 @@ namespace Microsoft.CodeAnalysis
 
         internal void AddRange(DiagnosticBag? bag)
         {
-            if (bag is object)
+            if (bag is not null)
             {
                 DiagnosticBag?.AddRange(bag);
             }
@@ -300,7 +295,7 @@ namespace Microsoft.CodeAnalysis
                 return false;
             }
 
-            if (DiagnosticBag is object)
+            if (DiagnosticBag is not null)
             {
                 return ReportUseSiteDiagnostic(info, DiagnosticBag, getLocation(data));
             }
@@ -309,21 +304,15 @@ namespace Microsoft.CodeAnalysis
         }
     }
 
-    internal readonly struct ReadOnlyBindingDiagnostic<TAssemblySymbol> where TAssemblySymbol : class, IAssemblySymbolInternal
+    internal readonly struct ReadOnlyBindingDiagnostic<TAssemblySymbol>(ImmutableArray<Diagnostic> diagnostics, ImmutableArray<TAssemblySymbol> dependencies) where TAssemblySymbol : class, IAssemblySymbolInternal
     {
-        private readonly ImmutableArray<Diagnostic> _diagnostics;
-        private readonly ImmutableArray<TAssemblySymbol> _dependencies;
+        private readonly ImmutableArray<Diagnostic> _diagnostics = diagnostics.NullToEmpty();
+        private readonly ImmutableArray<TAssemblySymbol> _dependencies = dependencies.NullToEmpty();
 
         public ImmutableArray<Diagnostic> Diagnostics => _diagnostics.NullToEmpty();
         public ImmutableArray<TAssemblySymbol> Dependencies => _dependencies.NullToEmpty();
 
         public static ReadOnlyBindingDiagnostic<TAssemblySymbol> Empty => new ReadOnlyBindingDiagnostic<TAssemblySymbol>(default, default);
-
-        public ReadOnlyBindingDiagnostic(ImmutableArray<Diagnostic> diagnostics, ImmutableArray<TAssemblySymbol> dependencies)
-        {
-            _diagnostics = diagnostics.NullToEmpty();
-            _dependencies = dependencies.NullToEmpty();
-        }
 
         public ReadOnlyBindingDiagnostic<TAssemblySymbol> NullToEmpty() => new ReadOnlyBindingDiagnostic<TAssemblySymbol>(Diagnostics, Dependencies);
 

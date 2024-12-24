@@ -1938,7 +1938,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             Debug.Assert(loweredLeft != null);
             Debug.Assert(loweredRight != null);
-            Debug.Assert((object)returnType != null);
+            Debug.Assert(returnType is not null);
             Debug.Assert(returnType.SpecialType == SpecialType.System_Boolean);
             Debug.Assert(loweredLeft.IsLiteralNull() != loweredRight.IsLiteralNull());
 
@@ -2000,7 +2000,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var method = UnsafeGetSpecialTypeMethod(syntax, member);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, loweredLeft, loweredRight);
         }
@@ -2013,7 +2013,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 method = (MethodSymbol)_compilation.Assembly.GetSpecialTypeMember(member);
                 if (loweredRight.IsLiteralNull() ||
                     loweredLeft.IsLiteralNull() ||
-                    (object)(method = (MethodSymbol)_compilation.Assembly.GetSpecialTypeMember(member)) == null)
+                    (method = (MethodSymbol)_compilation.Assembly.GetSpecialTypeMember(member)) is null)
                 {
                     // use reference equality in the absence of overloaded operators for System.Delegate.
                     operatorKind = (operatorKind & (~BinaryOperatorKind.Delegate)) | BinaryOperatorKind.Object;
@@ -2025,7 +2025,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 method = UnsafeGetSpecialTypeMethod(syntax, member);
             }
 
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
             BoundExpression call = _inExpressionLambda
                 ? new BoundBinaryOperator(syntax, operatorKind, null, method, constrainedToTypeOpt: null, default(LookupResultKind), loweredLeft, loweredRight, method.ReturnType)
                 : (BoundExpression)BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, loweredLeft, loweredRight);
@@ -2061,7 +2061,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // call Operator (left, right)
             var method = UnsafeGetSpecialTypeMethod(syntax, member);
-            Debug.Assert((object)method != null);
+            Debug.Assert(method is not null);
 
             return BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, loweredLeft, loweredRight);
         }

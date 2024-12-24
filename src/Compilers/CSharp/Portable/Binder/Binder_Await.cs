@@ -85,7 +85,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var call = (BoundCall)expression;
 
             // First check if the target method is async.
-            if ((object)call.Method != null && call.Method.IsAsync)
+            if (call.Method is not null && call.Method.IsAsync)
             {
                 return true;
             }
@@ -174,17 +174,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         else
                         {
-                            info = method.ReturnsVoid ?
-                                new CSDiagnosticInfo(ErrorCode.ERR_BadAwaitWithoutVoidAsyncMethod) :
-                                new CSDiagnosticInfo(ErrorCode.ERR_BadAwaitWithoutAsyncMethod, method.ReturnType);
+                            info = new CSDiagnosticInfo(ErrorCode.ERR_BadAwaitWithoutAsyncMethod, method.ReturnType);
                         }
                         break;
                 }
             }
-            if (info == null)
-            {
-                info = new CSDiagnosticInfo(ErrorCode.ERR_BadAwaitWithoutAsync);
-            }
+            info ??= new CSDiagnosticInfo(ErrorCode.ERR_BadAwaitWithoutAsync);
             Error(diagnostics, info, nodeOrToken.GetLocation()!);
             return true;
         }

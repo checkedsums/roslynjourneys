@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)_ExpressionType == null)
+                if (_ExpressionType is null)
                 {
                     _ExpressionType = _bound.WellKnownType(WellKnownType.System_Linq_Expressions_Expression);
                 }
@@ -39,7 +39,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)_ParameterExpressionType == null)
+                if (_ParameterExpressionType is null)
                 {
                     _ParameterExpressionType = _bound.WellKnownType(WellKnownType.System_Linq_Expressions_ParameterExpression);
                 }
@@ -52,7 +52,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)_ElementInitType == null)
+                if (_ElementInitType is null)
                 {
                     _ElementInitType = _bound.WellKnownType(WellKnownType.System_Linq_Expressions_ElementInit);
                 }
@@ -66,7 +66,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)_MemberBindingType == null)
+                if (_MemberBindingType is null)
                 {
                     _MemberBindingType = _bound.WellKnownType(WellKnownType.System_Linq_Expressions_MemberBinding);
                 }
@@ -85,7 +85,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)_MemberInfoType == null)
+                if (_MemberInfoType is null)
                 {
                     _MemberInfoType = _bound.WellKnownType(WellKnownType.System_Reflection_MemberInfo);
                 }
@@ -364,7 +364,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundExpression VisitAsOperator(BoundAsOperator node)
         {
-            if (node.Operand.IsLiteralNull() && (object)node.Operand.Type == null)
+            if (node.Operand.IsLiteralNull() && node.Operand.Type is null)
             {
                 var operand = _bound.Null(_bound.SpecialType(SpecialType.System_Object));
                 Debug.Assert(node.OperandPlaceholder is null);
@@ -490,11 +490,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             WellKnownMember opFactory = GetBinaryOperatorFactory(opKind, methodOpt, out isChecked, out isLifted, out requiresLifted);
 
             // Fix up the null value for a nullable comparison vs null
-            if ((object)left.Type == null && left.IsLiteralNull())
+            if (left.Type is null && left.IsLiteralNull())
             {
                 left = _bound.Default(right.Type);
             }
-            if ((object)right.Type == null && right.IsLiteralNull())
+            if (right.Type is null && right.IsLiteralNull())
             {
                 right = _bound.Default(left.Type);
             }
@@ -567,7 +567,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundExpression MakeBinary(MethodSymbol methodOpt, TypeSymbol type, bool isLifted, bool requiresLifted, WellKnownMember opFactory, BoundExpression loweredLeft, BoundExpression loweredRight)
         {
             return
-                ((object)methodOpt == null) ? _bound.StaticCall(opFactory, loweredLeft, loweredRight) :
+                (methodOpt is null) ? _bound.StaticCall(opFactory, loweredLeft, loweredRight) :
                     requiresLifted ?
                         _bound.StaticCall(opFactory, loweredLeft, loweredRight,
                                           _bound.Literal(isLifted && !TypeSymbol.Equals(methodOpt.ReturnType, type, TypeCompareKind.ConsiderEverything2)),
@@ -598,7 +598,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundExpression Demote(BoundExpression node, TypeSymbol type, bool isChecked)
         {
             var e = type as NamedTypeSymbol;
-            if ((object)e != null)
+            if (e is not null)
             {
                 if (e.StrippedType().TypeKind == TypeKind.Enum)
                 {
@@ -761,7 +761,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var createDelegate = _bound.WellKnownMethod(WellKnownMember.System_Reflection_MethodInfo__CreateDelegate, isOptional: true);
             BoundExpression unquoted;
-            if ((object)createDelegate != null)
+            if (createDelegate is not null)
             {
                 // beginning in 4.5, we do it this way
                 unquoted = _bound.Call(_bound.MethodInfo(method, createDelegate.ContainingType), createDelegate, _bound.Typeof(delegateType, createDelegate.Parameters[0].Type), receiver);
@@ -789,14 +789,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 throw ExceptionUtilities.UnexpectedValue(BoundKind.MethodGroup);
             }
 
-            if ((object)node.MethodOpt != null)
+            if (node.MethodOpt is not null)
             {
                 bool staticMember = !node.MethodOpt.RequiresInstanceReceiver && !node.IsExtensionMethod;
                 return DelegateCreation(node.Argument, node.MethodOpt, node.Type, staticMember);
             }
 
             var d = node.Argument.Type as NamedTypeSymbol;
-            if ((object)d != null && d.TypeKind == TypeKind.Delegate)
+            if (d is not null && d.TypeKind == TypeKind.Delegate)
             {
                 return DelegateCreation(node.Argument, d.DelegateInvokeMethod, node.Type, false);
             }
@@ -816,7 +816,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundExpression VisitIsOperator(BoundIsOperator node)
         {
             var operand = node.Operand;
-            if ((object)operand.Type == null && operand.ConstantValueOpt != null && operand.ConstantValueOpt.IsNull)
+            if (operand.Type is null && operand.ConstantValueOpt != null && operand.ConstantValueOpt.IsNull)
             {
                 operand = _bound.Null(_objectType);
             }
@@ -951,7 +951,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             var sym = ((BoundObjectInitializerMember)a.Left).MemberSymbol;
 
                             // An error is reported in diagnostics pass when a dynamic object initializer is encountered in an ET:
-                            Debug.Assert((object)sym != null);
+                            Debug.Assert(sym is not null);
 
                             InitializerKind elementKind;
                             var value = VisitInitializer(a.Right, out elementKind);
@@ -1052,7 +1052,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return Constant(node);
             }
 
-            if ((object)node.Constructor == null ||
+            if (node.Constructor is null ||
                 (node.Arguments.Length == 0 && !node.Type.IsStructType()) ||
                 node.Constructor.IsDefaultValueTypeConstructor())
             {
@@ -1142,7 +1142,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             switch (op)
             {
                 case UnaryOperatorKind.UnaryPlus:
-                    if ((object)node.MethodOpt == null)
+                    if (node.MethodOpt is null)
                     {
                         return loweredArg;
                     }
@@ -1161,7 +1161,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     throw ExceptionUtilities.UnexpectedValue(op);
             }
 
-            if ((object)node.MethodOpt == null)
+            if (node.MethodOpt is null)
             {
                 switch (opFactory)
                 {
@@ -1184,7 +1184,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (node.OperatorKind.OperandTypes() == UnaryOperatorKind.Enum && (opKind & UnaryOperatorKind.Lifted) != 0)
             {
-                Debug.Assert((object)node.MethodOpt == null);
+                Debug.Assert(node.MethodOpt is null);
                 var promotedType = PromotedType(arg.Type.StrippedType().GetEnumUnderlyingType());
                 promotedType = _nullableType.Construct(promotedType);
                 loweredArg = Convert(loweredArg, arg.Type, promotedType, isChecked, false);
@@ -1192,7 +1192,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return Demote(result, node.Type, isChecked);
             }
 
-            return ((object)node.MethodOpt == null)
+            return (node.MethodOpt is null)
                 ? _bound.StaticCall(opFactory, loweredArg)
                 : _bound.StaticCall(opFactory, loweredArg, _bound.MethodInfo(node.MethodOpt, _bound.WellKnownType(WellKnownType.System_Reflection_MethodInfo)));
         }

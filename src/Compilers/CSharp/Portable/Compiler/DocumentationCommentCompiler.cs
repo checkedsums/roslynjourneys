@@ -618,7 +618,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 case SymbolKind.NamedType:
                     MethodSymbol delegateInvoke = ((NamedTypeSymbol)symbol).DelegateInvokeMethod;
-                    if ((object)delegateInvoke != null)
+                    if (delegateInvoke is not null)
                     {
                         return delegateInvoke.Parameters;
                     }
@@ -655,14 +655,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private static bool RequiresDocumentationComment(Symbol symbol)
         {
-            Debug.Assert((object)symbol != null);
+            Debug.Assert(symbol is not null);
 
             if (ShouldSkip(symbol))
             {
                 return false;
             }
 
-            while ((object)symbol != null)
+            while (symbol is not null)
             {
                 switch (symbol.DeclaredAccessibility)
                 {
@@ -1081,7 +1081,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     break;
                 default:
                     symbol = ambiguityWinner;
-                    Debug.Assert((object)symbol != null);
+                    Debug.Assert(symbol is not null);
                     break;
             }
 

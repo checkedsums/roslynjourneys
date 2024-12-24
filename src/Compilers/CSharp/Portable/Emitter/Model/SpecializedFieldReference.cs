@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         public SpecializedFieldReference(FieldSymbol underlyingField)
         {
-            Debug.Assert((object)underlyingField != null);
+            Debug.Assert(underlyingField is not null);
 
             _underlyingField = underlyingField;
         }

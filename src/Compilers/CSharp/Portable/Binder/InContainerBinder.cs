@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal InContainerBinder(NamespaceOrTypeSymbol container, Binder next)
             : base(next)
         {
-            Debug.Assert((object)container != null);
+            Debug.Assert(container is not null);
             _container = container;
         }
 
@@ -45,7 +45,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             get
             {
                 var merged = _container as MergedNamespaceSymbol;
-                return ((object)merged != null) ? merged.GetConstituentForCompilation(this.Compilation) : _container;
+                return (merged is not null) ? merged.GetConstituentForCompilation(this.Compilation) : _container;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal override bool IsAccessibleHelper(Symbol symbol, TypeSymbol accessThroughType, out bool failedThroughTypeCheck, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo, ConsList<TypeSymbol> basesBeingResolved)
         {
             var type = _container as NamedTypeSymbol;
-            if ((object)type != null)
+            if (type is not null)
             {
                 return this.IsSymbolAccessibleConditional(symbol, type, accessThroughType, out failedThroughTypeCheck, ref useSiteInfo);
             }

@@ -49,7 +49,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
                     return;
                 }
 
-                if ((object)expression.Type == null ||
+                if (expression.Type is null ||
                     (expression.Type.SpecialType != SpecialType.System_Decimal &&
                      !expression.Type.IsNullableType()))
                 {
@@ -691,7 +691,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             _builder.EmitOpCode(ILOpCode.Refanytype);
             _builder.EmitOpCode(ILOpCode.Call, stackAdjustment: 0);
             var getTypeMethod = expression.GetTypeFromHandle;
-            Debug.Assert((object)getTypeMethod != null);
+            Debug.Assert(getTypeMethod is not null);
             EmitSymbolToken(getTypeMethod, expression.Syntax, null);
             EmitPopIfUnused(used);
         }
@@ -799,7 +799,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             var mg = expression.Argument as BoundMethodGroup;
             var receiver = mg != null ? mg.ReceiverOpt : expression.Argument;
             var meth = expression.MethodOpt ?? receiver.Type.DelegateInvokeMethod();
-            Debug.Assert((object)meth != null);
+            Debug.Assert(meth is not null);
             EmitDelegateCreation(expression, receiver, expression.IsExtensionMethod, meth, expression.Type, used);
         }
 
@@ -2304,7 +2304,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             }
 
             var overriddenMethod = method.OverriddenMethod;
-            if ((object)overriddenMethod == null || overriddenMethod.IsAbstract)
+            if (overriddenMethod is null || overriddenMethod.IsAbstract)
             {
                 return true;
             }
@@ -3382,7 +3382,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             EmitExpression(operand, used);
             if (used)
             {
-                Debug.Assert((object)operand.Type != null);
+                Debug.Assert(operand.Type is not null);
                 if (!operand.Type.IsVerifierReference())
                 {
                     // box the operand for isinst if it is not a verifier reference
@@ -3411,8 +3411,8 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             {
                 var operandType = operand.Type;
                 var targetType = asOp.Type;
-                Debug.Assert((object)targetType != null);
-                if ((object)operandType != null && !operandType.IsVerifierReference())
+                Debug.Assert(targetType is not null);
+                if (operandType is not null && !operandType.IsVerifierReference())
                 {
                     // box the operand for isinst if it is not a verifier reference
                     EmitBox(operandType, operand.Syntax);
@@ -3477,7 +3477,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             if (used)  // unused constant has no side-effects
             {
                 // Null type parameter values must be emitted as 'initobj' rather than 'ldnull'.
-                if (((object)type != null) && (type.TypeKind == TypeKind.TypeParameter) && constantValue.IsNull)
+                if ((type is not null) && (type.TypeKind == TypeKind.TypeParameter) && constantValue.IsNull)
                 {
                     EmitInitObj(type, used, syntaxNode);
                 }
@@ -3505,7 +3505,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
         {
             _builder.EmitOpCode(ILOpCode.Call, stackAdjustment: 0); //argument off, return value on
             var getTypeMethod = boundTypeOf.GetTypeFromHandle;
-            Debug.Assert((object)getTypeMethod != null); // Should have been checked during binding
+            Debug.Assert(getTypeMethod is not null); // Should have been checked during binding
             EmitSymbolToken(getTypeMethod, boundTypeOf.Syntax, null);
         }
 
@@ -3675,7 +3675,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             EmitSymbolToken(node.Method, node.Syntax, null);
 
             MethodSymbol getMethod = node.GetMethodFromHandle;
-            Debug.Assert((object)getMethod != null);
+            Debug.Assert(getMethod is not null);
 
             if (getMethod.ParameterCount == 1)
             {
@@ -3702,7 +3702,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             _builder.EmitOpCode(ILOpCode.Ldtoken);
             EmitSymbolToken(node.Field, node.Syntax);
             MethodSymbol getField = node.GetFieldFromHandle;
-            Debug.Assert((object)getField != null);
+            Debug.Assert(getField is not null);
 
             if (getField.ParameterCount == 1)
             {
@@ -3966,7 +3966,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
                 return false;
             }
 
-            if ((object)from == null)
+            if (from is null)
             {
                 // from unknown type - this could be a variance conversion.
                 return true;

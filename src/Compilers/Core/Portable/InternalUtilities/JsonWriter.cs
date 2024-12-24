@@ -316,7 +316,7 @@ namespace Roslyn.Utilities
             }
             else
             {
-                RoslynDebug.Assert(pooledBuilder is object);
+                RoslynDebug.Assert(pooledBuilder is not null);
             }
 
             if (count > 0)

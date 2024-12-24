@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public WrappedNamedTypeSymbol(NamedTypeSymbol underlyingType, TupleExtraData tupleData)
             : base(tupleData)
         {
-            Debug.Assert((object)underlyingType != null);
+            Debug.Assert(underlyingType is not null);
             _underlyingType = underlyingType;
         }
 

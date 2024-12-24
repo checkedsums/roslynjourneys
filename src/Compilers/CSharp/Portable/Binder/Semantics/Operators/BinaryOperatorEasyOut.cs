@@ -323,9 +323,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool PossiblyUnusualConstantOperation(BoundExpression left, BoundExpression right)
         {
             Debug.Assert(left != null);
-            Debug.Assert((object?)left.Type != null);
+            Debug.Assert(left.Type is not null);
             Debug.Assert(right != null);
-            Debug.Assert((object?)right.Type != null);
+            Debug.Assert(right.Type is not null);
 
             // If there are "special" conversions available on either expression
             // then the early out is not accurate. For example, "myuint + myint" 

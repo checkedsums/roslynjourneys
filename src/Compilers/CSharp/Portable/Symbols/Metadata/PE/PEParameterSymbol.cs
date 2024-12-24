@@ -243,8 +243,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             bool isReturn,
             out bool isBad)
         {
-            Debug.Assert((object)moduleSymbol != null);
-            Debug.Assert((object)containingSymbol != null);
+            Debug.Assert(moduleSymbol is not null);
+            Debug.Assert(containingSymbol is not null);
             Debug.Assert(ordinal >= 0);
             Debug.Assert(typeWithAnnotations.HasType);
 
@@ -1066,7 +1066,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 ConstantValue defaultValue = this.ExplicitDefaultConstantValue;
                 AttributeDescription filterOutConstantAttributeDescription = default(AttributeDescription);
 
-                if ((object)defaultValue != null)
+                if (defaultValue is not null)
                 {
                     if (defaultValue.Discriminator == ConstantValueTypeDiscriminator.DateTime)
                     {

@@ -499,7 +499,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             System.Diagnostics.Debug.Assert(!IsTrue(GetDeclaredOrInheritedCompliance(symbol)), "Only call on non-compliant symbols");
 
             NamedTypeSymbol containingType = symbol.ContainingType;
-            if ((object)containingType != null && containingType.IsInterface)
+            if (containingType is not null && containingType.IsInterface)
             {
                 this.AddDiagnostic(ErrorCode.WRN_CLS_BadInterfaceMember, symbol.GetFirstLocation(), symbol);
             }
@@ -529,8 +529,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             else
             {
                 NamedTypeSymbol baseType = symbol.EnumUnderlyingType ?? symbol.BaseTypeNoUseSiteDiagnostics; // null for interfaces
-                System.Diagnostics.Debug.Assert((object)baseType != null || symbol.SpecialType == SpecialType.System_Object, "Only object has no base.");
-                if ((object)baseType != null && !IsCompliantType(baseType, symbol))
+                System.Diagnostics.Debug.Assert(baseType is not null || symbol.SpecialType == SpecialType.System_Object, "Only object has no base.");
+                if (baseType is not null && !IsCompliantType(baseType, symbol))
                 {
                     // TODO: it would be nice to report this on the base type clause.
                     this.AddDiagnostic(ErrorCode.WRN_CLS_BadBase, symbol.GetFirstLocation(), symbol, baseType);
@@ -543,8 +543,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             System.Diagnostics.Debug.Assert(IsTrue(GetDeclaredOrInheritedCompliance(symbol)), "Only call on compliant symbols");
 
             NamedTypeSymbol containingType = symbol.ContainingType;
-            System.Diagnostics.Debug.Assert((object)containingType == null || !containingType.IsImplicitClass);
-            if ((object)containingType != null && !IsTrue(GetDeclaredOrInheritedCompliance(containingType)))
+            System.Diagnostics.Debug.Assert(containingType is null || !containingType.IsImplicitClass);
+            if (containingType is not null && !IsTrue(GetDeclaredOrInheritedCompliance(containingType)))
             {
                 this.AddDiagnostic(ErrorCode.WRN_CLS_IllegalTrueInFalse, symbol.GetFirstLocation(), symbol, containingType);
             }
@@ -632,7 +632,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 // This catches things like param arrays and converted null literals.
-                if ((object)attribute.AttributeConstructor != null) // Happens in error scenarios.
+                if (attribute.AttributeConstructor is not null) // Happens in error scenarios.
                 {
                     foreach (var type in attribute.AttributeConstructor.ParameterTypesWithAnnotations)
                     {
@@ -681,7 +681,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (container.Kind == SymbolKind.Method)
             {
                 Symbol associated = ((MethodSymbol)container).AssociatedSymbol;
-                if ((object)associated != null && associated.Kind == SymbolKind.Property)
+                if (associated is not null && associated.Kind == SymbolKind.Property)
                 {
                     // Only care about "value" parameter for accessors.
                     // NOTE: public caller would have to count parameters.
@@ -745,7 +745,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     break;
                 case SymbolKind.NamedType:
                     symbol = ((NamedTypeSymbol)symbol).DelegateInvokeMethod;
-                    if ((object)symbol == null)
+                    if (symbol is null)
                     {
                         return;
                     }
@@ -833,7 +833,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamedTypeSymbol baseType = type.BaseTypeNoUseSiteDiagnostics;
-                while ((object)baseType != null)
+                while (baseType is not null)
                 {
                     foreach (Symbol member in baseType.GetMembersUnordered())
                     {
@@ -1068,7 +1068,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Dictionary<NamedTypeSymbol, NamedTypeSymbol> containingTypes = null; // maps definition to constructed
             {
                 NamedTypeSymbol containingType = type.ContainingType;
-                while ((object)containingType != null)
+                while (containingType is not null)
                 {
                     if (containingTypes == null)
                     {
@@ -1089,10 +1089,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            while ((object)context != null)
+            while (context is not null)
             {
                 NamedTypeSymbol contextBaseType = context;
-                while ((object)contextBaseType != null)
+                while (contextBaseType is not null)
                 {
                     NamedTypeSymbol containingType;
                     if (containingTypes.TryGetValue(contextBaseType.OriginalDefinition, out containingType))
@@ -1125,7 +1125,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 MethodSymbol method = (MethodSymbol)symbol;
                 Symbol associated = method.AssociatedSymbol;
-                if ((object)associated != null)
+                if (associated is not null)
                 {
                     // Don't bother storing entries for accessors - just go straight to the property/event.
                     return GetDeclaredOrInheritedCompliance(associated);
@@ -1172,7 +1172,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             System.Diagnostics.Debug.Assert(symbol.Kind != SymbolKind.Assembly);
 
             Symbol containing = (Symbol)symbol.ContainingType ?? symbol.ContainingAssembly;
-            System.Diagnostics.Debug.Assert((object)containing != null);
+            System.Diagnostics.Debug.Assert(containing is not null);
             return GetDeclaredOrInheritedCompliance(containing);
         }
 
@@ -1190,7 +1190,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (data.IsTargetAttribute(AttributeDescription.CLSCompliantAttribute))
                 {
                     NamedTypeSymbol attributeClass = data.AttributeClass;
-                    if ((object)attributeClass != null)
+                    if (attributeClass is not null)
                     {
                         if (_diagnostics.ReportUseSite(attributeClass, symbol.GetFirstLocationOrNone()))
                         {
@@ -1219,7 +1219,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsAccessibleOutsideAssembly(Symbol symbol)
         {
-            while ((object)symbol != null && !IsImplicitClass(symbol))
+            while (symbol is not null && !IsImplicitClass(symbol))
             {
                 if (!IsAccessibleIfContainerIsAccessible(symbol))
                 {
@@ -1315,8 +1315,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         private static bool TryGetCollisionErrorCode(Symbol x, Symbol y, out ErrorCode code)
         {
-            System.Diagnostics.Debug.Assert((object)x != null);
-            System.Diagnostics.Debug.Assert((object)y != null);
+            System.Diagnostics.Debug.Assert(x is not null);
+            System.Diagnostics.Debug.Assert(y is not null);
             System.Diagnostics.Debug.Assert((object)x != (object)y);
             System.Diagnostics.Debug.Assert(x.Kind == y.Kind);
 

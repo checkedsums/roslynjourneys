@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal ExecutableCodeBinder(SyntaxNode root, Symbol memberSymbol, Binder next, BinderFlags additionalFlags)
             : base(next, (next.Flags | additionalFlags) & ~BinderFlags.AllClearedAtExecutableCodeBoundary)
         {
-            Debug.Assert((object)memberSymbol == null ||
+            Debug.Assert(memberSymbol is null ||
                          (memberSymbol.Kind != SymbolKind.Local && memberSymbol.Kind != SymbolKind.RangeVariable && memberSymbol.Kind != SymbolKind.Parameter));
 
             _memberSymbol = memberSymbol;
@@ -74,7 +74,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             else
             {
                 // Ensure that the member symbol is a method symbol.
-                if ((object)_memberSymbol != null && _root != null)
+                if (_memberSymbol is not null && _root != null)
                 {
                     map = LocalBinderFactory.BuildMap(_memberSymbol, _root, this, _binderUpdatedHandler);
                 }

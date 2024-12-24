@@ -154,10 +154,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         private void EnsureSpecialPropertyGetter(SpecialMember member, BindingDiagnosticBag bag)
         {
             PropertySymbol symbol = (PropertySymbol)EnsureSpecialMember(member, bag);
-            if ((object)symbol != null)
+            if (symbol is not null)
             {
                 var getter = symbol.GetMethod;
-                if ((object)getter == null)
+                if (getter is null)
                 {
                     Binder.Error(bag, ErrorCode.ERR_PropertyLacksGet, body.Syntax, symbol);
                     return;

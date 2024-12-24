@@ -214,7 +214,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (inBodyOrInitializer)
                     {
                         var method = GetMethodSymbol(parent, resultBinder);
-                        if ((object)method != null)
+                        if (method is not null)
                         {
                             // Ctors cannot be generic
                             //TODO: the error should be given in a different place, but should we ignore or consider the type args?
@@ -287,7 +287,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             case SyntaxKind.IndexerDeclaration:
                                 {
                                     var propertySymbol = GetPropertySymbol((BasePropertyDeclarationSyntax)propertyOrEventDecl, resultBinder);
-                                    if ((object)propertySymbol != null)
+                                    if (propertySymbol is not null)
                                     {
                                         accessor = (parent.Kind() == SyntaxKind.GetAccessorDeclaration) ? propertySymbol.GetMethod : propertySymbol.SetMethod;
                                         Debug.Assert(accessor is not null || parent.HasErrors);
@@ -301,7 +301,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                     // but we want to bind them anyway for error tolerance reasons.
 
                                     var eventSymbol = GetEventSymbol((EventDeclarationSyntax)propertyOrEventDecl, resultBinder);
-                                    if ((object)eventSymbol != null)
+                                    if (eventSymbol is not null)
                                     {
                                         accessor = (parent.Kind() == SyntaxKind.AddAccessorDeclaration) ? eventSymbol.AddMethod : eventSymbol.RemoveMethod;
                                     }
@@ -311,7 +311,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 throw ExceptionUtilities.UnexpectedValue(propertyOrEventDecl.Kind());
                         }
 
-                        if ((object)accessor != null)
+                        if (accessor is not null)
                         {
                             resultBinder = new InMethodBinder(accessor, resultBinder);
 
@@ -346,7 +346,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     MethodSymbol method = GetMethodSymbol(parent, resultBinder);
                     bool isIteratorBody = false;
-                    if ((object)method != null && inBody)
+                    if (method is not null && inBody)
                     {
                         isIteratorBody = method.IsIterator;
                         resultBinder = new InMethodBinder(method, resultBinder);
@@ -416,7 +416,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     var propertySymbol = GetPropertySymbol(parent, resultBinder);
                     var accessor = propertySymbol.GetMethod;
-                    if ((object)accessor != null)
+                    if (accessor is not null)
                     {
                         // Expression body cannot be an iterator, otherwise we would need to pass
                         // `isIteratorBody` to `SetOrClearUnsafeRegionIfNecessary` above.
@@ -435,7 +435,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 Symbol containingSymbol = binder.ContainingMemberOrLambda;
                 var container = containingSymbol as NamedTypeSymbol;
-                if ((object)container == null)
+                if (container is null)
                 {
                     Debug.Assert(containingSymbol is NamespaceSymbol);
                     if (node.Parent.Kind() == SyntaxKind.CompilationUnit && syntaxTree.Options.Kind != SourceCodeKind.Regular)
@@ -512,7 +512,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamedTypeSymbol container = GetContainerType(outerBinder, baseMethodDeclarationSyntax);
-                if ((object)container == null)
+                if (container is null)
                 {
                     return null;
                 }
@@ -531,7 +531,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamedTypeSymbol container = GetContainerType(outerBinder, basePropertyDeclarationSyntax);
-                if ((object)container == null)
+                if (container is null)
                 {
                     return null;
                 }
@@ -548,7 +548,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamedTypeSymbol container = GetContainerType(outerBinder, eventDeclarationSyntax);
-                if ((object)container == null)
+                if (container is null)
                 {
                     return null;
                 }
@@ -914,7 +914,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 NamespaceSymbol ns = ((NamespaceSymbol)container).GetNestedNamespace(name);
-                if ((object)ns == null) return outer;
+                if (ns is null) return outer;
 
                 if (node is BaseNamespaceDeclarationSyntax namespaceDecl)
                 {
@@ -955,7 +955,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     if (inScript)
                     {
-                        Debug.Assert((object)compilation.ScriptClass != null);
+                        Debug.Assert(compilation.ScriptClass is not null);
 
                         //
                         // Binder chain in script/interactive code:
@@ -1153,7 +1153,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     bool inParameterOrReturnType = extraInfo == NodeUsage.CrefParameterOrReturnType;
 
-                    result = (object)memberSyntax == null
+                    result = memberSyntax is null
                         ? MakeCrefBinderInternal(crefSyntax, VisitCore(parent.Parent), inParameterOrReturnType)
                         : MakeCrefBinder(crefSyntax, memberSyntax, _factory, inParameterOrReturnType);
 
@@ -1200,7 +1200,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     result = this.buckStopsHereBinder;
 
                     Binder outerBinder = VisitCore(GetEnclosingDocumentationComment(parent));
-                    if ((object)outerBinder != null)
+                    if (outerBinder is not null)
                     {
                         // The rest of the doc comment is going to report something for containing symbol -
                         // that shouldn't change just because we're in a name attribute.
@@ -1208,7 +1208,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
 
                     MemberDeclarationSyntax memberSyntax = GetAssociatedMemberForXmlSyntax(parent);
-                    if ((object)memberSyntax != null)
+                    if (memberSyntax is not null)
                     {
                         switch (elementKind)
                         {
@@ -1271,7 +1271,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     // BREAK: Dev11 also allows "value" for readonly properties, but that doesn't
                     // make sense and we don't have a symbol.
-                    if ((object)property.SetMethod != null)
+                    if (property.SetMethod is not null)
                     {
                         Debug.Assert(property.SetMethod.ParameterCount > 0);
                         parameters = parameters.Add(property.SetMethod.Parameters.Last());
@@ -1286,9 +1286,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     Binder outerBinder = VisitCore(memberSyntax.Parent);
                     SourceNamedTypeSymbol delegateType = ((NamespaceOrTypeSymbol)outerBinder.ContainingMemberOrLambda).GetSourceTypeMember((DelegateDeclarationSyntax)memberSyntax);
-                    Debug.Assert((object)delegateType != null);
+                    Debug.Assert(delegateType is not null);
                     MethodSymbol invokeMethod = delegateType.DelegateInvokeMethod;
-                    Debug.Assert((object)invokeMethod != null);
+                    Debug.Assert(invokeMethod is not null);
                     ImmutableArray<ParameterSymbol> parameters = invokeMethod.Parameters;
                     if (parameters.Any())
                     {
@@ -1308,7 +1308,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (includeContainingSymbols)
                 {
                     Binder outerBinder = VisitCore(memberSyntax.Parent);
-                    for (NamedTypeSymbol curr = outerBinder.ContainingType; (object)curr != null; curr = curr.ContainingType)
+                    for (NamedTypeSymbol curr = outerBinder.ContainingType; curr is not null; curr = curr.ContainingType)
                     {
                         if (curr.Arity > 0)
                         {
@@ -1319,7 +1319,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // NOTE: don't care about enums, since they don't have type parameters.
                 TypeDeclarationSyntax typeDeclSyntax = memberSyntax as TypeDeclarationSyntax;
-                if ((object)typeDeclSyntax != null && typeDeclSyntax.Arity > 0)
+                if (typeDeclSyntax is not null && typeDeclSyntax.Arity > 0)
                 {
                     Binder outerBinder = VisitCore(memberSyntax.Parent);
                     SourceNamedTypeSymbol typeSymbol = ((NamespaceOrTypeSymbol)outerBinder.ContainingMemberOrLambda).GetSourceTypeMember(typeDeclSyntax);

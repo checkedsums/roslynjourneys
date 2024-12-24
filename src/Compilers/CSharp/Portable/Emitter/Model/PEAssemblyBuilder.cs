@@ -202,7 +202,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         internal override SynthesizedAttributeData SynthesizeNullableAttribute(WellKnownMember member, ImmutableArray<TypedConstant> arguments)
         {
-            if ((object)_lazyNullableAttribute != null)
+            if (_lazyNullableAttribute is not null)
             {
                 var constructorIndex = (member == WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorTransformFlags) ? 1 : 0;
                 return SynthesizedAttributeData.Create(
@@ -217,7 +217,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         internal override SynthesizedAttributeData SynthesizeScopedRefAttribute(WellKnownMember member)
         {
-            if ((object)_lazyScopedRefAttribute != null)
+            if (_lazyScopedRefAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -231,7 +231,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         internal override SynthesizedAttributeData SynthesizeRefSafetyRulesAttribute(ImmutableArray<TypedConstant> arguments)
         {
-            if ((object)_lazyRefSafetyRulesAttribute != null)
+            if (_lazyRefSafetyRulesAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -245,7 +245,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         protected override SynthesizedAttributeData TrySynthesizeIsReadOnlyAttribute()
         {
-            if ((object)_lazyIsReadOnlyAttribute != null)
+            if (_lazyIsReadOnlyAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -259,7 +259,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         protected override SynthesizedAttributeData TrySynthesizeRequiresLocationAttribute()
         {
-            if ((object)_lazyRequiresLocationAttribute != null)
+            if (_lazyRequiresLocationAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -273,7 +273,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         protected override SynthesizedAttributeData TrySynthesizeParamCollectionAttribute()
         {
-            if ((object)_lazyParamCollectionAttribute != null)
+            if (_lazyParamCollectionAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -287,7 +287,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         protected override SynthesizedAttributeData TrySynthesizeIsUnmanagedAttribute()
         {
-            if ((object)_lazyIsUnmanagedAttribute != null)
+            if (_lazyIsUnmanagedAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,
@@ -301,7 +301,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         protected override SynthesizedAttributeData TrySynthesizeIsByRefLikeAttribute()
         {
-            if ((object)_lazyIsByRefLikeAttribute != null)
+            if (_lazyIsByRefLikeAttribute is not null)
             {
                 return SynthesizedAttributeData.Create(
                     Compilation,

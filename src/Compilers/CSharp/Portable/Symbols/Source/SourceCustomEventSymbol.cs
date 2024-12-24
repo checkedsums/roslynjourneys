@@ -62,13 +62,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (this.IsOverride)
                 {
                     EventSymbol? overriddenEvent = this.OverriddenEvent;
-                    if ((object?)overriddenEvent != null)
+                    if (overriddenEvent is not null)
                     {
                         CopyEventCustomModifiers(overriddenEvent, ref _type, ContainingAssembly);
                     }
                 }
             }
-            else if ((object)explicitlyImplementedEvent != null)
+            else if (explicitlyImplementedEvent is not null)
             {
                 CopyEventCustomModifiers(explicitlyImplementedEvent, ref _type, ContainingAssembly);
             }
@@ -204,7 +204,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             base.AfterAddingTypeMembersChecks(conversions, diagnostics);
 
-            if ((object)_explicitInterfaceType != null)
+            if (_explicitInterfaceType is not null)
             {
                 var explicitInterfaceSpecifier = this.ExplicitInterfaceSpecifier;
                 RoslynDebug.Assert(explicitInterfaceSpecifier != null);

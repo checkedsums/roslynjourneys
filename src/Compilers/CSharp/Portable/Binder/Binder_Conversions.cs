@@ -104,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 bool hasErrors = false)
             {
                 RoslynDebug.Assert(source != null);
-                RoslynDebug.Assert((object)destination != null);
+                RoslynDebug.Assert(destination is not null);
                 RoslynDebug.Assert(!isCast || conversionGroupOpt != null || wasCompilerGenerated);
 
                 if (conversion.IsIdentity)
@@ -3042,7 +3042,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BindingDiagnosticBag diagnostics)
         {
             RoslynDebug.Assert(source != null);
-            RoslynDebug.Assert((object)destination != null);
+            RoslynDebug.Assert(destination is not null);
 
             // The diagnostics bag can be null in cases where we know ahead of time that the
             // conversion will succeed without error or warning. (For example, if we have a valid
@@ -3146,10 +3146,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(!sourceValue.IsBad);
 
             SpecialType destinationType;
-            if ((object)destination != null && destination.IsEnumType())
+            if (destination is not null && destination.IsEnumType())
             {
                 var underlyingType = ((NamedTypeSymbol)destination).EnumUnderlyingType;
-                RoslynDebug.Assert((object)underlyingType != null);
+                RoslynDebug.Assert(underlyingType is not null);
                 Debug.Assert(underlyingType.SpecialType != SpecialType.None);
                 destinationType = underlyingType.SpecialType;
             }

@@ -214,7 +214,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             foreach (var member in GetTypeMembers(name, arity))
             {
                 var memberT = member as SourceNamedTypeSymbol;
-                if ((object?)memberT != null && memberT.TypeKind == typeKind)
+                if (memberT is not null && memberT.TypeKind == typeKind)
                 {
                     if (syntax != null)
                     {
@@ -365,7 +365,7 @@ Done:
                         && identifier.FilePathChecksumOpt.SequenceEqual(checksum)
                         && named.Arity == emittedTypeName.InferredArity)
                     {
-                        if ((object?)namedType != null)
+                        if (namedType is not null)
                         {
                             namedType = null;
                             break;
@@ -400,7 +400,7 @@ Done:
                 {
                     // there might be multiple types of different arity, prefer a non-generic type:
                     namespaceOrType = symbols.OfMinimalArity();
-                    if ((object)namespaceOrType == null)
+                    if (namespaceOrType is null)
                     {
                         return SpecializedCollections.EmptyEnumerable<NamespaceOrTypeSymbol>();
                     }

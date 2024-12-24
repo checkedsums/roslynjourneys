@@ -25,8 +25,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             set
             {
                 VerifySealed(expected: false);
-                Debug.Assert((object)_comImportCoClass == null);
-                Debug.Assert((object)value != null);
+                Debug.Assert(_comImportCoClass is null);
+                Debug.Assert(value is not null);
                 _comImportCoClass = value;
                 SetDataStored();
             }

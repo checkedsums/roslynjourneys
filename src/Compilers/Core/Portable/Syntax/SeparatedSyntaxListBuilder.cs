@@ -75,7 +75,7 @@ namespace Microsoft.CodeAnalysis.Syntax
 
         public SeparatedSyntaxListBuilder<TNode> AddSeparator(in SyntaxToken separatorToken)
         {
-            Debug.Assert(separatorToken.Node is object);
+            Debug.Assert(separatorToken.Node is not null);
             CheckExpectedSeparator();
             _expectedSeparator = false;
             _builder.AddInternal(separatorToken.Node);

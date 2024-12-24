@@ -51,7 +51,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _type = type;
             _locations = location == null ? ImmutableArray<Location>.Empty : ImmutableArray.Create(location);
             _useSiteDiagnosticInfo = useSiteDiagnosticInfo;
-            _tupleElementIndex = (object)correspondingDefaultFieldOpt == null ? tupleElementIndex << 1 : (tupleElementIndex << 1) + 1;
+            _tupleElementIndex = correspondingDefaultFieldOpt is null ? tupleElementIndex << 1 : (tupleElementIndex << 1) + 1;
             _isImplicitlyDeclared = isImplicitlyDeclared;
 
             Debug.Assert((correspondingDefaultFieldOpt == null) == this.IsDefaultTupleElement);
@@ -185,7 +185,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return true;
             }
 
-            return (object)other != null &&
+            return other is not null &&
                 _tupleElementIndex == other._tupleElementIndex &&
                 TypeSymbol.Equals(ContainingType, other.ContainingType, compareKind);
         }

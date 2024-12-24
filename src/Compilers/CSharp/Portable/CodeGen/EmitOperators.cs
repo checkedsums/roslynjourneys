@@ -668,7 +668,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
                     break;
             }
 
-            if ((object)enumType == null)
+            if (enumType is null)
             {
                 return;
             }

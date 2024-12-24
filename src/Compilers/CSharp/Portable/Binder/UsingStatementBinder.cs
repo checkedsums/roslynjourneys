@@ -221,7 +221,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 // Interface binding
                 NamedTypeSymbol disposableInterface = getDisposableInterface(hasAwait);
-                Debug.Assert((object)disposableInterface != null);
+                Debug.Assert(disposableInterface is not null);
 
                 bool implementsIDisposable = implementsInterface(fromExpression, disposableInterface, diagnostics);
 

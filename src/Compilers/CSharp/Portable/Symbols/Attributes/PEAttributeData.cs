@@ -84,7 +84,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                     // TODO: should we create CSErrorTypeSymbol for attribute class??
                     _lazyHasErrors = ThreeState.True;
                 }
-                else if ((object)attributeClass == null || attributeClass.IsErrorType() || (object)attributeConstructor == null)
+                else if (attributeClass is null || attributeClass.IsErrorType() || attributeConstructor is null)
                 {
                     _lazyHasErrors = ThreeState.True;
                 }

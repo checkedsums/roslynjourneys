@@ -857,7 +857,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         _ => throw ExceptionUtilities.UnexpectedValue(stringPatternInput),
                     };
 
-                    if ((object)lengthMember == null || lengthMember.HasUseSiteError)
+                    if (lengthMember is null || lengthMember.HasUseSiteError)
                     {
                         return false;
                     }
@@ -870,7 +870,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         _ => throw ExceptionUtilities.UnexpectedValue(stringPatternInput),
                     };
 
-                    if ((object)charsMember == null || charsMember.HasUseSiteError)
+                    if (charsMember is null || charsMember.HasUseSiteError)
                     {
                         return false;
                     }
@@ -940,7 +940,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     StringPatternInput.ReadOnlySpanChar => _localRewriter._compilation.GetWellKnownTypeMember(WellKnownMember.System_ReadOnlySpan_T__get_Item),
                     _ => throw ExceptionUtilities.UnexpectedValue(stringPatternInput),
                 };
-                if ((object)charsMember == null || charsMember.HasUseSiteError)
+                if (charsMember is null || charsMember.HasUseSiteError)
                 {
                     return;
                 }

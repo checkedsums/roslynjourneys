@@ -173,7 +173,7 @@ namespace Microsoft.CodeAnalysis
                     if (_tempInfo is (Stream emitStream, Stream tempStream, string tempFilePath))
                     {
                         RoslynDebug.Assert(_emitStreamSignKind == EmitStreamSignKind.SignedWithFile);
-                        RoslynDebug.Assert(_strongNameProvider is object);
+                        RoslynDebug.Assert(_strongNameProvider is not null);
 
                         try
                         {

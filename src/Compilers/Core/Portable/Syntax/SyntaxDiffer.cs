@@ -441,19 +441,19 @@ namespace Microsoft.CodeAnalysis
 
                 foreach (var tr in node1.GetLeadingTrivia())
                 {
-                    Debug.Assert(tr.UnderlyingNode is object);
+                    Debug.Assert(tr.UnderlyingNode is not null);
                     _nodeSimilaritySet.Add(tr.UnderlyingNode);
                 }
 
                 foreach (var tr in node1.GetTrailingTrivia())
                 {
-                    Debug.Assert(tr.UnderlyingNode is object);
+                    Debug.Assert(tr.UnderlyingNode is not null);
                     _nodeSimilaritySet.Add(tr.UnderlyingNode);
                 }
 
                 foreach (var tr in node2.GetLeadingTrivia())
                 {
-                    Debug.Assert(tr.UnderlyingNode is object);
+                    Debug.Assert(tr.UnderlyingNode is not null);
                     if (_nodeSimilaritySet.Contains(tr.UnderlyingNode))
                     {
                         w += tr.FullSpan.Length;
@@ -462,7 +462,7 @@ namespace Microsoft.CodeAnalysis
 
                 foreach (var tr in node2.GetTrailingTrivia())
                 {
-                    Debug.Assert(tr.UnderlyingNode is object);
+                    Debug.Assert(tr.UnderlyingNode is not null);
                     if (_nodeSimilaritySet.Contains(tr.UnderlyingNode))
                     {
                         w += tr.FullSpan.Length;
@@ -473,7 +473,7 @@ namespace Microsoft.CodeAnalysis
             {
                 foreach (var n1 in node1.ChildNodesAndTokens())
                 {
-                    Debug.Assert(n1.UnderlyingNode is object);
+                    Debug.Assert(n1.UnderlyingNode is not null);
                     _nodeSimilaritySet.Add(n1.UnderlyingNode);
 
                     if (n1.IsToken)
@@ -484,7 +484,7 @@ namespace Microsoft.CodeAnalysis
 
                 foreach (var n2 in node2.ChildNodesAndTokens())
                 {
-                    Debug.Assert(n2.UnderlyingNode is object);
+                    Debug.Assert(n2.UnderlyingNode is not null);
                     if (_nodeSimilaritySet.Contains(n2.UnderlyingNode))
                     {
                         w += n2.FullSpan.Length;

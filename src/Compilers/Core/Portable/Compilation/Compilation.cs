@@ -1860,7 +1860,7 @@ namespace Microsoft.CodeAnalysis
         /// <returns>True if there are no unsuppressed errors (i.e., no errors which fail compilation).</returns>
         internal bool FilterAndAppendAndFreeDiagnostics(DiagnosticBag accumulator, [DisallowNull] ref DiagnosticBag? incoming, CancellationToken cancellationToken)
         {
-            RoslynDebug.Assert(incoming is object);
+            RoslynDebug.Assert(incoming is not null);
             bool result = FilterAndAppendDiagnostics(accumulator, incoming, cancellationToken);
             incoming.Free();
             incoming = null;
@@ -1869,7 +1869,7 @@ namespace Microsoft.CodeAnalysis
 
         internal bool FilterAndAppendDiagnostics(DiagnosticBag accumulator, DiagnosticBag incoming, CancellationToken cancellationToken)
         {
-            RoslynDebug.Assert(incoming is object);
+            RoslynDebug.Assert(incoming is not null);
             bool result = FilterAndAppendDiagnostics(accumulator, incoming.AsEnumerableWithoutResolution(), exclude: null, cancellationToken);
             return result;
         }
@@ -2975,7 +2975,7 @@ namespace Microsoft.CodeAnalysis
                     {
                         // NOTE: We generate documentation even in presence of compile errors.
                         // https://github.com/dotnet/roslyn/issues/37996 tracks revisiting this behavior.
-                        if (!GenerateResources(moduleBeingBuilt, win32Resources, useRawWin32Resources: rebuildData is object, diagnostics, cancellationToken) ||
+                        if (!GenerateResources(moduleBeingBuilt, win32Resources, useRawWin32Resources: rebuildData is not null, diagnostics, cancellationToken) ||
                             !GenerateDocumentationComments(xmlDocumentationStream, options.OutputNameOverride, diagnostics, cancellationToken))
                         {
                             success = false;

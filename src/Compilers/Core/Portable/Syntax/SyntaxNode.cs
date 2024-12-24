@@ -775,7 +775,7 @@ namespace Microsoft.CodeAnalysis
         internal SyntaxNode GetRequiredNodeSlot(int slot)
         {
             var syntaxNode = GetNodeSlot(slot);
-            RoslynDebug.Assert(syntaxNode is object);
+            RoslynDebug.Assert(syntaxNode is not null);
             return syntaxNode;
         }
 
@@ -970,7 +970,7 @@ namespace Microsoft.CodeAnalysis
                 .Parent
                 !.FirstAncestorOrSelf<SyntaxNode, TextSpan>((a, span) => a.FullSpan.Contains(span), span);
 
-            RoslynDebug.Assert(node is object);
+            RoslynDebug.Assert(node is not null);
             SyntaxNode? cuRoot = node.SyntaxTree?.GetRoot();
 
             // Tie-breaking.

@@ -85,7 +85,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 Symbol underlying = OriginalDefinition.AssociatedSymbol;
 
-                if ((object)underlying == null)
+                if (underlying is null)
                 {
                     return null;
                 }
@@ -116,7 +116,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             var other = obj as FieldSymbol;
-            return (object)other != null && TypeSymbol.Equals(_containingType, other.ContainingType, compareKind) && OriginalDefinition == other.OriginalDefinition;
+            return other is not null && TypeSymbol.Equals(_containingType, other.ContainingType, compareKind) && OriginalDefinition == other.OriginalDefinition;
         }
 
         public override int GetHashCode()

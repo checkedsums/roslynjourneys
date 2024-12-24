@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             public AnonymousTypeFieldSymbol(PropertySymbol property)
             {
-                Debug.Assert((object)property != null);
+                Debug.Assert(property is not null);
                 _property = property;
             }
 

@@ -416,7 +416,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                                         //  event backing fields do not show up in GetMembers
                                         {
                                             FieldSymbol field = ((EventSymbol)member).AssociatedField;
-                                            if ((object)field != null)
+                                            if (field is not null)
                                             {
                                                 AddSymbolLocation(result, field);
                                             }
@@ -600,7 +600,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             foreach (var member in symbol.GetMembers())
             {
                 var namespaceOrType = member as NamespaceOrTypeSymbol;
-                if ((object)namespaceOrType != null)
+                if (namespaceOrType is not null)
                 {
                     GetExportedTypes(namespaceOrType, index, builder);
                 }
@@ -754,7 +754,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                 foreach (NamedTypeSymbol forwardedType in orderedForwardedTypes)
                 {
                     NamedTypeSymbol originalDefinition = forwardedType.OriginalDefinition;
-                    Debug.Assert((object)originalDefinition.ContainingType == null, "How did a nested type get forwarded?");
+                    Debug.Assert(originalDefinition.ContainingType is null, "How did a nested type get forwarded?");
 
                     // Since we need to allow multiple constructions of the same generic type at the source
                     // level, we need to de-dup the original definitions before emitting.
@@ -844,7 +844,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         public sealed override bool IsPlatformType(Cci.ITypeReference typeRef, Cci.PlatformType platformType)
         {
             var namedType = typeRef.GetInternalSymbol() as NamedTypeSymbol;
-            if ((object)namedType != null)
+            if (namedType is not null)
             {
                 if (platformType == Cci.PlatformType.SystemType)
                 {
@@ -907,7 +907,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                 return this;
             }
 
-            if ((object)module == null)
+            if (module is null)
             {
                 return null;
             }
@@ -929,7 +929,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         {
             AssemblySymbol container = module.ContainingAssembly;
 
-            if ((object)container != null && ReferenceEquals(container.Modules[0], module))
+            if (container is not null && ReferenceEquals(container.Modules[0], module))
             {
                 Cci.IModuleReference moduleRef = new AssemblyReference(container);
                 Cci.IModuleReference cachedModuleRef = AssemblyOrModuleSymbolToModuleRefMap.GetOrAdd(container, moduleRef);
@@ -1022,7 +1022,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                         return (Cci.INamedTypeReference)reference;
                     }
 
-                    if ((object)container != null)
+                    if (container is not null)
                     {
                         if (IsGenericType(container))
                         {
@@ -1045,7 +1045,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
                 }
                 else if (IsGenericType(container))
                 {
-                    Debug.Assert((object)container != null);
+                    Debug.Assert(container is not null);
 
                     if (_genericInstanceMap.TryGetValue(namedTypeSymbol, out reference))
                     {
@@ -1081,7 +1081,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             // but if it does happen we should make it a failure.
             // NOTE: declaredBase could be null for interfaces
             var declaredBase = namedTypeSymbol.BaseTypeNoUseSiteDiagnostics;
-            if ((object)declaredBase != null && declaredBase.SpecialType == SpecialType.System_ValueType)
+            if (declaredBase is not null && declaredBase.SpecialType == SpecialType.System_ValueType)
             {
                 return;
             }
@@ -1093,7 +1093,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
             }
 
             var location = syntaxNodeOpt == null ? NoLocation.Singleton : syntaxNodeOpt.Location;
-            if ((object)declaredBase != null)
+            if (declaredBase is not null)
             {
                 var diagnosticInfo = declaredBase.GetUseSiteInfo().DiagnosticInfo;
                 if (diagnosticInfo != null && diagnosticInfo.Severity == DiagnosticSeverity.Error)
@@ -1111,7 +1111,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         public static bool IsGenericType(NamedTypeSymbol toCheck)
         {
-            while ((object)toCheck != null)
+            while (toCheck is not null)
             {
                 if (toCheck.Arity > 0)
                 {

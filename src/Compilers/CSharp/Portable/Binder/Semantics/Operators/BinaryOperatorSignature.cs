@@ -93,7 +93,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)Method != null)
+                if (Method is not null)
                 {
                     Debug.Assert(Method.ParameterCount == 2);
 
@@ -113,7 +113,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                if ((object)Method != null)
+                if (Method is not null)
                 {
                     Debug.Assert(Method.ParameterCount == 2);
 

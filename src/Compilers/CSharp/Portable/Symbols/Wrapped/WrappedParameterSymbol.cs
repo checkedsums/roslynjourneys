@@ -25,7 +25,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected WrappedParameterSymbol(ParameterSymbol underlyingParameter)
         {
-            Debug.Assert((object)underlyingParameter != null);
+            Debug.Assert(underlyingParameter is not null);
 
             this._underlyingParameter = underlyingParameter;
         }

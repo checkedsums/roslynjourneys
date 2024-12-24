@@ -136,8 +136,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             PENamedTypeSymbol containingType,
             FieldDefinitionHandle fieldDef)
         {
-            Debug.Assert((object)moduleSymbol != null);
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(moduleSymbol is not null);
+            Debug.Assert(containingType is not null);
             Debug.Assert(!fieldDef.IsNil);
 
             _handle = fieldDef;
@@ -150,7 +150,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
             catch (BadImageFormatException)
             {
-                if ((object)_name == null)
+                if (_name is null)
                 {
                     _name = String.Empty;
                 }
@@ -288,12 +288,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         /// </summary>
         internal void SetAssociatedEvent(PEEventSymbol eventSymbol)
         {
-            Debug.Assert((object)eventSymbol != null);
+            Debug.Assert(eventSymbol is not null);
             Debug.Assert(TypeSymbol.Equals(eventSymbol.ContainingType, _containingType, TypeCompareKind.ConsiderEverything2));
 
             // This should always be true in valid metadata - there should only
             // be one event with a given name in a given type.
-            if ((object)_associatedEventOpt == null)
+            if (_associatedEventOpt is null)
             {
                 // No locking required since this method will only be called by the thread that created
                 // the field symbol (and will be called before the field symbol is added to the containing 
@@ -426,7 +426,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             get
             {
                 EnsureSignatureIsLoaded();
-                return (object)_lazyFixedImplementationType != null;
+                return _lazyFixedImplementationType is not null;
             }
         }
 
@@ -599,7 +599,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         {
             ConstantValue value;
             return this.Type.SpecialType == SpecialType.System_Decimal &&
-                   (object)(value = GetConstantValue(ConstantFieldsInProgress.Empty, earlyDecodingWellKnownAttributes: false)) != null &&
+                   (value = GetConstantValue(ConstantFieldsInProgress.Empty, earlyDecodingWellKnownAttributes: false)) is not null &&
                    value.Discriminator == ConstantValueTypeDiscriminator.Decimal;
         }
 

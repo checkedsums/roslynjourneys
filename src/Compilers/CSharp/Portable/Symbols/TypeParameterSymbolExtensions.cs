@@ -10,8 +10,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         public static bool DependsOn(this TypeParameterSymbol typeParameter1, TypeParameterSymbol typeParameter2)
         {
-            Debug.Assert((object)typeParameter1 != null);
-            Debug.Assert((object)typeParameter2 != null);
+            Debug.Assert(typeParameter1 is not null);
+            Debug.Assert(typeParameter2 is not null);
 
             Stack<TypeParameterSymbol>? stack = null;
             HashSet<TypeParameterSymbol>? visited = null;

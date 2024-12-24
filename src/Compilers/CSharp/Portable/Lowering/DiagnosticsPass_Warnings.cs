@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             FieldSymbol fieldSymbol = fieldAccess.FieldSymbol;
 
             // We can safely suppress this warning when calling an Interlocked API
-            if (fieldSymbol.IsVolatile && ((object)consumerOpt == null || !IsInterlockedAPI(consumerOpt)))
+            if (fieldSymbol.IsVolatile && (consumerOpt is null || !IsInterlockedAPI(consumerOpt)))
             {
                 Error(ErrorCode.WRN_VolatileByRef, fieldAccess, fieldSymbol);
             }
@@ -114,7 +114,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 NamedTypeSymbol marshalByRefType = compilation.GetWellKnownType(WellKnownType.System_MarshalByRefObject);
 
                 TypeSymbol baseType = fieldAccess.FieldSymbol.ContainingType;
-                while ((object)baseType != null)
+                while (baseType is not null)
                 {
                     if (TypeSymbol.Equals(baseType, marshalByRefType, TypeCompareKind.ConsiderEverything))
                     {
@@ -151,7 +151,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private bool IsInterlockedAPI(Symbol method)
         {
             var interlocked = _compilation.GetWellKnownType(WellKnownType.System_Threading_Interlocked);
-            if ((object)interlocked != null && TypeSymbol.Equals(interlocked, method.ContainingType, TypeCompareKind.ConsiderEverything2))
+            if (interlocked is not null && TypeSymbol.Equals(interlocked, method.ContainingType, TypeCompareKind.ConsiderEverything2))
                 return true;
 
             return false;
@@ -235,7 +235,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool IsComCallWithRefOmitted(MethodSymbol method, ImmutableArray<BoundExpression> arguments, ImmutableArray<RefKind> argumentRefKindsOpt)
         {
             if (method.ParameterCount != arguments.Length ||
-                (object)method.ContainingType == null ||
+                method.ContainingType is null ||
                 !method.ContainingType.IsComImport)
                 return false;
 
@@ -354,18 +354,18 @@ namespace Microsoft.CodeAnalysis.CSharp
             var conv = (BoundConversion)node;
             if (conv.ExplicitCastInCode) return false;
             NamedTypeSymbol nt = conv.Operand.Type as NamedTypeSymbol;
-            if ((object)nt == null || !nt.IsReferenceType || nt.IsInterface)
+            if (nt is null || !nt.IsReferenceType || nt.IsInterface)
             {
                 return false;
             }
 
             string opName = (oldOperatorKind == BinaryOperatorKind.ObjectEqual) ? WellKnownMemberNames.EqualityOperatorName : WellKnownMemberNames.InequalityOperatorName;
-            for (var t = nt; (object)t != null; t = t.BaseTypeNoUseSiteDiagnostics)
+            for (var t = nt; t is not null; t = t.BaseTypeNoUseSiteDiagnostics)
             {
                 foreach (var sym in t.GetMembers(opName))
                 {
                     MethodSymbol op = sym as MethodSymbol;
-                    if ((object)op == null || op.MethodKind != MethodKind.UserDefinedOperator) continue;
+                    if (op is null || op.MethodKind != MethodKind.UserDefinedOperator) continue;
                     var parameters = op.GetParameters();
                     if (parameters.Length == 2 && TypeSymbol.Equals(parameters[0].Type, t, TypeCompareKind.ConsiderEverything2) && TypeSymbol.Equals(parameters[1].Type, t, TypeCompareKind.ConsiderEverything2))
                     {
@@ -612,7 +612,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol from = conv.Operand.Type;
             TypeSymbol to = conv.Type;
 
-            if ((object)from == null || (object)to == null)
+            if (from is null || to is null)
             {
                 return 0;
             }
@@ -855,7 +855,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // but the warning we want to produce is that the null on the right hand
             // side is of type sbyte?, not int?. 
 
-            if ((object)node.Type == null || !node.Type.IsNullableType())
+            if (node.Type is null || !node.Type.IsNullableType())
             {
                 return null;
             }

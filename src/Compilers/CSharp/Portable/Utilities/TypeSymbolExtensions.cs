@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         public static int CustomModifierCount(this TypeSymbol type)
         {
-            if ((object)type == null)
+            if (type is null)
             {
                 return 0;
             }
@@ -52,7 +52,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             var namedType = (NamedTypeSymbol)type;
                             int count = 0;
 
-                            while ((object)namedType != null)
+                            while (namedType is not null)
                             {
                                 ImmutableArray<TypeWithAnnotations> typeArgs = namedType.TypeArgumentsWithAnnotationsNoUseSiteDiagnostics;
 
@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </remarks>
         public static bool HasCustomModifiers(this TypeSymbol type, bool flagNonDefaultArraySizesOrLowerBounds)
         {
-            if ((object)type == null)
+            if (type is null)
             {
                 return false;
             }
@@ -133,7 +133,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         if (!isDefinition)
                         {
                             var namedType = (NamedTypeSymbol)type;
-                            while ((object)namedType != null)
+                            while (namedType is not null)
                             {
                                 ImmutableArray<TypeWithAnnotations> typeArgs = namedType.TypeArgumentsWithAnnotationsNoUseSiteDiagnostics;
 
@@ -225,7 +225,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var nextType = type.GetDeclaredBaseType(basesBeingResolved);
 
             // types with no declared bases inherit object's members
-            if ((object)nextType == null)
+            if (nextType is null)
             {
                 SetKnownToHaveNoDeclaredBaseCycles(ref visited);
                 return GetDefaultBaseOrNull(type, compilation);

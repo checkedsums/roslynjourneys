@@ -45,10 +45,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             var sourceProperty = AdaptedPropertySymbol as SourcePropertySymbolBase;
-            if ((object)sourceProperty != null && this.ShouldInclude(context))
+            if (sourceProperty is not null && this.ShouldInclude(context))
             {
                 SynthesizedSealedPropertyAccessor synthesizedAccessor = sourceProperty.SynthesizedSealedAccessorOpt;
-                if ((object)synthesizedAccessor != null)
+                if (synthesizedAccessor is not null)
                 {
                     yield return synthesizedAccessor.GetCciAdapter();
                 }
@@ -70,7 +70,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 CheckDefinitionInvariant();
                 MethodSymbol getMethod = AdaptedPropertySymbol.GetMethod;
-                if ((object)getMethod != null || !AdaptedPropertySymbol.IsSealed)
+                if (getMethod is not null || !AdaptedPropertySymbol.IsSealed)
                 {
                     return getMethod?.GetCciAdapter();
                 }
@@ -125,7 +125,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 CheckDefinitionInvariant();
                 MethodSymbol setMethod = AdaptedPropertySymbol.SetMethod;
-                if ((object)setMethod != null || !AdaptedPropertySymbol.IsSealed)
+                if (setMethod is not null || !AdaptedPropertySymbol.IsSealed)
                 {
                     return setMethod?.GetCciAdapter();
                 }
@@ -277,10 +277,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private IMethodReference GetSynthesizedSealedAccessor(MethodKind targetMethodKind)
         {
             var sourceProperty = AdaptedPropertySymbol as SourcePropertySymbolBase;
-            if ((object)sourceProperty != null)
+            if (sourceProperty is not null)
             {
                 SynthesizedSealedPropertyAccessor synthesized = sourceProperty.SynthesizedSealedAccessorOpt;
-                return (object)synthesized != null && synthesized.MethodKind == targetMethodKind ? synthesized.GetCciAdapter() : null;
+                return synthesized is not null && synthesized.MethodKind == targetMethodKind ? synthesized.GetCciAdapter() : null;
             }
 
             return null;

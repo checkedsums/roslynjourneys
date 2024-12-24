@@ -161,11 +161,11 @@ namespace Microsoft.CodeAnalysis
 
         public GeneratorDriver ReplaceAdditionalTexts(ImmutableArray<AdditionalText> newTexts) => FromState(_state.With(additionalTexts: newTexts));
 
-        public GeneratorDriver WithUpdatedParseOptions(ParseOptions newOptions) => newOptions is object
+        public GeneratorDriver WithUpdatedParseOptions(ParseOptions newOptions) => newOptions is not null
                                                                                    ? FromState(_state.With(parseOptions: newOptions))
                                                                                    : throw new ArgumentNullException(nameof(newOptions));
 
-        public GeneratorDriver WithUpdatedAnalyzerConfigOptions(AnalyzerConfigOptionsProvider newOptions) => newOptions is object
+        public GeneratorDriver WithUpdatedAnalyzerConfigOptions(AnalyzerConfigOptionsProvider newOptions) => newOptions is not null
                                                                                                              ? FromState(_state.With(optionsProvider: newOptions))
                                                                                                              : throw new ArgumentNullException(nameof(newOptions));
 

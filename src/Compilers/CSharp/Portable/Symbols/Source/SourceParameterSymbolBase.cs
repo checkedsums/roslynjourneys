@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public SourceParameterSymbolBase(Symbol containingSymbol, int ordinal)
         {
-            Debug.Assert((object)containingSymbol != null);
+            Debug.Assert(containingSymbol is not null);
             Debug.Assert(containingSymbol.ContainingAssembly != null);
             _ordinal = (ushort)ordinal;
             _containingSymbol = containingSymbol;

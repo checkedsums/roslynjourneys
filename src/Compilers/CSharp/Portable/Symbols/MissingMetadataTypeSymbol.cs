@@ -191,7 +191,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             private TopLevel(ModuleSymbol module, string @namespace, string name, int arity, bool mangleName, bool isNativeInt, DiagnosticInfo? errorInfo, NamespaceSymbol? containingNamespace, int typeId, TupleExtraData? tupleData)
                 : base(name, arity, mangleName, tupleData)
             {
-                RoslynDebug.Assert((object)module != null);
+                RoslynDebug.Assert(module is not null);
                 RoslynDebug.Assert(@namespace != null);
                 RoslynDebug.Assert(typeId == -1 || typeId == (int)SpecialType.None || arity == 0 || mangleName);
 
@@ -237,7 +237,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 get
                 {
-                    if ((object?)_lazyContainingNamespace == null)
+                    if (_lazyContainingNamespace is null)
                     {
                         NamespaceSymbol container = _containingModule.GlobalNamespace;
 
@@ -259,7 +259,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                     }
                                 }
 
-                                if ((object?)newContainer == null)
+                                if (newContainer is null)
                                 {
                                     break;
                                 }
@@ -291,7 +291,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                         AssemblySymbol containingAssembly = _containingModule.ContainingAssembly;
 
-                        if ((Arity == 0 || MangleName) && (object)containingAssembly != null && ReferenceEquals(containingAssembly, containingAssembly.CorLibrary) && _containingModule.Ordinal == 0)
+                        if ((Arity == 0 || MangleName) && containingAssembly is not null && ReferenceEquals(containingAssembly, containingAssembly.CorLibrary) && _containingModule.Ordinal == 0)
                         {
                             // Check the name 
                             string emittedName = MetadataHelpers.BuildQualifiedName(_namespaceName, MetadataName);
@@ -370,7 +370,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 // if ignoring dynamic, then treat dynamic the same as the type 'object'
                 if ((comparison & TypeCompareKind.IgnoreDynamic) != 0 &&
-                    (object)t2 != null &&
+                    t2 is not null &&
                     t2.TypeKind == TypeKind.Dynamic &&
                     this.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Object)
                 {
@@ -406,7 +406,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             public Nested(NamedTypeSymbol containingType, string name, int arity, bool mangleName)
                 : base(name, arity, mangleName)
             {
-                RoslynDebug.Assert((object)containingType != null);
+                RoslynDebug.Assert(containingType is not null);
 
                 _containingType = containingType;
             }
@@ -458,7 +458,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
 
                 var other = t2 as Nested;
-                return (object?)other != null && string.Equals(MetadataName, other.MetadataName, StringComparison.Ordinal) &&
+                return other is not null && string.Equals(MetadataName, other.MetadataName, StringComparison.Ordinal) &&
                     arity == other.arity &&
                     _containingType.Equals(other._containingType, comparison);
             }

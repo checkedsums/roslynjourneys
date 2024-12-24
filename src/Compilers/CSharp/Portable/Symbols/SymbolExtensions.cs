@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsNestedType([NotNullWhen(true)] this Symbol? symbol)
         {
-            return symbol is NamedTypeSymbol && (object?)symbol.ContainingType != null;
+            return symbol is NamedTypeSymbol && symbol.ContainingType is not null;
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // This text is missing in the current version of the spec, but we believe this is accidental.
             NamedTypeSymbol originalSuperType = superType.OriginalDefinition;
             for (NamedTypeSymbol? current = subType;
-                (object?)current != null;
+                current is not null;
                 current = current.BaseTypeWithDefinitionUseSiteDiagnostics(ref useSiteInfo))
             {
                 if (ReferenceEquals(current.OriginalDefinition, originalSuperType))
@@ -129,7 +129,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static NamespaceOrTypeSymbol? ContainingNamespaceOrType(this Symbol symbol)
         {
             var containingSymbol = symbol.ContainingSymbol;
-            if ((object?)containingSymbol != null)
+            if (containingSymbol is not null)
             {
                 switch (containingSymbol.Kind)
                 {
@@ -251,7 +251,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (type.TypeKind == TypeKind.TypeParameter)
             {
                 var symbol = type.ContainingSymbol;
-                for (; ((object?)containingSymbol != null) && (containingSymbol.Kind != SymbolKind.Namespace); containingSymbol = containingSymbol.ContainingSymbol)
+                for (; (containingSymbol is not null) && (containingSymbol.Kind != SymbolKind.Namespace); containingSymbol = containingSymbol.ContainingSymbol)
                 {
                     if (containingSymbol == symbol)
                     {
@@ -314,12 +314,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             // Only upper-level types should be checked 
             var upperLevelType = symbol.Kind == SymbolKind.NamedType ? (NamedTypeSymbol)symbol : symbol.ContainingType;
-            if ((object?)upperLevelType == null)
+            if (upperLevelType is null)
             {
                 return false;
             }
 
-            while ((object?)upperLevelType.ContainingType != null)
+            while (upperLevelType.ContainingType is not null)
             {
                 upperLevelType = upperLevelType.ContainingType;
             }
@@ -365,7 +365,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (reference == null && symbol.IsImplicitlyDeclared)
                 {
                     Symbol? containingSymbol = symbol.ContainingSymbol;
-                    if ((object?)containingSymbol != null)
+                    if (containingSymbol is not null)
                     {
                         reference = containingSymbol.DeclaringSyntaxReferences.FirstOrDefault();
                     }

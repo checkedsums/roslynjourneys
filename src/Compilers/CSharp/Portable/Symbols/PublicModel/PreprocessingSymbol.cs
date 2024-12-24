@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
             PreprocessingSymbol? other = obj as PreprocessingSymbol;
 
-            return (object?)other != null &&
+            return other is not null &&
                 this._name.Equals(other._name);
         }
 

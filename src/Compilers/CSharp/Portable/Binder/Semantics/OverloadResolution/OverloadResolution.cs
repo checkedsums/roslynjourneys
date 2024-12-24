@@ -903,7 +903,7 @@ outerDefault:
 
         private static void ClearContainingTypeMap<TMember>(ref Dictionary<NamedTypeSymbol, ArrayBuilder<TMember>> containingTypeMapOpt) where TMember : Symbol
         {
-            if ((object)containingTypeMapOpt != null)
+            if (containingTypeMapOpt is not null)
             {
                 foreach (ArrayBuilder<TMember> builder in containingTypeMapOpt.Values)
                 {
@@ -2784,9 +2784,9 @@ outerDefault:
 
             var n1 = t1 as NamedTypeSymbol;
             var n2 = t2 as NamedTypeSymbol;
-            Debug.Assert(((object)n1 == null) == ((object)n2 == null));
+            Debug.Assert((n1 is null) == (n2 is null));
 
-            if ((object)n1 == null)
+            if (n1 is null)
             {
                 return BetterResult.Neither;
             }
@@ -3219,7 +3219,7 @@ outerDefault:
             // Given an expression E and a type T, E exactly matches T if one of the following holds:
 
             // - E has a type S, and an identity conversion exists from S to T 
-            if ((object)node.Type != null && Conversions.HasIdentityConversion(node.Type, t))
+            if (node.Type is not null && Conversions.HasIdentityConversion(node.Type, t))
             {
                 return true;
             }
@@ -3241,8 +3241,8 @@ outerDefault:
             TypeSymbol y;
 
             if (node.Kind == BoundKind.UnboundLambda &&
-                (object)(d = t.GetDelegateType()) != null &&
-                (object)(invoke = d.DelegateInvokeMethod) != null &&
+                (d = t.GetDelegateType()) is not null &&
+                (invoke = d.DelegateInvokeMethod) is not null &&
                 !(y = invoke.ReturnType).IsVoidType())
             {
                 BoundLambda lambda = ((UnboundLambda)node).BindForReturnTypeInference(d);
@@ -3267,7 +3267,7 @@ outerDefault:
                     }
                 }
 
-                if ((object)y != null)
+                if (y is not null)
                 {
                     // - The body of E is an expression that exactly matches Y, or
                     //   has a return statement with expression and all return statements have expression that 
@@ -3494,11 +3494,11 @@ outerDefault:
 
             NamedTypeSymbol d1;
 
-            if ((object)(d1 = type1.GetDelegateType()) != null)
+            if ((d1 = type1.GetDelegateType()) is not null)
             {
                 NamedTypeSymbol d2;
 
-                if ((object)(d2 = type2.GetDelegateType()) != null)
+                if ((d2 = type2.GetDelegateType()) is not null)
                 {
                     // - T1 is either a delegate type D1 or an expression tree type Expression<D1>,
                     //   T2 is either a delegate type D2 or an expression tree type Expression<D2>,
@@ -3506,7 +3506,7 @@ outerDefault:
                     MethodSymbol invoke1 = d1.DelegateInvokeMethod;
                     MethodSymbol invoke2 = d2.DelegateInvokeMethod;
 
-                    if ((object)invoke1 != null && (object)invoke2 != null)
+                    if (invoke1 is not null && invoke2 is not null)
                     {
                         TypeSymbol r1 = invoke1.ReturnType;
                         TypeSymbol r2 = invoke2.ReturnType;
@@ -3559,7 +3559,7 @@ outerDefault:
                 // A shortcut, a delegate or an expression tree cannot satisfy other rules.
                 return BetterResult.Neither;
             }
-            else if ((object)type2.GetDelegateType() != null)
+            else if (type2.GetDelegateType() is not null)
             {
                 // A shortcut, a delegate or an expression tree cannot satisfy other rules.
                 return BetterResult.Neither;
@@ -3609,16 +3609,16 @@ outerDefault:
 
             NamedTypeSymbol d1;
 
-            if ((object)(d1 = type1.GetDelegateType()) != null)
+            if ((d1 = type1.GetDelegateType()) is not null)
             {
                 NamedTypeSymbol d2;
 
-                if ((object)(d2 = type2.GetDelegateType()) != null)
+                if ((d2 = type2.GetDelegateType()) is not null)
                 {
                     MethodSymbol invoke1 = d1.DelegateInvokeMethod;
                     MethodSymbol invoke2 = d2.DelegateInvokeMethod;
 
-                    if ((object)invoke1 != null && (object)invoke2 != null)
+                    if (invoke1 is not null && invoke2 is not null)
                     {
                         if (!IdenticalParameters(invoke1.Parameters, invoke2.Parameters))
                         {
@@ -3722,7 +3722,7 @@ outerDefault:
 
         private static bool IsSignedIntegralType(TypeSymbol type)
         {
-            if ((object)type != null && type.IsNullableType())
+            if (type is not null && type.IsNullableType())
             {
                 type = type.GetNullableUnderlyingType();
             }
@@ -3743,7 +3743,7 @@ outerDefault:
 
         private static bool IsUnsignedIntegralType(TypeSymbol type)
         {
-            if ((object)type != null && type.IsNullableType())
+            if (type is not null && type.IsNullableType())
             {
                 type = type.GetNullableUnderlyingType();
             }
@@ -4567,7 +4567,7 @@ outerDefault:
             var argType = argument.Type;
             if (argument.Kind == BoundKind.OutVariablePendingInference ||
                 argument.Kind == BoundKind.OutDeconstructVarPendingInference ||
-                (argument.Kind == BoundKind.DiscardExpression && (object)argType == null))
+                (argument.Kind == BoundKind.DiscardExpression && argType is null))
             {
                 Debug.Assert(argRefKind != RefKind.None);
 
@@ -4594,7 +4594,7 @@ outerDefault:
                 return conversion;
             }
 
-            if ((object)argType != null && Conversions.HasIdentityConversion(argType, parameterType))
+            if (argType is not null && Conversions.HasIdentityConversion(argType, parameterType))
             {
                 return Conversion.Identity;
             }

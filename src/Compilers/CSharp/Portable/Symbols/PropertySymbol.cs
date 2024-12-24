@@ -167,7 +167,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var property = (PropertySymbol)this.GetLeastOverriddenMember(this.ContainingType);
-                return (object)property.SetMethod == null;
+                return property.SetMethod is null;
             }
         }
 
@@ -179,7 +179,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var property = (PropertySymbol)this.GetLeastOverriddenMember(this.ContainingType);
-                return (object)property.GetMethod == null;
+                return property.GetMethod is null;
             }
         }
 
@@ -257,7 +257,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 MethodSymbol accessor = GetMethod ?? SetMethod;
 
                 // false is a reasonable default if there are no accessors (e.g. not done typing).
-                return (object)accessor != null && accessor.HidesBaseMethodsByName;
+                return accessor is not null && accessor.HidesBaseMethodsByName;
             }
         }
 
@@ -289,7 +289,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // See InternalsVisibleToAndStrongNameTests: IvtVirtualCall1, IvtVirtualCall2, IvtVirtual_ParamsAndDynamic.
                 PropertySymbol overridden = p.OverriddenProperty;
                 var discardedUseSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.Discarded;
-                if ((object)overridden == null ||
+                if (overridden is null ||
                     (accessingTypeOpt is { } && !AccessCheck.IsSymbolAccessible(overridden, accessingTypeOpt, ref discardedUseSiteInfo)))
                 {
                     break;
@@ -437,7 +437,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 DiagnosticInfo info = GetUseSiteInfo().DiagnosticInfo;
-                return (object)info != null && info.Code is (int)ErrorCode.ERR_BindToBogus or (int)ErrorCode.ERR_UnsupportedCompilerFeature;
+                return info is not null && info.Code is (int)ErrorCode.ERR_BindToBogus or (int)ErrorCode.ERR_UnsupportedCompilerFeature;
             }
         }
 

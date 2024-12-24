@@ -50,7 +50,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var baseBinder = this.DeclaringCompilation.GetBinder(bases);
                 baseBinder = baseBinder.WithAdditionalFlagsAndContainingMemberOrLambda(BinderFlags.SuppressConstraintChecks, this);
 
-                if ((object)backupLocation == null)
+                if (backupLocation is null)
                 {
                     backupLocation = inheritedTypeDecls[0].Type.GetLocation();
                 }
@@ -211,7 +211,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         if (!ReferenceEquals(ContainingType, null))
                         {
                             var tpEnclosing = ContainingType.FindEnclosingTypeParameter(name);
-                            if ((object)tpEnclosing != null)
+                            if (tpEnclosing is not null)
                             {
                                 // Type parameter '{0}' has the same name as the type parameter from outer type '{1}'
                                 diagnostics.Add(ErrorCode.WRN_TypeParameterSameAsOuterTypeParameter, location, name, tpEnclosing.ContainingType);
@@ -1050,7 +1050,7 @@ next:;
                 return data.AttributeUsageInfo;
             }
 
-            return ((object)this.BaseTypeNoUseSiteDiagnostics != null) ? this.BaseTypeNoUseSiteDiagnostics.GetAttributeUsageInfo() : AttributeUsageInfo.Default;
+            return (this.BaseTypeNoUseSiteDiagnostics is not null) ? this.BaseTypeNoUseSiteDiagnostics.GetAttributeUsageInfo() : AttributeUsageInfo.Default;
         }
 
         /// <summary>
@@ -1324,13 +1324,13 @@ next:;
             var attribute = arguments.Attribute;
             Debug.Assert(!attribute.HasErrors);
 
-            if (this.IsInterfaceType() && (!arguments.HasDecodedData || (object)((TypeWellKnownAttributeData)arguments.DecodedData).ComImportCoClass == null))
+            if (this.IsInterfaceType() && (!arguments.HasDecodedData || ((TypeWellKnownAttributeData)arguments.DecodedData).ComImportCoClass is null))
             {
                 TypedConstant argument = attribute.CommonConstructorArguments[0];
                 Debug.Assert(argument.Kind == TypedConstantKind.Type);
 
                 var coClassType = argument.ValueInternal as NamedTypeSymbol;
-                if ((object)coClassType != null && coClassType.TypeKind == TypeKind.Class)
+                if (coClassType is not null && coClassType.TypeKind == TypeKind.Class)
                 {
                     arguments.GetOrCreateData<TypeWellKnownAttributeData>().ComImportCoClass = coClassType;
                 }
@@ -1579,7 +1579,7 @@ next:;
                 if (this.TypeKind == TypeKind.Class)
                 {
                     var baseType = this.BaseTypeNoUseSiteDiagnostics;
-                    if ((object)baseType != null && baseType.SpecialType != SpecialType.System_Object)
+                    if (baseType is not null && baseType.SpecialType != SpecialType.System_Object)
                     {
                         // CS0424: '{0}': a class with the ComImport attribute cannot specify a base class
                         diagnostics.Add(ErrorCode.ERR_ComImportWithBase, this.GetFirstLocation(), this.Name);
@@ -1615,7 +1615,7 @@ next:;
                     }
                 }
             }
-            else if ((object)this.ComImportCoClass != null)
+            else if (this.ComImportCoClass is not null)
             {
                 Debug.Assert(boundAttributes.Any());
 

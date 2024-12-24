@@ -54,7 +54,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                if ((object?)_globalNamespace == null)
+                if (_globalNamespace is null)
                 {
                     // Get the root namespace from each module, and merge them all together. If there is only one, 
                     // then MergedNamespaceSymbol.Create will just return that one.
@@ -101,7 +101,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // 4) Multitargeting - retargeting the type to a different version of assembly
             result = LookupTopLevelMetadataTypeInCache(ref emittedName);
 
-            if ((object?)result != null)
+            if (result is not null)
             {
                 // We cache result equivalent to digging through type forwarders, which
                 // might produce a forwarder specific ErrorTypeSymbol. We don't want to 
@@ -162,7 +162,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             NamedTypeSymbol? result = LookupTopLevelMetadataTypeInCache(ref emittedName);
 
-            if ((object?)result != null)
+            if (result is not null)
             {
                 return result;
             }

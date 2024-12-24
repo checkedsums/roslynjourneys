@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool isStatic = false)
             : base(containingType, name, isPublic, isReadOnly, isStatic)
         {
-            Debug.Assert((object)type != null);
+            Debug.Assert(type is not null);
             _type = TypeWithAnnotations.Create(type);
         }
 

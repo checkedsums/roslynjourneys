@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
 
         public NamedTypeReference(NamedTypeSymbol underlyingNamedType)
         {
-            Debug.Assert((object)underlyingNamedType != null);
+            Debug.Assert(underlyingNamedType is not null);
 
             this.UnderlyingNamedType = underlyingNamedType;
         }

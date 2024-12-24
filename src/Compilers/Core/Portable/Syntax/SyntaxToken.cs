@@ -80,7 +80,7 @@ namespace Microsoft.CodeAnalysis
         {
             get
             {
-                Debug.Assert(Node is object);
+                Debug.Assert(Node is not null);
                 return Node;
             }
         }

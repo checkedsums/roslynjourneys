@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             int n = original.Arity;
             NamedTypeSymbol originalContainingType = original.ContainingType;
 
-            var constructedFrom = ((object)originalContainingType == null) ?
+            var constructedFrom = (originalContainingType is null) ?
                 original :
                 original.AsMember(originalContainingType.IsGenericType ? originalContainingType.AsUnboundGenericType() : originalContainingType);
             if (n == 0)
@@ -110,7 +110,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             UnboundArgumentErrorTypeSymbol? other = t2 as UnboundArgumentErrorTypeSymbol;
-            return (object?)other != null && string.Equals(other._name, _name, StringComparison.Ordinal) && object.Equals(other._errorInfo, _errorInfo);
+            return other is not null && string.Equals(other._name, _name, StringComparison.Ordinal) && object.Equals(other._errorInfo, _errorInfo);
         }
 
         public override int GetHashCode()

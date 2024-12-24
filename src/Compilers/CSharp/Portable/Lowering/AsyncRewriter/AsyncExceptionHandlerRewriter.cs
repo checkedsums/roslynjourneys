@@ -114,7 +114,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BindingDiagnosticBag diagnostics)
         {
             Debug.Assert(containingSymbol != null);
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(containingType is not null);
             Debug.Assert(statement != null);
             Debug.Assert(compilationState != null);
             Debug.Assert(diagnostics != null);

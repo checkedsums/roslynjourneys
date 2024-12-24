@@ -468,7 +468,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             get
             {
                 var method = _symbol as MethodSymbol;
-                return (object)method == null ? ImmutableArray<ParameterSymbol>.Empty : method.Parameters;
+                return method is null ? ImmutableArray<ParameterSymbol>.Empty : method.Parameters;
             }
         }
 
@@ -494,7 +494,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected bool ShouldAnalyzeOutParameters(out Location location)
         {
             var method = _symbol as MethodSymbol;
-            if ((object)method == null || method.Locations.Length != 1)
+            if (method is null || method.Locations.Length != 1)
             {
                 location = null;
                 return false;
@@ -641,7 +641,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 Unsplit();
                 SetConditionalState(UnreachableState(), this.State);
             }
-            else if ((object)node.Type == null || node.Type.SpecialType != SpecialType.System_Boolean)
+            else if (node.Type is null || node.Type.SpecialType != SpecialType.System_Boolean)
             {
                 // a dynamic type or a type with operator true/false
                 Unsplit();
@@ -1482,7 +1482,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var method = GetReadMethod(node.Indexer);
             VisitReceiverBeforeCall(node.ReceiverOpt, method);
             VisitArguments(node.Arguments, node.ArgumentRefKindsOpt, method);
-            if ((object)method != null)
+            if (method is not null)
             {
                 VisitReceiverAfterCall(node.ReceiverOpt, method);
             }
@@ -1735,7 +1735,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (node.ConversionKind == ConversionKind.MethodGroup)
             {
-                if (node.IsExtensionMethod || ((object)node.SymbolOpt != null && node.SymbolOpt.RequiresInstanceReceiver))
+                if (node.IsExtensionMethod || (node.SymbolOpt is not null && node.SymbolOpt.RequiresInstanceReceiver))
                 {
                     BoundExpression receiver = ((BoundMethodGroup)node.Operand).ReceiverOpt;
                     // A method group's "implicit this" is only used for instance methods.
@@ -2230,13 +2230,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void VisitFieldAccessInternal(BoundExpression receiverOpt, FieldSymbol fieldSymbol)
         {
-            bool asLvalue = (object)fieldSymbol != null &&
+            bool asLvalue = fieldSymbol is not null &&
                 (fieldSymbol.IsFixedSizeBuffer ||
                 !fieldSymbol.IsStatic &&
                 fieldSymbol.ContainingType.TypeKind == TypeKind.Struct &&
                 receiverOpt != null &&
                 receiverOpt.Kind != BoundKind.TypeExpression &&
-                (object)receiverOpt.Type != null &&
+                receiverOpt.Type is not null &&
                 !receiverOpt.Type.IsPrimitiveRecursiveStruct());
             if (asLvalue)
             {

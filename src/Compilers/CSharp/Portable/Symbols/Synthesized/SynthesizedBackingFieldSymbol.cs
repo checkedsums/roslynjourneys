@@ -127,7 +127,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected sealed override void DecodeWellKnownAttributeImpl(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
             Debug.Assert(arguments.Diagnostics is BindingDiagnosticBag);
 
             var attribute = arguments.Attribute;

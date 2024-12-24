@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         public RetargetingEventSymbol(RetargetingModuleSymbol retargetingModule, EventSymbol underlyingEvent)
             : base(underlyingEvent)
         {
-            RoslynDebug.Assert((object)retargetingModule != null);
+            RoslynDebug.Assert(retargetingModule is not null);
             Debug.Assert(!(underlyingEvent is RetargetingEventSymbol));
 
             _retargetingModule = retargetingModule;
@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                return (object?)_underlyingEvent.AddMethod == null
+                return _underlyingEvent.AddMethod is null
                     ? null
                     : this.RetargetingTranslator.Retarget(_underlyingEvent.AddMethod);
             }
@@ -68,7 +68,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                return (object?)_underlyingEvent.RemoveMethod == null
+                return _underlyingEvent.RemoveMethod is null
                     ? null
                     : this.RetargetingTranslator.Retarget(_underlyingEvent.RemoveMethod);
             }
@@ -78,7 +78,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         {
             get
             {
-                return (object?)_underlyingEvent.AssociatedField == null
+                return _underlyingEvent.AssociatedField is null
                     ? null
                     : this.RetargetingTranslator.Retarget(_underlyingEvent.AssociatedField);
             }
@@ -120,7 +120,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             for (int i = 0; i < impls.Length; i++)
             {
                 var retargeted = this.RetargetingTranslator.Retarget(impls[i]);
-                if ((object?)retargeted != null)
+                if (retargeted is not null)
                 {
                     builder.Add(retargeted);
                 }

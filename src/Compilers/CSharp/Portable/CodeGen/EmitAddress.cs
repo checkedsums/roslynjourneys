@@ -576,7 +576,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
                 // 1) it should happen only in impossibly rare cases involving malformed types
                 // 2) the address of the struct is same as that of the buffer, just type is wrong.
                 //    and that only matters to the verifier and we are in unsafe context anyways.
-                if ((object)fixedElementField != null)
+                if (fixedElementField is not null)
                 {
                     _builder.EmitOpCode(ILOpCode.Ldflda);
                     EmitSymbolToken(fixedElementField, fieldAccess.Syntax);

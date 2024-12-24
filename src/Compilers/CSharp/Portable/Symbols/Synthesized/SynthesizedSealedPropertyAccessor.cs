@@ -7,11 +7,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp.Symbols;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
-using Cci = Microsoft.Cci;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
@@ -28,9 +24,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public SynthesizedSealedPropertyAccessor(PropertySymbol property, MethodSymbol overriddenAccessor)
         {
-            Debug.Assert((object)property != null);
+            Debug.Assert(property is not null);
             Debug.Assert(property.IsSealed);
-            Debug.Assert((object)overriddenAccessor != null);
+            Debug.Assert(overriddenAccessor is not null);
 
             _property = property;
             _overriddenAccessor = overriddenAccessor;

@@ -44,8 +44,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ImmutableArray<Location> locations,
                 bool includeBackingField)
             {
-                Debug.Assert((object)container != null);
-                Debug.Assert((object)field != null);
+                Debug.Assert(container is not null);
                 Debug.Assert(fieldTypeWithAnnotations.HasType);
                 Debug.Assert(index >= 0);
                 Debug.Assert(!locations.IsDefault);
@@ -215,14 +214,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
 
                 var other = obj as AnonymousTypePropertySymbol;
-                if ((object)other == null)
+                if (other is null)
                 {
                     return false;
                 }
 
                 //  consider properties the same is the owning types are the same and 
                 //  the names are equal
-                return ((object)other != null) && other.Name == this.Name
+                return (other is not null) && other.Name == this.Name
                     && other.ContainingType.Equals(this.ContainingType, compareKind);
             }
 

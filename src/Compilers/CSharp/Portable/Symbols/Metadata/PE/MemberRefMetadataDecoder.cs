@@ -35,7 +35,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             TypeSymbol containingType) :
             base(moduleSymbol, containingType as PENamedTypeSymbol)
         {
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(containingType is not null);
             _containingType = containingType;
         }
 
@@ -58,18 +58,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         protected override TypeSymbol GetGenericTypeParamSymbol(int position)
         {
             PENamedTypeSymbol peType = _containingType as PENamedTypeSymbol;
-            if ((object)peType != null)
+            if (peType is not null)
             {
                 return base.GetGenericTypeParamSymbol(position);
             }
 
             NamedTypeSymbol namedType = _containingType as NamedTypeSymbol;
-            if ((object)namedType != null)
+            if (namedType is not null)
             {
                 int cumulativeArity;
                 TypeParameterSymbol typeParameter;
                 GetGenericTypeParameterSymbol(position, namedType, out cumulativeArity, out typeParameter);
-                if ((object)typeParameter != null)
+                if (typeParameter is not null)
                 {
                     return typeParameter;
                 }
@@ -91,7 +91,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             int arityOffset = 0;
 
             var containingType = namedType.ContainingType;
-            if ((object)containingType != null)
+            if (containingType is not null)
             {
                 int containingTypeCumulativeArity;
                 GetGenericTypeParameterSymbol(position, containingType, out containingTypeCumulativeArity, out typeArgument);
@@ -101,7 +101,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
             if (arityOffset <= position && position < cumulativeArity)
             {
-                Debug.Assert((object)typeArgument == null);
+                Debug.Assert(typeArgument is null);
 
                 typeArgument = namedType.TypeParameters[position - arityOffset];
             }
@@ -179,7 +179,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 TypeWithAnnotations fieldType;
 
                 // Ensure the field symbol matches the { IsByRef, RefCustomModifiers, Type, CustomModifiers } from metadata.
-                if ((object)field != null &&
+                if (field is not null &&
                     (field.RefKind != RefKind.None) == fieldInfo.IsByRef &&
                     CustomModifiersMatch(field.RefCustomModifiers, fieldInfo.RefCustomModifiers) &&
                     TypeSymbol.Equals((fieldType = field.TypeWithAnnotations).Type, fieldInfo.Type, TypeCompareKind.CLRSignatureCompareOptions) &&
@@ -199,7 +199,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             foreach (Symbol member in targetTypeSymbol.GetMembers(targetMemberName))
             {
                 var method = member as MethodSymbol;
-                if ((object)method != null &&
+                if (method is not null &&
                     ((byte)method.CallingConvention == targetMemberSignatureHeader.RawValue) &&
                     (targetMemberTypeParamCount == method.Arity) &&
                     MethodSymbolMatchesParamInfo(method, targetParamInfo))

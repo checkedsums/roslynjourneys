@@ -62,7 +62,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private static SmallDictionary<TypeParameterSymbol, TypeWithAnnotations> ForType(NamedTypeSymbol containingType)
         {
             var substituted = containingType as SubstitutedNamedTypeSymbol;
-            return (object)substituted != null ?
+            return substituted is not null ?
                 new SmallDictionary<TypeParameterSymbol, TypeWithAnnotations>(substituted.TypeSubstitution.Mapping, ReferenceEqualityComparer.Instance) :
                 new SmallDictionary<TypeParameterSymbol, TypeWithAnnotations>(ReferenceEqualityComparer.Instance);
         }

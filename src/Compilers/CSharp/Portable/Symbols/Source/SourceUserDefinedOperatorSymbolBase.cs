@@ -710,7 +710,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected sealed override void CheckConstraintsForExplicitInterfaceType(ConversionsBase conversions, BindingDiagnosticBag diagnostics)
         {
-            if ((object)_explicitInterfaceType != null)
+            if (_explicitInterfaceType is not null)
             {
                 NameSyntax name;
 

@@ -2208,12 +2208,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             // and an explicit built-in conversion from source to destination. In that scenario
             // this method returns the implicit conversion.
 
-            if ((object)source == null)
+            if (source is null)
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if ((object)destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }
@@ -2279,7 +2279,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal ArrayTypeSymbol CreateArrayTypeSymbol(TypeSymbol elementType, int rank = 1, NullableAnnotation elementNullableAnnotation = NullableAnnotation.Oblivious)
         {
-            if ((object)elementType == null)
+            if (elementType is null)
             {
                 throw new ArgumentNullException(nameof(elementType));
             }
@@ -2297,7 +2297,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal PointerTypeSymbol CreatePointerTypeSymbol(TypeSymbol elementType, NullableAnnotation elementNullableAnnotation = NullableAnnotation.Oblivious)
         {
-            if ((object)elementType == null)
+            if (elementType is null)
             {
                 throw new ArgumentNullException(nameof(elementType));
             }

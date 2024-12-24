@@ -186,9 +186,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             // Check if it is a forwarded type.
             (AssemblySymbol firstSymbol, AssemblySymbol secondSymbol) = LookupAssembliesForForwardedMetadataType(ref emittedName);
 
-            if ((object)firstSymbol != null)
+            if (firstSymbol is not null)
             {
-                if ((object)secondSymbol != null)
+                if (secondSymbol is not null)
                 {
                     // Report the main module as that is the only one checked. clr does not honor type forwarders in non-primary modules.
                     return CreateMultipleForwardingErrorTypeSymbol(ref emittedName, this.PrimaryModule, firstSymbol, secondSymbol);

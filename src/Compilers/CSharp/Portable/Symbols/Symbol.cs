@@ -146,10 +146,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                for (var container = this.ContainingSymbol; (object)container != null; container = container.ContainingSymbol)
+                for (var container = this.ContainingSymbol; container is not null; container = container.ContainingSymbol)
                 {
                     var ns = container as NamespaceSymbol;
-                    if ((object)ns != null)
+                    if (ns is not null)
                     {
                         return ns;
                     }
@@ -170,7 +170,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Default implementation gets the containers assembly.
 
                 var container = this.ContainingSymbol;
-                return (object)container != null ? container.ContainingAssembly : null;
+                return container is not null ? container.ContainingAssembly : null;
             }
         }
 
@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Default implementation gets the containers module.
 
                 var container = this.ContainingSymbol;
-                return (object)container != null ? container.ContainingModule : null;
+                return container is not null ? container.ContainingModule : null;
             }
         }
 
@@ -1718,7 +1718,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // case the variable is not captured by the target function, or null, in which
             // case it is.
             for (var currentFunction = variable.ContainingSymbol;
-                 (object)currentFunction != null;
+                 currentFunction is not null;
                  currentFunction = currentFunction.ContainingSymbol)
             {
                 if (ReferenceEquals(currentFunction, containingSymbol))

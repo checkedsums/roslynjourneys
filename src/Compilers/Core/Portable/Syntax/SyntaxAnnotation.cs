@@ -53,7 +53,7 @@ namespace Microsoft.CodeAnalysis
 
         public bool Equals(SyntaxAnnotation? other)
         {
-            return other is object && _id == other._id;
+            return other is not null && _id == other._id;
         }
 
         public static bool operator ==(SyntaxAnnotation? left, SyntaxAnnotation? right)

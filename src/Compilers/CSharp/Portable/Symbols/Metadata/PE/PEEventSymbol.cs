@@ -57,11 +57,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             PEMethodSymbol removeMethod,
             MultiDictionary<string, PEFieldSymbol> privateFieldNameToSymbols)
         {
-            RoslynDebug.Assert((object)moduleSymbol != null);
-            RoslynDebug.Assert((object)containingType != null);
+            RoslynDebug.Assert(moduleSymbol is not null);
+            RoslynDebug.Assert(containingType is not null);
             Debug.Assert(!handle.IsNil);
-            RoslynDebug.Assert((object)addMethod != null);
-            RoslynDebug.Assert((object)removeMethod != null);
+            RoslynDebug.Assert(addMethod is not null);
+            RoslynDebug.Assert(removeMethod is not null);
 
             _addMethod = addMethod;
             _removeMethod = removeMethod;
@@ -125,7 +125,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 _removeMethod.SetAssociatedEvent(this, MethodKind.EventRemove);
 
                 PEFieldSymbol? associatedField = GetAssociatedField(privateFieldNameToSymbols, isWindowsRuntimeEvent);
-                if ((object?)associatedField != null)
+                if (associatedField is not null)
                 {
                     _associatedFieldOpt = associatedField;
                     associatedField.SetAssociatedEvent(this);

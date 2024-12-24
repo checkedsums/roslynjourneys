@@ -107,7 +107,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var containingAssembly1 = unwrappedSymbol1.ContainingAssembly;
 
                     // May not be the case if there are error types.
-                    if ((object)containingAssembly0 != null && (object)containingAssembly1 != null)
+                    if (containingAssembly0 is not null && containingAssembly1 is not null)
                     {
                         // Use the assembly identities rather than locations. Note that the
                         // assembly identities may be identical as well. (For instance, the
@@ -175,7 +175,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             AssemblySymbol containingAssembly = unwrappedSymbol.ContainingAssembly;
-            if ((object)containingAssembly != null)
+            if (containingAssembly is not null)
             {
                 if (compilation != null)
                 {

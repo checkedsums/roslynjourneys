@@ -100,7 +100,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public bool Equals(MissingAssemblySymbol other)
         {
-            if ((object)other == null)
+            if (other is null)
             {
                 return false;
             }

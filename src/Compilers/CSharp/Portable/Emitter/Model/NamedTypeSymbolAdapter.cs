@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 PENamedTypeSymbol peNamedType = AdaptedNamedTypeSymbol as PENamedTypeSymbol;
-                if ((object)peNamedType != null)
+                if (peNamedType is not null)
                 {
                     return peNamedType.Handle;
                 }
@@ -118,7 +118,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Debug.Assert(this.IsDefinitionOrDistinct());
 
                 if (AdaptedNamedTypeSymbol.IsDefinition &&
-                    (object)AdaptedNamedTypeSymbol.ContainingType == null)
+                    AdaptedNamedTypeSymbol.ContainingType is null)
                 {
                     return this;
                 }
@@ -133,7 +133,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             Debug.Assert(this.IsDefinitionOrDistinct());
 
-            if ((object)AdaptedNamedTypeSymbol.ContainingType == null &&
+            if (AdaptedNamedTypeSymbol.ContainingType is null &&
                 AdaptedNamedTypeSymbol.IsDefinition &&
                 AdaptedNamedTypeSymbol.ContainingModule == moduleBeingBuilt.SourceModule)
             {
@@ -147,7 +147,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                if ((object)AdaptedNamedTypeSymbol.ContainingType != null)
+                if (AdaptedNamedTypeSymbol.ContainingType is not null)
                 {
                     return this;
                 }
@@ -167,7 +167,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(this.IsDefinitionOrDistinct());
 
-            if ((object)AdaptedNamedTypeSymbol.ContainingType != null &&
+            if (AdaptedNamedTypeSymbol.ContainingType is not null &&
                 AdaptedNamedTypeSymbol.IsDefinition &&
                 AdaptedNamedTypeSymbol.ContainingModule == moduleBeingBuilt.SourceModule)
             {
@@ -186,7 +186,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (!AdaptedNamedTypeSymbol.IsDefinition &&
                     (AdaptedNamedTypeSymbol.Arity == 0 || PEModuleBuilder.IsGenericType(AdaptedNamedTypeSymbol.ContainingType)))
                 {
-                    Debug.Assert((object)AdaptedNamedTypeSymbol.ContainingType != null &&
+                    Debug.Assert(AdaptedNamedTypeSymbol.ContainingType is not null &&
                             PEModuleBuilder.IsGenericType(AdaptedNamedTypeSymbol.ContainingType));
                     return this;
                 }
@@ -290,11 +290,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (AdaptedNamedTypeSymbol.IsScriptClass)
             {
                 // although submission and scripts semantically doesn't have a base we need to emit one into metadata:
-                Debug.Assert((object)baseType == null);
+                Debug.Assert(baseType is null);
                 baseType = AdaptedNamedTypeSymbol.ContainingAssembly.GetSpecialType(Microsoft.CodeAnalysis.SpecialType.System_Object);
             }
 
-            return ((object)baseType != null) ? moduleBeingBuilt.Translate(baseType,
+            return (baseType is not null) ? moduleBeingBuilt.Translate(baseType,
                                                                    syntaxNodeOpt: (CSharpSyntaxNode)context.SyntaxNode,
                                                                    diagnostics: context.Diagnostics) : null;
         }
@@ -325,7 +325,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (member.Kind == SymbolKind.Method)
                 {
                     var method = (MethodSymbol)member;
-                    Debug.Assert((object)method.PartialDefinitionPart == null); // must be definition
+                    Debug.Assert(method.PartialDefinitionPart is null); // must be definition
 
                     var explicitImplementations = method.ExplicitInterfaceImplementations;
                     if (explicitImplementations.Length != 0)
@@ -366,7 +366,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         foreach (Symbol objectMember in objectType.GetMembers(WellKnownMemberNames.DestructorName))
                         {
                             MethodSymbol objectMethod = objectMember as MethodSymbol;
-                            if ((object)objectMethod != null && objectMethod.MethodKind == MethodKind.Destructor)
+                            if (objectMethod is not null && objectMethod.MethodKind == MethodKind.Destructor)
                             {
                                 yield return new Microsoft.Cci.MethodImplementation(method.GetCciAdapter(), moduleBeingBuilt.TranslateOverriddenMethodReference(objectMethod, (CSharpSyntaxNode)context.SyntaxNode, context.Diagnostics));
                             }
@@ -404,9 +404,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 foreach (var m in syntheticMethods)
                 {
                     var method = m.GetInternalSymbol() as MethodSymbol;
-                    if ((object)method != null)
+                    if (method is not null)
                     {
-                        Debug.Assert((object)method.PartialDefinitionPart == null); // must be definition
+                        Debug.Assert(method.PartialDefinitionPart is null); // must be definition
 
                         foreach (var implemented in method.ExplicitInterfaceImplementations)
                         {
@@ -626,7 +626,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             foreach (var method in AdaptedNamedTypeSymbol.GetMethodsToEmit())
             {
-                Debug.Assert((object)method != null);
+                Debug.Assert(method is not null);
 
                 if ((alwaysIncludeConstructors && method.MethodKind == MethodKind.Constructor) || method.GetCciAdapter().ShouldInclude(context))
                 {
@@ -674,7 +674,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             foreach (PropertySymbol property in AdaptedNamedTypeSymbol.GetPropertiesToEmit())
             {
-                Debug.Assert((object)property != null);
+                Debug.Assert(property is not null);
                 IPropertyDefinition definition = property.GetCciAdapter();
                 // If any accessor should be included, then the property should be included too
                 if (definition.ShouldInclude(context) || !definition.GetAccessors(context).IsEmpty())
@@ -820,7 +820,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                Debug.Assert((object)AdaptedNamedTypeSymbol.ContainingType == null && AdaptedNamedTypeSymbol.ContainingModule is SourceModuleSymbol);
+                Debug.Assert(AdaptedNamedTypeSymbol.ContainingType is null && AdaptedNamedTypeSymbol.ContainingModule is SourceModuleSymbol);
 
                 return AdaptedNamedTypeSymbol.MetadataVisibility == Cci.TypeMemberVisibility.Public;
             }
@@ -844,7 +844,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                Debug.Assert((object)AdaptedNamedTypeSymbol.ContainingType != null);
+                Debug.Assert(AdaptedNamedTypeSymbol.ContainingType is not null);
                 CheckDefinitionInvariant();
 
                 return AdaptedNamedTypeSymbol.ContainingType.GetCciAdapter();
@@ -855,7 +855,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                Debug.Assert((object)AdaptedNamedTypeSymbol.ContainingType != null);
+                Debug.Assert(AdaptedNamedTypeSymbol.ContainingType is not null);
                 CheckDefinitionInvariant();
 
                 return AdaptedNamedTypeSymbol.MetadataVisibility;

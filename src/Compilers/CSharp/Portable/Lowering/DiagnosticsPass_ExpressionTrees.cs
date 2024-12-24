@@ -31,7 +31,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static void IssueDiagnostics(CSharpCompilation compilation, BoundNode node, BindingDiagnosticBag diagnostics, MethodSymbol containingSymbol)
         {
             Debug.Assert(node != null);
-            Debug.Assert((object)containingSymbol != null);
+            Debug.Assert(containingSymbol is not null);
 
             ExecutableCodeBinder.ValidateIteratorMethod(compilation, containingSymbol, diagnostics);
 
@@ -49,7 +49,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private DiagnosticsPass(CSharpCompilation compilation, BindingDiagnosticBag diagnostics, MethodSymbol containingSymbol)
         {
             Debug.Assert(diagnostics != null);
-            Debug.Assert((object)containingSymbol != null);
+            Debug.Assert(containingSymbol is not null);
 
             _compilation = compilation;
             _diagnostics = diagnostics;
@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void CheckUnsafeType(BoundExpression e)
         {
-            if (e != null && (object)e.Type != null && e.Type.IsPointerOrFunctionPointer()) NoteUnsafe(e);
+            if (e != null && e.Type is not null && e.Type.IsPointerOrFunctionPointer()) NoteUnsafe(e);
         }
 
         private void NoteUnsafe(BoundNode node)
@@ -310,8 +310,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             BitVector defaultArguments,
             BoundNode node)
         {
-            Debug.Assert((object)method != null);
-            Debug.Assert(((object)propertyAccess == null) ||
+            Debug.Assert(method is not null);
+            Debug.Assert((propertyAccess is null) ||
                 (method == propertyAccess.GetOwnOrInheritedGetMethod()) ||
                 (method == propertyAccess.GetOwnOrInheritedSetMethod()) ||
                 propertyAccess.MustCallMethodsDirectly);
@@ -324,7 +324,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     Error(ErrorCode.ERR_PartialMethodInExpressionTree, node);
                 }
-                else if ((object)propertyAccess != null && propertyAccess.IsIndexedProperty() && !propertyAccess.IsIndexer)
+                else if (propertyAccess is not null && propertyAccess.IsIndexedProperty() && !propertyAccess.IsIndexer)
                 {
                     Error(ErrorCode.ERR_ExpressionTreeContainsIndexedProperty, node);
                 }
@@ -527,7 +527,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var indexer = node.Indexer;
             var method = indexer.GetOwnOrInheritedGetMethod() ?? indexer.GetOwnOrInheritedSetMethod();
-            if ((object)method != null)
+            if (method is not null)
             {
                 VisitCall(method, indexer, node.Arguments, node.ArgumentRefKindsOpt, node.ArgumentNamesOpt, node.DefaultArguments, node);
             }

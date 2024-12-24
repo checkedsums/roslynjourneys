@@ -38,12 +38,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(method.IsExtensionMethod && method.MethodKind != MethodKind.ReducedExtension);
             Debug.Assert(method.ParameterCount > 0);
-            Debug.Assert((object)receiverType != null);
+            Debug.Assert(receiverType is not null);
 
             var useSiteInfo = CompoundUseSiteInfo<AssemblySymbol>.DiscardedDependencies;
 
             method = InferExtensionMethodTypeArguments(method, receiverType, compilation, ref useSiteInfo, out wasFullyInferred);
-            if ((object)method == null)
+            if (method is null)
             {
                 return null;
             }
@@ -90,9 +90,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private ReducedExtensionMethodSymbol(MethodSymbol reducedFrom)
         {
-            Debug.Assert((object)reducedFrom != null);
+            Debug.Assert(reducedFrom is not null);
             Debug.Assert(reducedFrom.IsExtensionMethod);
-            Debug.Assert((object)reducedFrom.ReducedFrom == null);
+            Debug.Assert(reducedFrom.ReducedFrom is null);
             Debug.Assert(reducedFrom.ConstructedFrom == reducedFrom);
             Debug.Assert(reducedFrom.ParameterCount > 0);
 
@@ -115,7 +115,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(method.IsExtensionMethod);
             Debug.Assert(method.MethodKind != MethodKind.ReducedExtension);
             Debug.Assert(method.ParameterCount > 0);
-            Debug.Assert((object)thisType != null);
+            Debug.Assert(thisType is not null);
 
             if (!method.IsGenericMethod || method != method.ConstructedFrom)
             {
@@ -256,7 +256,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override TypeSymbol GetTypeInferredDuringReduction(TypeParameterSymbol reducedFromTypeParameter)
         {
-            if ((object)reducedFromTypeParameter == null)
+            if (reducedFromTypeParameter is null)
             {
                 throw new System.ArgumentNullException();
             }
@@ -585,7 +585,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if ((object)this == obj) return true;
 
             ReducedExtensionMethodSymbol other = obj as ReducedExtensionMethodSymbol;
-            return (object)other != null && _reducedFrom.Equals(other._reducedFrom, compareKind);
+            return other is not null && _reducedFrom.Equals(other._reducedFrom, compareKind);
         }
 
         public override int GetHashCode()

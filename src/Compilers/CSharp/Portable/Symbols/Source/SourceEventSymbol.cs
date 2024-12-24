@@ -613,7 +613,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected static void CopyEventCustomModifiers(EventSymbol eventWithCustomModifiers, ref TypeWithAnnotations type, AssemblySymbol containingAssembly)
         {
-            RoslynDebug.Assert((object)eventWithCustomModifiers != null);
+            RoslynDebug.Assert(eventWithCustomModifiers is not null);
 
             TypeSymbol overriddenEventType = eventWithCustomModifiers.Type;
 
@@ -662,7 +662,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // If there could be more than one, we'd have to worry about conflicts, but that's impossible for source events.
                 Debug.Assert(explicitInterfaceImplementations.Length == 1);
                 // Don't have to worry about conflicting with the override rule, since explicit impls are never overrides (in source).
-                Debug.Assert((object?)this.OverriddenEvent == null);
+                Debug.Assert(this.OverriddenEvent is null);
 
                 return explicitInterfaceImplementations[0].IsWindowsRuntimeEvent;
             }
@@ -676,7 +676,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             // If you override an event, then you're a WinRT event if and only if it's a WinRT event.
             EventSymbol? overriddenEvent = this.OverriddenEvent;
-            if ((object?)overriddenEvent != null)
+            if (overriddenEvent is not null)
             {
                 return overriddenEvent.IsWindowsRuntimeEvent;
             }

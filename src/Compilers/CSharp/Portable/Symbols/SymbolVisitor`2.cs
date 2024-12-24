@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public virtual TResult Visit(Symbol symbol, TArgument argument = default(TArgument))
         {
-            if ((object)symbol == null)
+            if (symbol is null)
             {
                 return default(TResult);
             }

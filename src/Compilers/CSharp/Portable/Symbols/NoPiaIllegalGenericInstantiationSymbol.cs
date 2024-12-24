@@ -60,7 +60,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     DiagnosticInfo? underlyingInfo = ((ErrorTypeSymbol)_underlyingSymbol).ErrorInfo;
 
-                    if ((object?)underlyingInfo != null)
+                    if (underlyingInfo is not null)
                     {
                         return underlyingInfo;
                     }

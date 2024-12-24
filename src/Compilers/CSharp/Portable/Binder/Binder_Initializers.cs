@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 foreach (FieldOrPropertyInitializer initializer in siblingInitializers)
                 {
                     FieldSymbol fieldSymbol = initializer.FieldOpt;
-                    Debug.Assert((object)fieldSymbol != null);
+                    Debug.Assert(fieldSymbol is not null);
 
                     // A constant field of type decimal needs a field initializer, so
                     // check if it is a metadata constant, not just a constant to exclude
@@ -184,7 +184,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var initializer = siblingInitializers[j];
                     var fieldSymbol = initializer.FieldOpt;
 
-                    if ((object)fieldSymbol != null && fieldSymbol.IsConst)
+                    if (fieldSymbol is not null && fieldSymbol.IsConst)
                     {
                         // Constants do not need field initializers.
                         continue;
@@ -217,7 +217,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         new ScriptLocalScopeBinder(labels, scriptClassBinder));
 
                     BoundInitializer boundInitializer;
-                    if ((object?)fieldSymbol != null)
+                    if (fieldSymbol is not null)
                     {
                         boundInitializer = BindFieldInitializer(
                             parentBinder.WithAdditionalFlagsAndContainingMemberOrLambda(BinderFlags.FieldInitializer, fieldSymbol),
@@ -256,7 +256,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // insert an implicit conversion for the submission return type (if needed):
                     var expression = InitializerRewriter.GetTrailingScriptExpression(statement);
                     if (expression != null &&
-                        ((object?)expression.Type == null || !expression.Type.IsVoidType()))
+                        (expression.Type is null || !expression.Type.IsVoidType()))
                     {
                         var submissionResultType = scriptInitializer.ResultType;
                         expression = binder.GenerateConversionForAssignment(submissionResultType, expression, diagnostics);
@@ -291,7 +291,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var fieldsBeingBound = binder.FieldsBeingBound;
 
             var sourceField = fieldSymbol as SourceMemberFieldSymbolFromDeclarator;
-            bool isImplicitlyTypedField = (object?)sourceField != null && sourceField.FieldTypeInferred(fieldsBeingBound);
+            bool isImplicitlyTypedField = sourceField is not null && sourceField.FieldTypeInferred(fieldsBeingBound);
 
             // If the type is implicitly typed, the initializer diagnostics have already been reported, so ignore them here:
             // CONSIDER (tomat): reusing the bound field initializers for implicitly typed fields.

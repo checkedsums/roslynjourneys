@@ -1996,7 +1996,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
         private void DeclareLocal(LocalSymbol local, int stack)
         {
-            if ((object)local != null)
+            if (local is not null)
             {
                 if (CanScheduleToStack(local))
                 {

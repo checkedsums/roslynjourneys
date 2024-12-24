@@ -387,7 +387,7 @@ namespace Microsoft.CodeAnalysis.Diagnostics
                 // Note that "/warnaserror-:DiagnosticId" adds a diagnostic option with value 'ReportDiagnostic.Default',
                 // which should not alter 'isSuppressed'.
                 if ((diagnosticOptions.TryGetValue(diag.Id, out var severity) && severity != ReportDiagnostic.Default) ||
-                    (options.SyntaxTreeOptionsProvider is object && options.SyntaxTreeOptionsProvider.TryGetGlobalDiagnosticValue(diag.Id, cancellationToken, out severity)))
+                    (options.SyntaxTreeOptionsProvider is not null && options.SyntaxTreeOptionsProvider.TryGetGlobalDiagnosticValue(diag.Id, cancellationToken, out severity)))
                 {
                     isSuppressed = severity == ReportDiagnostic.Suppress;
                 }

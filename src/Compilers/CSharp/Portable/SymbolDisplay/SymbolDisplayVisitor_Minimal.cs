@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (boundSymbols.Length == 1)
                 {
                     var boundAlias = boundSymbols[0] as IAliasSymbol;
-                    if ((object?)boundAlias != null && alias.Target.Equals(symbol))
+                    if (boundAlias is not null && alias.Target.Equals(symbol))
                     {
                         builder.Add(CreatePart(SymbolDisplayPartKind.AliasName, alias, aliasName));
                         return true;

@@ -54,9 +54,9 @@ namespace Microsoft.CodeAnalysis
             // by ref since it's a non-trivial struct
             internal void InitializeFromLeadingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(token.Node is object);
+                Debug.Assert(token.Node is not null);
                 var node = token.Node.GetLeadingTriviaCore();
-                Debug.Assert(node is object);
+                Debug.Assert(node is not null);
                 InitializeFrom(in token, node, 0, token.Position);
             }
 
@@ -65,7 +65,7 @@ namespace Microsoft.CodeAnalysis
             // by ref since it's a non-trivial struct
             internal void InitializeFromTrailingTrivia(in SyntaxToken token)
             {
-                Debug.Assert(token.Node is object);
+                Debug.Assert(token.Node is not null);
                 var leading = token.Node.GetLeadingTriviaCore();
                 int index = 0;
                 if (leading != null)
@@ -80,7 +80,7 @@ namespace Microsoft.CodeAnalysis
                     trailingPosition -= trailingGreen.FullWidth;
                 }
 
-                Debug.Assert(trailingGreen is object);
+                Debug.Assert(trailingGreen is not null);
                 InitializeFrom(in token, trailingGreen, index, trailingPosition);
             }
 
@@ -101,7 +101,7 @@ namespace Microsoft.CodeAnalysis
                     _position += _current.FullWidth;
                 }
 
-                Debug.Assert(_singleNodeOrList is object);
+                Debug.Assert(_singleNodeOrList is not null);
                 _current = GetGreenNodeAt(_singleNodeOrList, newIndex);
                 return true;
             }

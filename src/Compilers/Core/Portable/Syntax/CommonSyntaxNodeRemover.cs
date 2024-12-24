@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.Syntax
             // in the list that needs to be fixed up.
 
             var node = nodesAndSeparators[nodeIndex].AsNode();
-            Debug.Assert(node is object);
+            Debug.Assert(node is not null);
 
             nextTokenIsSeparator =
                 nodeIndex + 1 < nodesAndSeparators.Count &&

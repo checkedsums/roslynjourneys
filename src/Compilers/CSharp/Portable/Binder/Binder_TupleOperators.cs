@@ -85,7 +85,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol leftType = left.Type;
             TypeSymbol rightType = right.Type;
 
-            if ((object)leftType != null && leftType.IsDynamic() || (object)rightType != null && rightType.IsDynamic())
+            if (leftType is not null && leftType.IsDynamic() || rightType is not null && rightType.IsDynamic())
             {
                 return BindTupleDynamicBinaryOperatorSingleInfo(node, kind, left, right, diagnostics);
             }
@@ -180,7 +180,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression left, BoundExpression right, BindingDiagnosticBag diagnostics)
         {
             // This method binds binary == and != operators where one or both of the operands are dynamic.
-            Debug.Assert((object)left.Type != null && left.Type.IsDynamic() || (object)right.Type != null && right.Type.IsDynamic());
+            Debug.Assert(left.Type is not null && left.Type.IsDynamic() || right.Type is not null && right.Type.IsDynamic());
 
             bool hasError = false;
             if (!IsLegalDynamicOperand(left) || !IsLegalDynamicOperand(right))
@@ -214,8 +214,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // Aside from default (which we fixed or ruled out above) and tuple literals,
             // we must have typed expressions at this point
-            Debug.Assert((object)left.Type != null || left.Kind == BoundKind.TupleLiteral);
-            Debug.Assert((object)right.Type != null || right.Kind == BoundKind.TupleLiteral);
+            Debug.Assert(left.Type is not null || left.Kind == BoundKind.TupleLiteral);
+            Debug.Assert(right.Type is not null || right.Kind == BoundKind.TupleLiteral);
 
             int leftCardinality = GetTupleCardinality(left);
             int rightCardinality = GetTupleCardinality(right);

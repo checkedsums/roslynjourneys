@@ -143,7 +143,7 @@ namespace Microsoft.CodeAnalysis
 
                 // Apply the includeAction on this ruleset.
                 effectiveRuleset = effectiveRuleset.WithEffectiveAction(ruleSetInclude.Action);
-                Debug.Assert(effectiveRuleset is object);
+                Debug.Assert(effectiveRuleset is not null);
 
                 // If the included ruleset's global option is stricter, then make that the effective option.
                 if (IsStricterThan(effectiveRuleset.GeneralDiagnosticOption, effectiveGeneralOption))

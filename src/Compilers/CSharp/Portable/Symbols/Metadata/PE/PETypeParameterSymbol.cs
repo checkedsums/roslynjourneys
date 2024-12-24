@@ -67,8 +67,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             ushort ordinal,
             GenericParameterHandle handle)
         {
-            Debug.Assert((object)moduleSymbol != null);
-            Debug.Assert((object)definingSymbol != null);
+            Debug.Assert(moduleSymbol is not null);
+            Debug.Assert(definingSymbol is not null);
             Debug.Assert(ordinal >= 0);
             Debug.Assert(!handle.IsNil);
 
@@ -82,7 +82,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
             catch (BadImageFormatException)
             {
-                if ((object)_name == null)
+                if (_name is null)
                 {
                     _name = string.Empty;
                 }

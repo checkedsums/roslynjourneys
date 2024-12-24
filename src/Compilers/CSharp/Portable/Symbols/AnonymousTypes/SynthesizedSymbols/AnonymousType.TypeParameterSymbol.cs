@@ -24,7 +24,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             public AnonymousTypeParameterSymbol(AnonymousTypeOrDelegateTemplateSymbol container, int ordinal, string name, bool allowsRefLikeType)
             {
-                Debug.Assert((object)container != null);
+                Debug.Assert(container is not null);
                 Debug.Assert(!string.IsNullOrEmpty(name));
 
                 _container = container;

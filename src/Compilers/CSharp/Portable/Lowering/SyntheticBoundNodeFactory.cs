@@ -1747,7 +1747,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // Don't even call this method if the expression cannot be nullable.
             Debug.Assert(
-                (object)exprType == null ||
+                exprType is null ||
                 exprType.IsNullableTypeOrTypeParameter() ||
                 !exprType.IsValueType ||
                 exprType.IsPointerOrFunctionPointer());
@@ -1768,7 +1768,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             TypeSymbol objectType = SpecialType(CodeAnalysis.SpecialType.System_Object);
 
-            if ((object)exprType != null)
+            if (exprType is not null)
             {
                 if (exprType.Kind == SymbolKind.TypeParameter)
                 {
@@ -1818,7 +1818,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             Debug.Assert(loweredLeft != null);
             Debug.Assert(loweredRight != null);
-            Debug.Assert((object)returnType != null);
+            Debug.Assert(returnType is not null);
             Debug.Assert(returnType.SpecialType == CodeAnalysis.SpecialType.System_Boolean);
             Debug.Assert(loweredLeft.IsLiteralNull() != loweredRight.IsLiteralNull());
 

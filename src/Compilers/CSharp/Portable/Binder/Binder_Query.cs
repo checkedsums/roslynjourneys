@@ -890,7 +890,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 ultimateReceiver = ((BoundQueryClause)ultimateReceiver).Value;
             }
             Debug.Assert(receiver.Type is not null || ultimateReceiver.Type is null);
-            if ((object?)ultimateReceiver.Type == null)
+            if (ultimateReceiver.Type is null)
             {
                 if (ultimateReceiver.HasAnyErrors || node.HasErrors)
                 {

@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis
 
         public override bool TryGetGlobalDiagnosticValue(string diagnosticId, CancellationToken _, out ReportDiagnostic severity)
         {
-            if (_globalOptions.TreeOptions is object)
+            if (_globalOptions.TreeOptions is not null)
             {
                 return _globalOptions.TreeOptions.TryGetValue(diagnosticId, out severity);
             }

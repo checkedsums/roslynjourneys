@@ -403,8 +403,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             PENamedTypeSymbol containingType,
             MethodDefinitionHandle methodDef)
         {
-            Debug.Assert((object)moduleSymbol != null);
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(moduleSymbol is not null);
+            Debug.Assert(containingType is not null);
             Debug.Assert(!methodDef.IsNil);
 
             _handle = methodDef;
@@ -422,7 +422,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
             catch (BadImageFormatException)
             {
-                if ((object)_name == null)
+                if (_name is null)
                 {
                     _name = string.Empty;
                 }
@@ -591,7 +591,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         public override bool IsOverride =>
             !this._containingType.IsInterface &&
             this.IsMetadataVirtual() && !this.IsDestructor &&
-            ((!this.IsMetadataNewSlot() && (object)_containingType.BaseTypeNoUseSiteDiagnostics != null) || this.IsExplicitClassOverride);
+            ((!this.IsMetadataNewSlot() && _containingType.BaseTypeNoUseSiteDiagnostics is not null) || this.IsExplicitClassOverride);
 
         public override bool IsStatic => HasFlag(MethodAttributes.Static);
 
@@ -799,7 +799,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         private bool SetAssociatedPropertyOrEvent(Symbol propertyOrEventSymbol, MethodKind methodKind)
         {
-            if ((object)_associatedPropertyOrEventOpt == null)
+            if (_associatedPropertyOrEventOpt is null)
             {
                 Debug.Assert(TypeSymbol.Equals(propertyOrEventSymbol.ContainingType, _containingType, TypeCompareKind.ConsiderEverything2));
 

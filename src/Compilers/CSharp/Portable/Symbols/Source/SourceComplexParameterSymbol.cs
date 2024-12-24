@@ -416,13 +416,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 // The metadata parameter name should be the name used in the partial definition.
 
                 var sourceMethod = this.ContainingSymbol as SourceOrdinaryMethodSymbol;
-                if ((object)sourceMethod == null)
+                if (sourceMethod is null)
                 {
                     return base.MetadataName;
                 }
 
                 var definition = sourceMethod.SourcePartialDefinition;
-                if ((object)definition == null)
+                if (definition is null)
                 {
                     return base.MetadataName;
                 }
@@ -585,7 +585,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Debug.Assert(!ReferenceEquals(copyFrom, this));
 
                 bool bagCreatedOnThisThread;
-                if ((object)copyFrom != null)
+                if (copyFrom is not null)
                 {
                     var attributesBag = copyFrom.GetAttributesBag();
                     bagCreatedOnThisThread = Interlocked.CompareExchange(ref _lazyCustomAttributesBag, attributesBag, null) == null;
@@ -732,7 +732,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected override void DecodeWellKnownAttributeImpl(ref DecodeWellKnownAttributeArguments<AttributeSyntax, CSharpAttributeData, AttributeLocation> arguments)
         {
-            Debug.Assert((object)arguments.AttributeSyntaxOpt != null);
+            Debug.Assert(arguments.AttributeSyntaxOpt is not null);
 
             var attribute = arguments.Attribute;
             Debug.Assert(!attribute.HasErrors);
@@ -1459,7 +1459,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     // prevent infinite recursion:
                     Debug.Assert(!ReferenceEquals(copyFrom, this));
 
-                    if ((object)copyFrom != null)
+                    if (copyFrom is not null)
                     {
                         // Parameter of partial implementation.
                         // We bind the attributes only on the definition part and copy them over to the implementation.

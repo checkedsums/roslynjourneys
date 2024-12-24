@@ -135,7 +135,7 @@ tryAgain:
 
             private void Push(GreenNode node)
             {
-                RoslynDebug.Assert(_stack is object);
+                RoslynDebug.Assert(_stack is not null);
                 if (_count >= _stack.Length)
                 {
                     var tmp = new NodeIteration[_stack.Length * 2];

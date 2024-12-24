@@ -270,7 +270,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             AppendConstraintsUseSiteErrorInfo(ref useSiteInfo);
             var result = EffectiveBaseClassNoUseSiteDiagnostics;
 
-            if ((object)result != null)
+            if (result is not null)
             {
                 result.OriginalDefinition.AddUseSiteInfo(ref useSiteInfo);
             }
@@ -319,7 +319,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             AppendConstraintsUseSiteErrorInfo(ref useSiteInfo);
             var result = DeducedBaseTypeNoUseSiteDiagnostics;
 
-            if ((object)result != null)
+            if (result is not null)
             {
                 ((TypeSymbol)result.OriginalDefinition).AddUseSiteInfo(ref useSiteInfo);
             }
@@ -347,7 +347,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // Since bases affect content of AllInterfaces set, we need to make sure they all are good.
             var current = DeducedBaseType(ref useSiteInfo);
 
-            while ((object)current != null)
+            while (current is not null)
             {
                 current = current.BaseTypeWithDefinitionUseSiteDiagnostics(ref useSiteInfo);
             }
@@ -664,7 +664,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return true;
             }
 
-            if ((object)other == null || !ReferenceEquals(other.OriginalDefinition, this.OriginalDefinition))
+            if (other is null || !ReferenceEquals(other.OriginalDefinition, this.OriginalDefinition))
             {
                 return false;
             }

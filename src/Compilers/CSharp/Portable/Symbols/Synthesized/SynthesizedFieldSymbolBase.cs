@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool isReadOnly,
             bool isStatic)
         {
-            Debug.Assert((object)containingType != null);
+            Debug.Assert(containingType is not null);
             Debug.Assert(!string.IsNullOrEmpty(name));
 
             _containingType = containingType;

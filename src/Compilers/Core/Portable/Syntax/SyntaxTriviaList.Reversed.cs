@@ -81,7 +81,7 @@ namespace Microsoft.CodeAnalysis
                 internal Enumerator(in SyntaxTriviaList list)
                     : this()
                 {
-                    if (list.Node is object)
+                    if (list.Node is not null)
                     {
                         _token = list.Token;
                         _singleNodeOrList = list.Node;
@@ -104,11 +104,11 @@ namespace Microsoft.CodeAnalysis
                         return false;
                     }
 
-                    Debug.Assert(_singleNodeOrList is object);
+                    Debug.Assert(_singleNodeOrList is not null);
                     _index--;
 
                     _current = GetGreenNodeAt(_singleNodeOrList, _index);
-                    Debug.Assert(_current is object);
+                    Debug.Assert(_current is not null);
                     _position -= _current.FullWidth;
 
                     return true;

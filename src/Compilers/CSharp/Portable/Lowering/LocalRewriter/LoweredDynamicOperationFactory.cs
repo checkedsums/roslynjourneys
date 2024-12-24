@@ -129,7 +129,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var loweredArguments = ImmutableArray.Create(loweredOperand);
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__UnaryOperation, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__UnaryOperation, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -172,7 +172,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var loweredArguments = ImmutableArray.Create<BoundExpression>(loweredLeft, loweredRight);
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__BinaryOperation, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__BinaryOperation, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -235,7 +235,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeMember, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeMember, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -271,7 +271,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var resultType = AssemblySymbol.DynamicType;
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeMember, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeMember, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -314,7 +314,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__Invoke, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__Invoke, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var loweredReceiver = _factory.Typeof(type, _factory.WellKnownType(WellKnownType.System_Type));
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeConstructor, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__InvokeConstructor, new[]
             {
                 // flags:
                 _factory.Literal(0),
@@ -373,7 +373,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var resultType = DynamicTypeSymbol.Instance;
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__GetMember, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__GetMember, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -414,7 +414,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var loweredArguments = ImmutableArray<BoundExpression>.Empty;
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__SetMember, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__SetMember, new[]
             {
                 // flags:
                 _factory.Literal((int)binderFlags),
@@ -443,7 +443,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var resultType = DynamicTypeSymbol.Instance;
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__GetIndex, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__GetIndex, new[]
             {
                 // flags (unused):
                 _factory.Literal((int)CSharpBinderFlags.None),
@@ -482,7 +482,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var resultType = DynamicTypeSymbol.Instance;
 
             MethodSymbol argumentInfoFactory = GetArgumentInfoFactory();
-            var binderConstruction = ((object)argumentInfoFactory != null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__SetIndex, new[]
+            var binderConstruction = (argumentInfoFactory is not null) ? MakeBinderConstruction(WellKnownMember.Microsoft_CSharp_RuntimeBinder_Binder__SetIndex, new[]
             {
                 // flags (unused):
                 _factory.Literal((int)binderFlags),

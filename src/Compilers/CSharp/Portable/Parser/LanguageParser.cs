@@ -7453,14 +7453,7 @@ done:
         {
             if (IsPredefinedType(this.CurrentToken.Kind))
             {
-                // This is a predefined type
-                var token = this.EatToken();
-                if (token.Kind == SyntaxKind.VoidKeyword && this.CurrentToken.Kind != SyntaxKind.AsteriskToken)
-                {
-                    token = this.AddError(token, mode == ParseTypeMode.Parameter ? ErrorCode.ERR_NoVoidParameter : ErrorCode.ERR_NoVoidHere);
-                }
-
-                return _syntaxFactory.PredefinedType(token);
+                return _syntaxFactory.PredefinedType(this.EatToken());
             }
 
             // The :: case is for error recovery.
@@ -10034,11 +10027,6 @@ done:
                 mods,
                 out localFunction);
             _termState = saveTerm;
-
-            if (allowLocalFunctions && localFunction == null && type is PredefinedTypeSyntax { Keyword.Kind: SyntaxKind.VoidKeyword })
-            {
-                type = this.AddError(type, ErrorCode.ERR_NoVoidHere);
-            }
         }
 
 #nullable disable

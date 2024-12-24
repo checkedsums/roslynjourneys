@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool isParamsCollection,
             RefKind refKind)
         {
-            Debug.Assert((object)type.Type != null);
+            Debug.Assert(type.Type is not null);
             Debug.Assert(!refCustomModifiers.IsDefault);
 
             _type = type;

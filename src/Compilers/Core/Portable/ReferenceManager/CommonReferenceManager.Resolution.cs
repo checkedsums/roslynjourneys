@@ -332,7 +332,7 @@ namespace Microsoft.CodeAnalysis
                             if (assemblyMetadata.IsValidAssembly())
                             {
                                 PEAssembly? assembly = assemblyMetadata.GetAssembly();
-                                Debug.Assert(assembly is object);
+                                Debug.Assert(assembly is not null);
                                 existingReference = TryAddAssembly(
                                     assembly.Identity,
                                     peReference,
@@ -446,7 +446,7 @@ namespace Microsoft.CodeAnalysis
                 aliasesOpt = mergedProperties.AliasesOpt?.ToImmutableAndFree() ?? default(ImmutableArray<string>);
                 recursiveAliasesOpt = mergedProperties.RecursiveAliasesOpt?.ToImmutableAndFree() ?? default(ImmutableArray<string>);
 
-                if (mergedProperties.MergedReferencesOpt is object)
+                if (mergedProperties.MergedReferencesOpt is not null)
                 {
                     mergedReferences = mergedProperties.MergedReferencesOpt.ToImmutableAndFree();
                 }
@@ -682,7 +682,7 @@ namespace Microsoft.CodeAnalysis
             {
                 foreach (var other in sameSimpleNameIdentities)
                 {
-                    Debug.Assert(other.Identity is object);
+                    Debug.Assert(other.Identity is not null);
                     if (identity.Version == other.Identity.Version)
                     {
                         return other.Reference;
@@ -712,7 +712,7 @@ namespace Microsoft.CodeAnalysis
                     // In order to eliminate duplicate references we need to try to match their identities in both directions since 
                     // ReferenceMatchesDefinition is not necessarily symmetric.
                     // (e.g. System.Numerics.Vectors, Version=4.1+ matches System.Numerics.Vectors, Version=4.0, but not the other way around.)
-                    Debug.Assert(other.Identity is object);
+                    Debug.Assert(other.Identity is not null);
                     if (other.Identity.IsStrongName &&
                         IdentityComparer.ReferenceMatchesDefinition(identity, other.Identity) &&
                         IdentityComparer.ReferenceMatchesDefinition(other.Identity, identity))
@@ -727,7 +727,7 @@ namespace Microsoft.CodeAnalysis
                 foreach (var other in sameSimpleNameIdentities)
                 {
                     // only compare weak with weak
-                    Debug.Assert(other.Identity is object);
+                    Debug.Assert(other.Identity is not null);
                     if (!other.Identity.IsStrongName && WeakIdentityPropertiesEquivalent(identity, other.Identity))
                     {
                         equivalent = other;
@@ -800,7 +800,7 @@ namespace Microsoft.CodeAnalysis
             {
                 foreach (var referenceDirective in compilation.ReferenceDirectives)
                 {
-                    Debug.Assert(referenceDirective.Location is object);
+                    Debug.Assert(referenceDirective.Location is not null);
 
                     if (compilation.Options.MetadataReferenceResolver == null)
                     {
@@ -809,8 +809,8 @@ namespace Microsoft.CodeAnalysis
                     }
 
                     // we already successfully bound #r with the same value:
-                    Debug.Assert(referenceDirective.File is object);
-                    Debug.Assert(referenceDirective.Location.SourceTree is object);
+                    Debug.Assert(referenceDirective.File is not null);
+                    Debug.Assert(referenceDirective.Location.SourceTree is not null);
                     if (localBoundReferenceDirectives != null && localBoundReferenceDirectives.ContainsKey((referenceDirective.Location.SourceTree.FilePath, referenceDirective.File)))
                     {
                         continue;

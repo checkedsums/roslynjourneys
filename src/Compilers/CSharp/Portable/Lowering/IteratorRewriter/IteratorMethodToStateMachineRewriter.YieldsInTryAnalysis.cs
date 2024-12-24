@@ -129,7 +129,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void CollectLabel(LabelSymbol label)
         {
-            if ((object)label != null)
+            if (label is not null)
             {
                 var currentLabels = this.currentLabels;
                 if (currentLabels == null)
