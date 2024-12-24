@@ -692,7 +692,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_MemberNeedsType = 1520,
         ERR_BadBaseType = 1521,
         WRN_EmptySwitch = 1522,
-        ERR_ExpectedEndTry = 1524,
+
         ERR_InvalidExprTerm = 1525,
         ERR_BadNewExpr = 1526,
         ERR_NoNamespacePrivate = 1527,
