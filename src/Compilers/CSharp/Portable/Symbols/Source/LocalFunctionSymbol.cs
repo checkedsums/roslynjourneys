@@ -296,7 +296,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        public override bool ReturnsVoid => ReturnType.IsVoidType();
+        public override bool ReturnsVoid => ReturnType.SpecialType is SpecialType.System_Void;
 
         public override int Arity => TypeParameters.Length;
 

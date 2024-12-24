@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Roslyn.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,16 +13,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static Microsoft.CodeAnalysis.CommandLine.BuildProtocolConstants;
-using static Microsoft.CodeAnalysis.CommandLine.CompilerServerLogger;
 
-// This file describes data structures about the protocol from client program to server that is 
+/* This file describes data structures about the protocol from client program to server that is 
 // used. The basic protocol is this.
 //
 // After the server pipe is connected, it forks off a thread to handle the connection, and creates
 // a new instance of the pipe to listen for new clients. When it gets a request, it validates
 // the security and elevation level of the client. If that fails, it disconnects the client. Otherwise,
 // it handles the request, sends a response (described by Response class) back to the client, then
-// disconnects the pipe and ends the thread.
+// disconnects the pipe and ends the thread. */
 
 namespace Microsoft.CodeAnalysis.CommandLine
 {
@@ -83,10 +81,11 @@ namespace Microsoft.CodeAnalysis.CommandLine
             Debug.Assert(!string.IsNullOrWhiteSpace(compilerHash), "CompilerHash is required to send request to the build server");
 
             var requestLength = args.Count + 1 + (libDirectory == null ? 0 : 1);
-            var requestArgs = new List<Argument>(requestLength);
-
-            requestArgs.Add(new Argument(ArgumentId.CurrentDirectory, 0, workingDirectory));
-            requestArgs.Add(new Argument(ArgumentId.TempDirectory, 0, tempDirectory));
+            var requestArgs = new List<Argument>(requestLength)
+            {
+                new Argument(ArgumentId.CurrentDirectory, 0, workingDirectory),
+                new Argument(ArgumentId.TempDirectory, 0, tempDirectory)
+            };
 
             if (keepAlive != null)
             {
@@ -181,8 +180,7 @@ namespace Microsoft.CodeAnalysis.CommandLine
                 throw new ArgumentOutOfRangeException($"Request is over {MaximumRequestSize >> 20}MB in length");
             }
 
-            await outStream.WriteAsync(BitConverter.GetBytes(length), 0, 4,
-                                       cancellationToken).ConfigureAwait(false);
+            await outStream.WriteAsync(BitConverter.GetBytes(length), 0, 4, cancellationToken).ConfigureAwait(false);
 
             memoryStream.Position = 0;
             await memoryStream.CopyToAsync(outStream, bufferSize: length, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -280,31 +278,29 @@ namespace Microsoft.CodeAnalysis.CommandLine
         public async Task WriteAsync(Stream outStream,
                                CancellationToken cancellationToken)
         {
-            using (var memoryStream = new MemoryStream())
-            using (var writer = new BinaryWriter(memoryStream, Encoding.Unicode))
-            {
-                writer.Write((int)Type);
+            using var memoryStream = new MemoryStream();
+            using var writer = new BinaryWriter(memoryStream, Encoding.Unicode);
+            writer.Write((int)Type);
 
-                AddResponseBody(writer);
-                writer.Flush();
+            AddResponseBody(writer);
+            writer.Flush();
 
-                cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
-                // Send the response to the client
+            // Send the response to the client
 
-                // Write the length of the response
-                int length = checked((int)memoryStream.Length);
+            // Write the length of the response
+            int length = checked((int)memoryStream.Length);
 
-                // There is no way to know the number of bytes written to
-                // the pipe stream. We just have to assume all of them are written.
-                await outStream.WriteAsync(BitConverter.GetBytes(length),
-                                           0,
-                                           4,
-                                           cancellationToken).ConfigureAwait(false);
+            // There is no way to know the number of bytes written to
+            // the pipe stream. We just have to assume all of them are written.
+            await outStream.WriteAsync(BitConverter.GetBytes(length),
+                                       0,
+                                       4,
+                                       cancellationToken).ConfigureAwait(false);
 
-                memoryStream.Position = 0;
-                await memoryStream.CopyToAsync(outStream, bufferSize: length, cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
+            memoryStream.Position = 0;
+            await memoryStream.CopyToAsync(outStream, bufferSize: length, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         protected abstract void AddResponseBody(BinaryWriter writer);
@@ -329,31 +325,20 @@ namespace Microsoft.CodeAnalysis.CommandLine
                                responseBuffer.Length,
                                cancellationToken).ConfigureAwait(false);
 
-            using (var reader = new BinaryReader(new MemoryStream(responseBuffer), Encoding.Unicode))
+            using var reader = new BinaryReader(new MemoryStream(responseBuffer), Encoding.Unicode);
+            var responseType = (ResponseType)reader.ReadInt32();
+
+            return responseType switch
             {
-                var responseType = (ResponseType)reader.ReadInt32();
-
-                switch (responseType)
-                {
-                    case ResponseType.Completed:
-                        return CompletedBuildResponse.Create(reader);
-                    case ResponseType.MismatchedVersion:
-                        return new MismatchedVersionBuildResponse();
-                    case ResponseType.IncorrectHash:
-                        return new IncorrectHashBuildResponse();
-                    case ResponseType.AnalyzerInconsistency:
-                        return AnalyzerInconsistencyBuildResponse.Create(reader);
-                    case ResponseType.Shutdown:
-                        return ShutdownBuildResponse.Create(reader);
-                    case ResponseType.Rejected:
-                        return RejectedBuildResponse.Create(reader);
-
-                    // Intentional fall through
-                    case ResponseType.CannotConnect:
-                    default:
-                        throw new InvalidOperationException("Received invalid response type from server.");
-                }
-            }
+                ResponseType.Completed => CompletedBuildResponse.Create(reader),
+                ResponseType.MismatchedVersion => new MismatchedVersionBuildResponse(),
+                ResponseType.IncorrectHash => new IncorrectHashBuildResponse(),
+                ResponseType.AnalyzerInconsistency => AnalyzerInconsistencyBuildResponse.Create(reader),
+                ResponseType.Shutdown => ShutdownBuildResponse.Create(reader),
+                ResponseType.Rejected => RejectedBuildResponse.Create(reader),
+                // Intentional fall through
+                _ => throw new InvalidOperationException("Received invalid response type from server."),
+            };
         }
     }
 
@@ -370,20 +355,13 @@ namespace Microsoft.CodeAnalysis.CommandLine
     /// 32-bit integer, followed by an array of characters.
     /// 
     /// </summary>
-    internal sealed class CompletedBuildResponse : BuildResponse
+    internal sealed class CompletedBuildResponse(int returnCode,
+                                  bool utf8output,
+                                  string? output) : BuildResponse
     {
-        public readonly int ReturnCode;
-        public readonly bool Utf8Output;
-        public readonly string Output;
-
-        public CompletedBuildResponse(int returnCode,
-                                      bool utf8output,
-                                      string? output)
-        {
-            ReturnCode = returnCode;
-            Utf8Output = utf8output;
-            Output = output ?? string.Empty;
-        }
+        public readonly int ReturnCode = returnCode;
+        public readonly bool Utf8Output = utf8output;
+        public readonly string Output = output ?? string.Empty;
 
         public override ResponseType Type => ResponseType.Completed;
 
@@ -403,14 +381,9 @@ namespace Microsoft.CodeAnalysis.CommandLine
         }
     }
 
-    internal sealed class ShutdownBuildResponse : BuildResponse
+    internal sealed class ShutdownBuildResponse(int serverProcessId) : BuildResponse
     {
-        public readonly int ServerProcessId;
-
-        public ShutdownBuildResponse(int serverProcessId)
-        {
-            ServerProcessId = serverProcessId;
-        }
+        public readonly int ServerProcessId = serverProcessId;
 
         public override ResponseType Type => ResponseType.Shutdown;
 
@@ -446,16 +419,11 @@ namespace Microsoft.CodeAnalysis.CommandLine
         protected override void AddResponseBody(BinaryWriter writer) { }
     }
 
-    internal sealed class AnalyzerInconsistencyBuildResponse : BuildResponse
+    internal sealed class AnalyzerInconsistencyBuildResponse(ReadOnlyCollection<string> errorMessages) : BuildResponse
     {
         public override ResponseType Type => ResponseType.AnalyzerInconsistency;
 
-        public ReadOnlyCollection<string> ErrorMessages { get; }
-
-        public AnalyzerInconsistencyBuildResponse(ReadOnlyCollection<string> errorMessages)
-        {
-            ErrorMessages = errorMessages;
-        }
+        public ReadOnlyCollection<string> ErrorMessages { get; } = errorMessages;
 
         protected override void AddResponseBody(BinaryWriter writer)
         {
@@ -482,16 +450,11 @@ namespace Microsoft.CodeAnalysis.CommandLine
     /// <summary>
     /// The <see cref="BuildRequest"/> was rejected by the server.
     /// </summary>
-    internal sealed class RejectedBuildResponse : BuildResponse
+    internal sealed class RejectedBuildResponse(string reason) : BuildResponse
     {
-        public string Reason;
+        public string Reason = reason;
 
         public override ResponseType Type => ResponseType.Rejected;
-
-        public RejectedBuildResponse(string reason)
-        {
-            Reason = reason;
-        }
 
         protected override void AddResponseBody(BinaryWriter writer)
         {
@@ -564,7 +527,7 @@ namespace Microsoft.CodeAnalysis.CommandLine
                 return null;
             }
 
-            return new String(reader.ReadChars(length));
+            return new string(reader.ReadChars(length));
         }
 
         /// <summary>

@@ -3238,13 +3238,12 @@ outerDefault:
             //   type Expression<D>, D has a return type Y, and one of the following holds:
             NamedTypeSymbol d;
             MethodSymbol invoke;
-            TypeSymbol y;
 
             if (node.Kind == BoundKind.UnboundLambda &&
                 (d = t.GetDelegateType()) is not null &&
-                (invoke = d.DelegateInvokeMethod) is not null &&
-                !(y = invoke.ReturnType).IsVoidType())
+                (invoke = d.DelegateInvokeMethod) is not null)
             {
+                TypeSymbol y = invoke.ReturnType;
                 BoundLambda lambda = ((UnboundLambda)node).BindForReturnTypeInference(d);
 
                 // - an inferred return type X exists for E in the context of the parameter list of D(§7.5.2.12), and an identity conversion exists from X to Y
@@ -3510,27 +3509,8 @@ outerDefault:
                     {
                         TypeSymbol r1 = invoke1.ReturnType;
                         TypeSymbol r2 = invoke2.ReturnType;
-                        BetterResult delegateResult = BetterResult.Neither;
 
-                        if (!r1.IsVoidType())
-                        {
-                            if (r2.IsVoidType())
-                            {
-                                // - D2 is void returning
-                                delegateResult = BetterResult.Left;
-                            }
-                        }
-                        else if (!r2.IsVoidType())
-                        {
-                            // - D2 is void returning
-                            delegateResult = BetterResult.Right;
-                        }
-
-                        if (delegateResult == BetterResult.Neither)
-                        {
-                            //  - D2 has a return type S2, and S1 is a better conversion target than S2
-                            delegateResult = BetterConversionTargetCore(r1, r2, ref useSiteInfo, betterConversionTargetRecursionLimit);
-                        }
+                        BetterResult delegateResult = BetterConversionTargetCore(r1, r2, ref useSiteInfo, betterConversionTargetRecursionLimit);
 
                         // Downgrade result to Neither if conversion used by the winner isn't actually valid method group conversion.
                         // This is necessary to preserve compatibility, otherwise we might dismiss "worse", but truly applicable candidate
@@ -3628,22 +3608,12 @@ outerDefault:
                         TypeSymbol r1 = invoke1.ReturnType;
                         TypeSymbol r2 = invoke2.ReturnType;
 
-#if DEBUG
-                        if (fromTypeAnalysis)
-                        {
-                            Debug.Assert((r1.IsVoidType()) == (r2.IsVoidType()));
+                        bool r1isVoid = r1.SpecialType is SpecialType.System_Void;
+                        bool r2isVoid = r2.SpecialType is SpecialType.System_Void;
 
-                            // Since we are dealing with variance delegate conversion and delegates have identical parameter
-                            // lists, return types must be different and neither can be void.
-                            Debug.Assert(!r1.IsVoidType());
-                            Debug.Assert(!r2.IsVoidType());
-                            Debug.Assert(!Conversions.HasIdentityConversion(r1, r2));
-                        }
-#endif
-
-                        if (r1.IsVoidType())
+                        if (r1isVoid)
                         {
-                            if (r2.IsVoidType())
+                            if (r2isVoid)
                             {
                                 return true;
                             }
@@ -3651,7 +3621,7 @@ outerDefault:
                             Debug.Assert(currentResult == BetterResult.Right);
                             return false;
                         }
-                        else if (r2.IsVoidType())
+                        else if (r2isVoid)
                         {
                             Debug.Assert(currentResult == BetterResult.Left);
                             return false;

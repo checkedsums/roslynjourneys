@@ -167,7 +167,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private NamespaceOrTypeOrAliasSymbolWithAnnotations BindTypeOrAliasOrKeyword(IdentifierNameSyntax syntax, BindingDiagnosticBag diagnostics, out bool isKeyword)
         {
-            return BindTypeOrAliasOrKeyword(((IdentifierNameSyntax)syntax).Identifier, syntax, diagnostics, out isKeyword);
+            return BindTypeOrAliasOrKeyword(syntax.Identifier, syntax, diagnostics, out isKeyword);
         }
 
         private NamespaceOrTypeOrAliasSymbolWithAnnotations BindTypeOrAliasOrKeyword(SyntaxToken identifier, SyntaxNode syntax, BindingDiagnosticBag diagnostics, out bool isKeyword)

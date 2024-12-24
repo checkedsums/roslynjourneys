@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -228,12 +226,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             diagnostics.Add(node, useSiteInfo);
 
-            if (!hasError && leftType.IsVoidPointer())
-            {
-                Error(diagnostics, ErrorCode.ERR_VoidError, node);
-                hasError = true;
-            }
-
             // Any events that weren't handled above (by BindEventAssignment) are bad - we just followed this
             // code path for the diagnostics.  Make sure we don't report success.
             Debug.Assert(left.Kind != BoundKind.EventAccess || hasError);
@@ -342,7 +334,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(operand != null);
 
-            TypeSymbol type = operand.Type;
+            TypeSymbol? type = operand.Type;
 
             // Literal null is a legal operand to a dynamic operation. The other typeless expressions --
             // method groups, lambdas, anonymous methods -- are not.
@@ -358,7 +350,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // Pointer types and very special types are not convertible to object.
 
-            return !type.IsPointerOrFunctionPointer() && !type.IsRestrictedType() && !type.IsVoidType();
+            return !type.IsPointerOrFunctionPointer() && !type.IsRestrictedType();
         }
 
         private BoundExpression BindDynamicBinaryOperator(
@@ -604,14 +596,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                         Error(diagnostics, ErrorCode.WRN_DoNotCompareFunctionPointers, node.OperatorToken);
                     }
 
-                    break;
-                default:
-                    if (leftType.IsVoidPointer() || rightType.IsVoidPointer())
-                    {
-                        // CONSIDER: dev10 cascades this, but roslyn doesn't have to.
-                        Error(diagnostics, ErrorCode.ERR_VoidError, node);
-                        hasErrors = true;
-                    }
                     break;
             }
 
@@ -2336,12 +2320,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            if (!hasErrors && operandType.IsVoidPointer())
-            {
-                Error(diagnostics, ErrorCode.ERR_VoidError, node);
-                hasErrors = true;
-            }
-
             var operandPlaceholder = new BoundValuePlaceholder(operand.Syntax, operand.Type).MakeCompilerGenerated();
             var operandConversion = CreateConversion(node, operandPlaceholder, best.Conversion, isCast: false, conversionGroupOpt: null, best.Signature.OperandType, diagnostics);
 
@@ -2387,7 +2365,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return result;
         }
-#nullable disable
 
         private BoundExpression BindSuppressNullableWarningExpression(PostfixUnaryExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
@@ -2424,36 +2401,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static void BindPointerIndirectionExpressionInternal(CSharpSyntaxNode node, BoundExpression operand, BindingDiagnosticBag diagnostics, out TypeSymbol pointedAtType, out bool hasErrors)
         {
-            var operandType = operand.Type as PointerTypeSymbol;
-
+            PointerTypeSymbol? operandType = operand.Type as PointerTypeSymbol;
             hasErrors = operand.HasAnyErrors; // This would propagate automatically, but by reading it explicitly we can reduce cascading.
 
-            if (operandType is null)
+            if ((pointedAtType = operandType?.PointedAtType!) is null && !hasErrors)
             {
-                pointedAtType = null;
-
-                if (!hasErrors)
-                {
-                    // NOTE: Dev10 actually reports ERR_BadUnaryOp if the operand has Type == null,
-                    // but this seems clearer.
-                    Error(diagnostics, ErrorCode.ERR_PtrExpected, node);
-                    hasErrors = true;
-                }
-            }
-            else
-            {
-                pointedAtType = operandType.PointedAtType;
-
-                if (pointedAtType.IsVoidType())
-                {
-                    pointedAtType = null;
-
-                    if (!hasErrors)
-                    {
-                        Error(diagnostics, ErrorCode.ERR_VoidError, node);
-                        hasErrors = true;
-                    }
-                }
+                // NOTE: Dev10 actually reports ERR_BadUnaryOp if the operand has Type == null,
+                // but this seems clearer.
+                Error(diagnostics, ErrorCode.ERR_PtrExpected, node);
+                hasErrors = true;
             }
         }
 
@@ -2479,7 +2435,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return new BoundUnconvertedAddressOfOperator(node, methodGroup, hasErrors);
             }
 
-            TypeSymbol operandType = operand.Type;
+            TypeSymbol? operandType = operand.Type;
             Debug.Assert(operandType is not null, "BindValue should have caught a null operand type");
 
             CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
@@ -3230,8 +3186,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
 
             if (operand.ConstantValueOpt == ConstantValue.Null ||
-                operand.Kind == BoundKind.MethodGroup ||
-                operand.Type.IsVoidType())
+                operand.Kind == BoundKind.MethodGroup)
             {
                 // warning for cases where the result is always false:
                 // (a) "null is TYPE" OR operand evaluates to null
@@ -3829,8 +3784,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 default:
                     // Generate an error if there is no possible legal conversion and both the operandType
                     // and the targetType are closed types OR operandType is void type, otherwise we need a runtime check
-                    if (!operandType.ContainsTypeParameter() && !targetType.ContainsTypeParameter() ||
-                        operandType.IsVoidType())
+                    if (!operandType.ContainsTypeParameter() && !targetType.ContainsTypeParameter())
                     {
                         SymbolDistinguisher distinguisher = new SymbolDistinguisher(compilation, operandType, targetType);
                         Error(diagnostics, ErrorCode.ERR_NoExplicitBuiltinConv, node, distinguisher.First, distinguisher.Second);

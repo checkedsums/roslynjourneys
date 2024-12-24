@@ -201,8 +201,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_FieldInitRefNonstatic = 236,
         ERR_SealedNonOverride = 238,
         ERR_CantOverrideSealed = 239,
-        //ERR_NoDefaultArgs = 241,
-        ERR_VoidError = 242,
+
         ERR_ConditionalOnOverride = 243,
         ERR_PointerInAsOrIs = 244,
         ERR_CallingFinalizeDeprecated = 245, //Dev10: ERR_CallingFinalizeDepracated
@@ -458,7 +457,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         ERR_InconsistentIndexerNames = 668,
         ERR_ComImportWithUserCtor = 669,
-        ERR_FieldCantHaveVoidType = 670,
+
         WRN_NonObsoleteOverridingObsolete = 672,
 
         ERR_ExplicitParamArrayOrCollection = 674,
@@ -1099,7 +1098,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_UnsafeAsyncArgType = 4005,
         ERR_VarargsAsync = 4006,
         ERR_ByRefTypeAndAwait = 4007,
-        ERR_BadAwaitArgVoidCall = 4008,
+
         ERR_NonTaskMainCantBeAsync = 4009,
         ERR_CantConvAsyncAnonFuncReturns = 4010,
         ERR_BadAwaiterPattern = 4011,
@@ -1534,7 +1533,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         #endregion diagnostics for FilterIsConstant warning message fix
 
         ERR_ConditionalInInterpolation = 8361,
-        ERR_CantUseVoidInArglist = 8362,
+
         ERR_InDynamicMethodArg = 8364,
 
         #region diagnostics introduced for C# 7.3

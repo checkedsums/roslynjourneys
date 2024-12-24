@@ -152,7 +152,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override bool ReturnsVoid
         {
-            get { return ReturnType.IsVoidType(); }
+            get { return ReturnType.SpecialType is SpecialType.System_Void; }
         }
 
         public override bool IsAsync

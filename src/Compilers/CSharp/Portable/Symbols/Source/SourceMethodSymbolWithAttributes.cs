@@ -1588,7 +1588,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var returnType = methodSymbol.ReturnType;
                 var declaringCompilation = methodSymbol.DeclaringCompilation;
                 return !returnType.IsErrorType() &&
-                    !returnType.IsVoidType() &&
+                    returnType.SpecialType is not SpecialType.System_Void &&
                     !returnType.IsIAsyncEnumerableType(declaringCompilation) &&
                     !returnType.IsIAsyncEnumeratorType(declaringCompilation) &&
                     !methodSymbol.IsAsyncEffectivelyReturningTask(declaringCompilation) &&

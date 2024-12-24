@@ -302,7 +302,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Otherwise the return type is Task or Task<T>.
             NamedTypeSymbol? taskType = null;
             var delegateReturnType = delegateType?.GetDelegateType()?.DelegateInvokeMethod?.ReturnType as NamedTypeSymbol;
-            if (delegateReturnType?.IsVoidType() == false)
+            if (delegateReturnType?.SpecialType != SpecialType.System_Void)
             {
                 if (delegateReturnType.IsCustomTaskType(builderArgument: out _))
                 {
@@ -1093,7 +1093,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (isAsync)
                     {
                         var delegateReturnType = invoke.ReturnType as NamedTypeSymbol;
-                        if (delegateReturnType?.IsVoidType() == false)
+                        if (delegateReturnType?.SpecialType != SpecialType.System_Void)
                         {
                             if (delegateReturnType.IsCustomTaskType(out var builderType))
                             {

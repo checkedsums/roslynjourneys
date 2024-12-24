@@ -391,7 +391,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 resultsDiscarded: resultPlace == null);
 
             // [$resultPlace = ] $awaiterTemp.GetResult();
-            BoundStatement getResultStatement = resultPlace != null && !type.IsVoidType() ?
+            BoundStatement getResultStatement = resultPlace != null ?
                 F.Assignment(resultPlace, getResultCall) :
                 F.ExpressionStatement(getResultCall);
 

@@ -328,30 +328,5 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
                 }
             }
         }
-
-        public static Action<TypeSymbol> IsVoidType() => typeSymbol => Assert.True(typeSymbol.IsVoidType());
-
-        public static Action<TypeSymbol> IsSpecialType(SpecialType specialType)
-            => typeSymbol => Assert.Equal(specialType, typeSymbol.SpecialType);
-
-        public static Action<TypeSymbol> IsTypeName(string typeName)
-            => typeSymbol => Assert.Equal(typeName, typeSymbol.Name);
-
-        public static Action<TypeSymbol> IsArrayType(Action<TypeSymbol> arrayTypeVerifier)
-            => typeSymbol =>
-            {
-                Assert.True(typeSymbol.IsArray());
-                arrayTypeVerifier(((ArrayTypeSymbol)typeSymbol).ElementType);
-            };
-
-        public static Action<TypeSymbol> IsUnsupportedType()
-            => typeSymbol => Assert.True(typeSymbol is UnsupportedMetadataTypeSymbol);
-
-        public static Action<TypeSymbol> IsFunctionPointerTypeSymbol(CallingConvention callingConvention, (RefKind, Action<TypeSymbol>) returnVerifier, params (RefKind, Action<TypeSymbol>)[] argumentVerifiers)
-            => typeSymbol => VerifyFunctionPointerSymbol((FunctionPointerTypeSymbol)typeSymbol, callingConvention, returnVerifier, argumentVerifiers);
-
-        public static Action<TypeSymbol> IsErrorType()
-            => typeSymbol => Assert.True(typeSymbol.IsErrorType());
-
     }
 }

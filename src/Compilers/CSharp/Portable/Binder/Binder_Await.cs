@@ -74,14 +74,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            var type = expression.Type;
-            if (type is null ||
-                type.IsDynamic() ||
-                type.IsVoidType())
-            {
-                return false;
-            }
-
             var call = (BoundCall)expression;
 
             // First check if the target method is async.
@@ -299,13 +291,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         private bool GetGetAwaiterMethod(BoundExpression expression, SyntaxNode node, BindingDiagnosticBag diagnostics, [NotNullWhen(true)] out BoundExpression? getAwaiterCall)
         {
             RoslynDebug.Assert(expression.Type is not null);
-            if (expression.Type.IsVoidType())
-            {
-                Error(diagnostics, ErrorCode.ERR_BadAwaitArgVoidCall, node);
-                getAwaiterCall = null;
-                return false;
-            }
-
             getAwaiterCall = MakeInvocationExpression(node, expression, WellKnownMemberNames.GetAwaiter, ImmutableArray<BoundExpression>.Empty, diagnostics);
             if (getAwaiterCall.HasAnyErrors) // && !expression.HasAnyErrors?
             {

@@ -139,7 +139,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override bool ReturnsVoid
         {
-            get { return this.ReturnTypeWithAnnotations.HasType && this.ReturnType.IsVoidType(); }
+            get { return this.ReturnTypeWithAnnotations.HasType && this.ReturnType.SpecialType is SpecialType.System_Void; }
         }
 
         public override RefKind RefKind

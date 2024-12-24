@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression expression = BindRValueWithoutTargetType(node.Expression, diagnostics);
             bool hasErrors = IsOperandErrors(node, ref expression, diagnostics);
             TypeSymbol? expressionType = expression.Type;
-            if (expressionType is null || expressionType.IsVoidType())
+            if (expressionType is null || expressionType.SpecialType is SpecialType.System_Void)
             {
                 if (!hasErrors)
                 {

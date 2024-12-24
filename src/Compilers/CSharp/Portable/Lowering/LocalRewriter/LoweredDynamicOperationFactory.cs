@@ -732,7 +732,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var delegateSignature = MakeCallSiteDelegateSignature(callSiteType, loweredReceiver, loweredArguments, loweredRight, resultType);
-            bool returnsVoid = resultType.IsVoidType();
+            bool returnsVoid = resultType.SpecialType is SpecialType.System_Void;
             bool hasByRefs = receiverRefKind != RefKind.None || !refKinds.IsDefaultOrEmpty;
 
             if (!hasByRefs)
@@ -896,7 +896,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private TypeSymbol[] MakeCallSiteDelegateSignature(TypeSymbol callSiteType, BoundExpression? receiver, ImmutableArray<BoundExpression> arguments, BoundExpression? right, TypeSymbol resultType)
         {
             var systemObjectType = _factory.SpecialType(SpecialType.System_Object);
-            var result = new TypeSymbol[1 + (receiver != null ? 1 : 0) + arguments.Length + (right != null ? 1 : 0) + (resultType.IsVoidType() ? 0 : 1)];
+            var result = new TypeSymbol[1 + (receiver != null ? 1 : 0) + arguments.Length + (right != null ? 1 : 0) + (resultType.SpecialType is SpecialType.System_Void ? 0 : 1)];
             int j = 0;
 
             // CallSite:

@@ -139,7 +139,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override bool ReturnsVoid
         {
-            get { return ReturnType.IsVoidType(); }
+            get { return ReturnType.SpecialType is SpecialType.System_Void; }
         }
 
         public sealed override FlowAnalysisAnnotations ReturnTypeFlowAnalysisAnnotations => FlowAnalysisAnnotations.None;
@@ -374,7 +374,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var success = binder.GetAwaitableExpressionInfo(userMainInvocation, out _getAwaiterGetResultCall!, _userMainReturnTypeSyntax, BindingDiagnosticBag.Discarded);
 
                 Debug.Assert(
-                    ReturnType.IsVoidType() ||
+                    ReturnType.SpecialType is SpecialType.System_Void ||
                     ReturnType.SpecialType == SpecialType.System_Int32);
             }
 

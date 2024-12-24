@@ -3267,9 +3267,7 @@ OuterBreak:
 
         private static bool IsReallyAType(TypeSymbol? type)
         {
-            return type is { } &&
-                !type.IsErrorType() &&
-                !type.IsVoidType();
+            return type is { } && !type.IsErrorType();
         }
 
         private static void GetAllCandidates(Dictionary<TypeWithAnnotations, TypeWithAnnotations> candidates, ArrayBuilder<TypeWithAnnotations> builder)

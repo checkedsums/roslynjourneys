@@ -85,8 +85,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return new BoundBadExpression(
                         node,
                         LookupResultKind.Empty,
-                        ImmutableArray.Create<Symbol>(receiver.ExpressionSymbol),
-                        ImmutableArray.Create(BindToTypeForErrorRecovery(receiver)),
+                        [receiver.ExpressionSymbol],
+                        [BindToTypeForErrorRecovery(receiver)],
                         new ExtendedErrorTypeSymbol(this.Compilation, "", 0, info));
                 }
 

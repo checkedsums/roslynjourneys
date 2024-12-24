@@ -5710,7 +5710,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol accessType = accessTypeWithAnnotations.Type;
             var oldType = node.Type;
             var resultType =
-                oldType.IsVoidType() || oldType.IsErrorType() ? oldType :
+                oldType.SpecialType is SpecialType.System_Void || oldType.IsErrorType() ? oldType :
                 oldType.IsNullableType() && !accessType.IsNullableType() ? MakeNullableOf(accessTypeWithAnnotations) :
                 accessType;
 
@@ -5789,7 +5789,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
                 else if (!node.HasErrors)
                 {
-                    refResultType = consequenceRValue.Type!.MergeEquivalentTypes(alternativeRValue.Type, VarianceKind.None);
+                    refResultType = consequenceRValue.Type!.MergeEquivalentTypes(alternativeRValue.Type!, VarianceKind.None);
                 }
 
                 SetResult(node, TypeWithState.Create(refResultType, rValueState), TypeWithAnnotations.Create(refResultType, lValueAnnotation));

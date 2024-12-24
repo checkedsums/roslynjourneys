@@ -758,7 +758,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(source is not null);
             Debug.Assert(destination is not null);
 
-            if (source.IsVoidType() || destination.IsVoidType())
+            if (source.SpecialType is SpecialType.System_Void || destination.SpecialType is SpecialType.System_Void)
             {
                 return Conversion.NoConversion;
             }
@@ -780,7 +780,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private Conversion GetImplicitUserDefinedConversion(TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
-            return GetImplicitUserDefinedConversion(sourceExpression: null, source, destination, ref useSiteInfo);
+            return GetImplicitUserDefinedConversion(sourceExpression: null!, source, destination, ref useSiteInfo);
         }
 
         private Conversion ClassifyExplicitBuiltInOnlyConversion(TypeSymbol source, TypeSymbol destination, bool isChecked, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo, bool forCast)
@@ -788,19 +788,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(source is not null);
             Debug.Assert(destination is not null);
 
-            if (source.IsVoidType() || destination.IsVoidType())
+            if (source.SpecialType is SpecialType.System_Void || destination.SpecialType is SpecialType.System_Void)
             {
                 return Conversion.NoConversion;
             }
-
-            // The call to HasExplicitNumericConversion isn't necessary, because it is always tested
-            // already by the "FastConversion" code.
-            Debug.Assert(!HasExplicitNumericConversion(source, destination));
-
-            //if (HasExplicitNumericConversion(source, specialTypeSource, destination, specialTypeDest))
-            //{
-            //    return Conversion.ExplicitNumeric;
-            //}
 
             if (HasSpecialIntPtrConversion(source, destination))
             {

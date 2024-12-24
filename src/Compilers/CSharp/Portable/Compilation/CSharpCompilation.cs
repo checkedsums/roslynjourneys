@@ -2081,7 +2081,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal bool ReturnsAwaitableToVoidOrInt(MethodSymbol method, BindingDiagnosticBag diagnostics)
         {
             // Common case optimization
-            if (method.ReturnType.IsVoidType() || method.ReturnType.SpecialType == SpecialType.System_Int32)
+            if (method.ReturnType.SpecialType == SpecialType.System_Int32) //Dev420
             {
                 return false;
             }
@@ -2106,7 +2106,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             RoslynDebug.Assert(!namedType.IsDynamic());
             return success &&
-                (result!.Type!.IsVoidType() || result.Type!.SpecialType == SpecialType.System_Int32);
+                (result!.Type!.SpecialType is SpecialType.System_Void || result.Type!.SpecialType == SpecialType.System_Int32);
         }
 
         /// <summary>
@@ -2125,7 +2125,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             TypeSymbol returnType = method.ReturnType;
             bool returnsTaskOrTaskOfInt = false;
-            if (returnType.SpecialType != SpecialType.System_Int32 && !returnType.IsVoidType())
+            if (returnType.SpecialType != SpecialType.System_Int32 && returnType.SpecialType != SpecialType.System_Void)
             {
                 // Never look for ReturnsAwaitableToVoidOrInt on int32 or void
                 returnsTaskOrTaskOfInt = ReturnsAwaitableToVoidOrInt(method, bag);

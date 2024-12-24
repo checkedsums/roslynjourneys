@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.BuildTasks
     /// </summary>
     public abstract class InteractiveCompiler : ManagedToolTask
     {
-        internal readonly PropertyDictionary _store = new PropertyDictionary();
+        internal readonly PropertyDictionary Store = [];
 
         public InteractiveCompiler()
             : base(ErrorString.ResourceManager)
@@ -28,12 +28,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(AdditionalLibPaths)] = value;
+                Store[nameof(AdditionalLibPaths)] = value;
             }
 
             get
             {
-                return (string[]?)_store[nameof(AdditionalLibPaths)];
+                return (string[]?)Store[nameof(AdditionalLibPaths)];
             }
         }
 
@@ -41,12 +41,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(AdditionalLoadPaths)] = value;
+                Store[nameof(AdditionalLoadPaths)] = value;
             }
 
             get
             {
-                return (string[]?)_store[nameof(AdditionalLoadPaths)];
+                return (string[]?)Store[nameof(AdditionalLoadPaths)];
             }
         }
 
@@ -55,12 +55,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(CommandLineArgs)] = value;
+                Store[nameof(CommandLineArgs)] = value;
             }
 
             get
             {
-                return (ITaskItem[]?)_store[nameof(CommandLineArgs)];
+                return (ITaskItem[]?)Store[nameof(CommandLineArgs)];
             }
         }
 
@@ -68,12 +68,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(Features)] = value;
+                Store[nameof(Features)] = value;
             }
 
             get
             {
-                return (string?)_store[nameof(Features)];
+                return (string?)Store[nameof(Features)];
             }
         }
 
@@ -81,12 +81,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(Imports)] = value;
+                Store[nameof(Imports)] = value;
             }
 
             get
             {
-                return (ITaskItem[]?)_store[nameof(Imports)];
+                return (ITaskItem[]?)Store[nameof(Imports)];
             }
         }
 
@@ -94,12 +94,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(ProvideCommandLineArgs)] = value;
+                Store[nameof(ProvideCommandLineArgs)] = value;
             }
 
             get
             {
-                return _store.GetOrDefault(nameof(ProvideCommandLineArgs), false);
+                return Store.GetOrDefault(nameof(ProvideCommandLineArgs), false);
             }
         }
 
@@ -107,12 +107,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(References)] = value;
+                Store[nameof(References)] = value;
             }
 
             get
             {
-                return (ITaskItem[]?)_store[nameof(References)];
+                return (ITaskItem[]?)Store[nameof(References)];
             }
         }
 
@@ -120,12 +120,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(ResponseFiles)] = value;
+                Store[nameof(ResponseFiles)] = value;
             }
 
             get
             {
-                return (ITaskItem[]?)_store[nameof(ResponseFiles)];
+                return (ITaskItem[]?)Store[nameof(ResponseFiles)];
             }
         }
 
@@ -133,12 +133,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(ScriptArguments)] = value;
+                Store[nameof(ScriptArguments)] = value;
             }
 
             get
             {
-                return (string[]?)_store[nameof(ScriptArguments)];
+                return (string[]?)Store[nameof(ScriptArguments)];
             }
         }
 
@@ -146,12 +146,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(ScriptResponseFiles)] = value;
+                Store[nameof(ScriptResponseFiles)] = value;
             }
 
             get
             {
-                return (ITaskItem[]?)_store[nameof(ScriptResponseFiles)];
+                return (ITaskItem[]?)Store[nameof(ScriptResponseFiles)];
             }
         }
 
@@ -159,12 +159,12 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(SkipInteractiveExecution)] = value;
+                Store[nameof(SkipInteractiveExecution)] = value;
             }
 
             get
             {
-                return _store.GetOrDefault(nameof(SkipInteractiveExecution), false);
+                return Store.GetOrDefault(nameof(SkipInteractiveExecution), false);
             }
         }
 
@@ -172,28 +172,14 @@ namespace Microsoft.CodeAnalysis.BuildTasks
         {
             set
             {
-                _store[nameof(Source)] = value;
+                Store[nameof(Source)] = value;
             }
 
             get
             {
-                return (ITaskItem?)_store[nameof(Source)];
+                return (ITaskItem?)Store[nameof(Source)];
             }
         }
-        #endregion
-
-        #region Tool Members
-
-        protected override int ExecuteTool(string pathToTool, string responseFileCommands, string commandLineCommands)
-        {
-            if (ProvideCommandLineArgs)
-            {
-                CommandLineArgs = GenerateCommandLineArgsTaskItems(responseFileCommands);
-            }
-
-            return (SkipInteractiveExecution) ? 0 : base.ExecuteTool(pathToTool, responseFileCommands, commandLineCommands);
-        }
-
         #endregion
 
         /// <summary>

@@ -196,7 +196,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 var fields = typeDescr.Fields;
                 Debug.Assert(fields.All(f => hasDefaultScope(useUpdatedEscapeRules, f)));
 
-                bool returnsVoid = fields[^1].Type.IsVoidType();
+                bool returnsVoid = fields[^1].Type.SpecialType is SpecialType.System_Void;
                 int nTypeArguments = fields.Length - (returnsVoid ? 1 : 0);
                 var typeArgumentsBuilder = ArrayBuilder<TypeWithAnnotations>.GetInstance(nTypeArguments);
                 for (int i = 0; i < nTypeArguments; i++)
@@ -308,7 +308,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     }
                 }
                 var returnParameter = fields[n - 1];
-                return returnParameter.Type.IsVoidType() || isValidTypeArgument(useUpdatedEscapeRules, returnParameter, ref needsIndexedName);
+                return returnParameter.Type.SpecialType is SpecialType.System_Void || isValidTypeArgument(useUpdatedEscapeRules, returnParameter, ref needsIndexedName);
             }
 
             static bool hasDefaultScope(bool useUpdatedEscapeRules, AnonymousTypeField field)

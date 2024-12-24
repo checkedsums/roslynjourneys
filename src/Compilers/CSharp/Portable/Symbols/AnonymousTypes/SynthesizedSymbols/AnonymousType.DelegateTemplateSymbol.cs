@@ -104,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 TypeParameters = CreateTypeParameters(
                     this,
                     parameterCount: typeDescr.Fields.Length - 1,
-                    returnsVoid: typeDescr.Fields[^1].Type.IsVoidType(),
+                    returnsVoid: typeDescr.Fields[^1].Type.SpecialType is SpecialType.System_Void,
                     hasParamsArray: typeDescr.Fields is [.., { IsParams: true }, _]);
 
                 var constructor = new SynthesizedDelegateConstructor(this, manager.System_Object, manager.System_IntPtr);
@@ -118,7 +118,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     var typeParams = containingType.TypeParameters;
                     var returnParameter = fields[^1];
-                    var returnsVoid = returnParameter.Type.IsVoidType();
+                    var returnsVoid = returnParameter.Type.SpecialType is SpecialType.System_Void;
 
                     var parameterCount = fields.Length - 1;
                     var parameters = ArrayBuilder<SynthesizedDelegateInvokeMethod.ParameterDescription>.GetInstance(parameterCount);

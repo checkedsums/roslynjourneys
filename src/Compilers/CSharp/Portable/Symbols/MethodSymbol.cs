@@ -754,7 +754,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 throw new ArgumentNullException(nameof(receiverType));
             }
 
-            if (!this.IsExtensionMethod || this.MethodKind == MethodKind.ReducedExtension || receiverType.IsVoidType())
+            if (!this.IsExtensionMethod || this.MethodKind == MethodKind.ReducedExtension || receiverType.SpecialType is SpecialType.System_Void)
             {
                 wasFullyInferred = false;
                 return null;

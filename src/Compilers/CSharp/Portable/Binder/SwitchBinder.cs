@@ -407,7 +407,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         Debug.Assert(resultantGoverningType.IsValidV6SwitchGoverningType(isTargetTypeOfUserDefinedOp: true));
                         return binder.CreateConversion(node, switchGoverningExpression, conversion, isCast: false, conversionGroupOpt: null, resultantGoverningType, diagnostics);
                     }
-                    else if (!switchGoverningType.IsVoidType())
+                    else if (switchGoverningType.SpecialType is not SpecialType.System_Void)
                     {
                         return switchGoverningExpression;
                     }
@@ -420,7 +420,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (!switchGoverningExpression.HasAnyErrors)
             {
-                Debug.Assert(switchGoverningExpression.Type is null || switchGoverningExpression.Type.IsVoidType());
+                Debug.Assert(switchGoverningExpression.Type is null || switchGoverningExpression.Type.SpecialType is SpecialType.System_Void);
                 diagnostics.Add(ErrorCode.ERR_SwitchExpressionValueExpected, node.Location, switchGoverningExpression.Display);
             }
 

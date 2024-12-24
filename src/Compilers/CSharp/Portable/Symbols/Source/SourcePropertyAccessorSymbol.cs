@@ -299,7 +299,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public sealed override bool ReturnsVoid
         {
-            get { return this.ReturnType.IsVoidType(); }
+            get { return this.ReturnType.SpecialType is SpecialType.System_Void; }
         }
 
         public sealed override ImmutableArray<ParameterSymbol> Parameters

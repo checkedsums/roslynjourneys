@@ -3912,7 +3912,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol bestType = BestTypeInferrer.InferBestType(boundInitializerExpressions, this.Conversions, ref useSiteInfo, out _);
             diagnostics.Add(node, useSiteInfo);
 
-            if (bestType is null || bestType.IsVoidType()) // Dev10 also reports ERR_ImplicitlyTypedArrayNoBestType for void.
+            if (bestType is null) // Dev10 also reports ERR_ImplicitlyTypedArrayNoBestType for void.
             {
                 Error(diagnostics, ErrorCode.ERR_ImplicitlyTypedArrayNoBestType, node);
                 bestType = CreateErrorType();
@@ -3939,7 +3939,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol bestType = BestTypeInferrer.InferBestType(boundInitializerExpressions, this.Conversions, ref useSiteInfo, out _);
             diagnostics.Add(node, useSiteInfo);
 
-            if (bestType is null || bestType.IsVoidType())
+            if (bestType is null)
             {
                 Error(diagnostics, ErrorCode.ERR_ImplicitlyTypedArrayNoBestType, node);
                 bestType = CreateErrorType();
@@ -4610,7 +4610,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             try
             {
                 TypeSymbol constructorReturnType = constructor.ReturnType;
-                Debug.Assert(constructorReturnType.IsVoidType()); //true of all constructors
+                //Dev69
 
                 // Get the bound arguments and the argument names.
                 // : this(__arglist()) is legal
@@ -7409,13 +7409,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return BindDynamicMemberAccess(node, boundLeft, right, invoked, indexed, diagnostics);
             }
 
-            // No member accesses on void
-            if (leftType is not null && leftType.IsVoidType())
-            {
-                diagnostics.Add(ErrorCode.ERR_BadUnaryOp, operatorToken.GetLocation(), SyntaxFacts.GetText(operatorToken.Kind()), leftType);
-                return BadExpression(node, boundLeft);
-            }
-
             // No member accesses on default
             if (boundLeft.IsLiteralDefault())
             {
@@ -9247,12 +9240,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                     CheckOverflowAtRuntime, refersToLocation: false, pointedAtType, hasErrors: true);
             }
 
-            if (pointedAtType.IsVoidType())
-            {
-                Error(diagnostics, ErrorCode.ERR_VoidError, expr.Syntax);
-                hasErrors = true;
-            }
-
             BoundExpression index = arguments[0];
 
             index = ConvertToArrayIndex(index, diagnostics, allowIndexAndRange: false, indexOrRangeWellknownType: out _);
@@ -10511,7 +10498,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(returnType.Type is { }); // Expecting System.Void rather than null return type.
             Debug.Assert(!hasParams || parameterTypes.Length != 0);
 
-            bool returnsVoid = returnType.Type.IsVoidType();
+            bool returnsVoid = returnType.Type.SpecialType is SpecialType.System_Void;
             var typeArguments = returnsVoid ? parameterTypes : parameterTypes.Add(returnType);
 
             if (returnsVoid && returnRefKind != RefKind.None)
@@ -10715,7 +10702,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // if access has value type, the type of the conditional access is nullable of that
             // https://github.com/dotnet/roslyn/issues/35075: The test `accessType.IsValueType && !accessType.IsNullableType()`
             // should probably be `accessType.IsNonNullableValueType()`
-            if (accessType.IsValueType && !accessType.IsNullableType() && !accessType.IsVoidType())
+            if (accessType.IsValueType && !accessType.IsNullableType() && accessType.SpecialType is not SpecialType.System_Void)
             {
                 accessType = GetSpecialType(SpecialType.System_Nullable_T, diagnostics, node).Construct(accessType);
             }
@@ -10822,13 +10809,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (receiverType is null)
             {
                 Error(diagnostics, ErrorCode.ERR_BadUnaryOp, operatorToken.GetLocation(), operatorToken.Text, receiver.Display);
-                return BadExpression(receiverSyntax, receiver);
-            }
-
-            // No member accesses on void
-            if (receiverType.IsVoidType())
-            {
-                Error(diagnostics, ErrorCode.ERR_BadUnaryOp, operatorToken.GetLocation(), operatorToken.Text, receiverType);
                 return BadExpression(receiverSyntax, receiver);
             }
 

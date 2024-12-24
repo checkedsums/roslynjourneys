@@ -342,7 +342,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (builderType is not null &&
                  !builderType.IsErrorType() &&
-                 !builderType.IsVoidType() &&
                  (forMethodLevelBuilder || builderType.DeclaredAccessibility == desiredAccessibility))
             {
                 if (isGeneric)

@@ -49,8 +49,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     lastStatement = ((BoundGlobalStatementInitializer)initializer).Statement;
                     var expression = GetTrailingScriptExpression(lastStatement);
                     if (expression != null &&
-                        expression.Type is not null &&
-                        !expression.Type.IsVoidType())
+                        expression.Type is not null)
                     {
                         trailingExpression = expression;
                         continue;
@@ -62,8 +61,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (hasSubmissionResultType && (trailingExpression != null))
             {
-                Debug.Assert(!submissionResultType.IsVoidType());
-
                 // Note: The trailing expression was already converted to the submission result type in Binder.BindGlobalStatement.
                 boundStatements.Add(new BoundReturnStatement(lastStatement.Syntax, RefKind.None, trailingExpression, @checked: false));
                 hasTrailingExpression = true;

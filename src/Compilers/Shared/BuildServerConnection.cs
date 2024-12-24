@@ -449,9 +449,8 @@ namespace Microsoft.CodeAnalysis.CommandLine
         internal static bool TryCreateServer(string clientDirectory, string pipeName, ICompilerServerLogger logger, out int processId)
         {
             processId = 0;
-            var serverInfo = GetServerProcessInfo(clientDirectory, pipeName);
 
-            if (!File.Exists(serverInfo.toolFilePath))
+            if (!File.Exists(GetServerProcessInfo(clientDirectory, pipeName).toolFilePath))
             {
                 return false;
             }
@@ -470,11 +469,9 @@ namespace Microsoft.CodeAnalysis.CommandLine
                 startInfo.dwFlags = STARTF_USESTDHANDLES;
                 uint dwCreationFlags = NORMAL_PRIORITY_CLASS | CREATE_NO_WINDOW;
 
-                PROCESS_INFORMATION processInfo;
+                logger.Log("Attempting to create process '{0}'", GetServerProcessInfo(clientDirectory, pipeName).processFilePath);
 
-                logger.Log("Attempting to create process '{0}'", serverInfo.processFilePath);
-
-                var builder = new StringBuilder($@"""{serverInfo.processFilePath}"" {serverInfo.commandLineArguments}");
+                var builder = new StringBuilder($@"""{GetServerProcessInfo(clientDirectory, pipeName).processFilePath}"" {GetServerProcessInfo(clientDirectory, pipeName).commandLineArguments}");
 
                 bool success = CreateProcess(
                     lpApplicationName: null,
@@ -486,7 +483,7 @@ namespace Microsoft.CodeAnalysis.CommandLine
                     lpEnvironment: NullPtr, // Inherit environment
                     lpCurrentDirectory: clientDirectory,
                     lpStartupInfo: ref startInfo,
-                    lpProcessInformation: out processInfo);
+                    lpProcessInformation: out PROCESS_INFORMATION processInfo);
 
                 if (success)
                 {
@@ -507,8 +504,8 @@ namespace Microsoft.CodeAnalysis.CommandLine
                 {
                     var startInfo = new ProcessStartInfo()
                     {
-                        FileName = serverInfo.processFilePath,
-                        Arguments = serverInfo.commandLineArguments,
+                        FileName = GetServerProcessInfo(clientDirectory, pipeName).processFilePath,
+                        Arguments = GetServerProcessInfo(clientDirectory, pipeName).commandLineArguments,
                         UseShellExecute = false,
                         WorkingDirectory = clientDirectory,
                         RedirectStandardInput = true,
@@ -568,13 +565,10 @@ namespace Microsoft.CodeAnalysis.CommandLine
             clientDirectory = clientDirectory.ToLowerInvariant();
 
             var pipeNameInput = $"{userName}.{isAdmin}.{clientDirectory}";
-            using (var sha = SHA256.Create())
-            {
-                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(pipeNameInput));
-                return Convert.ToBase64String(bytes)
-                    .Replace("/", "_")
-                    .Replace("=", string.Empty);
-            }
+            using var sha = SHA256.Create();
+            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(pipeNameInput));
+            return Convert.ToBase64String(bytes)
+                .Replace("/", "_").Replace("=", string.Empty);
         }
 
         internal static bool WasServerMutexOpen(string mutexName)

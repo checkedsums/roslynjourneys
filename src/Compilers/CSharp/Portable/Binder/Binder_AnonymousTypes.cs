@@ -216,12 +216,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (expression.HasExpressionType())
                 {
                     RoslynDebug.Assert(expressionType is not null);
-                    if (expressionType.IsVoidType())
-                    {
-                        errorArg = expressionType;
-                        expressionType = CreateErrorType(SyntaxFacts.GetText(SyntaxKind.VoidKeyword));
-                    }
-                    else if (expressionType.IsPointerOrFunctionPointer())
+
+                    if (expressionType.IsPointerOrFunctionPointer())
                     {
                         errorArg = expressionType;
                         // CONSIDER: we could use an explicit error type instead of the unsafe type.

@@ -1989,7 +1989,7 @@ symIsHidden:;
             PooledHashSet<NamedTypeSymbol> visited = null;
             // We need a check for SpecialType.System_Void as its base type is
             // ValueType but we don't wish to return any members for void type
-            while (type is not null && !type.IsVoidType())
+            while (type is not null)
             {
                 AddMemberLookupSymbolsInfoWithoutInheritance(result, type, options, originalBinder, accessThroughType);
 

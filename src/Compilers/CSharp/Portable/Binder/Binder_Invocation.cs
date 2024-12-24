@@ -285,11 +285,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     analyzedArguments.Arguments[i] = GenerateConversionForAssignment(objType, argument, diagnostics);
                 }
-                else if (argument.Type.IsVoidType())
-                {
-                    Error(diagnostics, ErrorCode.ERR_CantUseVoidInArglist, argument.Syntax);
-                    hasErrors = true;
-                }
                 else if (analyzedArguments.RefKind(i) == RefKind.None)
                 {
                     analyzedArguments.Arguments[i] = BindToNaturalType(analyzedArguments.Arguments[i], diagnostics);

@@ -125,20 +125,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol nodeType = node.Type;
             TypeSymbol accessExpressionType = loweredAccessExpression.Type;
 
-            if (accessExpressionType.IsVoidType())
-            {
-                type = nodeType = accessExpressionType;
-            }
-
             if (!TypeSymbol.Equals(accessExpressionType, nodeType, TypeCompareKind.ConsiderEverything2) && nodeType.IsNullableType())
             {
                 Debug.Assert(TypeSymbol.Equals(accessExpressionType, nodeType.GetNullableUnderlyingType(), TypeCompareKind.ConsiderEverything2));
                 loweredAccessExpression = _factory.New((NamedTypeSymbol)nodeType, loweredAccessExpression);
-            }
-            else
-            {
-                Debug.Assert(TypeSymbol.Equals(accessExpressionType, nodeType, TypeCompareKind.ConsiderEverything2) ||
-                    (nodeType.IsVoidType() && !used));
             }
 
             BoundExpression result;

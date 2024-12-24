@@ -718,7 +718,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_FieldInitRefNonstatic
                 or ErrorCode.ERR_SealedNonOverride
                 or ErrorCode.ERR_CantOverrideSealed
-                or ErrorCode.ERR_VoidError
                 or ErrorCode.ERR_ConditionalOnOverride
                 or ErrorCode.ERR_PointerInAsOrIs
                 or ErrorCode.ERR_CallingFinalizeDeprecated
@@ -935,7 +934,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_ProtectedInStruct
                 or ErrorCode.ERR_InconsistentIndexerNames
                 or ErrorCode.ERR_ComImportWithUserCtor
-                or ErrorCode.ERR_FieldCantHaveVoidType
                 or ErrorCode.WRN_NonObsoleteOverridingObsolete
                 or ErrorCode.ERR_ExplicitParamArrayOrCollection
                 or ErrorCode.WRN_BitwiseOrSignExtend
@@ -1444,7 +1442,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_AwaitInUnsafeContext
                 or ErrorCode.ERR_UnsafeAsyncArgType
                 or ErrorCode.ERR_VarargsAsync
-                or ErrorCode.ERR_BadAwaitArgVoidCall
                 or ErrorCode.ERR_NonTaskMainCantBeAsync
                 or ErrorCode.ERR_CantConvAsyncAnonFuncReturns
                 or ErrorCode.ERR_BadAwaiterPattern
@@ -1753,7 +1750,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_FilterIsConstantFalse
                 or ErrorCode.WRN_FilterIsConstantFalseRedundantTryCatch
                 or ErrorCode.ERR_ConditionalInInterpolation
-                or ErrorCode.ERR_CantUseVoidInArglist
                 or ErrorCode.ERR_InDynamicMethodArg
                 or ErrorCode.WRN_AttributesOnBackingFieldsNotAvailable
                 or ErrorCode.ERR_DoNotUseFixedBufferAttrOnProperty

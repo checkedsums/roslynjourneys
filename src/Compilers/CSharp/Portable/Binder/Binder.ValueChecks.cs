@@ -3,11 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.CodeGen;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Roslyn.Utilities;
@@ -49,6 +47,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             internal MethodSymbol? SetMethod { get; }
 
             internal bool UseUpdatedEscapeRules => Method?.UseUpdatedEscapeRules == true;
+
             internal bool ReturnsRefToRefStruct =>
                 Method is { RefKind: not RefKind.None, ReturnType: { } returnType } &&
                 returnType.IsRefLikeOrAllowsRefLikeType();
@@ -84,8 +83,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             internal static MethodInfo Create(BoundIndexerAccess expr) =>
                 Create(expr.Indexer, expr.AccessorKind);
-
-            public override string? ToString() => Method?.ToString();
         }
 
         /// <summary>

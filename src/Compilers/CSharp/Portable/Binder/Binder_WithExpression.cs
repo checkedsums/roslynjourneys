@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var receiverType = receiver.Type;
             bool hasErrors = false;
 
-            if (receiverType is null || receiverType.IsVoidType())
+            if (receiverType is null || receiverType.SpecialType is SpecialType.System_Void)
             {
                 diagnostics.Add(ErrorCode.ERR_InvalidWithReceiverType, syntax.Expression.Location);
                 receiverType = CreateErrorType();
@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             MethodSymbol? cloneMethod = null;
 
-            if (!(receiverType.IsValueType && !receiverType.IsPointerOrFunctionPointer() || receiverType.IsAnonymousType && !receiverType.IsDelegateType())
+            if (!(receiverType!.IsValueType && !receiverType.IsPointerOrFunctionPointer() || receiverType.IsAnonymousType && !receiverType.IsDelegateType())
                 && (!receiverType.IsErrorType()))
             {
                 CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);

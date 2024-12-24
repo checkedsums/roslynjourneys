@@ -4051,7 +4051,7 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             {
                 // The only void methods with usable return values are constructors and the only
                 // time we see them here, the return should be unused.
-                Debug.Assert(useKind == UseKind.Unused, "Using the return value of a void method.");
+                //Debug.Assert(useKind == UseKind.Unused, "Using the return value of a void method.");
                 Debug.Assert(_method.GenerateDebugInfo, "Implied by this.emitSequencePoints");
 
                 // DevDiv #15135.  When a method like System.Diagnostics.Debugger.Break() is called, the

@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var submissionResultType = (method as SynthesizedInteractiveInitializerMethod)?.ResultType;
                 if (!hasTrailingExpression && (submissionResultType is not null))
                 {
-                    Debug.Assert(!submissionResultType.IsVoidType());
+                    Debug.Assert(submissionResultType.SpecialType != SpecialType.System_Void);
 
                     var trailingExpression = new BoundDefaultExpression(method.GetNonNullSyntaxNode(), submissionResultType);
                     var newStatements = block.Statements.Add(new BoundReturnStatement(trailingExpression.Syntax, RefKind.None, trailingExpression, @checked: false));

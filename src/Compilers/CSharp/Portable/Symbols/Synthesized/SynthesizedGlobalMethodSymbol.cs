@@ -238,7 +238,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override bool ReturnsVoid
         {
-            get { return this.ReturnType.IsVoidType(); }
+            get { return this.ReturnType.SpecialType is SpecialType.System_Void; }
         }
 
         public override MethodKind MethodKind

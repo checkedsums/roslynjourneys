@@ -731,7 +731,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Error(d, ErrorCode.ERR_QueryRangeVariableAssignedBadValue, errorLocation, yExpression.Display);
                     yExpression = new BoundBadExpression(yExpression.Syntax, LookupResultKind.Empty, ImmutableArray<Symbol?>.Empty, ImmutableArray.Create(yExpression), CreateErrorType());
                 }
-                else if (!yExpression.HasAnyErrors && yExpression.Type!.IsVoidType())
+                else if (!yExpression.HasAnyErrors && yExpression.Type!.SpecialType is SpecialType.System_Void)
                 {
                     Error(d, ErrorCode.ERR_QueryRangeVariableAssignedBadValue, errorLocation, yExpression.Type!);
                     Debug.Assert(yExpression.Type is { });
@@ -951,7 +951,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // CheckValue will be called by MakeInvocationExpression when it makes the member access, which will resolve
                 // the type or value to the appropriate kind at that point.
             }
-            else if (receiver.Type!.IsVoidType())
+            else if (receiver.Type!.SpecialType is SpecialType.System_Void)
             {
                 if (!receiver.HasAnyErrors && !node.HasErrors)
                 {
