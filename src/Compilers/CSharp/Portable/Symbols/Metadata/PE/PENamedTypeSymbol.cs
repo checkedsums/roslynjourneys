@@ -15,6 +15,7 @@ using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.CSharp.DocumentationComments;
 using Microsoft.CodeAnalysis.CSharp.Emit;
 using Microsoft.CodeAnalysis.PooledObjects;
@@ -1238,7 +1239,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         private void EnsureAllMembersAreLoaded()
         {
-            if (_lazyMembersByName == null)
+            if (Volatile.Read(ref _lazyMembersByName) == null)
             {
                 LoadMembers();
             }
@@ -1248,7 +1249,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
         {
             ArrayBuilder<Symbol> members = null;
 
-            if (_lazyMembersInDeclarationOrder.IsDefault)
+            if (RoslynImmutableInterlocked.VolatileRead(ref _lazyMembersInDeclarationOrder).IsDefault)
             {
                 EnsureNestedTypesAreLoaded();
 
@@ -1418,7 +1419,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 }
             }
 
-            if (_lazyMembersByName == null)
+            if (Volatile.Read(ref _lazyMembersByName) == null)
             {
                 if (members == null)
                 {

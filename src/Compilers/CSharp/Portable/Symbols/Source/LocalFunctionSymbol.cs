@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.Cci;
+using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Roslyn.Utilities;
@@ -176,7 +177,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private void ComputeParameters()
         {
-            if (_lazyParameters != null)
+            if (!RoslynImmutableInterlocked.VolatileRead(in _lazyParameters).IsDefault)
             {
                 return;
             }
@@ -206,7 +207,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             lock (_declarationDiagnostics)
             {
-                if (_lazyParameters != null)
+                if (!_lazyParameters.IsDefault)
                 {
                     diagnostics.Free();
                     return;
@@ -216,7 +217,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 _declarationDependencies.AddAll(diagnostics.DependenciesBag);
                 diagnostics.Free();
                 _lazyIsVarArg = isVararg;
-                _lazyParameters = parameters;
+                RoslynImmutableInterlocked.VolatileWrite(ref _lazyParameters, parameters);
             }
         }
 

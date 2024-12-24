@@ -291,7 +291,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         IDS_FeatureFieldKeyword = MessageBase + 12846,
 
         IDS_FeatureAllowsRefStructConstraint = MessageBase + 12847,
-        IDS_OverloadResolutionPriority = MessageBase + 12848,
+        IDS_FeatureOverloadResolutionPriority = MessageBase + 12848,
 
         IDS_FeatureFirstClassSpan = MessageBase + 12849,
         IDS_FeatureUnboundGenericTypesInNameof = MessageBase + 12850,
