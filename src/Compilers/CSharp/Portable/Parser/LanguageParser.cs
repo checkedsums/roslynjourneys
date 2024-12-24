@@ -7976,6 +7976,15 @@ done:
 
                 StatementSyntax result;
 
+                if (this.PeekToken(1).Kind is SyntaxKind.OpenBraceToken)
+                {
+                    switch (this.CurrentToken.Kind)
+                    {
+                        case SyntaxKind.ForKeyword:
+                            return _syntaxFactory.ForStatement(attributes, this.EatToken(), SyntaxFactory.MissingToken(SyntaxKind.OpenParenToken), null, default, SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken), null, SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken), default, SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken), this.ParseEmbeddedStatement());
+                    }
+                }
+
                 // Main switch to handle processing almost any statement.
                 switch (this.CurrentToken.Kind)
                 {
