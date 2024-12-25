@@ -7767,6 +7767,15 @@ done:
 
                 StatementSyntax result;
 
+                if (this.PeekToken(1).Kind is SyntaxKind.OpenBraceToken)
+                {
+                    switch (this.CurrentToken.Kind)
+                    {
+                        case SyntaxKind.ForKeyword:
+                            return _syntaxFactory.ForStatement(attributes, this.EatToken(), SyntaxFactory.MissingToken(SyntaxKind.OpenParenToken), null, default, SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken), null, SyntaxFactory.MissingToken(SyntaxKind.SemicolonToken), default, SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken), this.ParseEmbeddedStatement());
+                    }
+                }
+
                 // Main switch to handle processing almost any statement.
                 switch (this.CurrentToken.Kind)
                 {
@@ -9312,9 +9321,28 @@ done:
             while (true)
             {
                 var ifKeyword = this.EatToken(SyntaxKind.IfKeyword);
-                var openParen = this.EatToken(SyntaxKind.OpenParenToken);
+
                 var condition = this.ParseExpressionCore();
-                var closeParen = this.EatToken(SyntaxKind.CloseParenToken);
+
+                SyntaxToken openParen = null, closeParen = null;
+                if (condition is ParenthesizedExpressionSyntax t_)
+                {
+                    openParen = t_.openParenToken;
+                    condition = t_.expression;
+                    closeParen = t_.closeParenToken;
+                }
+                else if (condition is BinaryExpressionSyntax c_)
+                {
+                    if (c_.left is ParenthesizedExpressionSyntax t1 && c_.right is ParenthesizedExpressionSyntax t2)
+                    {
+                        //openParen = t1.openParenToken;
+                        //closeParen = t2.openParenToken;
+                    }
+                }
+
+                openParen ??= SyntaxFactory.MissingToken(SyntaxKind.OpenParenToken);
+                closeParen ??= SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken);
+
                 var consequence = this.ParseEmbeddedStatement();
 
                 var elseKeyword = this.CurrentToken.Kind != SyntaxKind.ElseKeyword ?
@@ -12477,7 +12505,7 @@ done:
 
         private ExpressionSyntax ParseArrayOrObjectCreationExpression()
         {
-            SyntaxToken @new = this.EatToken(SyntaxKind.NewKeyword);
+            SyntaxToken @new = this.EatToken();
 
             TypeSyntax type = null;
             InitializerExpressionSyntax initializer = null;
@@ -12506,15 +12534,6 @@ done:
             if (this.CurrentToken.Kind == SyntaxKind.OpenBraceToken)
             {
                 initializer = this.ParseObjectOrCollectionInitializer();
-            }
-
-            // we need one or the other.  also, don't bother reporting this if we already complained about the new type.
-            if (argumentList == null && initializer == null)
-            {
-                argumentList = _syntaxFactory.ArgumentList(
-                    this.EatToken(SyntaxKind.OpenParenToken, ErrorCode.ERR_BadNewExpr, reportError: type?.ContainsDiagnostics == false),
-                    default(SeparatedSyntaxList<ArgumentSyntax>),
-                    SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken));
             }
 
             return type is null
