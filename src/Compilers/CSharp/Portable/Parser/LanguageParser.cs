@@ -12842,7 +12842,7 @@ done:
 
         private ExpressionSyntax ParseArrayOrObjectCreationExpression()
         {
-            SyntaxToken @new = this.EatToken(SyntaxKind.NewKeyword);
+            SyntaxToken @new = this.EatToken();
 
             TypeSyntax type = null;
             InitializerExpressionSyntax initializer = null;
@@ -12871,15 +12871,6 @@ done:
             if (this.CurrentToken.Kind == SyntaxKind.OpenBraceToken)
             {
                 initializer = this.ParseObjectOrCollectionInitializer();
-            }
-
-            // we need one or the other.  also, don't bother reporting this if we already complained about the new type.
-            if (argumentList == null && initializer == null)
-            {
-                argumentList = _syntaxFactory.ArgumentList(
-                    this.EatToken(SyntaxKind.OpenParenToken, ErrorCode.ERR_BadNewExpr, reportError: type?.ContainsDiagnostics == false),
-                    default(SeparatedSyntaxList<ArgumentSyntax>),
-                    SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken));
             }
 
             return type is null
