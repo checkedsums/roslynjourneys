@@ -9579,9 +9579,28 @@ done:
             while (true)
             {
                 var ifKeyword = this.EatToken(SyntaxKind.IfKeyword);
-                var openParen = this.EatToken(SyntaxKind.OpenParenToken);
+
                 var condition = this.ParseExpressionCore();
-                var closeParen = this.EatToken(SyntaxKind.CloseParenToken);
+
+                SyntaxToken openParen = null, closeParen = null;
+                if (condition is ParenthesizedExpressionSyntax t_)
+                {
+                    openParen = t_.openParenToken;
+                    condition = t_.expression;
+                    closeParen = t_.closeParenToken;
+                }
+                else if (condition is BinaryExpressionSyntax c_)
+                {
+                    if (c_.left is ParenthesizedExpressionSyntax t1 && c_.right is ParenthesizedExpressionSyntax t2)
+                    {
+                        //openParen = t1.openParenToken;
+                        //closeParen = t2.openParenToken;
+                    }
+                }
+
+                openParen ??= SyntaxFactory.MissingToken(SyntaxKind.OpenParenToken);
+                closeParen ??= SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken);
+
                 var consequence = this.ParseEmbeddedStatement();
 
                 var elseKeyword = this.CurrentToken.Kind != SyntaxKind.ElseKeyword ?
