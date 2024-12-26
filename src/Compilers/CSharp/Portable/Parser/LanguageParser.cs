@@ -1666,7 +1666,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             var typeParameters = this.ParseTypeParameterList();
 
             var paramList = CurrentToken.Kind == SyntaxKind.OpenParenToken
-                ? ParseParenthesizedParameterList() : null;
+                ? ParseParameterList<ParameterListSyntax>() : null;
 
             var baseList = this.ParseBaseList();
             _termState = saveTerm;
@@ -3203,7 +3203,7 @@ parse_member_name:;
             _termState |= TerminatorState.IsEndOfMethodSignature;
             try
             {
-                var paramList = this.ParseParenthesizedParameterList();
+                var paramList = this.ParseParameterList<ParameterListSyntax>();
                 var initializer = this.CurrentToken.Kind == SyntaxKind.ColonToken
                     ? this.ParseConstructorInitializer()
                     : null;
@@ -3256,7 +3256,7 @@ parse_member_name:;
             var tilde = this.EatToken(SyntaxKind.TildeToken);
 
             var name = this.ParseIdentifierToken();
-            var parameterList = _syntaxFactory.ParameterList(
+            var parameterList = (ParameterListSyntax)_syntaxFactory.ParameterList(
                 this.EatToken(SyntaxKind.OpenParenToken),
                 default(SeparatedSyntaxList<ParameterSyntax>),
                 this.EatToken(SyntaxKind.CloseParenToken));
@@ -3366,7 +3366,7 @@ parse_member_name:;
             var saveTerm = _termState;
             _termState |= TerminatorState.IsEndOfMethodSignature;
 
-            var paramList = this.ParseParenthesizedParameterList();
+            var paramList = this.ParseParameterList<ParameterListSyntax>();
 
             var constraints = default(SyntaxListBuilder<TypeParameterConstraintClauseSyntax>);
             if (this.CurrentToken.ContextualKind == SyntaxKind.WhereKeyword)
@@ -3551,7 +3551,7 @@ parse_member_name:;
                         opKeyword,
                         checkedKeyword: null,
                         type,
-                        _syntaxFactory.ParameterList(
+                        (ParameterListSyntax)_syntaxFactory.ParameterList(
                             SyntaxFactory.MissingToken(SyntaxKind.OpenParenToken),
                             parameters: default,
                             SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken)),
@@ -3578,7 +3578,7 @@ parse_member_name:;
                     type = ParseIdentifierName();
                 }
 
-                var paramList = this.ParseParenthesizedParameterList();
+                var paramList = this.ParseParameterList<ParameterListSyntax>();
 
                 this.ParseBlockAndExpressionBodiesWithSemicolon(out var blockBody, out var expressionBody, out var semicolon);
 
@@ -3782,7 +3782,7 @@ parse_member_name:;
                 }
             }
 
-            var paramList = this.ParseParenthesizedParameterList();
+            var paramList = this.ParseParameterList<ParameterListSyntax>();
 
             switch (paramList.Parameters.Count)
             {
@@ -3866,7 +3866,7 @@ parse_member_name:;
                 thisKeyword = this.AddError(thisKeyword, ErrorCode.ERR_UnexpectedGenericName);
             }
 
-            var parameterList = this.ParseBracketedParameterList();
+            var parameterList = this.ParseParameterList<BracketedParameterListSyntax>();
 
             AccessorListSyntax accessorList = null;
             ArrowExpressionClauseSyntax expressionBody = null;
@@ -4377,46 +4377,48 @@ parse_member_name:;
             _ => SyntaxKind.UnknownAccessorDeclaration,
         };
 
-        internal ParameterListSyntax ParseParenthesizedParameterList()
+        internal T ParseParameterList<T>() where T : BaseParameterListSyntax
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameterList(this.CurrentNode as CSharp.Syntax.ParameterListSyntax))
+            var openKind =
+                typeof(T) == typeof(ParameterListSyntax) ? SyntaxKind.OpenParenToken :
+                typeof(T) == typeof(BracketedParameterListSyntax) ? SyntaxKind.OpenBracketToken
+                    : throw ExceptionUtilities.UnexpectedValue(nameof(T));
+
+            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameterList(openKind))
             {
-                return (ParameterListSyntax)this.EatNode();
+                return (T)this.EatNode();
             }
 
-            var parameters = this.ParseParameterList(out var open, out var close, SyntaxKind.OpenParenToken, SyntaxKind.CloseParenToken);
-            return _syntaxFactory.ParameterList(open, parameters, close);
+            var parameters = this.ParseParameterList(out var open, out var close, openKind);
+            return (T)_syntaxFactory.ParameterList(open, parameters, close);
         }
 
-        internal BracketedParameterListSyntax ParseBracketedParameterList()
+        private bool CanReuseParameterList(SyntaxKind? openKind)
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseBracketedParameterList(this.CurrentNode as CSharp.Syntax.BracketedParameterListSyntax))
+            var node = this.CurrentNode;
+            Syntax.ParameterListSyntax? pml = null;
+            Syntax.BracketedParameterListSyntax? bpl = null;
+
+            if (openKind == null)
             {
-                return (BracketedParameterListSyntax)this.EatNode();
+                switch (this.CurrentToken.Kind)
+                {
+                    case SyntaxKind.OpenParenToken:
+                        pml = node as Syntax.ParameterListSyntax;
+                        break;
+                    case SyntaxKind.OpenBracketToken:
+                        bpl = node as Syntax.BracketedParameterListSyntax;
+                        break;
+                }
             }
 
-            var parameters = this.ParseParameterList(out var open, out var close, SyntaxKind.OpenBracketToken, SyntaxKind.CloseBracketToken);
-            return _syntaxFactory.BracketedParameterList(open, parameters, close);
-        }
-
-        private static bool CanReuseParameterList(CSharp.Syntax.ParameterListSyntax list)
-        {
-            if (list == null)
-            {
-                return false;
-            }
-
-            if (list.OpenParenToken.IsMissing)
-            {
-                return false;
-            }
-
-            if (list.CloseParenToken.IsMissing)
+            if (((pml?.OpenParenToken ?? bpl?.OpenBracketToken)?.IsMissing ?? true)
+                || ((pml?.CloseParenToken ?? bpl?.CloseBracketToken)?.IsMissing ?? true))
             {
                 return false;
             }
 
-            foreach (var parameter in list.Parameters)
+            foreach (var parameter in (node as Syntax.BaseParameterListSyntax)?.Parameters)
             {
                 if (!CanReuseParameter(parameter))
                 {
@@ -4427,41 +4429,24 @@ parse_member_name:;
             return true;
         }
 
-        private static bool CanReuseBracketedParameterList(CSharp.Syntax.BracketedParameterListSyntax list)
+        /*SyntaxToken EatOpenToken(SyntaxKind? lkind)
         {
-            if (list == null)
+            return lkind is null ? this.CurrentToken.Kind switch
             {
-                return false;
-            }
+                SyntaxKind.OpenParenToken or SyntaxKind.OpenBracketToken => this.EatToken(),
+                _ => this.AddError(SyntaxFactory.MissingToken(SyntaxKind.OpenBracketToken), ErrorCode.ERR_SyntaxError,
+                    SyntaxFacts.GetText(SyntaxKind.OpenParenToken) + ", or " + SyntaxFacts.GetText(SyntaxKind.OpenBracketToken)),
 
-            if (list.OpenBracketToken.IsMissing)
-            {
-                return false;
-            }
-
-            if (list.CloseBracketToken.IsMissing)
-            {
-                return false;
-            }
-
-            foreach (var parameter in list.Parameters)
-            {
-                if (!CanReuseParameter(parameter))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+            } : this.EatToken((SyntaxKind)lkind);
+        }*/
 
         private SeparatedSyntaxList<ParameterSyntax> ParseParameterList(
             out SyntaxToken open,
             out SyntaxToken close,
-            SyntaxKind openKind,
-            SyntaxKind closeKind)
+            SyntaxKind openKind)
         {
             open = this.EatToken(openKind);
+            var closeKind = open.Kind.getCongener();
 
             var saveTerm = _termState;
             _termState |= TerminatorState.IsEndOfParameterList;
@@ -5305,7 +5290,7 @@ parse_member_name:;
             using var _ = this.GetDisposableResetPoint(resetOnDispose: true);
 
             var typeParameterListOpt = this.ParseTypeParameterList();
-            var paramList = ParseParenthesizedParameterList();
+            var paramList = this.ParseParameterList<ParameterListSyntax>();
 
             if (!paramList.IsMissing &&
                  (this.CurrentToken.Kind is SyntaxKind.OpenBraceToken or SyntaxKind.EqualsGreaterThanToken ||
@@ -5359,7 +5344,7 @@ parse_member_name:;
             _termState |= TerminatorState.IsEndOfMethodSignature;
             var name = this.ParseIdentifierToken();
             var typeParameters = this.ParseTypeParameterList();
-            var parameterList = this.ParseParenthesizedParameterList();
+            var parameterList = this.ParseParameterList<ParameterListSyntax>();
             var constraints = default(SyntaxListBuilder<TypeParameterConstraintClauseSyntax>);
 
             if (this.CurrentToken.ContextualKind == SyntaxKind.WhereKeyword)
@@ -8218,7 +8203,7 @@ done:
             var saveTerm = _termState;
             _termState |= TerminatorState.IsEndOfMethodSignature;
 
-            var paramList = this.ParseParenthesizedParameterList();
+            var paramList = this.ParseParameterList<ParameterListSyntax>();
 
             _termState = saveTerm;
             var separatedParameters = paramList.Parameters.GetWithSeparators();
@@ -10264,7 +10249,7 @@ done:
 
             TypeParameterListSyntax typeParameterListOpt = this.ParseTypeParameterList();
             // "await f<T>()" still makes sense, so don't force accept a local function if there's a type parameter list.
-            ParameterListSyntax paramList = this.ParseParenthesizedParameterList();
+            ParameterListSyntax paramList = this.ParseParameterList<ParameterListSyntax>();
             // "await x()" is ambiguous (see note at start of this method), but we assume "await x(await y)" is meant to be a function if it's in a non-async context.
             if (!forceLocalFunc)
             {
@@ -12857,7 +12842,7 @@ done:
                 ParameterListSyntax parameterList = null;
                 if (this.CurrentToken.Kind == SyntaxKind.OpenParenToken)
                 {
-                    parameterList = this.ParseParenthesizedParameterList();
+                    parameterList = this.ParseParameterList<ParameterListSyntax>();
                 }
 
                 // In mismatched braces cases (missing a }) it is possible for delegate declarations to be
@@ -13041,7 +13026,7 @@ done:
 
             _termState = saveTerm;
 
-            return _syntaxFactory.ParameterList(
+            return (ParameterListSyntax)_syntaxFactory.ParameterList(
                 openParen,
                 nodes,
                 this.EatToken(SyntaxKind.CloseParenToken));

@@ -20935,12 +20935,12 @@ internal sealed partial class IndexerDeclarationSyntax : BasePropertyDeclaration
     internal readonly TypeSyntax type;
     internal readonly ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier;
     internal readonly SyntaxToken thisKeyword;
-    internal readonly BracketedParameterListSyntax parameterList;
+    internal readonly BaseParameterListSyntax parameterList;
     internal readonly AccessorListSyntax? accessorList;
     internal readonly ArrowExpressionClauseSyntax? expressionBody;
     internal readonly SyntaxToken? semicolonToken;
 
-    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BracketedParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, DiagnosticInfo[]? diagnostics, SyntaxAnnotation[]? annotations)
+    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BaseParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, DiagnosticInfo[]? diagnostics, SyntaxAnnotation[]? annotations)
       : base(kind, diagnostics, annotations)
     {
         this.SlotCount = 9;
@@ -20982,7 +20982,7 @@ internal sealed partial class IndexerDeclarationSyntax : BasePropertyDeclaration
         }
     }
 
-    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BracketedParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, SyntaxFactoryContext context)
+    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BaseParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken, SyntaxFactoryContext context)
       : base(kind)
     {
         this.SetFactoryContext(context);
@@ -21025,7 +21025,7 @@ internal sealed partial class IndexerDeclarationSyntax : BasePropertyDeclaration
         }
     }
 
-    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BracketedParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
+    internal IndexerDeclarationSyntax(SyntaxKind kind, GreenNode? attributeLists, GreenNode? modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BaseParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
       : base(kind)
     {
         this.SlotCount = 9;
@@ -21073,7 +21073,7 @@ internal sealed partial class IndexerDeclarationSyntax : BasePropertyDeclaration
     public override ExplicitInterfaceSpecifierSyntax? ExplicitInterfaceSpecifier => this.explicitInterfaceSpecifier;
     public SyntaxToken ThisKeyword => this.thisKeyword;
     /// <summary>Gets the parameter list.</summary>
-    public BracketedParameterListSyntax ParameterList => this.parameterList;
+    public BaseParameterListSyntax ParameterList => this.parameterList;
     public override AccessorListSyntax? AccessorList => this.accessorList;
     public ArrowExpressionClauseSyntax? ExpressionBody => this.expressionBody;
     public SyntaxToken? SemicolonToken => this.semicolonToken;
@@ -31792,7 +31792,7 @@ internal partial class ContextAwareSyntax
         return new EventDeclarationSyntax(SyntaxKind.EventDeclaration, attributeLists.Node, modifiers.Node, eventKeyword, type, explicitInterfaceSpecifier, identifier, accessorList, semicolonToken, this.context);
     }
 
-    public IndexerDeclarationSyntax IndexerDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BracketedParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
+    public IndexerDeclarationSyntax IndexerDeclaration(CoreSyntax.SyntaxList<AttributeListSyntax> attributeLists, CoreSyntax.SyntaxList<SyntaxToken> modifiers, TypeSyntax type, ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier, SyntaxToken thisKeyword, BaseParameterListSyntax parameterList, AccessorListSyntax? accessorList, ArrowExpressionClauseSyntax? expressionBody, SyntaxToken? semicolonToken)
     {
 #if DEBUG
         if (type == null) throw new ArgumentNullException(nameof(type));
@@ -31873,8 +31873,12 @@ internal partial class ContextAwareSyntax
         return new AccessorDeclarationSyntax(kind, attributeLists.Node, modifiers.Node, keyword, body, expressionBody, semicolonToken, this.context);
     }
 
-    public ParameterListSyntax ParameterList(SyntaxToken openParenToken, CoreSyntax.SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParenToken)
+    public BaseParameterListSyntax ParameterList(SyntaxToken openParenToken, CoreSyntax.SeparatedSyntaxList<ParameterSyntax> parameters, SyntaxToken closeParenToken)
     {
+        if (openParenToken.Kind is SyntaxKind.OpenBracketToken)
+        {
+            return BracketedParameterList(openParenToken, parameters, closeParenToken);
+        }
 #if DEBUG
         if (openParenToken == null) throw new ArgumentNullException(nameof(openParenToken));
         if (openParenToken.Kind != SyntaxKind.OpenParenToken) throw new ArgumentException(nameof(openParenToken));

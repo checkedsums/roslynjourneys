@@ -1817,47 +1817,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
             using (var parser = MakeParser(lexer))
             {
-                var node = parser.ParseParenthesizedParameterList();
+                var node = parser.ParseParameterList<InternalSyntax.ParameterListSyntax>();
                 if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
                 return (ParameterListSyntax)node.CreateRed();
-            }
-        }
-
-        /// <summary>
-        /// Parse a BracketedParameterListSyntax node.
-        /// </summary>
-        /// <param name="text">The text of the bracketed parameter list.</param>
-        /// <param name="offset">Optional offset into text.</param>
-        /// <param name="options">The optional parse options to use. If no options are specified default options are
-        /// used.</param>
-        /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
-        public static BracketedParameterListSyntax ParseBracketedParameterList(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
-        {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseBracketedParameterList();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (BracketedParameterListSyntax)node.CreateRed();
-            }
-        }
-
-        /// <summary>
-        /// Parse an ArgumentListSyntax node.
-        /// </summary>
-        /// <param name="text">The text of the parenthesized argument list.</param>
-        /// <param name="offset">Optional offset into text.</param>
-        /// <param name="options">The optional parse options to use. If no options are specified default options are
-        /// used.</param>
-        /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
-        public static ArgumentListSyntax ParseArgumentList(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
-        {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseParenthesizedArgumentList();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (ArgumentListSyntax)node.CreateRed();
             }
         }
 
