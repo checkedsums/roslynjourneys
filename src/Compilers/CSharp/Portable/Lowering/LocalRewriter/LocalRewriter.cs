@@ -379,6 +379,39 @@ namespace Microsoft.CodeAnalysis.CSharp
             int localFunctionOrdinal = _availableLocalFunctionOrdinal++;
 
             var localFunction = node.Symbol;
+            CheckRefReadOnlySymbols(localFunction);
+
+            if (_factory.CompilationState.ModuleBuilderOpt is { } moduleBuilder)
+            {
+                var typeParameters = localFunction.TypeParameters;
+                if (typeParameters.Any(static typeParameter => typeParameter.HasUnmanagedTypeConstraint))
+                {
+                    moduleBuilder.EnsureIsUnmanagedAttributeExists();
+                }
+
+                if (_compilation.ShouldEmitNativeIntegerAttributes())
+                {
+                    if (hasReturnTypeOrParameter(localFunction, static t => t.ContainsNativeIntegerWrapperType()) ||
+                        typeParameters.Any(static t => t.ConstraintTypesNoUseSiteDiagnostics.Any(static t => t.ContainsNativeIntegerWrapperType())))
+                    {
+                        moduleBuilder.EnsureNativeIntegerAttributeExists();
+                    }
+                }
+
+                if (_factory.CompilationState.Compilation.ShouldEmitNullableAttributes(localFunction))
+                {
+                    bool constraintsNeedNullableAttribute = typeParameters.Any(
+                       static typeParameter => ((SourceTypeParameterSymbol)typeParameter).ConstraintsNeedNullableAttribute());
+
+                    if (constraintsNeedNullableAttribute || hasReturnTypeOrParameter(localFunction, static t => t.NeedsNullableAttribute()))
+                    {
+                        moduleBuilder.EnsureNullableAttributeExists();
+                    }
+                }
+
+                static bool hasReturnTypeOrParameter(LocalFunctionSymbol localFunction, Func<TypeWithAnnotations, bool> predicate) =>
+                    predicate(localFunction.ReturnTypeWithAnnotations) || localFunction.ParameterTypesWithAnnotations.Any(predicate);
+            }
 
             var oldContainingSymbol = _factory.CurrentFunction;
             var oldInstrumenter = InstrumentationState.Instrumenter;
