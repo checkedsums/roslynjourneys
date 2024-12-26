@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Roslyn.Utilities;
 
@@ -80,7 +81,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool IsLiteralNull(this BoundExpression node)
         {
-            return node is { Kind: BoundKind.Literal, ConstantValueOpt: { Discriminator: ConstantValueTypeDiscriminator.Null } };
+            return node is { Kind: BoundKind.Literal, ConstantValueOpt.Discriminator: ConstantValueTypeDiscriminator.Null };
+        }
+
+        public static bool NotVoidLiteral(this BoundExpression node, out Syntax.InternalSyntax.LiteralExpressionSyntax lite)
+        {
+            return (lite = node.Syntax.Green as Syntax.InternalSyntax.LiteralExpressionSyntax) is null || lite.token.Kind is not SyntaxKind.VoidKeyword;
         }
 
         public static bool IsLiteralDefault(this BoundExpression node)

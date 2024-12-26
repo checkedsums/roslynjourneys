@@ -2174,7 +2174,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                 case BoundKind.Literal:
                     {
-                        if (operand.IsLiteralNull())
+                        if (operand.IsLiteralNull() && operand.NotVoidLiteral(out _))
                         {
                             if (targetType.TypeKind == TypeKind.TypeParameter)
                             {

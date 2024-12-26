@@ -4298,6 +4298,17 @@ namespace Microsoft.CodeAnalysis.CSharp
 
     internal sealed partial class BoundLiteral : BoundExpression
     {
+        public static BoundExpression Instantiate(SyntaxNode syntax, ConstantValue? constantValueOpt, TypeSymbol? type)
+        {
+            if (syntax is not LiteralExpressionSyntax literal)
+                throw new ArgumentException(nameof(syntax));
+            
+            if (literal.Token.IsKind(SyntaxKind.VoidKeyword))
+                return new BoundDefaultLiteral(syntax);
+
+            return new BoundLiteral(syntax, constantValueOpt, type);
+        }
+
         public BoundLiteral(SyntaxNode syntax, ConstantValue? constantValueOpt, TypeSymbol? type, bool hasErrors)
             : base(BoundKind.Literal, syntax, type, hasErrors)
         {

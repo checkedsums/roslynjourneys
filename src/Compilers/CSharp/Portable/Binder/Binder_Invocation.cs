@@ -1632,7 +1632,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 else
                 {
                     TypeSymbol constantType = Compilation.GetSpecialType(defaultConstantValue.SpecialType);
-                    defaultValue = new BoundLiteral(syntax, defaultConstantValue, constantType) { WasCompilerGenerated = true };
+                    (defaultValue = BoundLiteral.Instantiate(syntax, defaultConstantValue, constantType)).WasCompilerGenerated = true;
 
                     if (InAttributeArgument && parameterType.SpecialType == SpecialType.System_Object)
                     {

@@ -376,7 +376,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         syntax,
                         operatorKind,
                         _factory.Convert(operandType, rewrittenExpr),
-                        _factory.Convert(operandType, new BoundLiteral(syntax, ConstantValue.Null, objectType)),
+                        _factory.Convert(operandType, BoundLiteral.Instantiate(syntax, ConstantValue.Null, objectType)),
                         _factory.SpecialType(SpecialType.System_Boolean),
                         method: null, constrainedToTypeOpt: null);
                 }

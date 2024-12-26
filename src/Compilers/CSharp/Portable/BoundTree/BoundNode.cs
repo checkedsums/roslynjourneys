@@ -179,7 +179,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 #endif
                 return (_attributes & BoundNodeAttributes.CompilerGenerated) != 0;
             }
-            internal set
+            set
             {
 #if DEBUG
                 Debug.Assert((_attributes & BoundNodeAttributes.WasCompilerGeneratedIsChecked) == 0,

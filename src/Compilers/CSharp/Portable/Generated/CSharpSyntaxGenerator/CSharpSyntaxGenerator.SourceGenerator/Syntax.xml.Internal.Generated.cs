@@ -28534,26 +28534,6 @@ internal partial class ContextAwareSyntax
             case SyntaxKind.DefaultLiteralExpression: break;
             default: throw new ArgumentException(nameof(kind));
         }
-#if DEBUG
-        if (token == null) throw new ArgumentNullException(nameof(token));
-        switch (token.Kind)
-        {
-            case SyntaxKind.ArgListKeyword:
-            case SyntaxKind.NumericLiteralToken:
-            case SyntaxKind.StringLiteralToken:
-            case SyntaxKind.Utf8StringLiteralToken:
-            case SyntaxKind.MultiLineRawStringLiteralToken:
-            case SyntaxKind.Utf8MultiLineRawStringLiteralToken:
-            case SyntaxKind.SingleLineRawStringLiteralToken:
-            case SyntaxKind.Utf8SingleLineRawStringLiteralToken:
-            case SyntaxKind.CharacterLiteralToken:
-            case SyntaxKind.TrueKeyword:
-            case SyntaxKind.FalseKeyword:
-            case SyntaxKind.NullKeyword:
-            case SyntaxKind.DefaultKeyword: break;
-            default: throw new ArgumentException(nameof(token));
-        }
-#endif
 
         int hash;
         var cached = CSharpSyntaxNodeCache.TryGetNode((int)kind, token, this.context, out hash);

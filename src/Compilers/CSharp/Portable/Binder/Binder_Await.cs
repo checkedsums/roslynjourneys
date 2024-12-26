@@ -328,7 +328,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         private bool GetIsCompletedProperty(TypeSymbol awaiterType, SyntaxNode node, TypeSymbol awaitedExpressionType, BindingDiagnosticBag diagnostics, [NotNullWhen(true)] out PropertySymbol? isCompletedProperty)
         {
-            var receiver = new BoundLiteral(node, ConstantValue.Null, awaiterType);
+            var receiver = BoundLiteral.Instantiate(node, ConstantValue.Null, awaiterType);
             var name = WellKnownMemberNames.IsCompleted;
             var qualified = BindInstanceMemberAccess(node, node, receiver, name, 0, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), invoked: false, indexed: false, diagnostics);
             if (qualified.HasAnyErrors)

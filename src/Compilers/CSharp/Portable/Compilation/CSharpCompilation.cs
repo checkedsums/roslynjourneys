@@ -2099,7 +2099,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var syntax = method.ExtractReturnTypeSyntax();
-            var dumbInstance = new BoundLiteral(syntax, ConstantValue.Null, namedType);
+            var dumbInstance = BoundLiteral.Instantiate(syntax, ConstantValue.Null, namedType);
             var binder = GetBinder(syntax);
             BoundExpression? result;
             var success = binder.GetAwaitableExpressionInfo(dumbInstance, out result, syntax, diagnostics);

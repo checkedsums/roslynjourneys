@@ -577,7 +577,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 SyntaxKind.Utf8MultiLineRawStringLiteralToken => SyntaxKind.Utf8StringLiteralExpression,
                 SyntaxKind.CharacterLiteralToken => SyntaxKind.CharacterLiteralExpression,
                 SyntaxKind.NumericLiteralToken => SyntaxKind.NumericLiteralExpression,
-                SyntaxKind.NullKeyword => SyntaxKind.NullLiteralExpression,
+                SyntaxKind.NullKeyword or SyntaxKind.VoidKeyword => SyntaxKind.NullLiteralExpression,
                 SyntaxKind.TrueKeyword => SyntaxKind.TrueLiteralExpression,
                 SyntaxKind.FalseKeyword => SyntaxKind.FalseLiteralExpression,
                 SyntaxKind.ArgListKeyword => SyntaxKind.ArgListExpression,

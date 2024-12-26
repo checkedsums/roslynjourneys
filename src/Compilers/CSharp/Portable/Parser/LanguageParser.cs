@@ -10368,6 +10368,9 @@ done:
                 case SyntaxKind.ThisKeyword:
                 case SyntaxKind.TrueKeyword:
                 case SyntaxKind.NullKeyword:
+
+                case SyntaxKind.VoidKeyword:
+
                 case SyntaxKind.OpenParenToken:
                 case SyntaxKind.NumericLiteralToken:
                 case SyntaxKind.StringLiteralToken:
@@ -11259,6 +11262,8 @@ done:
                         return _syntaxFactory.ThisExpression(this.EatToken());
                     case SyntaxKind.BaseKeyword:
                         return ParseBaseExpression();
+
+                    case SyntaxKind.VoidKeyword:
 
                     case SyntaxKind.ArgListKeyword:
                     case SyntaxKind.FalseKeyword:

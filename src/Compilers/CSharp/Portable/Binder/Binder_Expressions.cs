@@ -2658,7 +2658,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return;
             }
 
-            if (!targetType.IsReferenceType && !targetType.IsNullableType() && operand.IsLiteralNull())
+            if (!targetType.IsReferenceType && !targetType.IsNullableType() && operand.IsLiteralNull() && operand.NotVoidLiteral(out _))
             {
                 diagnostics.Add(ErrorCode.ERR_ValueCantBeNull, syntax.Location, targetType);
                 return;
@@ -4257,11 +4257,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 BoundExpression[] sizeArray = new BoundExpression[rank];
                 for (int i = 0; i < rank; i++)
                 {
-                    sizeArray[i] = new BoundLiteral(
+                    (sizeArray[i] = BoundLiteral.Instantiate(
                         nonNullSyntax,
                         ConstantValue.Create(knownSizes[i] ?? 0),
-                        GetSpecialType(SpecialType.System_Int32, diagnostics, nonNullSyntax))
-                    { WasCompilerGenerated = true };
+                        GetSpecialType(SpecialType.System_Int32, diagnostics, nonNullSyntax))).WasCompilerGenerated = true;
                 }
                 sizes = sizeArray.AsImmutableOrNull();
             }
@@ -4469,8 +4468,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 sizeOpt = new BoundLiteral(
                         node,
                         ConstantValue.Create(boundInitExprOpt.Length),
-                        GetSpecialType(SpecialType.System_Int32, diagnostics, node))
-                { WasCompilerGenerated = true };
+                        GetSpecialType(SpecialType.System_Int32, diagnostics, node));
             }
 
             bool isInferred = node.IsKind(SyntaxKind.ImplicitStackAllocArrayCreationExpression);
@@ -7079,7 +7077,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             return null;
         }
 
-        private BoundLiteral BindLiteralConstant(LiteralExpressionSyntax node, BindingDiagnosticBag diagnostics)
+        private BoundExpression BindLiteralConstant(LiteralExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
             // bug.Assert(node.Kind == SyntaxKind.LiteralExpression);
 
@@ -7105,7 +7103,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             ConstantValue cv;
             TypeSymbol type = null;
 
-            if (value == null)
+            if (node.Kind() is SyntaxKind.NullLiteralExpression)
             {
                 cv = ConstantValue.Null;
             }
@@ -7127,7 +7125,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 type = GetSpecialType(specialType, diagnostics, node);
             }
 
-            return new BoundLiteral(node, cv, type);
+            return BoundLiteral.Instantiate(node, cv, type);
         }
 
         private BoundUtf8String BindUtf8StringLiteral(LiteralExpressionSyntax node, BindingDiagnosticBag diagnostics)
