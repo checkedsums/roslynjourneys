@@ -136,13 +136,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        public override ImmutableArray<TypeParameterSymbol> TypeParameters
-        {
-            get
-            {
-                return [];
-            }
-        }
+        public override ImmutableArray<TypeParameterSymbol> TypeParameters => [];
 
         public override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes()
             => [];
@@ -150,56 +144,23 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds()
             => [];
 
-        public sealed override TypeWithAnnotations ReturnTypeWithAnnotations
-        {
-            get
-            {
-                return _returnType;
-            }
-        }
+        public sealed override TypeWithAnnotations ReturnTypeWithAnnotations => _returnType;
 
-        public sealed override bool IsImplicitlyDeclared
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public sealed override bool IsImplicitlyDeclared => true;
 
-        internal override bool GenerateDebugInfo
-        {
-            get { return false; }
-        }
+        internal override bool GenerateDebugInfo => false;
 
-        protected sealed override IAttributeTargetSymbol AttributeOwner
-        {
-            get
-            {
-                return (SourceNamedTypeSymbol)ContainingSymbol;
-            }
-        }
+        protected sealed override IAttributeTargetSymbol AttributeOwner => (SourceNamedTypeSymbol)ContainingSymbol;
 
-        internal sealed override System.Reflection.MethodImplAttributes ImplementationAttributes
-        {
-            get { return System.Reflection.MethodImplAttributes.Runtime; }
-        }
+        internal sealed override System.Reflection.MethodImplAttributes ImplementationAttributes => System.Reflection.MethodImplAttributes.Runtime;
 
-        internal sealed override OneOrMany<SyntaxList<AttributeListSyntax>> GetAttributeDeclarations()
-        {
-            // TODO: This implementation looks strange. It might make sense for the Invoke method, but
-            //       not for constructor and other methods.
-            return OneOrMany.Create(((SourceNamedTypeSymbol)ContainingSymbol).GetAttributeDeclarations());
-        }
+        internal sealed override OneOrMany<SyntaxList<AttributeListSyntax>> GetAttributeDeclarations() =>
+            // TODO: This implementation looks strange. It might make sense for the Invoke method, but not for constructor and other methods.
+            OneOrMany.Create(((SourceNamedTypeSymbol)ContainingSymbol).GetAttributeDeclarations());
 
-        internal sealed override System.AttributeTargets GetAttributeTarget()
-        {
-            return System.AttributeTargets.Delegate;
-        }
+        internal sealed override System.AttributeTargets GetAttributeTarget() => System.AttributeTargets.Delegate;
 
-        internal sealed override int TryGetOverloadResolutionPriority()
-        {
-            return 0;
-        }
+        internal sealed override int TryGetOverloadResolutionPriority() => 0;
 
         private sealed class Constructor : SourceDelegateMethodSymbol
         {
@@ -218,27 +179,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ]);
             }
 
-            public override string Name
-            {
-                get { return WellKnownMemberNames.InstanceConstructorName; }
-            }
+            public override string Name => WellKnownMemberNames.InstanceConstructorName;
 
-            internal override OneOrMany<SyntaxList<AttributeListSyntax>> GetReturnTypeAttributeDeclarations()
-            {
+            internal override OneOrMany<SyntaxList<AttributeListSyntax>> GetReturnTypeAttributeDeclarations() =>
                 // Constructors don't have return type attributes
-                return OneOrMany.Create(default(SyntaxList<AttributeListSyntax>));
-            }
+                OneOrMany.Create(default(SyntaxList<AttributeListSyntax>));
 
-            internal override LexicalSortKey GetLexicalSortKey()
-            {
+            internal override LexicalSortKey GetLexicalSortKey() =>
                 // associate "Invoke and .ctor" with whole delegate declaration for the sorting purposes
                 // other methods will be associated with delegate's identifier
                 // we want this just to keep the order of synthesized methods the same as in Dev12
                 // Dev12 order is not strictly alphabetical - .ctor and Invoke go before other members.
                 // there are no real reasons for emitting the members in one order or another, 
                 // so we will keep them the same.
-                return new LexicalSortKey(this.syntaxReferenceOpt.GetLocation(), this.DeclaringCompilation);
-            }
+                new LexicalSortKey(this.syntaxReferenceOpt.GetLocation(), this.DeclaringCompilation);
 
             protected override bool HasSetsRequiredMembersImpl => false;
         }
@@ -258,9 +212,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 BindingDiagnosticBag diagnostics)
                 : base(delegateType, returnType, syntax, MethodKind.DelegateInvoke, refKind, DeclarationModifiers.Virtual | DeclarationModifiers.Public)
             {
-                SyntaxToken arglistToken;
                 var parameters = ParameterHelpers.MakeParameters(
-                    binder, this, syntax.ParameterList, out arglistToken,
+                    binder, this, syntax.ParameterList, out SyntaxToken arglistToken,
                     allowRefOrOut: true,
                     allowThis: false,
                     addRefReadOnlyModifier: true,
@@ -287,21 +240,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 InitializeParameters(parameters.Cast<SourceParameterSymbol, ParameterSymbol>());
             }
 
-            public override string Name
-            {
-                get { return WellKnownMemberNames.DelegateInvokeName; }
-            }
+            public override string Name => WellKnownMemberNames.DelegateInvokeName;
 
-            internal override LexicalSortKey GetLexicalSortKey()
-            {
+            internal override LexicalSortKey GetLexicalSortKey() =>
                 // associate "Invoke and .ctor" with whole delegate declaration for the sorting purposes
                 // other methods will be associated with delegate's identifier
                 // we want this just to keep the order of synthesized methods the same as in Dev12
                 // Dev12 order is not strictly alphabetical - .ctor and Invoke go before other members.
                 // there are no real reasons for emitting the members in one order or another, 
                 // so we will keep them the same.
-                return new LexicalSortKey(this.syntaxReferenceOpt.GetLocation(), this.DeclaringCompilation);
-            }
+                new LexicalSortKey(this.syntaxReferenceOpt.GetLocation(), this.DeclaringCompilation);
 
             internal override void AfterAddingTypeMembersChecks(ConversionsBase conversions, BindingDiagnosticBag diagnostics)
             {
@@ -364,18 +312,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 InitializeParameters(parameters.ToImmutableAndFree());
             }
 
-            public override string Name
-            {
-                get { return WellKnownMemberNames.DelegateBeginInvokeName; }
-            }
+            public override string Name => WellKnownMemberNames.DelegateBeginInvokeName;
 
-            internal override OneOrMany<SyntaxList<AttributeListSyntax>> GetReturnTypeAttributeDeclarations()
-            {
+            internal override OneOrMany<SyntaxList<AttributeListSyntax>> GetReturnTypeAttributeDeclarations() =>
                 // BeginInvoke method doesn't have return type attributes
                 // because it doesn't inherit Delegate declaration's return type.
                 // It has a special return type: SpecialType.System.IAsyncResult.
-                return OneOrMany.Create(default(SyntaxList<AttributeListSyntax>));
-            }
+                OneOrMany.Create(default(SyntaxList<AttributeListSyntax>));
         }
 
         private sealed class EndInvokeMethod : SourceDelegateMethodSymbol
