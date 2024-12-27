@@ -2609,7 +2609,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return; // could be retargeting assembly
                     }
 
-                    var seen = assembly.TypesReferencedInExternalMethods;
+                    var seen = assembly._typesReferencedInExternalMethods;
                     if (seen.Add(type))
                     {
                         var namedType = (NamedTypeSymbol)type;

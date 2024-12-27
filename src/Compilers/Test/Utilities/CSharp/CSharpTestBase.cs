@@ -1062,7 +1062,7 @@ namespace System.Diagnostics.CodeAnalysis
             var c = createCompilationLambda();
             Assert.NotNull(c.Assembly); // force creation of SourceAssemblySymbol
 
-            ((SourceAssemblySymbol)c.Assembly).lazyAssemblyIdentity = identity;
+            ((SourceAssemblySymbol)c.Assembly)._lazyAssemblyIdentity = identity;
             return c;
         }
 

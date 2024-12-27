@@ -391,7 +391,7 @@ namespace Microsoft.CodeAnalysis.Test.Utilities
 
             if (assemblyIdentity != null)
             {
-                ((SourceAssemblySymbol)compilation.Assembly).lazyAssemblyIdentity = assemblyIdentity;
+                ((SourceAssemblySymbol)compilation.Assembly)._lazyAssemblyIdentity = assemblyIdentity;
             }
 
             return compilation;
