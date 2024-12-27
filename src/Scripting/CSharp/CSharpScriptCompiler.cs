@@ -15,7 +15,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Scripting
     {
         public static readonly ScriptCompiler Instance = new CSharpScriptCompiler();
 
-        internal static readonly CSharpParseOptions DefaultParseOptions = new CSharpParseOptions(kind: SourceCodeKind.Script, languageVersion: LanguageVersion.Latest);
+        internal static readonly CSharpParseOptions DefaultParseOptions = new(kind: SourceCodeKind.Script, languageVersion: LanguageVersion.Latest);
 
         private CSharpScriptCompiler()
         {
@@ -46,8 +46,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Scripting
 
             var tree = SyntaxFactory.ParseSyntaxTree(script.SourceText, script.Options.ParseOptions ?? DefaultParseOptions, script.Options.FilePath);
 
-            string assemblyName, submissionTypeName;
-            script.Builder.GenerateSubmissionId(out assemblyName, out submissionTypeName);
+            script.Builder.GenerateSubmissionId(out var assemblyName, out var submissionTypeName);
 
             var compilation = CSharpCompilation.CreateScriptCompilation(
                 assemblyName,

@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Scripting
 {
@@ -41,21 +40,16 @@ namespace Microsoft.CodeAnalysis.Scripting
         /// To avoid this problem we use a prefix for assemblies we generate that is unlikely to conflict with user specified references.
         /// We also check that no user provided references are allowed to be used in the compiled code and report an error ("reserved assembly name").
         /// </remarks>
-        private static readonly string s_globalAssemblyNamePrefix;
+        private static readonly string s_globalAssemblyNamePrefix = "\u211B*" + Guid.NewGuid().ToString();
         private static int s_engineIdDispenser;
         private int _submissionIdDispenser = -1;
         private readonly string _assemblyNamePrefix;
 
         private readonly InteractiveAssemblyLoader _assemblyLoader;
 
-        private static readonly EmitOptions s_EmitOptionsWithDebuggingInformation = new EmitOptions(
+        private static readonly EmitOptions s_emitOptionsWithDebuggingInformation = new(
             debugInformationFormat: PdbHelpers.GetPlatformSpecificDebugInformationFormat(),
             pdbChecksumAlgorithm: default(HashAlgorithmName));
-
-        static ScriptBuilder()
-        {
-            s_globalAssemblyNamePrefix = "\u211B*" + Guid.NewGuid().ToString();
-        }
 
         public ScriptBuilder(InteractiveAssemblyLoader assemblyLoader)
         {
@@ -127,46 +121,45 @@ namespace Microsoft.CodeAnalysis.Scripting
         {
             var entryPoint = compilation.GetEntryPoint(cancellationToken);
 
-            using (var peStream = new MemoryStream())
-            using (var pdbStreamOpt = emitDebugInformation ? new MemoryStream() : null)
+            using var peStream = new MemoryStream();
+            using var pdbStreamOpt = emitDebugInformation ? new MemoryStream() : null;
+
+            var emitResult = Emit(peStream, pdbStreamOpt, compilation, GetEmitOptions(emitDebugInformation), cancellationToken);
+            diagnostics.AddRange(emitResult.Diagnostics);
+
+            if (!emitResult.Success)
             {
-                var emitResult = Emit(peStream, pdbStreamOpt, compilation, GetEmitOptions(emitDebugInformation), cancellationToken);
-                diagnostics.AddRange(emitResult.Diagnostics);
-
-                if (!emitResult.Success)
-                {
-                    return null;
-                }
-
-                // let the loader know where to find assemblies:
-                foreach (var referencedAssembly in compilation.GetBoundReferenceManager().GetReferencedAssemblies())
-                {
-                    var path = (referencedAssembly.Key as PortableExecutableReference)?.FilePath;
-                    if (path != null)
-                    {
-                        // TODO: Should the #r resolver return contract metadata and runtime assembly path -
-                        // Contract assembly used in the compiler, RT assembly path here.
-                        _assemblyLoader.RegisterDependency(referencedAssembly.Value.Identity, path);
-                    }
-                }
-
-                peStream.Position = 0;
-
-                if (pdbStreamOpt != null)
-                {
-                    pdbStreamOpt.Position = 0;
-                }
-
-                var assembly = _assemblyLoader.LoadAssemblyFromStream(peStream, pdbStreamOpt);
-                var runtimeEntryPoint = GetEntryPointRuntimeMethod(entryPoint, assembly);
-
-                return runtimeEntryPoint.CreateDelegate<Func<object[], Task<T>>>();
+                return null;
             }
+
+            // let the loader know where to find assemblies:
+            foreach (var referencedAssembly in compilation.GetBoundReferenceManager().GetReferencedAssemblies())
+            {
+                var path = (referencedAssembly.Key as PortableExecutableReference)?.FilePath;
+                if (path != null)
+                {
+                    // TODO: Should the #r resolver return contract metadata and runtime assembly path -
+                    // Contract assembly used in the compiler, RT assembly path here.
+                    _assemblyLoader.RegisterDependency(referencedAssembly.Value.Identity, path);
+                }
+            }
+
+            peStream.Position = 0;
+
+            if (pdbStreamOpt != null)
+            {
+                pdbStreamOpt.Position = 0;
+            }
+
+            var assembly = _assemblyLoader.LoadAssemblyFromStream(peStream, pdbStreamOpt);
+            var runtimeEntryPoint = GetEntryPointRuntimeMethod(entryPoint, assembly);
+
+            return (Func<object[], Task<T>>)runtimeEntryPoint.CreateDelegate(typeof(Func<object[], Task<T>>));
         }
 
         // internal for testing
         internal static EmitOptions GetEmitOptions(bool emitDebugInformation)
-            => emitDebugInformation ? s_EmitOptionsWithDebuggingInformation : EmitOptions.Default;
+            => emitDebugInformation ? s_emitOptionsWithDebuggingInformation : EmitOptions.Default;
 
         // internal for testing
         internal static EmitResult Emit(

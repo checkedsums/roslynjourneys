@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.Scripting
 {
@@ -73,7 +72,7 @@ namespace Microsoft.CodeAnalysis.Scripting
             CancellationToken cancellationToken)
         {
             Debug.Assert(_frozen == 0);
-            Debug.Assert((exceptionHolderOpt != null) == (catchExceptionOpt != null));
+            Debug.Assert(exceptionHolderOpt != null == (catchExceptionOpt != null));
 
             // Each executor points to a <Factory> method of the Submission class.
             // The method creates an instance of the Submission class passing the submission states to its constructor.
@@ -150,7 +149,7 @@ namespace Microsoft.CodeAnalysis.Scripting
                 }
 
                 exceptionHolderOpt.Value = exception;
-                return default(TResult);
+                return default;
             }
         }
 
@@ -158,18 +157,14 @@ namespace Microsoft.CodeAnalysis.Scripting
         {
             // make sure there is enough free space for the submission to add its state
             if (SubmissionStateCount >= _submissionStates.Length)
-            {
                 Array.Resize(ref _submissionStates, Math.Max(SubmissionStateCount, _submissionStates.Length * 2));
-            }
         }
 
         private void AdvanceStateCounter()
         {
             // check to see if state was added (submissions that don't make declarations don't add state)
             if (_submissionStates[SubmissionStateCount] != null)
-            {
                 SubmissionStateCount++;
-            }
         }
     }
 }

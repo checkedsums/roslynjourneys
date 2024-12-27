@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.VisualStudio.Debugger.Clr;
-using Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation;
 using Roslyn.Utilities;
 using System;
 using System.Collections.ObjectModel;
@@ -46,19 +45,6 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             index = 0;
             return n == ReturnValuePrefixLength ||
                 (n > ReturnValuePrefixLength) && int.TryParse(name.Substring(ReturnValuePrefixLength), NumberStyles.None, CultureInfo.InvariantCulture, out index);
-        }
-
-        internal static DkmClrCompilationResultFlags GetLocalResultFlags(this Alias alias)
-        {
-            switch (alias.Kind)
-            {
-                case DkmClrAliasKind.Exception:
-                case DkmClrAliasKind.StowedException:
-                case DkmClrAliasKind.ReturnValue:
-                    return DkmClrCompilationResultFlags.ReadOnlyResult;
-                default:
-                    return DkmClrCompilationResultFlags.None;
-            }
         }
 
         internal static bool IsReturnValueWithoutIndex(this Alias alias)

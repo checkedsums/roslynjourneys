@@ -5,7 +5,6 @@
 #pragma warning disable 436 // The type 'RelativePathResolver' conflicts with imported type
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
 using Roslyn.Utilities;
@@ -28,12 +27,6 @@ namespace Microsoft.CodeAnalysis.Scripting
         {
             _resolver = resolver;
         }
-
-        public ScriptMetadataResolver WithSearchPaths(params string[] searchPaths)
-            => WithSearchPaths(searchPaths.AsImmutableOrEmpty());
-
-        public ScriptMetadataResolver WithSearchPaths(IEnumerable<string> searchPaths)
-            => WithSearchPaths(searchPaths.AsImmutableOrEmpty());
 
         public ScriptMetadataResolver WithSearchPaths(ImmutableArray<string> searchPaths)
         {

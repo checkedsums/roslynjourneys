@@ -34,11 +34,6 @@ namespace Microsoft.CodeAnalysis.Scripting
         public string Name => _field.Name;
 
         /// <summary>
-        /// The type of the variable.
-        /// </summary>
-        public Type Type => _field.FieldType;
-
-        /// <summary>
         /// True if the variable can't be written to (it's declared as readonly or a constant).
         /// </summary>
         public bool IsReadOnly => _field.IsInitOnly || _field.IsLiteral;

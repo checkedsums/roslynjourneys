@@ -332,7 +332,6 @@ internal abstract class AbstractLanguageServer<TRequestContext>
         await ShutdownAsync(message: "Shutdown triggered by JsonRpc disconnect").ConfigureAwait(false);
         await ExitAsync().ConfigureAwait(false);
     }
-#pragma warning disable VSTHRD100
 
     internal TestAccessor GetTestAccessor()
     {

@@ -7,34 +7,23 @@ using Microsoft.VisualStudio.Debugger.Evaluation.ClrCompilation;
 
 namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 {
-    internal readonly struct ResultProperties
+    internal readonly struct ResultProperties(
+        DkmClrCompilationResultFlags flags,
+        DkmEvaluationResultCategory category,
+        DkmEvaluationResultAccessType accessType,
+        DkmEvaluationResultStorageType storageType,
+        DkmEvaluationResultTypeModifierFlags modifierFlags)
     {
-        public readonly DkmClrCompilationResultFlags Flags;
-        public readonly DkmEvaluationResultCategory Category;
-        public readonly DkmEvaluationResultAccessType AccessType;
-        public readonly DkmEvaluationResultStorageType StorageType;
-        public readonly DkmEvaluationResultTypeModifierFlags ModifierFlags;
-
-        public ResultProperties(
-            DkmClrCompilationResultFlags flags,
-            DkmEvaluationResultCategory category,
-            DkmEvaluationResultAccessType accessType,
-            DkmEvaluationResultStorageType storageType,
-            DkmEvaluationResultTypeModifierFlags modifierFlags)
-        {
-            Flags = flags;
-            Category = category;
-            AccessType = accessType;
-            StorageType = storageType;
-            ModifierFlags = modifierFlags;
-        }
+        public readonly DkmClrCompilationResultFlags Flags = flags;
+        public readonly DkmEvaluationResultCategory Category = category;
+        public readonly DkmEvaluationResultAccessType AccessType = accessType;
+        public readonly DkmEvaluationResultStorageType StorageType = storageType;
+        public readonly DkmEvaluationResultTypeModifierFlags ModifierFlags = modifierFlags;
 
         /// <remarks>
         /// For statements and assignments, we are only interested in <see cref="DkmClrCompilationResultFlags"/>.
         /// </remarks>
         public ResultProperties(DkmClrCompilationResultFlags flags)
-            : this(flags, category: default, accessType: default, storageType: default, modifierFlags: default)
-        {
-        }
+            : this(flags, category: default, accessType: default, storageType: default, modifierFlags: default) { }
     }
 }

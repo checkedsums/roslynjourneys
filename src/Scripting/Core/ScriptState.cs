@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.PooledObjects;
 
 namespace Microsoft.CodeAnalysis.Scripting
@@ -36,9 +35,6 @@ namespace Microsoft.CodeAnalysis.Scripting
 
         internal ScriptExecutionState ExecutionState { get; }
 
-        private ImmutableArray<ScriptVariable> _lazyVariables;
-        private IReadOnlyDictionary<string, int> _lazyVariableMap;
-
         internal ScriptState(ScriptExecutionState executionState, Script script, Exception exceptionOpt)
         {
             Debug.Assert(executionState != null);
@@ -49,88 +45,7 @@ namespace Microsoft.CodeAnalysis.Scripting
             Exception = exceptionOpt;
         }
 
-        /// <summary>
-        /// The final value produced by running the script.
-        /// </summary>
-        public object ReturnValue => GetReturnValue();
         internal abstract object GetReturnValue();
-
-        /// <summary>
-        /// Returns variables defined by the scripts in the declaration order.
-        /// </summary>
-        public ImmutableArray<ScriptVariable> Variables
-        {
-            get
-            {
-                if (_lazyVariables == null)
-                {
-                    ImmutableInterlocked.InterlockedInitialize(ref _lazyVariables, CreateVariables());
-                }
-
-                return _lazyVariables;
-            }
-        }
-
-        /// <summary>
-        /// Returns a script variable of the specified name. 
-        /// </summary> 
-        /// <remarks>
-        /// If multiple script variables are defined in the script (in distinct submissions) returns the last one.
-        /// Name lookup is case sensitive in C# scripts and case insensitive in VB scripts.
-        /// </remarks>
-        /// <returns><see cref="ScriptVariable"/> or null, if no variable of the specified <paramref name="name"/> is defined in the script.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="name"/> is null.</exception>
-        public ScriptVariable GetVariable(string name)
-        {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
-            int index;
-            return GetVariableMap().TryGetValue(name, out index) ? Variables[index] : null;
-        }
-
-        private ImmutableArray<ScriptVariable> CreateVariables()
-        {
-            var result = ArrayBuilder<ScriptVariable>.GetInstance();
-
-            var executionState = ExecutionState;
-
-            // Don't include the globals object (slot #0)
-            for (int i = 1; i < executionState.SubmissionStateCount; i++)
-            {
-                var state = executionState.GetSubmissionState(i);
-                Debug.Assert(state != null);
-
-                foreach (var field in state.GetType().GetTypeInfo().DeclaredFields)
-                {
-                    // TODO: synthesized fields of submissions shouldn't be public
-                    if (field.IsPublic && field.Name.Length > 0 && (char.IsLetterOrDigit(field.Name[0]) || field.Name[0] == '_'))
-                    {
-                        result.Add(new ScriptVariable(state, field));
-                    }
-                }
-            }
-
-            return result.ToImmutableAndFree();
-        }
-
-        private IReadOnlyDictionary<string, int> GetVariableMap()
-        {
-            if (_lazyVariableMap == null)
-            {
-                var map = new Dictionary<string, int>(Script.Compiler.IdentifierComparer);
-                for (int i = 0; i < Variables.Length; i++)
-                {
-                    map[Variables[i].Name] = i;
-                }
-
-                _lazyVariableMap = map;
-            }
-
-            return _lazyVariableMap;
-        }
 
         /// <summary>
         /// Continues script execution from the state represented by this instance by running the specified code snippet.
@@ -269,7 +184,7 @@ namespace Microsoft.CodeAnalysis.Scripting
 
     public sealed class ScriptState<T> : ScriptState
     {
-        public new T ReturnValue { get; }
+        public T ReturnValue { get; }
         internal override object GetReturnValue() => ReturnValue;
 
         internal ScriptState(ScriptExecutionState executionState, Script script, T value, Exception exceptionOpt)
