@@ -81,7 +81,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return peNamedType.Handle;
                 }
 
-                return default(TypeDefinitionHandle);
+                return default;
             }
         }
 

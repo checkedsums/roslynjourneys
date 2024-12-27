@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="embedInteropTypes">Should interop types be embedded in the created assembly?</param>
         public CSharpCompilationReference(
             CSharpCompilation compilation,
-            ImmutableArray<string> aliases = default(ImmutableArray<string>),
+            ImmutableArray<string> aliases = default,
             bool embedInteropTypes = false)
             : base(GetProperties(compilation, aliases, embedInteropTypes))
         {

@@ -21,12 +21,12 @@ internal static class IReadOnlyDictionaryExtensions
 
     public static IEnumerable<T> GetEnumerableMetadata<T>(this IReadOnlyDictionary<string, object> metadata, string name)
     {
-        switch (metadata.GetValueOrDefault(name))
+        return metadata.GetValueOrDefault(name) switch
         {
-            case IEnumerable<T> enumerable: return enumerable;
-            case T s: return SpecializedCollections.SingletonEnumerable(s);
-            default: return [];
-        }
+            IEnumerable<T> enumerable => enumerable,
+            T s => SpecializedCollections.SingletonEnumerable(s),
+            _ => [],
+        };
     }
 
     public static IReadOnlyDictionary<TKey, TValue?> AsNullable<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary)

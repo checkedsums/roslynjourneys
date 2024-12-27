@@ -95,7 +95,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 ImmutableInterlocked.InterlockedCompareExchange(ref _attributes,
                                                                 builder == null ? ImmutableArray<CSharpAttributeData>.Empty : builder.ToImmutableAndFree(),
-                                                                default(ImmutableArray<CSharpAttributeData>));
+                                                                default);
             }
 
             return _attributes;

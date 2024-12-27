@@ -89,7 +89,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case SymbolKind.Property:
                     return ((PropertySymbol)member).ParameterRefKinds;
                 case SymbolKind.Event:
-                    return default(ImmutableArray<RefKind>);
+                    return default;
                 default:
                     throw ExceptionUtilities.UnexpectedValue(member.Kind);
             }

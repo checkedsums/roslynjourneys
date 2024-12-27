@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 MethodSymbol? originalAddMethod = OriginalDefinition.AddMethod;
-                return originalAddMethod is null ? null : originalAddMethod.AsMember(_containingType);
+                return originalAddMethod?.AsMember(_containingType);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 MethodSymbol? originalRemoveMethod = OriginalDefinition.RemoveMethod;
-                return originalRemoveMethod is null ? null : originalRemoveMethod.AsMember(_containingType);
+                return originalRemoveMethod?.AsMember(_containingType);
             }
         }
 
@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 FieldSymbol? originalAssociatedField = OriginalDefinition.AssociatedField;
-                return originalAssociatedField is null ? null : originalAssociatedField.AsMember(_containingType);
+                return originalAssociatedField?.AsMember(_containingType);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     ImmutableInterlocked.InterlockedCompareExchange(
                         ref _lazyExplicitInterfaceImplementations,
                         ExplicitInterfaceHelpers.SubstituteExplicitInterfaceImplementations(OriginalDefinition.ExplicitInterfaceImplementations, _containingType.TypeSubstitution),
-                        default(ImmutableArray<EventSymbol>));
+                        default);
                 }
                 return _lazyExplicitInterfaceImplementations;
             }

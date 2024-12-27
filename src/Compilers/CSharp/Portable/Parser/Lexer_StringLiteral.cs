@@ -1032,7 +1032,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                             // the first colon not nested within matching delimiters is the start of the format string
                             if (isHole)
                             {
-                                Debug.Assert(colonRange.Equals(default(Range)));
+                                Debug.Assert(colonRange.Equals(default));
                                 colonRange = new Range(_lexer.TextWindow.Position, _lexer.TextWindow.Position + 1);
                                 ScanFormatSpecifier(kind);
                                 return;

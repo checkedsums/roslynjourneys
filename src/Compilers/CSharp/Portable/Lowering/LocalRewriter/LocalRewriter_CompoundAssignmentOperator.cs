@@ -393,12 +393,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown,
                 indexer,
                 rewrittenArguments,
-                argumentNamesOpt: default(ImmutableArray<string?>),
+                argumentNamesOpt: default,
                 argumentRefKinds,
                 expanded: false,
                 accessorKind: indexerAccess.AccessorKind,
-                argsToParamsOpt: default(ImmutableArray<int>),
-                defaultArguments: default(BitVector),
+                argsToParamsOpt: default,
+                defaultArguments: default,
                 indexerAccess.Type);
         }
 

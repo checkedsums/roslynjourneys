@@ -51,21 +51,10 @@ namespace Microsoft.CodeAnalysis
         }
     }
 
-    internal abstract class BindingDiagnosticBag<TAssemblySymbol> : BindingDiagnosticBag
+    internal abstract class BindingDiagnosticBag<TAssemblySymbol>(DiagnosticBag? diagnosticBag, ICollection<TAssemblySymbol>? dependenciesBag) : BindingDiagnosticBag(diagnosticBag)
         where TAssemblySymbol : class, IAssemblySymbolInternal
     {
-        public readonly ICollection<TAssemblySymbol>? DependenciesBag;
-
-        protected BindingDiagnosticBag(DiagnosticBag? diagnosticBag, ICollection<TAssemblySymbol>? dependenciesBag)
-            : base(diagnosticBag)
-        {
-            Debug.Assert(diagnosticBag?.GetType().IsValueType != true);
-            DependenciesBag = dependenciesBag;
-        }
-
-        protected BindingDiagnosticBag(bool usePool)
-            : this(usePool ? DiagnosticBag.GetInstance() : new DiagnosticBag(), usePool ? PooledHashSet<TAssemblySymbol>.GetInstance() : new HashSet<TAssemblySymbol>())
-        { }
+        public readonly ICollection<TAssemblySymbol>? DependenciesBag = dependenciesBag;
 
         internal bool AccumulatesDependencies => DependenciesBag is object;
 
@@ -203,17 +192,11 @@ namespace Microsoft.CodeAnalysis
         internal bool Add(SyntaxNode node, CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo)
             => Add(useSiteInfo, static node => node.Location, node);
 
-        internal bool AddDiagnostics(SyntaxNode node, CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo)
-            => AddDiagnostics(useSiteInfo, static node => node.Location, node);
-
         internal bool Add(SyntaxToken token, CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo)
             => Add(useSiteInfo, static token => token.GetLocation(), token);
 
         internal bool Add(Location location, CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo)
             => Add(useSiteInfo, static location => location, location);
-
-        internal bool AddDiagnostics(Location location, CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo)
-            => AddDiagnostics(useSiteInfo, static location => location, location);
 
         internal bool AddDiagnostics<TData>(CompoundUseSiteInfo<TAssemblySymbol> useSiteInfo, Func<TData, Location> getLocation, TData data)
         {
@@ -339,21 +322,6 @@ namespace Microsoft.CodeAnalysis
         public override int GetHashCode()
         {
             return Diagnostics.GetHashCode();
-        }
-
-        public bool HasAnyErrors() => Diagnostics.HasAnyErrors();
-
-        public bool HasAnyResolvedErrors()
-        {
-            foreach (var diagnostic in Diagnostics)
-            {
-                if ((diagnostic as DiagnosticWithInfo)?.HasLazyInfo != true && diagnostic.Severity == DiagnosticSeverity.Error)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

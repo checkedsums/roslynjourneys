@@ -133,10 +133,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         assemblyIdentityComparer = DesktopAssemblyIdentityComparer.LoadFromXml(appConfigStream);
                     }
 
-                    if (touchedFilesLogger != null)
-                    {
-                        touchedFilesLogger.AddRead(appConfigPath);
-                    }
+                    touchedFilesLogger?.AddRead(appConfigPath);
                 }
                 catch (Exception ex)
                 {
@@ -213,7 +210,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // we will need line tables anyways and it is better to not wait until we are in emit
             // where things run sequentially.
             bool isHiddenDummy;
-            tree.GetMappedLineSpanAndVisibility(default(TextSpan), out isHiddenDummy);
+            tree.GetMappedLineSpanAndVisibility(default, out isHiddenDummy);
 
             return tree;
         }

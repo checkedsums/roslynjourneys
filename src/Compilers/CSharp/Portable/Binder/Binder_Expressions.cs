@@ -1552,13 +1552,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             SeparatedSyntaxList<TypeSyntax> typeArgumentList = node.Kind() == SyntaxKind.GenericName
                 ? ((GenericNameSyntax)node).TypeArgumentList.Arguments
-                : default(SeparatedSyntaxList<TypeSyntax>);
+                : default;
 
             Debug.Assert(node.Arity == typeArgumentList.Count);
 
             var typeArgumentsWithAnnotations = hasTypeArguments ?
                 BindTypeArguments(typeArgumentList, diagnostics) :
-                default(ImmutableArray<TypeWithAnnotations>);
+                default;
 
             var lookupResult = LookupResult.GetInstance();
             var name = node.Identifier.ValueText;
@@ -2424,7 +2424,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundBaseReference BindBase(BaseExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
             bool hasErrors = false;
-            TypeSymbol baseType = this.ContainingType is null ? null : this.ContainingType.BaseTypeNoUseSiteDiagnostics;
+            TypeSymbol baseType = this.ContainingType?.BaseTypeNoUseSiteDiagnostics;
 
             if (!HasThis(isExplicit: true, inStaticContext: out bool inStaticContext))
             {
@@ -4134,7 +4134,7 @@ namespace Microsoft.CodeAnalysis.CSharp
            int?[] knownSizes,
            int dimension,
            bool isInferred,
-           ImmutableArray<BoundExpression> boundInitExprOpt = default(ImmutableArray<BoundExpression>))
+           ImmutableArray<BoundExpression> boundInitExprOpt = default)
         {
             // Bind the array initializer expressions, if not already bound.
             // NOTE: Initializer expressions might already be bound for implicitly type array creation
@@ -4202,7 +4202,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             InitializerExpressionSyntax initSyntax,
             ArrayTypeSymbol type,
             ImmutableArray<BoundExpression> sizes,
-            ImmutableArray<BoundExpression> boundInitExprOpt = default(ImmutableArray<BoundExpression>),
+            ImmutableArray<BoundExpression> boundInitExprOpt = default,
             bool hasErrors = false)
         {
             Debug.Assert(creationSyntax == null ||
@@ -6452,7 +6452,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 if (overloadResolutionResult.HasAnyApplicableMember)
                 {
-                    var finalApplicableCandidates = GetCandidatesPassingFinalValidation(node, overloadResolutionResult, receiverOpt: null, default(ImmutableArray<TypeWithAnnotations>), invokedAsExtensionMethod: false, diagnostics);
+                    var finalApplicableCandidates = GetCandidatesPassingFinalValidation(node, overloadResolutionResult, receiverOpt: null, default, invokedAsExtensionMethod: false, diagnostics);
 
                     if (finalApplicableCandidates.Length == 1)
                     {
@@ -6948,7 +6948,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Fill in the out parameter with the result, if there was one; it might be inaccessible.
             memberResolutionResult = result.Succeeded ?
                 result.ValidResult :
-                default(MemberResolutionResult<MethodSymbol>); // Invalid results are not interesting - we have enough info in candidateConstructors.
+                default; // Invalid results are not interesting - we have enough info in candidateConstructors.
 
             // If something failed and we are reporting errors, then report the right errors.
             // * If the failure was due to inaccessibility, just report that.
@@ -7321,11 +7321,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             SeparatedSyntaxList<TypeSyntax> typeArgumentsSyntax = right.Kind() == SyntaxKind.GenericName ?
                 ((GenericNameSyntax)right).TypeArgumentList.Arguments :
-                default(SeparatedSyntaxList<TypeSyntax>);
+                default;
             bool rightHasTypeArguments = typeArgumentsSyntax.Count > 0;
             ImmutableArray<TypeWithAnnotations> typeArgumentsWithAnnotations = rightHasTypeArguments ?
                 BindTypeArguments(typeArgumentsSyntax, diagnostics) :
-                default(ImmutableArray<TypeWithAnnotations>);
+                default;
 
             bool hasErrors = false;
 
@@ -7435,8 +7435,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     options |= LookupOptions.MustBeInvocableIfMember;
                 }
 
-                var typeArgumentsSyntax = right.Kind() == SyntaxKind.GenericName ? ((GenericNameSyntax)right).TypeArgumentList.Arguments : default(SeparatedSyntaxList<TypeSyntax>);
-                var typeArguments = typeArgumentsSyntax.Count > 0 ? BindTypeArguments(typeArgumentsSyntax, diagnostics) : default(ImmutableArray<TypeWithAnnotations>);
+                var typeArgumentsSyntax = right.Kind() == SyntaxKind.GenericName ? ((GenericNameSyntax)right).TypeArgumentList.Arguments : default;
+                var typeArguments = typeArgumentsSyntax.Count > 0 ? BindTypeArguments(typeArgumentsSyntax, diagnostics) : default;
 
                 // A member-access consists of a primary-expression, a predefined-type, or a 
                 // qualified-alias-member, followed by a "." token, followed by an identifier, 
@@ -7907,7 +7907,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // we've reported other errors.
                 return new BoundMethodGroup(
                     node,
-                    default(ImmutableArray<TypeWithAnnotations>),
+                    default,
                     nameString,
                     methods,
                     methods.Length == 1 ? methods[0] : null,
@@ -8466,7 +8466,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool hasErrors)
         {
             CompoundUseSiteInfo<AssemblySymbol> useSiteInfo = GetNewCompoundUseSiteInfo(diagnostics);
-            bool isUsableAsField = eventSymbol.HasAssociatedField && this.IsAccessible(eventSymbol.AssociatedField, ref useSiteInfo, (receiver != null) ? receiver.Type : null);
+            bool isUsableAsField = eventSymbol.HasAssociatedField && this.IsAccessible(eventSymbol.AssociatedField, ref useSiteInfo, receiver?.Type);
             diagnostics.Add(node, useSiteInfo);
 
             bool hasError = this.CheckInstanceOrStatic(node, receiver, eventSymbol, ref lookupResult, diagnostics);
@@ -9349,7 +9349,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     CreateErrorPropertySymbol(properties),
                     ImmutableArray<BoundExpression>.Empty,
                     default(ImmutableArray<string>),
-                    default(ImmutableArray<RefKind>),
+                    default,
                     properties);
             }
 
@@ -9441,7 +9441,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // and an ambiguity error may be reported. Also additional checks are performed in runtime final validation 
                 // that are not performed at compile-time.
                 // Only if the set of final applicable candidates is empty we know for sure the call will fail at runtime.
-                var finalApplicableCandidates = GetCandidatesPassingFinalValidation(syntax, overloadResolutionResult, receiver, default(ImmutableArray<TypeWithAnnotations>), invokedAsExtensionMethod: false, diagnostics);
+                var finalApplicableCandidates = GetCandidatesPassingFinalValidation(syntax, overloadResolutionResult, receiver, default, invokedAsExtensionMethod: false, diagnostics);
 
                 if (finalApplicableCandidates.Length == 1)
                 {

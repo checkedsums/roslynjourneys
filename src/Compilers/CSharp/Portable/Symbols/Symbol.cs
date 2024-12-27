@@ -170,7 +170,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Default implementation gets the containers assembly.
 
                 var container = this.ContainingSymbol;
-                return container is not null ? container.ContainingAssembly : null;
+                return container?.ContainingAssembly;
             }
         }
 
@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // Default implementation gets the containers module.
 
                 var container = this.ContainingSymbol;
-                return container is not null ? container.ContainingModule : null;
+                return container?.ContainingModule;
             }
         }
 
@@ -929,7 +929,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             get { return this.DeclaringCompilation != null; }
         }
 
-        public virtual bool IsDefinedInSourceTree(SyntaxTree tree, TextSpan? definedWithinSpan, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual bool IsDefinedInSourceTree(SyntaxTree tree, TextSpan? definedWithinSpan, CancellationToken cancellationToken = default)
         {
             var declaringReferences = this.DeclaringSyntaxReferences;
             if (this.IsImplicitlyDeclared && declaringReferences.Length == 0)
@@ -1000,7 +1000,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public virtual string GetDocumentationCommentXml(
             CultureInfo? preferredCulture = null,
             bool expandIncludes = false,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return "";
         }

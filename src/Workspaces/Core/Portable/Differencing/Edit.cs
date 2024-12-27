@@ -91,23 +91,14 @@ public readonly struct Edit<TNode> : IEquatable<Edit<TNode>>
     internal string GetDebuggerDisplay()
     {
         var result = Kind.ToString();
-        switch (Kind)
+        return Kind switch
         {
-            case EditKind.Delete:
-                return result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode);
-
-            case EditKind.Insert:
-                return result + " [" + NewNode.ToString() + "]" + DisplayPosition(NewNode);
-
-            case EditKind.Update:
-                return result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode) + " -> [" + NewNode.ToString() + "]" + DisplayPosition(NewNode);
-
-            case EditKind.Move:
-            case EditKind.Reorder:
-                return result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode) + " -> " + DisplayPosition(NewNode);
-        }
-
-        return result;
+            EditKind.Delete => result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode),
+            EditKind.Insert => result + " [" + NewNode.ToString() + "]" + DisplayPosition(NewNode),
+            EditKind.Update => result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode) + " -> [" + NewNode.ToString() + "]" + DisplayPosition(NewNode),
+            EditKind.Move or EditKind.Reorder => result + " [" + OldNode.ToString() + "]" + DisplayPosition(OldNode) + " -> " + DisplayPosition(NewNode),
+            _ => result,
+        };
     }
 
     private string DisplayPosition(TNode node)

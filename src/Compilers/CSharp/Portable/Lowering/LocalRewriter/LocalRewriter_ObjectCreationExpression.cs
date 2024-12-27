@@ -348,13 +348,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown,
                 method,
                 ImmutableArray<BoundExpression>.Empty,
-                default(ImmutableArray<string?>),
-                default(ImmutableArray<RefKind>),
+                default,
+                default,
                 isDelegateCall: false,
                 expanded: false,
                 invokedAsExtensionMethod: false,
-                argsToParamsOpt: default(ImmutableArray<int>),
-                defaultArguments: default(BitVector),
+                argsToParamsOpt: default,
+                defaultArguments: default,
                 resultKind: LookupResultKind.Viable,
                 type: typeParameter);
 

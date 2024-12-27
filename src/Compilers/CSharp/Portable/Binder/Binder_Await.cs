@@ -330,7 +330,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var receiver = BoundLiteral.Instantiate(node, ConstantValue.Null, awaiterType);
             var name = WellKnownMemberNames.IsCompleted;
-            var qualified = BindInstanceMemberAccess(node, node, receiver, name, 0, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), invoked: false, indexed: false, diagnostics);
+            var qualified = BindInstanceMemberAccess(node, node, receiver, name, 0, default, default, invoked: false, indexed: false, diagnostics);
             if (qualified.HasAnyErrors)
             {
                 isCompletedProperty = null;

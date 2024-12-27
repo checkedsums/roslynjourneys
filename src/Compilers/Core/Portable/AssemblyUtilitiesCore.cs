@@ -3,13 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
-using Microsoft.CodeAnalysis;
 
 namespace Roslyn.Utilities;
 
@@ -28,13 +24,12 @@ internal static partial class AssemblyUtilities
     {
         RoslynDebug.Assert(PathUtilities.IsAbsolute(filePath));
 
-        using (var reader = new PEReader(FileUtilities.OpenRead(filePath)))
-        {
-            var metadataReader = reader.GetMetadataReader();
-            var mvidHandle = metadataReader.GetModuleDefinition().Mvid;
-            var fileMvid = metadataReader.GetGuid(mvidHandle);
+        using var reader = new PEReader(FileUtilities.OpenRead(filePath));
 
-            return fileMvid;
-        }
+        var metadataReader = reader.GetMetadataReader();
+        var mvidHandle = metadataReader.GetModuleDefinition().Mvid;
+        var fileMvid = metadataReader.GetGuid(mvidHandle);
+
+        return fileMvid;
     }
 }

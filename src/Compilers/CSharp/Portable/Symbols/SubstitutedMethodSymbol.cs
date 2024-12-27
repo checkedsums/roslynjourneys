@@ -119,7 +119,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 typeParameters = prevMap.SubstituteTypeParameters(this.OriginalDefinition.TypeParameters);
             }
 
-            ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters, typeParameters, default(ImmutableArray<TypeParameterSymbol>));
+            ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters, typeParameters, default);
             Debug.Assert(_lazyTypeParameters != null);
         }
 
@@ -152,7 +152,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var method = OriginalDefinition.ReducedFrom;
-                return (method is null) ? null : method.Construct(this.TypeArgumentsWithAnnotations);
+                return method?.Construct(this.TypeArgumentsWithAnnotations);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 Symbol underlying = OriginalDefinition.AssociatedSymbol;
-                return (underlying is null) ? null : underlying.SymbolAsMember(ContainingType);
+                return underlying?.SymbolAsMember(ContainingType);
             }
         }
 
@@ -278,7 +278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     ImmutableInterlocked.InterlockedCompareExchange(
                         ref _lazyExplicitInterfaceImplementations,
                         ExplicitInterfaceHelpers.SubstituteExplicitInterfaceImplementations(this.OriginalDefinition.ExplicitInterfaceImplementations, Map),
-                        default(ImmutableArray<MethodSymbol>));
+                        default);
                 }
                 return _lazyExplicitInterfaceImplementations;
             }

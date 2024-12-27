@@ -115,16 +115,12 @@ internal sealed class BaseIndentationFormattingRule : AbstractFormattingRule
 
     private IndentBlockOperation CloneAndAdjustFormattingOperation(IndentBlockOperation operation)
     {
-        switch (operation.Option & IndentBlockOption.PositionMask)
+        return (operation.Option & IndentBlockOption.PositionMask) switch
         {
-            case IndentBlockOption.RelativeToFirstTokenOnBaseTokenLine:
-                return FormattingOperations.CreateRelativeIndentBlockOperation(operation.BaseToken, operation.StartToken, operation.EndToken, AdjustTextSpan(operation.TextSpan), operation.IndentationDeltaOrPosition, operation.Option);
-            case IndentBlockOption.RelativePosition:
-            case IndentBlockOption.AbsolutePosition:
-                return FormattingOperations.CreateIndentBlockOperation(operation.StartToken, operation.EndToken, AdjustTextSpan(operation.TextSpan), operation.IndentationDeltaOrPosition, operation.Option);
-            default:
-                throw ExceptionUtilities.UnexpectedValue(operation.Option);
-        }
+            IndentBlockOption.RelativeToFirstTokenOnBaseTokenLine => FormattingOperations.CreateRelativeIndentBlockOperation(operation.BaseToken, operation.StartToken, operation.EndToken, AdjustTextSpan(operation.TextSpan), operation.IndentationDeltaOrPosition, operation.Option),
+            IndentBlockOption.RelativePosition or IndentBlockOption.AbsolutePosition => FormattingOperations.CreateIndentBlockOperation(operation.StartToken, operation.EndToken, AdjustTextSpan(operation.TextSpan), operation.IndentationDeltaOrPosition, operation.Option),
+            _ => throw ExceptionUtilities.UnexpectedValue(operation.Option),
+        };
     }
 
     private TextSpan AdjustTextSpan(TextSpan textSpan)

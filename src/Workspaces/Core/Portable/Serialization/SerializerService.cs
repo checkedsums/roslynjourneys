@@ -55,29 +55,15 @@ internal partial class SerializerService(SolutionServices workspaceServices) : I
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            switch (kind)
+            return kind switch
             {
-                case WellKnownSynchronizationKind.CompilationOptions:
-                case WellKnownSynchronizationKind.ParseOptions:
-                case WellKnownSynchronizationKind.ProjectReference:
-                case WellKnownSynchronizationKind.SourceGeneratedDocumentIdentity:
-                case WellKnownSynchronizationKind.FallbackAnalyzerOptions:
-                    return Checksum.Create(value, this, cancellationToken);
-
-                case WellKnownSynchronizationKind.MetadataReference:
-                    return CreateChecksum((MetadataReference)value);
-
-                case WellKnownSynchronizationKind.AnalyzerReference:
-                    return CreateChecksum((AnalyzerReference)value);
-
-                case WellKnownSynchronizationKind.SerializableSourceText:
-                    throw new InvalidOperationException("Clients can already get a checksum directly from a SerializableSourceText");
-
-                default:
-                    // object that is not part of solution is not supported since we don't know what inputs are required to
-                    // serialize it
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                WellKnownSynchronizationKind.CompilationOptions or WellKnownSynchronizationKind.ParseOptions or WellKnownSynchronizationKind.ProjectReference or WellKnownSynchronizationKind.SourceGeneratedDocumentIdentity or WellKnownSynchronizationKind.FallbackAnalyzerOptions => Checksum.Create(value, this, cancellationToken),
+                WellKnownSynchronizationKind.MetadataReference => CreateChecksum((MetadataReference)value),
+                WellKnownSynchronizationKind.AnalyzerReference => CreateChecksum((AnalyzerReference)value),
+                WellKnownSynchronizationKind.SerializableSourceText => throw new InvalidOperationException("Clients can already get a checksum directly from a SerializableSourceText"),
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),// object that is not part of solution is not supported since we don't know what inputs are required to
+                                                                    // serialize it
+            };
         }
     }
 

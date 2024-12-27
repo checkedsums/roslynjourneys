@@ -13,7 +13,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 {
     internal struct BinaryOperatorSignature : IEquatable<BinaryOperatorSignature>
     {
-        public static BinaryOperatorSignature Error = default(BinaryOperatorSignature);
+        public static BinaryOperatorSignature Error = default;
 
         public readonly TypeSymbol LeftType;
         public readonly TypeSymbol RightType;

@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 NameEqualsSyntax? nameEquals = fieldInitializer.NameEquals;
                 ExpressionSyntax expression = fieldInitializer.Expression;
 
-                SyntaxToken nameToken = default(SyntaxToken);
+                SyntaxToken nameToken = default;
                 if (nameEquals != null)
                 {
                     nameToken = nameEquals.Name.Identifier;

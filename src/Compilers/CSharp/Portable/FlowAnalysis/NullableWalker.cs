@@ -577,10 +577,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         protected override ImmutableArray<PendingBranch> Scan(ref bool badRegion)
         {
-            if (_returnTypesOpt != null)
-            {
-                _returnTypesOpt.Clear();
-            }
+            _returnTypesOpt?.Clear();
             this.Diagnostics.Clear();
             this.regionPlace = RegionPlace.Before;
             if (!_isSpeculative)
@@ -2852,10 +2849,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             else
             {
                 var result = VisitRvalueWithState(expr);
-                if (_returnTypesOpt != null)
-                {
-                    _returnTypesOpt.Add((node, result.ToTypeWithAnnotations(compilation)));
-                }
+                _returnTypesOpt?.Add((node, result.ToTypeWithAnnotations(compilation)));
             }
 
             EnforceDoesNotReturn(node.Syntax);

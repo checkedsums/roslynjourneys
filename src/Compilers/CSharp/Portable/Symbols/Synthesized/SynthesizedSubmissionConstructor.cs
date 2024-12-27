@@ -25,8 +25,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var useSiteInfo = submissionArrayType.GetUseSiteInfo();
             diagnostics.Add(useSiteInfo, NoLocation.Singleton);
 
-            _parameters = ImmutableArray.Create<ParameterSymbol>(
-                SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(submissionArrayType), 0, RefKind.None, "submissionArray"));
+            _parameters = [SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(submissionArrayType), 0, RefKind.None, "submissionArray")];
         }
 
         public override ImmutableArray<ParameterSymbol> Parameters

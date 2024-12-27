@@ -576,7 +576,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!processedDocComment)
             {
                 withUnprocessedIncludes = null;
-                includeElementNodes = default(ImmutableArray<CSharpSyntaxNode>);
+                includeElementNodes = default;
 
                 return false;
             }
@@ -591,7 +591,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             withUnprocessedIncludes = GetAndEndTemporaryString();
 
             // Free the builder, even if there was an error.
-            includeElementNodes = _processIncludes ? includeElementNodesBuilder.ToImmutableAndFree() : default(ImmutableArray<CSharpSyntaxNode>);
+            includeElementNodes = _processIncludes ? includeElementNodesBuilder.ToImmutableAndFree() : default;
 
             return true;
         }
@@ -687,7 +687,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private bool TryGetDocumentationCommentNodes(Symbol symbol, out DocumentationMode maxDocumentationMode, out ImmutableArray<DocumentationCommentTriviaSyntax> nodes)
         {
             maxDocumentationMode = DocumentationMode.None;
-            nodes = default(ImmutableArray<DocumentationCommentTriviaSyntax>);
+            nodes = default;
 
             ArrayBuilder<DocumentationCommentTriviaSyntax> builder = null;
             var diagnosticBag = _diagnostics.DiagnosticBag ?? DiagnosticBag.GetInstance();
@@ -702,10 +702,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     if (ContainsXmlParseDiagnostic(trivia))
                     {
-                        if (builder != null)
-                        {
-                            builder.Free();
-                        }
+                        builder?.Free();
                         return false;
                     }
 
@@ -1261,9 +1258,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 StringBuilder builder = _temporaryStringBuilders.Peek().Pooled.Builder;
                 builder.Append(indentedAndWrappedString);
             }
-            else if (_writer != null)
+            else
             {
-                _writer.Write(indentedAndWrappedString);
+                _writer?.Write(indentedAndWrappedString);
             }
         }
 

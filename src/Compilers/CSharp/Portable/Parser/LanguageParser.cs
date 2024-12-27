@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.PooledObjects;
@@ -39,7 +38,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             CSharp.CSharpSyntaxNode? oldTree,
             IEnumerable<TextChangeRange>? changes,
             LexerMode lexerMode = LexerMode.Syntax,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             : base(lexer, lexerMode, oldTree, changes, allowModeReset: false,
                 preLexIfNotIncremental: true, cancellationToken: cancellationToken)
         {
@@ -55,7 +54,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         [Flags]
         internal enum TerminatorState
         {
-            EndOfFile = 0,
             IsNamespaceMemberStartOrStop = 1 << 0,
             IsAttributeDeclarationTerminator = 1 << 1,
             IsPossibleAggregateClauseStartOrStop = 1 << 2,
@@ -134,24 +132,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return false;
         }
 
-        private static CSharp.CSharpSyntaxNode? GetOldParent(CSharp.CSharpSyntaxNode node) => node != null ? node.Parent : null;
+        private static CSharp.CSharpSyntaxNode? GetOldParent(CSharp.CSharpSyntaxNode node) => node?.Parent;
 
-        private struct NamespaceBodyBuilder
+        private struct NamespaceBodyBuilder(SyntaxListPool pool)
         {
-            public SyntaxListBuilder<ExternAliasDirectiveSyntax> Externs;
-            public SyntaxListBuilder<UsingDirectiveSyntax> Usings;
-            public SyntaxListBuilder<AttributeListSyntax> Attributes;
-            public SyntaxListBuilder<MemberDeclarationSyntax> Members;
+            public SyntaxListBuilder<ExternAliasDirectiveSyntax> Externs = pool.Allocate<ExternAliasDirectiveSyntax>();
+            public SyntaxListBuilder<UsingDirectiveSyntax> Usings = pool.Allocate<UsingDirectiveSyntax>();
+            public SyntaxListBuilder<AttributeListSyntax> Attributes = pool.Allocate<AttributeListSyntax>();
+            public SyntaxListBuilder<MemberDeclarationSyntax> Members = pool.Allocate<MemberDeclarationSyntax>();
 
-            public NamespaceBodyBuilder(SyntaxListPool pool)
-            {
-                Externs = pool.Allocate<ExternAliasDirectiveSyntax>();
-                Usings = pool.Allocate<UsingDirectiveSyntax>();
-                Attributes = pool.Allocate<AttributeListSyntax>();
-                Members = pool.Allocate<MemberDeclarationSyntax>();
-            }
-
-            internal void Free(SyntaxListPool pool)
+            internal readonly void Free(SyntaxListPool pool)
             {
                 pool.Free(Members);
                 pool.Free(Attributes);
@@ -876,9 +866,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         }
 
         public bool IsEndOfNamespace() => this.CurrentToken.Kind == SyntaxKind.CloseBraceToken;
-
-        public bool IsGobalAttributesTerminator() => this.IsEndOfNamespace()
-                || this.IsPossibleNamespaceMemberDeclaration();
 
         private bool IsNamespaceMemberStartOrStop() => this.IsEndOfNamespace()
                 || this.IsPossibleNamespaceMemberDeclaration();
@@ -1890,20 +1877,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
-#nullable disable
-
         private void SkipBadMemberListTokens(ref SyntaxToken openBrace, SyntaxListBuilder members)
         {
             if (members.Count > 0)
             {
                 var tmp = members[^1];
-                this.SkipBadMemberListTokens(ref tmp);
+                this.SkipBadMemberListTokens(ref tmp!);
                 members[^1] = tmp;
             }
             else
             {
                 GreenNode tmp = openBrace;
-                this.SkipBadMemberListTokens(ref tmp);
+                this.SkipBadMemberListTokens(ref tmp!);
                 openBrace = (SyntaxToken)tmp;
             }
         }
@@ -1980,7 +1965,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             var colon = this.TryEatToken(SyntaxKind.ColonToken);
             if (colon == null)
-                return null;
+                return null!;
 
             var list = _pool.AllocateSeparated<BaseTypeSyntax>();
 
@@ -2121,7 +2106,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             PostSkipAction skipBadTypeParameterConstraintTokens(SeparatedSyntaxListBuilder<TypeParameterConstraintSyntax> list, SyntaxKind expected)
             {
-                CSharpSyntaxNode tmp = null;
+                CSharpSyntaxNode tmp = null!;
                 Debug.Assert(list.Count > 0);
                 return this.SkipBadSeparatedListTokensWithExpectedKind(ref tmp, list,
                     static p => p.CurrentToken.Kind != SyntaxKind.CommaToken && !p.IsPossibleTypeParameterConstraint(),
@@ -2487,7 +2472,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         else
                         {
                             var identifier = this.EatToken();
-                            return this.ParseMethodDeclaration(attributes, modifiers, voidType, explicitInterfaceOpt: null, identifier: identifier, typeParameterList: null);
+                            return this.ParseMethodDeclaration(attributes, modifiers, voidType, explicitInterfaceOpt: null!, identifier: identifier, typeParameterList: null!);
                         }
                     }
                 }
@@ -2720,7 +2705,7 @@ parse_member_name:;
                     return true;
                 }
 
-                result = null;
+                result = null!;
                 return false;
             }
 
@@ -2751,7 +2736,7 @@ parse_member_name:;
 
                 resetOnFailurePoint.Reset();
 
-                result = null;
+                result = null!;
                 return false;
             }
 
@@ -2830,7 +2815,7 @@ parse_member_name:;
                 return true;
             }
 
-            result = null;
+            result = null!;
             return false;
         }
 
@@ -2843,7 +2828,7 @@ parse_member_name:;
                 if (attributes.Count == 0 && modifiers.Count == 0 && type.IsMissing && type.Kind != SyntaxKind.RefType)
                 {
                     // we haven't advanced, the caller needs to consume the tokens ahead
-                    result = null;
+                    result = null!;
                     return true;
                 }
 
@@ -2871,7 +2856,7 @@ parse_member_name:;
                 return true;
             }
 
-            result = null;
+            result = null!;
             return false;
         }
 
@@ -2886,9 +2871,9 @@ parse_member_name:;
                 ReconsiderTypeAsAsyncModifier(ref modifiers, type, identifierOrThisOpt))
             {
                 this.Reset(ref afterTypeResetPoint);
-                explicitInterfaceOpt = null;
-                identifierOrThisOpt = null;
-                typeParameterListOpt = null;
+                explicitInterfaceOpt = null!;
+                identifierOrThisOpt = null!;
+                typeParameterListOpt = null!;
                 this.Release(ref afterTypeResetPoint);
                 type = ParseReturnType();
                 afterTypeResetPoint = this.GetResetPoint();
@@ -2917,7 +2902,7 @@ parse_member_name:;
                 return true;
             }
 
-            result = null;
+            result = null!;
             return false;
         }
 
@@ -3258,7 +3243,7 @@ parse_member_name:;
             var name = this.ParseIdentifierToken();
             var parameterList = (ParameterListSyntax)_syntaxFactory.ParameterList(
                 this.EatToken(SyntaxKind.OpenParenToken),
-                default(SeparatedSyntaxList<ParameterSyntax>),
+                default,
                 this.EatToken(SyntaxKind.CloseParenToken));
 
             this.ParseBlockAndExpressionBodiesWithSemicolon(
@@ -3280,19 +3265,19 @@ parse_member_name:;
             // Check for 'forward' declarations with no block of any kind
             if (this.CurrentToken.Kind == SyntaxKind.SemicolonToken)
             {
-                blockBody = null;
-                expressionBody = null;
+                blockBody = null!;
+                expressionBody = null!;
                 semicolon = this.EatToken(SyntaxKind.SemicolonToken);
                 return;
             }
 
             blockBody = this.CurrentToken.Kind == SyntaxKind.OpenBraceToken
                 ? this.ParseMethodOrAccessorBodyBlock(attributes: default, isAccessorBody: false)
-                : null;
+                : null!;
 
             expressionBody = this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken
                 ? this.ParseArrowExpressionClause()
-                : null;
+                : null!;
 
             // Expression-bodies need semicolons and native behavior
             // expects a semicolon if there is no body
@@ -3307,7 +3292,7 @@ parse_member_name:;
             }
             else
             {
-                semicolon = null;
+                semicolon = null!;
             }
         }
 
@@ -3520,7 +3505,7 @@ parse_member_name:;
 
                     if (!possibleConversion)
                     {
-                        return null;
+                        return null!;
                     }
                 }
 
@@ -3539,7 +3524,7 @@ parse_member_name:;
                     // Not likely an explicit interface implementation. Likely a beginning of the next member on the next line.
                     this.Reset(ref point);
                     style = this.EatToken();
-                    explicitInterfaceOpt = null;
+                    explicitInterfaceOpt = null!;
                     opKeyword = this.EatToken(SyntaxKind.OperatorKeyword);
                     type = this.AddError(this.CreateMissingIdentifierName(), ErrorCode.ERR_IdentifierExpected);
 
@@ -3570,7 +3555,7 @@ parse_member_name:;
                 type = this.ParseType();
 
                 if (couldBeParameterList && type is TupleTypeSyntax { Elements: { Count: 2, SeparatorCount: 1 } } tupleType &&
-                    tupleType.Elements.GetSeparator(0).IsMissing && tupleType.Elements[1].IsMissing &&
+                    tupleType.Elements.GetSeparator(0)!.IsMissing && tupleType.Elements[1]!.IsMissing &&
                     this.CurrentToken.Kind != SyntaxKind.OpenParenToken)
                 {
                     // It looks like the type is missing and we parsed parameter list as the type. Recover.
@@ -3604,11 +3589,11 @@ parse_member_name:;
             {
                 if (this.CurrentToken.Kind != SyntaxKind.IdentifierToken)
                 {
-                    return null;
+                    return null!;
                 }
 
-                NameSyntax explicitInterfaceName = null;
-                SyntaxToken separator = null;
+                NameSyntax explicitInterfaceName = null!;
+                SyntaxToken separator = null!;
 
                 while (true)
                 {
@@ -3653,10 +3638,10 @@ parse_member_name:;
 
                 if (explicitInterfaceName is null)
                 {
-                    return null;
+                    return null!;
                 }
 
-                if (separator.Kind != SyntaxKind.DotToken)
+                if (separator!.Kind != SyntaxKind.DotToken)
                 {
                     separator = WithAdditionalDiagnostics(separator, GetExpectedTokenError(SyntaxKind.DotToken, separator.Kind, separator.GetLeadingTriviaWidth(), separator.Width));
                     separator = ConvertToMissingWithTrailingTrivia(separator, SyntaxKind.DotToken);
@@ -4692,7 +4677,7 @@ parse_member_name:;
                     identifierOrThisOpt == null ? CreateMissingIdentifierToken() : identifierOrThisOpt,
                     _syntaxFactory.AccessorList(
                         SyntaxFactory.MissingToken(SyntaxKind.OpenBraceToken),
-                        default(SyntaxList<AccessorDeclarationSyntax>),
+                        default,
                         SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken)),
                     semicolonToken: null);
             }
@@ -4995,7 +4980,7 @@ parse_member_name:;
                 }
             }
 
-            return default(SyntaxTokenList);
+            return default;
         }
 
         private static bool WasFirstVariable(CSharp.Syntax.VariableDeclaratorSyntax variable)
@@ -5012,7 +4997,7 @@ parse_member_name:;
         {
             var parent = GetOldParent(old);
             var mods = GetOriginalModifiers(parent);
-            VariableFlags flags = default(VariableFlags);
+            VariableFlags flags = default;
             if (mods.Any(SyntaxKind.FixedKeyword))
             {
                 flags |= VariableFlags.Fixed;
@@ -5642,7 +5627,7 @@ parse_member_name:;
             if (this.IsCurrentTokenWhereOfConstraintClause())
             {
                 return _syntaxFactory.TypeParameter(
-                    default(SyntaxList<AttributeListSyntax>),
+                    default,
                     varianceKeyword: null,
                     this.AddError(CreateMissingIdentifierToken(), ErrorCode.ERR_IdentifierExpected));
             }
@@ -6261,7 +6246,7 @@ parse_member_name:;
             NameSyntax explicitInterfaceName = null;
             SyntaxToken separator = null;
 
-            ResetPoint beforeIdentifierPoint = default(ResetPoint);
+            ResetPoint beforeIdentifierPoint = default;
             bool beforeIdentifierPointSet = false;
 
             try

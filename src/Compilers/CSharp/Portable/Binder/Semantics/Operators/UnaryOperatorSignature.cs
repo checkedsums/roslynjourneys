@@ -12,7 +12,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 {
     internal struct UnaryOperatorSignature
     {
-        public static UnaryOperatorSignature Error = default(UnaryOperatorSignature);
+        public static UnaryOperatorSignature Error = default;
 
         public readonly MethodSymbol Method;
         public readonly TypeSymbol ConstrainedToTypeOpt;

@@ -76,17 +76,13 @@ internal sealed partial class SymbolicRenameLocations
             {
                 var target = ((IAliasSymbol)originalSymbol).Target;
 
-                switch (target)
+                return target switch
                 {
-                    case INamedTypeSymbol nt:
-                        return nt.ConstructedFrom.Equals(referencedSymbol)
-                            || IsConstructorForType(possibleConstructor: referencedSymbol, possibleType: nt);
-
-                    case INamespaceOrTypeSymbol s:
-                        return s.Equals(referencedSymbol);
-
-                    default: return false;
-                }
+                    INamedTypeSymbol nt => nt.ConstructedFrom.Equals(referencedSymbol)
+                                                || IsConstructorForType(possibleConstructor: referencedSymbol, possibleType: nt),
+                    INamespaceOrTypeSymbol s => s.Equals(referencedSymbol),
+                    _ => false,
+                };
             }
 
             // cascade from property accessor to property (someone in C# renames base.get_X, or the accessor override)

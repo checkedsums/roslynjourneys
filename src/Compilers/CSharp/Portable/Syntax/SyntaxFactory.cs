@@ -203,7 +203,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.MultiLineCommentTrivia:
                 case SyntaxKind.SingleLineCommentTrivia:
                 case SyntaxKind.WhitespaceTrivia:
-                    return new SyntaxTrivia(default(SyntaxToken), new Syntax.InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0);
+                    return new SyntaxTrivia(default, new Syntax.InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0);
                 default:
                     throw new ArgumentException("kind");
             }
@@ -1227,7 +1227,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
         public static SyntaxList<TNode> List<TNode>() where TNode : SyntaxNode
         {
-            return default(SyntaxList<TNode>);
+            return default;
         }
 
         /// <summary>
@@ -1256,7 +1256,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxTokenList TokenList()
         {
-            return default(SyntaxTokenList);
+            return default;
         }
 
         /// <summary>
@@ -1292,7 +1292,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxTrivia Trivia(StructuredTriviaSyntax node)
         {
-            return new SyntaxTrivia(default(SyntaxToken), node.Green, position: 0, index: 0);
+            return new SyntaxTrivia(default, node.Green, position: 0, index: 0);
         }
 
         /// <summary>
@@ -1300,7 +1300,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxTriviaList TriviaList()
         {
-            return default(SyntaxTriviaList);
+            return default;
         }
 
         /// <summary>
@@ -1332,7 +1332,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
         public static SeparatedSyntaxList<TNode> SeparatedList<TNode>() where TNode : SyntaxNode
         {
-            return default(SeparatedSyntaxList<TNode>);
+            return default;
         }
 
         /// <summary>
@@ -1354,21 +1354,21 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (nodes == null)
             {
-                return default(SeparatedSyntaxList<TNode>);
+                return default;
             }
 
             var collection = nodes as ICollection<TNode>;
 
             if (collection != null && collection.Count == 0)
             {
-                return default(SeparatedSyntaxList<TNode>);
+                return default;
             }
 
             using (var enumerator = nodes.GetEnumerator())
             {
                 if (!enumerator.MoveNext())
                 {
-                    return default(SeparatedSyntaxList<TNode>);
+                    return default;
                 }
 
                 var firstNode = enumerator.Current;
@@ -1442,7 +1442,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 throw new ArgumentException($"When {nameof(nodes)} is null, {nameof(separators)} must also be null.", nameof(separators));
             }
 
-            return default(SeparatedSyntaxList<TNode>);
+            return default;
         }
 
         /// <summary>
@@ -1509,7 +1509,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxNodeOrTokenList NodeOrTokenList()
         {
-            return default(SyntaxNodeOrTokenList);
+            return default;
         }
 
         /// <summary>
@@ -2621,7 +2621,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return UsingDirective(
                 usingKeyword: Token(SyntaxKind.UsingKeyword),
-                staticKeyword: default(SyntaxToken),
+                staticKeyword: default,
                 alias: alias,
                 name: name,
                 semicolonToken: Token(SyntaxKind.SemicolonToken));
@@ -2642,7 +2642,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Creates a new ClassOrStructConstraintSyntax instance.</summary>
         public static ClassOrStructConstraintSyntax ClassOrStructConstraint(SyntaxKind kind, SyntaxToken classOrStructKeyword)
         {
-            return ClassOrStructConstraint(kind, classOrStructKeyword, questionToken: default(SyntaxToken));
+            return ClassOrStructConstraint(kind, classOrStructKeyword, questionToken: default);
         }
 
         // backwards compatibility for extended API
@@ -2699,7 +2699,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Creates a new SwitchStatementSyntax instance.</summary>
         public static SwitchStatementSyntax SwitchStatement(ExpressionSyntax expression)
         {
-            return SyntaxFactory.SwitchStatement(expression, default(SyntaxList<SwitchSectionSyntax>));
+            return SyntaxFactory.SwitchStatement(expression, default);
         }
 
         public static SimpleLambdaExpressionSyntax SimpleLambdaExpression(ParameterSyntax parameter, CSharpSyntaxNode body)
@@ -2836,11 +2836,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
         public static ClassDeclarationSyntax ClassDeclaration(SyntaxToken identifier)
-            => SyntaxFactory.ClassDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.ClassKeyword), identifier, null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.ClassDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.ClassKeyword), identifier, null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
         public static ClassDeclarationSyntax ClassDeclaration(string identifier)
-            => SyntaxFactory.ClassDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.ClassKeyword), SyntaxFactory.Identifier(identifier), null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.ClassDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.ClassKeyword), SyntaxFactory.Identifier(identifier), null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
         public static StructDeclarationSyntax StructDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxToken openBraceToken, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken)
@@ -2863,11 +2863,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
         public static StructDeclarationSyntax StructDeclaration(SyntaxToken identifier)
-            => SyntaxFactory.StructDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.StructDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
         public static StructDeclarationSyntax StructDeclaration(string identifier)
-            => SyntaxFactory.StructDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.StructKeyword), SyntaxFactory.Identifier(identifier), null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.StructDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.StructKeyword), SyntaxFactory.Identifier(identifier), null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
         public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxToken openBraceToken, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken)
@@ -2881,11 +2881,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
         public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxToken identifier)
-            => SyntaxFactory.InterfaceDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.InterfaceKeyword), identifier, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.InterfaceDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.InterfaceKeyword), identifier, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
         public static InterfaceDeclarationSyntax InterfaceDeclaration(string identifier)
-            => SyntaxFactory.InterfaceDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.InterfaceKeyword), SyntaxFactory.Identifier(identifier), null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.InterfaceDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.InterfaceKeyword), SyntaxFactory.Identifier(identifier), null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
         public static EnumDeclarationSyntax EnumDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, BaseListSyntax? baseList, SeparatedSyntaxList<EnumMemberDeclarationSyntax> members)
@@ -2893,10 +2893,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
         public static EnumDeclarationSyntax EnumDeclaration(SyntaxToken identifier)
-            => SyntaxFactory.EnumDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.EnumKeyword), identifier, null, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.EnumDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.EnumKeyword), identifier, null, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
         public static EnumDeclarationSyntax EnumDeclaration(string identifier)
-            => SyntaxFactory.EnumDeclaration(default, default(SyntaxTokenList), SyntaxFactory.Token(SyntaxKind.EnumKeyword), SyntaxFactory.Identifier(identifier), null, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
+            => SyntaxFactory.EnumDeclaration(default, default, SyntaxFactory.Token(SyntaxKind.EnumKeyword), SyntaxFactory.Identifier(identifier), null, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, SyntaxFactory.Token(SyntaxKind.CloseBraceToken), default);
     }
 }

@@ -169,17 +169,11 @@ internal sealed class SymbolSpecification(
                     continue;
 
                 case SymbolKind.Method:
-                    switch (((IMethodSymbol)currentSymbol).MethodKind)
+                    return ((IMethodSymbol)currentSymbol).MethodKind switch
                     {
-                        case MethodKind.AnonymousFunction:
-                        case MethodKind.LocalFunction:
-                            // Always treat anonymous and local functions as 'local'
-                            return Accessibility.NotApplicable;
-
-                        default:
-                            return currentSymbol.DeclaredAccessibility;
-                    }
-
+                        MethodKind.AnonymousFunction or MethodKind.LocalFunction => Accessibility.NotApplicable,// Always treat anonymous and local functions as 'local'
+                        _ => currentSymbol.DeclaredAccessibility,
+                    };
                 default:
                     return currentSymbol.DeclaredAccessibility;
             }

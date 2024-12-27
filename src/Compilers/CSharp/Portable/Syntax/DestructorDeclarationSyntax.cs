@@ -48,7 +48,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 parameterList,
                 body,
                 expressionBody: null,
-                default(SyntaxToken));
+                default);
 
         public static DestructorDeclarationSyntax DestructorDeclaration(
             SyntaxList<AttributeListSyntax> attributeLists,
@@ -82,7 +82,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 parameterList,
                 body: null,
                 expressionBody,
-                default(SyntaxToken));
+                default);
 
         public static DestructorDeclarationSyntax DestructorDeclaration(
             SyntaxList<AttributeListSyntax> attributeLists,

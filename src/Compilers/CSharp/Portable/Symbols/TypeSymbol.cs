@@ -163,10 +163,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var result = BaseTypeNoUseSiteDiagnostics;
 
-            if (result is not null)
-            {
-                result.OriginalDefinition.AddUseSiteInfo(ref useSiteInfo);
-            }
+            result?.OriginalDefinition.AddUseSiteInfo(ref useSiteInfo);
 
             return result;
         }
@@ -575,18 +572,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// <summary>
         /// If this symbol represents a tuple type, get the types of the tuple's elements.
         /// </summary>
-        public virtual ImmutableArray<TypeWithAnnotations> TupleElementTypesWithAnnotations => default(ImmutableArray<TypeWithAnnotations>);
+        public virtual ImmutableArray<TypeWithAnnotations> TupleElementTypesWithAnnotations => default;
 
         /// <summary>
         /// If this symbol represents a tuple type, get the names of the tuple's elements.
         /// </summary>
-        public virtual ImmutableArray<string> TupleElementNames => default(ImmutableArray<string>);
+        public virtual ImmutableArray<string> TupleElementNames => default;
 
         /// <summary>
         /// If this symbol represents a tuple type, get the fields for the tuple's elements.
         /// Otherwise, returns default.
         /// </summary>
-        public virtual ImmutableArray<FieldSymbol> TupleElements => default(ImmutableArray<FieldSymbol>);
+        public virtual ImmutableArray<FieldSymbol> TupleElements => default;
 
 #nullable enable
         /// <summary>

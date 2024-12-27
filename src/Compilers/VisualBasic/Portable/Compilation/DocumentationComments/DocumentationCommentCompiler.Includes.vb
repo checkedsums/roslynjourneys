@@ -711,21 +711,7 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 End Sub
 
                 Private Sub ProcessErrorLocations(currentXmlLocation As XmlLocation, referenceName As String, useSiteInfo As CompoundUseSiteInfo(Of AssemblySymbol), errorLocations As ImmutableArray(Of Location), errid As Nullable(Of ERRID))
-                    If errorLocations.Length = 0 Then
-                        If useSiteInfo.Diagnostics IsNot Nothing Then
-                            Me._diagnostics.AddDiagnostics(currentXmlLocation, useSiteInfo)
-                        ElseIf errid.HasValue Then
-                            Me._diagnostics.Add(errid.Value, currentXmlLocation, referenceName)
-                        End If
-                    ElseIf errid.HasValue Then
-                        For Each location In errorLocations
-                            Me._diagnostics.Add(errid.Value, location, referenceName)
-                        Next
-                    Else
-                        For Each location In errorLocations
-                            Me._diagnostics.AddDiagnostics(location, useSiteInfo)
-                        Next
-                    End If
+                    
                 End Sub
 
                 Private Function BindName(attribute As XAttribute,
@@ -762,13 +748,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                             Dim bindResult As ImmutableArray(Of Symbol) = binder.BindXmlNameAttributeValue(identifier, useSiteInfo)
 
                             Me._diagnostics.AddDependencies(useSiteInfo)
-
-                            If Me.ProduceDiagnostics AndAlso Not useSiteInfo.Diagnostics.IsNullOrEmpty Then
-                                Dim loc As Location = XmlLocation.Create(attribute, currentXmlFilePath)
-                                If ShouldProcessLocation(loc) Then
-                                    Me._diagnostics.AddDiagnostics(loc, useSiteInfo)
-                                End If
-                            End If
 
                             If bindResult.IsDefaultOrEmpty Then
                                 commentMessage = GenerateDiagnostic(XmlLocation.Create(attribute, currentXmlFilePath), badNameValueError, attributeValue, Me._tagsSupport.SymbolName)

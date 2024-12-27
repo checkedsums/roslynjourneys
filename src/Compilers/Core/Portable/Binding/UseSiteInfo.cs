@@ -40,18 +40,8 @@ namespace Microsoft.CodeAnalysis
         {
         }
 
-        public UseSiteInfo(ImmutableHashSet<TAssemblySymbol>? secondaryDependencies) :
-            this(diagnosticInfo: null, primaryDependency: null, secondaryDependencies)
-        {
-        }
-
         public UseSiteInfo(DiagnosticInfo? diagnosticInfo) :
             this(diagnosticInfo, primaryDependency: null, secondaryDependencies: null)
-        {
-        }
-
-        public UseSiteInfo(DiagnosticInfo? diagnosticInfo, TAssemblySymbol? primaryDependency) :
-            this(diagnosticInfo, primaryDependency, secondaryDependencies: null)
         {
         }
 
@@ -65,8 +55,6 @@ namespace Microsoft.CodeAnalysis
             PrimaryDependency = primaryDependency;
             SecondaryDependencies = secondaryDependencies ?? ImmutableHashSet<TAssemblySymbol>.Empty;
         }
-
-        public bool IsEmpty => DiagnosticInfo is null && PrimaryDependency is null && SecondaryDependencies?.IsEmpty != false;
 
         public UseSiteInfo<TAssemblySymbol> AdjustDiagnosticInfo(DiagnosticInfo? diagnosticInfo)
         {
@@ -165,8 +153,6 @@ namespace Microsoft.CodeAnalysis
             this = default;
             _discardLevel = discardLevel;
         }
-
-        public TAssemblySymbol? AssemblyBeingBuilt => _assemblyBeingBuilt;
 
         private DiscardLevel DiscardLevelWithValidation
         {
@@ -321,18 +307,6 @@ namespace Microsoft.CodeAnalysis
             }
         }
 
-        public void AddDiagnosticInfo(DiagnosticInfo diagnosticInfo)
-        {
-            if (!AccumulatesDiagnostics)
-            {
-                return;
-            }
-
-            _diagnostics ??= new HashSet<DiagnosticInfo>();
-
-            AccumulateDiagnosticInfoAndRecordPresenceOfAnError(diagnosticInfo);
-        }
-
         public void AddDependencies(UseSiteInfo<TAssemblySymbol> info)
         {
             if (!_hasErrors && AccumulatesDependencies)
@@ -346,24 +320,6 @@ namespace Microsoft.CodeAnalysis
                 {
                     (_dependencies ??= new HashSet<TAssemblySymbol>()).AddAll(info.SecondaryDependencies);
                 }
-            }
-        }
-
-        public void AddDependencies(CompoundUseSiteInfo<TAssemblySymbol> info)
-        {
-            Debug.Assert(!info.AccumulatesDependencies || this.AccumulatesDependencies);
-            if (!_hasErrors && AccumulatesDependencies)
-            {
-                AddDependencies(info.Dependencies);
-            }
-        }
-
-        public void AddDependencies(ICollection<TAssemblySymbol>? dependencies)
-        {
-            if (!_hasErrors && AccumulatesDependencies && !dependencies.IsNullOrEmpty() &&
-                (_assemblyBeingBuilt is null || dependencies.AsSingleton() != _assemblyBeingBuilt))
-            {
-                (_dependencies ??= new HashSet<TAssemblySymbol>()).AddAll(dependencies);
             }
         }
 
@@ -467,7 +423,7 @@ namespace Microsoft.CodeAnalysis
             _info = info;
         }
 
-        public bool IsInitialized => (object?)_info != Sentinel;
+        public readonly bool IsInitialized => _info != Sentinel;
 
         public void Initialize(DiagnosticInfo? diagnosticInfo)
         {
@@ -532,7 +488,7 @@ namespace Microsoft.CodeAnalysis
 
         public void InterlockedInitializeFromSentinel(TAssemblySymbol? primaryDependency, UseSiteInfo<TAssemblySymbol> value)
         {
-            if ((object?)_info == Sentinel)
+            if (_info == Sentinel)
             {
                 object? info = Compact(value.DiagnosticInfo, GetDependenciesToCache(primaryDependency, value));
                 Interlocked.CompareExchange(ref _info, info, Sentinel);
@@ -585,25 +541,18 @@ namespace Microsoft.CodeAnalysis
             }
         }
 
-        private class Boxed
+        private class Boxed(DiagnosticInfo diagnosticInfo, ImmutableHashSet<TAssemblySymbol> dependencies)
         {
             /// <summary>
             /// Diagnostic info that should be reported at the use site of the symbol, or null if there is none.
             /// </summary>
-            public readonly DiagnosticInfo DiagnosticInfo;
+            public readonly DiagnosticInfo DiagnosticInfo = diagnosticInfo;
 
             /// <summary>
             /// The set of assemblies the use site will depend upon, excluding assembly for core library.
-            /// Empty or null if <see cref="Boxed.DiagnosticInfo"/> is an error.
+            /// Empty or null if <see cref="DiagnosticInfo"/> is an error.
             /// </summary>
-            public readonly ImmutableHashSet<TAssemblySymbol> Dependencies;
-
-            public Boxed(DiagnosticInfo diagnosticInfo, ImmutableHashSet<TAssemblySymbol> dependencies)
-            {
-                Debug.Assert(!dependencies.IsEmpty);
-                DiagnosticInfo = diagnosticInfo;
-                Dependencies = dependencies;
-            }
+            public readonly ImmutableHashSet<TAssemblySymbol> Dependencies = dependencies;
         }
     }
 }

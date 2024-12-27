@@ -1264,8 +1264,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var boundExpression = addMethodBinder.BindInstanceMemberAccess(
                     node, node, receiver, WellKnownMemberNames.CollectionInitializerAddMethodName, rightArity: 0,
-                    typeArgumentsSyntax: default(SeparatedSyntaxList<TypeSyntax>),
-                    typeArgumentsWithAnnotations: default(ImmutableArray<TypeWithAnnotations>),
+                    typeArgumentsSyntax: default,
+                    typeArgumentsWithAnnotations: default,
                     invoked: true, indexed: false, diagnostics, searchExtensionMethodsIfNecessary: true);
 
                 // require the target member to be a method.

@@ -1164,7 +1164,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             if (typeArguments.IsDefault)
             {
-                modifiedArguments = default(ImmutableArray<TypeWithAnnotations>);
+                modifiedArguments = default;
             }
             else
             {
@@ -1260,10 +1260,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal void GetAllTypeArguments(ref TemporaryArray<TypeSymbol> builder, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             var outer = ContainingType;
-            if (!ReferenceEquals(outer, null))
-            {
-                outer.GetAllTypeArguments(ref builder, ref useSiteInfo);
-            }
+            outer?.GetAllTypeArguments(ref builder, ref useSiteInfo);
 
             foreach (var argument in TypeArgumentsWithDefinitionUseSiteDiagnostics(ref useSiteInfo))
             {
@@ -1281,10 +1278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal void GetAllTypeArguments(ArrayBuilder<TypeWithAnnotations> builder, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
             var outer = ContainingType;
-            if (!ReferenceEquals(outer, null))
-            {
-                outer.GetAllTypeArguments(builder, ref useSiteInfo);
-            }
+            outer?.GetAllTypeArguments(builder, ref useSiteInfo);
 
             builder.AddRange(TypeArgumentsWithDefinitionUseSiteDiagnostics(ref useSiteInfo));
         }

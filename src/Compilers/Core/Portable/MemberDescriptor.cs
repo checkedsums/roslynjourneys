@@ -31,9 +31,14 @@ namespace Microsoft.CodeAnalysis.RuntimeMembers
     /// <summary>
     /// Structure that describes a member of a type.
     /// </summary>
-    internal readonly struct MemberDescriptor
+    internal readonly struct MemberDescriptor(
+        MemberFlags Flags,
+        short DeclaringTypeId,
+        string Name,
+        ImmutableArray<byte> Signature,
+        ushort Arity = 0)
     {
-        public readonly MemberFlags Flags;
+        public readonly MemberFlags Flags = Flags;
 
         /// <summary>
         /// Id/token of containing type, usually value from some enum.
@@ -45,7 +50,7 @@ namespace Microsoft.CodeAnalysis.RuntimeMembers
         /// (either for the VB runtime classes, or types like System.Task etc.) will need 
         /// to use IDs that are all mutually disjoint. 
         /// </summary>
-        private readonly short _declaringTypeId;
+        private readonly short _declaringTypeId = DeclaringTypeId;
 
         public bool IsSpecialTypeMember => _declaringTypeId < (int)InternalSpecialType.NextAvailable;
 
@@ -77,8 +82,8 @@ namespace Microsoft.CodeAnalysis.RuntimeMembers
             }
         }
 
-        public readonly ushort Arity;
-        public readonly string Name;
+        public readonly ushort Arity = Arity;
+        public readonly string Name = Name;
 
         /// <summary>
         /// Signature of the field or method, similar to metadata signature, 
@@ -91,7 +96,7 @@ namespace Microsoft.CodeAnalysis.RuntimeMembers
         ///    5) modifiers are not included.
         ///    6) (CLASS | VALUETYPE) are omitted after GENERICINST
         /// </summary>
-        public readonly ImmutableArray<byte> Signature;
+        public readonly ImmutableArray<byte> Signature = Signature;
 
         /// <summary>
         /// Applicable only to properties and methods, throws otherwise.
@@ -101,31 +106,12 @@ namespace Microsoft.CodeAnalysis.RuntimeMembers
             get
             {
                 MemberFlags memberKind = Flags & MemberFlags.KindMask;
-                switch (memberKind)
+                return memberKind switch
                 {
-                    case MemberFlags.Constructor:
-                    case MemberFlags.Method:
-                    case MemberFlags.PropertyGet:
-                    case MemberFlags.Property:
-                        return Signature[0];
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(memberKind);
-                }
+                    MemberFlags.Constructor or MemberFlags.Method or MemberFlags.PropertyGet or MemberFlags.Property => (int)Signature[0],
+                    _ => throw ExceptionUtilities.UnexpectedValue(memberKind),
+                };
             }
-        }
-
-        public MemberDescriptor(
-            MemberFlags Flags,
-            short DeclaringTypeId,
-            string Name,
-            ImmutableArray<byte> Signature,
-            ushort Arity = 0)
-        {
-            this.Flags = Flags;
-            this._declaringTypeId = DeclaringTypeId;
-            this.Name = Name;
-            this.Arity = Arity;
-            this.Signature = Signature;
         }
 
         internal static ImmutableArray<MemberDescriptor> InitializeFromStream(Stream stream, string[] nameTable)

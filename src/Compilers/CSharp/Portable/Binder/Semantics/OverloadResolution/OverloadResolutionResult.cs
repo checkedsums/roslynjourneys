@@ -37,7 +37,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal void Clear()
         {
-            _bestResult = default(MemberResolutionResult<TMember>);
+            _bestResult = default;
             _bestResultState = ThreeState.Unknown;
             this.ResultsBuilder.Clear();
         }
@@ -147,7 +147,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static ThreeState TryGetBestResult(ArrayBuilder<MemberResolutionResult<TMember>> allResults, out MemberResolutionResult<TMember> best)
         {
-            best = default(MemberResolutionResult<TMember>);
+            best = default;
             ThreeState haveBest = ThreeState.False;
 
             foreach (var pair in allResults)
@@ -157,7 +157,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (haveBest == ThreeState.True)
                     {
                         Debug.Assert(false, "How did we manage to get two methods in the overload resolution results that were both better than every other method?");
-                        best = default(MemberResolutionResult<TMember>);
+                        best = default;
                         return ThreeState.False;
                     }
 
@@ -373,8 +373,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             // otherwise we'd report errors about losing candidates, effectively "pulling in" unnecessary assemblies.
 
             bool supportedRequiredParameterMissingConflicts = false;
-            MemberResolutionResult<TMember> firstSupported = default(MemberResolutionResult<TMember>);
-            MemberResolutionResult<TMember> firstUnsupported = default(MemberResolutionResult<TMember>);
+            MemberResolutionResult<TMember> firstSupported = default;
+            MemberResolutionResult<TMember> firstUnsupported = default;
 
             var supportedInPriorityOrder = new MemberResolutionResult<TMember>[7]; // from highest to lowest priority
             const int duplicateNamedArgumentPriority = 0;
@@ -1415,8 +1415,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             int count = 0;
             bool foundFirst = false;
             bool foundSecond = false;
-            first = default(MemberResolutionResult<TMember>);
-            second = default(MemberResolutionResult<TMember>);
+            first = default;
+            second = default;
 
             foreach (var res in this.ResultsBuilder)
             {
@@ -1467,8 +1467,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             int count = 0;
             bool foundFirst = false;
             bool foundSecond = false;
-            first = default(MemberResolutionResult<TMember>);
-            second = default(MemberResolutionResult<TMember>);
+            first = default;
+            second = default;
 
             foreach (var res in this.ResultsBuilder)
             {
@@ -1529,7 +1529,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            return default(MemberResolutionResult<TMember>);
+            return default;
         }
 
 #if DEBUG

@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return CreateSZArray(declaringAssembly, elementTypeWithAnnotations);
             }
 
-            return CreateMDArray(declaringAssembly, elementTypeWithAnnotations, rank, default(ImmutableArray<int>), default(ImmutableArray<int>));
+            return CreateMDArray(declaringAssembly, elementTypeWithAnnotations, rank, default, default);
         }
 
         internal static ArrayTypeSymbol CreateMDArray(
@@ -163,7 +163,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                return default(ImmutableArray<int>);
+                return default;
             }
         }
 

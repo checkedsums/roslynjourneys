@@ -401,7 +401,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 return _uncommonData is NestedUncommonData { _nestedConversionsOpt: var conversions } ?
                     conversions :
-                    default(ImmutableArray<Conversion>);
+                    default;
             }
         }
 
@@ -1045,7 +1045,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                var conversionResult = (_uncommonData as MethodUncommonData)?._conversionResult ?? default(UserDefinedConversionResult);
+                var conversionResult = (_uncommonData as MethodUncommonData)?._conversionResult ?? default;
 
                 switch (conversionResult.Kind)
                 {

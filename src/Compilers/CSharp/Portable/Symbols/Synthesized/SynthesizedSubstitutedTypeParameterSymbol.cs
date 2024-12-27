@@ -5,7 +5,6 @@
 #nullable disable
 
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Emit;
 using Microsoft.CodeAnalysis.PooledObjects;
 
@@ -14,21 +13,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     /// <summary>
     /// A type parameter for a synthesized class or method.
     /// </summary>
-    internal sealed class SynthesizedSubstitutedTypeParameterSymbol : SubstitutedTypeParameterSymbol
+    internal sealed class SynthesizedSubstitutedTypeParameterSymbol(Symbol owner, TypeMap map, TypeParameterSymbol substitutedFrom, int ordinal) : SubstitutedTypeParameterSymbol(owner, map, substitutedFrom, ordinal)
     {
-        public SynthesizedSubstitutedTypeParameterSymbol(Symbol owner, TypeMap map, TypeParameterSymbol substitutedFrom, int ordinal)
-            : base(owner, map, substitutedFrom, ordinal)
-        {
-            Debug.Assert(this.TypeParameterKind == (ContainingSymbol is MethodSymbol ? TypeParameterKind.Method :
-                                                   (ContainingSymbol is NamedTypeSymbol ? TypeParameterKind.Type :
-                                                   TypeParameterKind.Cref)),
-                         $"Container is {ContainingSymbol?.Kind}, TypeParameterKind is {this.TypeParameterKind}");
-        }
-
-        public override bool IsImplicitlyDeclared
-        {
-            get { return true; }
-        }
+        public override bool IsImplicitlyDeclared => true;
 
         public override TypeParameterKind TypeParameterKind => ContainingSymbol is MethodSymbol ? TypeParameterKind.Method : TypeParameterKind.Type;
 

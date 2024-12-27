@@ -67,8 +67,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
 
             Dim typeParametersToFixArray As ImmutableArray(Of TypeParameterSymbol) = Nothing
             Dim fixWithArray As ImmutableArray(Of TypeSymbol) = Nothing
-            Dim reducedUseSiteInfo = If(useSiteInfo.AccumulatesDependencies, New CompoundUseSiteInfo(Of AssemblySymbol)(useSiteInfo.AssemblyBeingBuilt), CompoundUseSiteInfo(Of AssemblySymbol).DiscardedDependencies)
-
             If hashSetOfTypeParametersToFix.Count > 0 Then
                 ' Try to infer type parameters from the supplied instanceType.
 
@@ -82,44 +80,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
                 Dim inferenceErrorReasons As InferenceErrorReasons = InferenceErrorReasons.Other
 
                 Dim fixTheseTypeParameters = BitVector.Create(possiblyExtensionMethod.Arity)
-
-                For Each typeParameter As TypeParameterSymbol In hashSetOfTypeParametersToFix
-                    fixTheseTypeParameters(typeParameter.Ordinal) = True
-                Next
-
-                Dim inferenceDiagnostic = If(reducedUseSiteInfo.AccumulatesDependencies,
-                                             BindingDiagnosticBag.GetInstance(withDiagnostics:=False, withDependencies:=True),
-                                             BindingDiagnosticBag.Discarded)
-
-                Dim success As Boolean = TypeArgumentInference.Infer(possiblyExtensionMethod,
-                                               arguments:=ImmutableArray.Create(Of BoundExpression)(
-                                                   New BoundRValuePlaceholder(VisualBasic.VisualBasicSyntaxTree.Dummy.GetRoot(Nothing),
-                                                                             instanceType)),
-                                               parameterToArgumentMap:=parameterToArgumentMap,
-                                               paramArrayItems:=Nothing,
-                                               delegateReturnType:=Nothing,
-                                               delegateReturnTypeReferenceBoundNode:=Nothing,
-                                               typeArguments:=typeArguments,
-                                               inferenceLevel:=inferenceLevel,
-                                               someInferenceFailed:=someInferenceFailed,
-                                               allFailedInferenceIsDueToObject:=allFailedInferenceIsDueToObject,
-                                               inferenceErrorReasons:=inferenceErrorReasons,
-                                               inferredTypeByAssumption:=Nothing,
-                                               typeArgumentsLocation:=Nothing,
-                                               asyncLambdaSubToFunctionMismatch:=Nothing,
-                                               useSiteInfo:=reducedUseSiteInfo,
-                                               diagnostic:=inferenceDiagnostic,
-                                               inferTheseTypeParameters:=fixTheseTypeParameters)
-
-                parameterToArgumentMap.Free()
-
-                If Not success OrElse Not reducedUseSiteInfo.Diagnostics.IsNullOrEmpty() Then
-                    inferenceDiagnostic.Free()
-                    Return Nothing
-                End If
-
-                reducedUseSiteInfo.AddDependencies(inferenceDiagnostic.DependenciesBag)
-                inferenceDiagnostic.Free()
 
                 Dim toFixCount = hashSetOfTypeParametersToFix.Count
                 Dim typeParametersToFix = ArrayBuilder(Of TypeParameterSymbol).GetInstance(toFixCount)
@@ -144,39 +104,8 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
                 Dim partialSubstitution = TypeSubstitution.Create(possiblyExtensionMethod, typeParametersToFixArray, fixWithArray)
 
                 If partialSubstitution IsNot Nothing Then
-                    ' Check constraints.
-                    Dim diagnosticsBuilder = ArrayBuilder(Of TypeParameterDiagnosticInfo).GetInstance()
-                    Dim useSiteDiagnosticsBuilder As ArrayBuilder(Of TypeParameterDiagnosticInfo) = Nothing
-                    success = possiblyExtensionMethod.CheckConstraints(languageVersion,
-                                                                       partialSubstitution,
-                                                                       typeParametersToFixArray,
-                                                                       fixWithArray,
-                                                                       diagnosticsBuilder,
-                                                                       useSiteDiagnosticsBuilder,
-                                                                       template:=New CompoundUseSiteInfo(Of AssemblySymbol)(reducedUseSiteInfo))
-
-                    If Not success Then
-                        diagnosticsBuilder.Free()
-                        Return Nothing
-                    End If
-
-                    If useSiteDiagnosticsBuilder IsNot Nothing Then
-                        diagnosticsBuilder.AddRange(useSiteDiagnosticsBuilder)
-                    End If
-
-                    For Each pair In diagnosticsBuilder
-                        reducedUseSiteInfo.AddDependencies(pair.UseSiteInfo)
-                    Next
-
-                    diagnosticsBuilder.Free()
-
                     receiverType = receiverType.InternalSubstituteTypeParameters(partialSubstitution).Type
                 End If
-            End If
-
-            If Not OverloadResolution.DoesReceiverMatchInstance(instanceType, receiverType, reducedUseSiteInfo) OrElse
-               Not reducedUseSiteInfo.Diagnostics.IsNullOrEmpty() Then
-                Return Nothing
             End If
 
             ' Checking IsExtensionMethod on source symbols can be expensive (we use IsProbableExtensionMethod to quickly
@@ -197,9 +126,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
 
                 fixedTypeParameters = fixed.ToImmutableAndFree()
             End If
-
-            useSiteInfo.AddDependencies(reducedUseSiteInfo)
-
             Return New ReducedExtensionMethodSymbol(receiverType, possiblyExtensionMethod, fixedTypeParameters, proximity)
         End Function
 
@@ -226,39 +152,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             If fixedTypeParameters.Length < curriedFromMethod.Arity Then
                 curriedTypeParameters = New ReducedTypeParameterSymbol(curriedFromMethod.Arity - fixedTypeParameters.Length - 1) {}
             End If
-
-            Dim curryTypeArguments(curriedFromMethod.Arity - 1) As TypeSymbol
-
-            Dim i As Integer
-
-            ' First take care of fixed type parameters.
-            For i = 0 To fixedTypeParameters.Length - 1
-                Dim fixed As KeyValuePair(Of TypeParameterSymbol, TypeSymbol) = fixedTypeParameters(i)
-                curryTypeArguments(fixed.Key.Ordinal) = fixed.Value
-            Next
-
-            ' Now deal with the curried ones.
-            If curriedTypeParameters Is Nothing Then
-                _curriedTypeParameters = ImmutableArray(Of ReducedTypeParameterSymbol).Empty
-            Else
-                Dim j As Integer = 0
-                For i = 0 To curryTypeArguments.Length - 1
-                    If curryTypeArguments(i) Is Nothing Then
-                        Dim curried = New ReducedTypeParameterSymbol(Me, curriedFromMethod.TypeParameters(i), j)
-                        curriedTypeParameters(j) = curried
-                        curryTypeArguments(i) = curried
-                        j += 1
-
-                        If j = curriedTypeParameters.Length Then
-                            Exit For
-                        End If
-                    End If
-                Next
-
-                _curriedTypeParameters = curriedTypeParameters.AsImmutableOrNull()
-            End If
-
-            _curryTypeSubstitution = TypeSubstitution.Create(curriedFromMethod, curriedFromMethod.TypeParameters, curryTypeArguments.AsImmutableOrNull())
         End Sub
 
         Public Overrides ReadOnly Property ReceiverType As TypeSymbol

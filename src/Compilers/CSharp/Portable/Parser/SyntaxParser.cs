@@ -55,13 +55,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             IEnumerable<TextChangeRange> changes,
             bool allowModeReset,
             bool preLexIfNotIncremental = false,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             this.lexer = lexer;
             _mode = mode;
             _allowModeReset = allowModeReset;
             this.cancellationToken = cancellationToken;
-            _currentNode = default(BlendedNode);
+            _currentNode = default;
             _isIncremental = oldTree != null;
 
             if (this.IsIncremental || allowModeReset)
@@ -71,7 +71,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
             else
             {
-                _firstBlender = default(Blender);
+                _firstBlender = default;
                 _lexedTokens = s_lexedTokensPool.Allocate();
             }
 
@@ -185,7 +185,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             Debug.Assert(offset >= 0 && offset < _tokenCount);
             _tokenOffset = offset;
             _currentToken = null;
-            _currentNode = default(BlendedNode);
+            _currentNode = default;
             _prevTokenTrailingTrivia = point.PrevTokenTrailingTrivia;
             if (_blendedTokens != null)
             {
@@ -241,7 +241,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
                     _mode = value;
                     _currentToken = null;
-                    _currentNode = default(BlendedNode);
+                    _currentNode = default;
                     _tokenCount = _tokenOffset;
                 }
             }
@@ -507,7 +507,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             if (_blendedTokens != null)
             {
-                _currentNode = default(BlendedNode);
+                _currentNode = default;
             }
 
             _tokenOffset++;

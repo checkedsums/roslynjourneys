@@ -54,7 +54,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         TypeDefinitionHandle Cci.ITypeReference.TypeDef
         {
-            get { return default(TypeDefinitionHandle); }
+            get { return default; }
         }
 
         Cci.IGenericMethodParameterReference? Cci.ITypeReference.AsGenericMethodParameterReference

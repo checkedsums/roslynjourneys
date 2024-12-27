@@ -299,7 +299,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                return default(System.Reflection.MethodImplAttributes);
+                return default;
             }
         }
 

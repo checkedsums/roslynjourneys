@@ -375,7 +375,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // A null map means that every argument in the argument list corresponds exactly to
             // the same position in the formal parameter list.
-            return ArgumentAnalysisResult.NormalForm(default(ImmutableArray<int>));
+            return ArgumentAnalysisResult.NormalForm(default);
         }
 
         private static bool CanBeOptional(ParameterSymbol parameter, bool isMethodGroupConversion)

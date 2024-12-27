@@ -810,7 +810,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
                 // NOTE: may be overwriting an existing value.
                 Debug.Assert(
-                    _packedFlags.MethodKind == default(MethodKind) ||
+                    _packedFlags.MethodKind == default ||
                     _packedFlags.MethodKind == MethodKind.Ordinary ||
                     _packedFlags.MethodKind == MethodKind.ExplicitInterfaceImplementation);
 
@@ -1418,7 +1418,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
         }
 
-        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
         {
             return PEDocumentationCommentUtils.GetDocumentationComment(this, _containingType.ContainingPEModule, preferredCulture, cancellationToken, ref AccessUncommonFields()._lazyDocComment);
         }

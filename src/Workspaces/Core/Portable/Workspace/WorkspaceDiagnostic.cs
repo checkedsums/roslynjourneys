@@ -15,15 +15,12 @@ public class WorkspaceDiagnostic(WorkspaceDiagnosticKind kind, string message)
 
     public override string ToString()
     {
-        string kindText;
-
-        switch (Kind)
+        var kindText = Kind switch
         {
-            case WorkspaceDiagnosticKind.Failure: kindText = WorkspacesResources.Failure; break;
-            case WorkspaceDiagnosticKind.Warning: kindText = WorkspacesResources.Warning; break;
-            default: throw ExceptionUtilities.UnexpectedValue(Kind);
-        }
-
+            WorkspaceDiagnosticKind.Failure => WorkspacesResources.Failure,
+            WorkspaceDiagnosticKind.Warning => WorkspacesResources.Warning,
+            _ => throw ExceptionUtilities.UnexpectedValue(Kind),
+        };
         return $"[{kindText}] {Message}";
     }
 }

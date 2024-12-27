@@ -839,7 +839,7 @@ hasRelatedInterfaces:
             ArrayBuilder<TypeParameterDiagnosticInfo> diagnosticsBuilder,
             ArrayBuilder<TypeParameterDiagnosticInfo> nullabilityDiagnosticsBuilderOpt,
             ref ArrayBuilder<TypeParameterDiagnosticInfo> useSiteDiagnosticsBuilder,
-            BitVector skipParameters = default(BitVector))
+            BitVector skipParameters = default)
         {
             return CheckConstraints(
                 method,
@@ -877,7 +877,7 @@ hasRelatedInterfaces:
             ArrayBuilder<TypeParameterDiagnosticInfo> diagnosticsBuilder,
             ArrayBuilder<TypeParameterDiagnosticInfo> nullabilityDiagnosticsBuilderOpt,
             ref ArrayBuilder<TypeParameterDiagnosticInfo> useSiteDiagnosticsBuilder,
-            BitVector skipParameters = default(BitVector),
+            BitVector skipParameters = default,
             HashSet<TypeParameterSymbol> ignoreTypeConstraintsDependentOnTypeParametersOpt = null)
         {
             Debug.Assert(typeParameters.Length == typeArguments.Length);
@@ -1227,7 +1227,7 @@ hasRelatedInterfaces:
                 ensureUseSiteDiagnosticsBuilder(ref useSiteDiagnosticsBuilder).Add(new TypeParameterDiagnosticInfo(typeParameter,
                                                                               useSiteInfo.Dependencies.Count == 1 ?
                                                                                   new UseSiteInfo<AssemblySymbol>(useSiteInfo.Dependencies.Single()) :
-                                                                                  new UseSiteInfo<AssemblySymbol>(useSiteInfo.Dependencies.ToImmutableHashSet())));
+                                                                                  new UseSiteInfo<AssemblySymbol>(null, null, useSiteInfo.Dependencies.ToImmutableHashSet())));
             }
 
             if (!useSiteInfo.AccumulatesDiagnostics)

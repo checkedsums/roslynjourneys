@@ -2344,19 +2344,6 @@ Done:
                 Return False
             End If
 
-            ' Ignore user defined conversions between types that already have intrinsic conversions.
-            ' This could happen for generics after generic param substitution.
-            If Not method.ContainingType.IsDefinition Then
-                Dim localUseSiteInfo = If(useSiteInfo.AccumulatesDependencies, New CompoundUseSiteInfo(Of AssemblySymbol)(useSiteInfo.AssemblyBeingBuilt), CompoundUseSiteInfo(Of AssemblySymbol).DiscardedDependencies)
-                If Conversions.ConversionExists(Conversions.ClassifyPredefinedConversion(inputType, outputType, localUseSiteInfo)) OrElse
-                   Not localUseSiteInfo.Diagnostics.IsNullOrEmpty Then
-                    useSiteInfo.MergeAndClear(localUseSiteInfo)
-                    Return False
-                End If
-
-                useSiteInfo.MergeAndClear(localUseSiteInfo)
-            End If
-
             Return True
         End Function
 

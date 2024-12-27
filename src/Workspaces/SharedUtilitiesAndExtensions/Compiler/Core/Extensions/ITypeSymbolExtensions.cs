@@ -267,18 +267,12 @@ internal static partial class ITypeSymbolExtensions
                 return true;
         }
 
-        switch (typeSymbol.SpecialType)
+        return typeSymbol.SpecialType switch
         {
-            case SpecialType.System_Array or SpecialType.System_ValueType:
-                return true;
-
-            case SpecialType.System_Delegate:
-            case SpecialType.System_MulticastDelegate:
-            case SpecialType.System_Enum:
-                return !allowDelegateAndEnumConstraints;
-        }
-
-        return false;
+            SpecialType.System_Array or SpecialType.System_ValueType => true,
+            SpecialType.System_Delegate or SpecialType.System_MulticastDelegate or SpecialType.System_Enum => !allowDelegateAndEnumConstraints,
+            _ => false,
+        };
     }
 
     public static bool IsNumericType([NotNullWhen(returnValue: true)] this ITypeSymbol? type)

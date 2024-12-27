@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Creates a new AccessorDeclarationSyntax instance.</summary>
         public static AccessorDeclarationSyntax AccessorDeclaration(SyntaxKind kind, BlockSyntax? body)
         {
-            return SyntaxFactory.AccessorDeclaration(kind, default(SyntaxList<AttributeListSyntax>), default(SyntaxTokenList), SyntaxFactory.Token(GetAccessorDeclarationKeywordKind(kind)), body, expressionBody: null, default(SyntaxToken));
+            return SyntaxFactory.AccessorDeclaration(kind, default, default, SyntaxFactory.Token(GetAccessorDeclarationKeywordKind(kind)), body, expressionBody: null, default);
         }
     }
 }

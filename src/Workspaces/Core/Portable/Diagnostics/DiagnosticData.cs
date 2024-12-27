@@ -309,26 +309,15 @@ internal sealed class DiagnosticData(
 
     private static DiagnosticSeverity GetEffectiveSeverity(ReportDiagnostic effectiveReportDiagnostic, DiagnosticSeverity defaultSeverity)
     {
-        switch (effectiveReportDiagnostic)
+        return effectiveReportDiagnostic switch
         {
-            case ReportDiagnostic.Default:
-                return defaultSeverity;
-
-            case ReportDiagnostic.Error:
-                return DiagnosticSeverity.Error;
-
-            case ReportDiagnostic.Hidden:
-                return DiagnosticSeverity.Hidden;
-
-            case ReportDiagnostic.Info:
-                return DiagnosticSeverity.Info;
-
-            case ReportDiagnostic.Warn:
-                return DiagnosticSeverity.Warning;
-
-            default:
-                throw ExceptionUtilities.Unreachable();
-        }
+            ReportDiagnostic.Default => defaultSeverity,
+            ReportDiagnostic.Error => DiagnosticSeverity.Error,
+            ReportDiagnostic.Hidden => DiagnosticSeverity.Hidden,
+            ReportDiagnostic.Info => DiagnosticSeverity.Info,
+            ReportDiagnostic.Warn => DiagnosticSeverity.Warning,
+            _ => throw ExceptionUtilities.Unreachable(),
+        };
     }
 
     /// <summary>

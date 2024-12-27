@@ -89,7 +89,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal override System.Reflection.MethodImplAttributes ImplementationAttributes
         {
-            get { return default(System.Reflection.MethodImplAttributes); }
+            get { return default; }
         }
 
         internal override bool HasDeclarativeSecurity

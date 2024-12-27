@@ -10,14 +10,11 @@ internal static partial class IParameterSymbolExtensions
 {
     public static bool IsRefOrOut(this IParameterSymbol symbol)
     {
-        switch (symbol.RefKind)
+        return symbol.RefKind switch
         {
-            case RefKind.Ref:
-            case RefKind.Out:
-                return true;
-            default:
-                return false;
-        }
+            RefKind.Ref or RefKind.Out => true,
+            _ => false,
+        };
     }
 
     public static IPropertySymbol? GetAssociatedSynthesizedRecordProperty(this IParameterSymbol parameter, CancellationToken cancellationToken)

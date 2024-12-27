@@ -288,7 +288,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 ImmutableInterlocked.InterlockedCompareExchange(
                     ref _lazyAssemblyAttributes,
                     (moduleAssemblyAttributesBuilder != null) ? moduleAssemblyAttributesBuilder.ToImmutableAndFree() : ImmutableArray<CSharpAttributeData>.Empty,
-                    default(ImmutableArray<CSharpAttributeData>));
+                    default);
             }
             return _lazyAssemblyAttributes;
         }

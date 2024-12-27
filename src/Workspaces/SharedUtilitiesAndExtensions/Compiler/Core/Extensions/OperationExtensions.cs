@@ -158,20 +158,13 @@ internal static partial class OperationExtensions
         }
         else if (operation.Parent is IArgumentOperation argumentOperation)
         {
-            switch (argumentOperation.Parameter?.RefKind)
+            return (argumentOperation.Parameter?.RefKind) switch
             {
-                case RefKind.RefReadOnly:
-                    return ValueUsageInfo.ReadableReference;
-
-                case RefKind.Out:
-                    return ValueUsageInfo.WritableReference;
-
-                case RefKind.Ref:
-                    return ValueUsageInfo.ReadableWritableReference;
-
-                default:
-                    return ValueUsageInfo.Read;
-            }
+                RefKind.RefReadOnly => ValueUsageInfo.ReadableReference,
+                RefKind.Out => ValueUsageInfo.WritableReference,
+                RefKind.Ref => ValueUsageInfo.ReadableWritableReference,
+                _ => ValueUsageInfo.Read,
+            };
         }
         else if (operation.Parent is IReturnOperation returnOperation)
         {
@@ -291,15 +284,11 @@ internal static partial class OperationExtensions
     /// </summary>
     public static bool IsAnyCompoundAssignment(this IOperation operation)
     {
-        switch (operation)
+        return operation switch
         {
-            case ICompoundAssignmentOperation:
-            case ICoalesceAssignmentOperation:
-                return true;
-
-            default:
-                return false;
-        }
+            ICompoundAssignmentOperation or ICoalesceAssignmentOperation => true,
+            _ => false,
+        };
     }
 
     public static bool IsInsideCatchRegion(this IOperation operation, ControlFlowGraph cfg)

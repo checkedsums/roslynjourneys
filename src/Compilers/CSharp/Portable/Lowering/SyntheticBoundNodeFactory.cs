@@ -553,7 +553,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 #else
                     CompoundUseSiteInfo<AssemblySymbol>.Discarded;
 #endif 
-                var conversion = Compilation.Conversions.ClassifyConversionFromType(expression.Type, CurrentFunction.ReturnType, isChecked: false, ref useSiteInfo);
+                var conversion = Compilation.Conversions.ClassifyConversionFromType(expression.Type!, CurrentFunction.ReturnType, isChecked: false, ref useSiteInfo);
                 Debug.Assert(useSiteInfo.Diagnostics.IsNullOrEmpty());
                 Debug.Assert(conversion.Kind != ConversionKind.NoConversion);
                 if (conversion.Kind != ConversionKind.Identity)
@@ -786,7 +786,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (method is null)
             {
-                return new BoundBadExpression(Syntax, default(LookupResultKind), ImmutableArray<Symbol?>.Empty, args.AsImmutable(), receiver);
+                return new BoundBadExpression(Syntax, default, ImmutableArray<Symbol?>.Empty, args.AsImmutable(), receiver);
             }
 
             return Call(null, method, args);
@@ -850,8 +850,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return new BoundCall(
                 Syntax, receiver, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, args,
-                argumentNamesOpt: default(ImmutableArray<string?>), argumentRefKindsOpt: getArgumentRefKinds(method, useStrictArgumentRefKinds), isDelegateCall: false, expanded: false,
-                invokedAsExtensionMethod: false, argsToParamsOpt: default(ImmutableArray<int>), defaultArguments: default(BitVector), resultKind: LookupResultKind.Viable,
+                argumentNamesOpt: default, argumentRefKindsOpt: getArgumentRefKinds(method, useStrictArgumentRefKinds), isDelegateCall: false, expanded: false,
+                invokedAsExtensionMethod: false, argsToParamsOpt: default, defaultArguments: default, resultKind: LookupResultKind.Viable,
                 type: method.ReturnType, hasErrors: method.OriginalDefinition is ErrorMethodSymbol)
             { WasCompilerGenerated = true };
 
@@ -886,8 +886,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(method.ParameterCount == args.Length);
             return new BoundCall(
                 Syntax, receiver, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, args,
-                argumentNamesOpt: default(ImmutableArray<String?>), argumentRefKindsOpt: refKinds, isDelegateCall: false, expanded: false, invokedAsExtensionMethod: false,
-                argsToParamsOpt: ImmutableArray<int>.Empty, defaultArguments: default(BitVector), resultKind: LookupResultKind.Viable, type: method.ReturnType)
+                argumentNamesOpt: default, argumentRefKindsOpt: refKinds, isDelegateCall: false, expanded: false, invokedAsExtensionMethod: false,
+                argsToParamsOpt: ImmutableArray<int>.Empty, defaultArguments: default, resultKind: LookupResultKind.Viable, type: method.ReturnType)
             { WasCompilerGenerated = true };
         }
 
@@ -1737,7 +1737,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             return arguments;
         }
 
-#nullable disable
         internal BoundExpression MakeNullCheck(SyntaxNode syntax, BoundExpression rewrittenExpr, BinaryOperatorKind operatorKind)
         {
             Debug.Assert((operatorKind == BinaryOperatorKind.Equal) || (operatorKind == BinaryOperatorKind.NotEqual) ||
@@ -1871,7 +1870,5 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return result;
         }
-        // https://github.com/dotnet/roslyn/issues/58335: Re-enable annotations
-#nullable enable
     }
 }

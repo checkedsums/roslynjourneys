@@ -416,7 +416,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             }
             catch (BadImageFormatException)
             {
-                constraints = default(GenericParameterConstraintHandleCollection);
+                constraints = default;
                 _lazyCachedConstraintsUseSiteInfo.InterlockedInitializeFromSentinel(primaryDependency: null, new UseSiteInfo<AssemblySymbol>(new CSDiagnosticInfo(ErrorCode.ERR_BindToBogus, this)));
             }
 

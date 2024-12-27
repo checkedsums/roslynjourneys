@@ -192,7 +192,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal override MethodImplAttributes ImplementationAttributes
         {
-            get { return default(MethodImplAttributes); }
+            get { return default; }
         }
 
         internal override bool RequiresSecurityObject

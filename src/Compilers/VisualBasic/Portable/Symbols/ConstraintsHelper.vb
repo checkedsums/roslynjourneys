@@ -677,7 +677,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
             If typeParameter.HasUnmanagedTypeConstraint Then
 
                 If Not InternalSyntax.Parser.CheckFeatureAvailability(languageVersion, InternalSyntax.Feature.UnmanagedConstraint) Then
-                    useSiteInfo.AddDiagnosticInfo(InternalSyntax.Parser.GetFeatureAvailabilityError(InternalSyntax.Feature.UnmanagedConstraint, languageVersion))
                     succeeded = False
                 End If
 
@@ -730,17 +729,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.Symbols
 
             If useSiteDiagnosticsBuilder Is Nothing Then
                 useSiteDiagnosticsBuilder = New ArrayBuilder(Of TypeParameterDiagnosticInfo)()
-            End If
-
-            If Not hasErrors Then
-                If useSiteInfo.AccumulatesDependencies AndAlso Not useSiteInfo.Dependencies.IsNullOrEmpty() Then
-                    useSiteDiagnosticsBuilder.Add(New TypeParameterDiagnosticInfo(typeParameter,
-                                                                              If(useSiteInfo.Dependencies.Count = 1,
-                                                                                  New UseSiteInfo(Of AssemblySymbol)(useSiteInfo.Dependencies.Single()),
-                                                                                  New UseSiteInfo(Of AssemblySymbol)(useSiteInfo.Dependencies.ToImmutableHashSet()))))
-                End If
-
-                Return False
             End If
 
             For Each info In useSiteInfo.Diagnostics

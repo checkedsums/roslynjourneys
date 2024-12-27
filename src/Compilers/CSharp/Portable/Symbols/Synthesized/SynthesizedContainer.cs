@@ -199,9 +199,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             throw ExceptionUtilities.Unreachable();
         }
 
-        internal override AttributeUsageInfo GetAttributeUsageInfo() => default(AttributeUsageInfo);
+        internal override AttributeUsageInfo GetAttributeUsageInfo() => default;
 
-        internal override TypeLayout Layout => default(TypeLayout);
+        internal override TypeLayout Layout => default;
 
         internal override bool HasSpecialName => false;
 

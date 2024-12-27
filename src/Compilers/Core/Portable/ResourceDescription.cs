@@ -5,10 +5,8 @@
 using System;
 using System.IO;
 using Roslyn.Utilities;
-using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Security.Cryptography;
 
 namespace Microsoft.CodeAnalysis
@@ -52,42 +50,21 @@ namespace Microsoft.CodeAnalysis
         /// <remarks>
         /// Function returning a stream of the resource content (used to calculate hash).
         /// </remarks>
-        public ResourceDescription(string resourceName, string? fileName, Func<Stream> dataProvider, bool isPublic)
-            : this(resourceName, fileName, dataProvider, isPublic, isEmbedded: false, checkArgs: true)
-        {
-        }
-
         internal ResourceDescription(string resourceName, string? fileName, Func<Stream> dataProvider, bool isPublic, bool isEmbedded, bool checkArgs)
         {
             if (checkArgs)
             {
-                if (dataProvider == null)
-                {
-                    throw new ArgumentNullException(nameof(dataProvider));
-                }
-
-                if (resourceName == null)
-                {
-                    throw new ArgumentNullException(nameof(resourceName));
-                }
-
-                if (!MetadataHelpers.IsValidMetadataIdentifier(resourceName))
-                {
-                    throw new ArgumentException(CodeAnalysisResources.EmptyOrInvalidResourceName, nameof(resourceName));
-                }
-
-                if (!isEmbedded)
-                {
-                    if (fileName == null)
-                    {
-                        throw new ArgumentNullException(nameof(fileName));
-                    }
-
-                    if (!MetadataHelpers.IsValidMetadataFileName(fileName))
-                    {
-                        throw new ArgumentException(CodeAnalysisResources.EmptyOrInvalidFileName, nameof(fileName));
-                    }
-                }
+                if (dataProvider != null)
+                    if (resourceName != null)
+                        if (MetadataHelpers.IsValidMetadataIdentifier(resourceName))
+                            if (!isEmbedded) ;
+                            else if (fileName != null)
+                                if (MetadataHelpers.IsValidMetadataFileName(fileName)) ;
+                                else throw new ArgumentException(CodeAnalysisResources.EmptyOrInvalidFileName, nameof(fileName));
+                            else throw new ArgumentNullException(nameof(fileName));
+                        else throw new ArgumentException(CodeAnalysisResources.EmptyOrInvalidResourceName, nameof(resourceName));
+                    else throw new ArgumentNullException(nameof(resourceName));
+                else throw new ArgumentNullException(nameof(dataProvider));
             }
 
             this.ResourceName = resourceName;
@@ -111,15 +88,8 @@ namespace Microsoft.CodeAnalysis
             {
                 try
                 {
-                    using (var stream = _resource.DataProvider())
-                    {
-                        if (stream == null)
-                        {
-                            throw new InvalidOperationException(CodeAnalysisResources.ResourceDataProviderShouldReturnNonNullStream);
-                        }
-
-                        return ImmutableArray.CreateRange(algorithm.ComputeHash(stream));
-                    }
+                    using var stream = _resource.DataProvider() ?? throw new InvalidOperationException(CodeAnalysisResources.ResourceDataProviderShouldReturnNonNullStream);
+                    return [.. algorithm.ComputeHash(stream)];
                 }
                 catch (Exception ex)
                 {
@@ -128,10 +98,7 @@ namespace Microsoft.CodeAnalysis
             }
         }
 
-        internal bool IsEmbedded
-        {
-            get { return FileName == null; }
-        }
+        internal bool IsEmbedded => FileName == null;
 
         internal Cci.ManagedResource ToManagedResource()
         {
@@ -143,14 +110,8 @@ namespace Microsoft.CodeAnalysis
             return _hashes.GetHash(algorithmId);
         }
 
-        string? Cci.IFileReference.FileName
-        {
-            get { return FileName; }
-        }
+        string? Cci.IFileReference.FileName => FileName;
 
-        bool Cci.IFileReference.HasMetadata
-        {
-            get { return false; }
-        }
+        bool Cci.IFileReference.HasMetadata => false;
     }
 }

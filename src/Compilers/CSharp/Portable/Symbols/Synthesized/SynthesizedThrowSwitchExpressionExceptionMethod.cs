@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal SynthesizedThrowSwitchExpressionExceptionMethod(SynthesizedPrivateImplementationDetailsType privateImplType, TypeSymbol returnType, TypeSymbol paramType)
             : base(privateImplType, returnType, PrivateImplementationDetails.SynthesizedThrowSwitchExpressionExceptionFunctionName)
         {
-            this.SetParameters(ImmutableArray.Create(SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "unmatchedValue")));
+            this.SetParameters([SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "unmatchedValue")]);
         }
 
         internal override void GenerateMethodBody(TypeCompilationState compilationState, BindingDiagnosticBag diagnostics)

@@ -215,28 +215,14 @@ internal static partial class ISymbolExtensions
         Contract.ThrowIfNull(assembly);
         var withinAssembly = (within as IAssemblySymbol) ?? ((INamedTypeSymbol)within).ContainingAssembly;
 
-        switch (declaredAccessibility)
+        return declaredAccessibility switch
         {
-            case Accessibility.NotApplicable:
-            case Accessibility.Public:
-                // Public symbols are always accessible from any context
-                return true;
-
-            case Accessibility.Private:
-            case Accessibility.Protected:
-            case Accessibility.ProtectedAndInternal:
-                // Shouldn't happen except in error cases.
-                return false;
-
-            case Accessibility.Internal:
-            case Accessibility.ProtectedOrInternal:
-                // An internal type is accessible if we're in the same assembly or we have
-                // friend access to the assembly it was defined in.
-                return withinAssembly.IsSameAssemblyOrHasFriendAccessTo(assembly);
-
-            default:
-                throw ExceptionUtilities.UnexpectedValue(declaredAccessibility);
-        }
+            Accessibility.NotApplicable or Accessibility.Public => true,// Public symbols are always accessible from any context
+            Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal => false,// Shouldn't happen except in error cases.
+            Accessibility.Internal or Accessibility.ProtectedOrInternal => withinAssembly.IsSameAssemblyOrHasFriendAccessTo(assembly),// An internal type is accessible if we're in the same assembly or we have
+                                                                                                                                      // friend access to the assembly it was defined in.
+            _ => throw ExceptionUtilities.UnexpectedValue(declaredAccessibility),
+        };
     }
 
     // Is a member with declared accessibility "declaredAccessibility" accessible from within

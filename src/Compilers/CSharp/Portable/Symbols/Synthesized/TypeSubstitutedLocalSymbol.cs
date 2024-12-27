@@ -7,27 +7,14 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
-    internal sealed class TypeSubstitutedLocalSymbol : LocalSymbol
+    internal sealed class TypeSubstitutedLocalSymbol(LocalSymbol originalVariable, TypeWithAnnotations type, Symbol containingSymbol) : LocalSymbol
     {
-        private readonly LocalSymbol _originalVariable;
-        private readonly TypeWithAnnotations _type;
-        private readonly Symbol _containingSymbol;
-
-        public TypeSubstitutedLocalSymbol(LocalSymbol originalVariable, TypeWithAnnotations type, Symbol containingSymbol)
-        {
-            Debug.Assert(originalVariable != null);
-            Debug.Assert(type.HasType);
-            Debug.Assert(containingSymbol != null);
-            Debug.Assert(containingSymbol.DeclaringCompilation is not null);
-
-            _originalVariable = originalVariable;
-            _type = type;
-            _containingSymbol = containingSymbol;
-        }
+        private readonly LocalSymbol _originalVariable = originalVariable;
+        private readonly TypeWithAnnotations _type = type;
+        private readonly Symbol _containingSymbol = containingSymbol;
 
         internal override bool IsImportedFromMetadata
         {

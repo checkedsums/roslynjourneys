@@ -275,22 +275,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                 End Sub
 
                 Private Sub ProcessErrorLocations(node As SyntaxNode, errorLocations As ImmutableArray(Of Location), useSiteInfo As CompoundUseSiteInfo(Of AssemblySymbol), errid As Nullable(Of ERRID))
-                    Dim crefAttr = TryCast(node, XmlCrefAttributeSyntax)
-                    If crefAttr IsNot Nothing AndAlso errid.HasValue Then
-                        If errorLocations.Length = 0 Then
-                            ProcessBadNameInCrefAttribute(crefAttr, crefAttr.GetLocation, errid.Value)
-                        Else
-                            For Each location In errorLocations
-                                ProcessBadNameInCrefAttribute(crefAttr, location, errid.Value)
-                            Next
-                        End If
-                    ElseIf errorLocations.Length = 0 AndAlso useSiteInfo.Diagnostics IsNot Nothing Then
-                        Me._diagnostics.AddDiagnostics(node, useSiteInfo)
-                    ElseIf useSiteInfo.Diagnostics IsNot Nothing Then
-                        For Each location In errorLocations
-                            Me._diagnostics.AddDiagnostics(location, useSiteInfo)
-                        Next
-                    End If
                 End Sub
 
                 Private Sub ProcessBadNameInCrefAttribute(crefAttribute As XmlCrefAttributeSyntax, errorLocation As Location, errid As ERRID)

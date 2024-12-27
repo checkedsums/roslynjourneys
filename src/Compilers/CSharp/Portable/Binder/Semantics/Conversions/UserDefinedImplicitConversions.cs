@@ -809,7 +809,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             int? candidateIndex = null;
-            T candidateItem = default(T);
+            T candidateItem = default;
 
             for (int currentIndex = 0; currentIndex < items.Length; ++currentIndex)
             {
@@ -839,7 +839,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // and therefore neither of them can be the best. We no longer
                     // have a candidate for best item.
                     candidateIndex = null;
-                    candidateItem = default(T);
+                    candidateItem = default;
                 }
                 else if (result == BetterResult.Right)
                 {

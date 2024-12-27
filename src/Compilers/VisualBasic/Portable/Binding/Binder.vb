@@ -947,35 +947,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
         ''' Also, check runtime/language support for the symbol.
         ''' </summary>
         Friend Sub ReportDiagnosticsIfObsoleteOrNotSupported(diagnostics As BindingDiagnosticBag, symbol As Symbol, node As SyntaxNode)
-            If Not Me.SuppressObsoleteDiagnostics Then
-                ReportDiagnosticsIfObsolete(diagnostics, Me.ContainingMember, symbol, node)
-            End If
-
-            If Not IsNameOfArgument(node) AndAlso
-               symbol.Kind <> SymbolKind.Property AndAlso
-               Compilation.SourceModule IsNot symbol.ContainingModule AndAlso
-               If(symbol.ContainingType?.IsInterface, False) Then
-
-                If symbol.IsShared AndAlso
-                   symbol.RequiresImplementation() Then
-                    ReportDiagnostic(diagnostics, node, ERRID.ERR_BadAbstractStaticMemberAccess)
-
-                ElseIf Not Compilation.Assembly.RuntimeSupportsDefaultInterfaceImplementation Then
-                    If Not symbol.IsShared AndAlso
-                       Not TypeOf symbol Is TypeSymbol AndAlso
-                       Not symbol.RequiresImplementation() Then
-                        ReportDiagnostic(diagnostics, node, ERRID.ERR_RuntimeDoesNotSupportDefaultInterfaceImplementation)
-                    Else
-                        Select Case symbol.DeclaredAccessibility
-                            Case Accessibility.Protected,
-                             Accessibility.ProtectedOrInternal,
-                             Accessibility.ProtectedAndInternal
-
-                                ReportDiagnostic(diagnostics, node, ERRID.ERR_RuntimeDoesNotSupportProtectedAccessForInterfaceMember)
-                        End Select
-                    End If
-                End If
-            End If
         End Sub
 
         Friend Shared Sub ReportDiagnosticsIfObsolete(diagnostics As BindingDiagnosticBag, context As Symbol, symbol As Symbol, node As SyntaxNode)

@@ -85,19 +85,14 @@ internal static partial class EditorConfigNamingStyleParser
 
     private static ReportDiagnostic ParseEnforcementLevel(string ruleSeverity)
     {
-        switch (ruleSeverity)
+        return ruleSeverity switch
         {
-            case EditorConfigSeverityStrings.None:
-                return ReportDiagnostic.Suppress;
-
-            case EditorConfigSeverityStrings.Refactoring:
-            case EditorConfigSeverityStrings.Silent:
-                return ReportDiagnostic.Hidden;
-
-            case EditorConfigSeverityStrings.Suggestion: return ReportDiagnostic.Info;
-            case EditorConfigSeverityStrings.Warning: return ReportDiagnostic.Warn;
-            case EditorConfigSeverityStrings.Error: return ReportDiagnostic.Error;
-            default: return ReportDiagnostic.Hidden;
-        }
+            EditorConfigSeverityStrings.None => ReportDiagnostic.Suppress,
+            EditorConfigSeverityStrings.Refactoring or EditorConfigSeverityStrings.Silent => ReportDiagnostic.Hidden,
+            EditorConfigSeverityStrings.Suggestion => ReportDiagnostic.Info,
+            EditorConfigSeverityStrings.Warning => ReportDiagnostic.Warn,
+            EditorConfigSeverityStrings.Error => ReportDiagnostic.Error,
+            _ => ReportDiagnostic.Hidden,
+        };
     }
 }

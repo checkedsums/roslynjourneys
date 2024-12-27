@@ -476,13 +476,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                     initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown,
                     method,
                     rewrittenArguments,
-                    argumentNamesOpt: default(ImmutableArray<string?>),
+                    argumentNamesOpt: default,
                     argumentRefKinds,
                     isDelegateCall: false,
                     expanded: false,
                     invokedAsExtensionMethod: false,
-                    argsToParamsOpt: default(ImmutableArray<int>),
-                    defaultArguments: default(BitVector),
+                    argsToParamsOpt: default,
+                    defaultArguments: default,
                     resultKind: resultKind,
                     type: method.ReturnType);
             }
@@ -493,13 +493,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                     initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown,
                     method,
                     rewrittenArguments,
-                    argumentNamesOpt: default(ImmutableArray<string?>),
+                    argumentNamesOpt: default,
                     argumentRefKinds,
                     node.IsDelegateCall,
                     expanded: false,
                     invokedAsExtensionMethod: false,
-                    argsToParamsOpt: default(ImmutableArray<int>),
-                    defaultArguments: default(BitVector),
+                    argsToParamsOpt: default,
+                    defaultArguments: default,
                     node.ResultKind,
                     method.ReturnType);
             }
@@ -527,7 +527,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 rewrittenReceiver: rewrittenReceiver,
                 method: method,
                 rewrittenArguments: rewrittenArguments,
-                argumentRefKinds: default(ImmutableArray<RefKind>),
+                argumentRefKinds: default,
                 resultKind: LookupResultKind.Viable,
                 temps: default);
         }
@@ -1249,7 +1249,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return refKinds.ToImmutable();
                 }
             }
-            return default(ImmutableArray<RefKind>);
+            return default;
         }
 
         private delegate BoundExpression ParamsArrayElementRewriter<TArg>(BoundExpression element, ref TArg arg);
@@ -1438,13 +1438,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                         initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown,
                 arrayEmpty,
                 ImmutableArray<BoundExpression>.Empty,
-                default(ImmutableArray<string?>),
-                default(ImmutableArray<RefKind>),
+                default,
+                default,
                 isDelegateCall: false,
                 expanded: false,
                 invokedAsExtensionMethod: false,
-                argsToParamsOpt: default(ImmutableArray<int>),
-                defaultArguments: default(BitVector),
+                argsToParamsOpt: default,
+                defaultArguments: default,
                 resultKind: LookupResultKind.Viable,
                 type: arrayEmpty.ReturnType);
         }

@@ -134,8 +134,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             return new BoundObjectCreationExpression(
                 syntax, ctor, arguments.ToImmutableAndFree(),
-                argumentNamesOpt: default(ImmutableArray<string?>), argumentRefKindsOpt: default(ImmutableArray<RefKind>), expanded: false,
-                argsToParamsOpt: default(ImmutableArray<int>), defaultArguments: default(BitVector),
+                argumentNamesOpt: default, argumentRefKindsOpt: default, expanded: false,
+                argsToParamsOpt: default, defaultArguments: default,
                 constantValueOpt: constantValue, initializerExpressionOpt: null, type: ctor.ContainingType);
         }
 
@@ -154,8 +154,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             // This is not a constant from C#'s perspective, so do not mark it as one.
             return new BoundObjectCreationExpression(
                 syntax, ctor, arguments.ToImmutableAndFree(),
-                argumentNamesOpt: default(ImmutableArray<string?>), argumentRefKindsOpt: default(ImmutableArray<RefKind>), expanded: false,
-                argsToParamsOpt: default(ImmutableArray<int>), defaultArguments: default(BitVector),
+                argumentNamesOpt: default, argumentRefKindsOpt: default, expanded: false,
+                argsToParamsOpt: default, defaultArguments: default,
                 constantValueOpt: ConstantValue.NotAvailable, initializerExpressionOpt: null, type: ctor.ContainingType);
         }
     }

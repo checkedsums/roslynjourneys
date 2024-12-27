@@ -316,7 +316,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters,
                         GetTypeParameters(),
-                        default(ImmutableArray<TypeParameterSymbol>));
+                        default);
                 }
                 return _lazyTypeParameters;
             }
@@ -487,7 +487,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal sealed override TypeLayout Layout
         {
-            get { return default(TypeLayout); }
+            get { return default; }
         }
 
         internal override CharSet MarshallingCharSet

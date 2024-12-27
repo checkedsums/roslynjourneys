@@ -25,18 +25,18 @@ internal static class IntegerUtilities
 
     public static bool HasOneBitSet(IComparable value)
     {
-        switch (value)
+        return value switch
         {
-            case long v: return HasOneBitSet(v);
-            case ulong v: return HasOneBitSet(unchecked((long)v));
-            case int v: return HasOneBitSet(v);
-            case uint v: return HasOneBitSet(v);
-            case short v: return HasOneBitSet(v);
-            case ushort v: return HasOneBitSet(v);
-            case sbyte v: return HasOneBitSet(v);
-            case byte v: return HasOneBitSet(v);
-            default: return false;
-        }
+            long v => HasOneBitSet(v),
+            ulong v => HasOneBitSet(unchecked((long)v)),
+            int v => HasOneBitSet(v),
+            uint v => HasOneBitSet(v),
+            short v => HasOneBitSet(v),
+            ushort v => HasOneBitSet(v),
+            sbyte v => HasOneBitSet(v),
+            byte v => HasOneBitSet(v),
+            _ => false,
+        };
     }
 
     public static bool HasOneBitSet(long v)

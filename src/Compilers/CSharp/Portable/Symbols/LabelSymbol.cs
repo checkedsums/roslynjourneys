@@ -116,7 +116,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal virtual SyntaxNodeOrToken IdentifierNodeOrToken
         {
-            get { return default(SyntaxNodeOrToken); }
+            get { return default; }
         }
 
         internal override TResult Accept<TArgument, TResult>(CSharpSymbolVisitor<TArgument, TResult> visitor, TArgument argument)

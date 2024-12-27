@@ -26,20 +26,13 @@ internal static partial class TextDocumentExtensions
     /// </summary>
     public static TextDocument WithText(this TextDocument textDocument, SourceText text)
     {
-        switch (textDocument)
+        return textDocument switch
         {
-            case Document document:
-                return document.WithText(text);
-
-            case AnalyzerConfigDocument analyzerConfigDocument:
-                return analyzerConfigDocument.WithAnalyzerConfigDocumentText(text);
-
-            case AdditionalDocument additionalDocument:
-                return additionalDocument.WithAdditionalDocumentText(text);
-
-            default:
-                throw ExceptionUtilities.Unreachable();
-        }
+            Document document => document.WithText(text),
+            AnalyzerConfigDocument analyzerConfigDocument => analyzerConfigDocument.WithAnalyzerConfigDocumentText(text),
+            AdditionalDocument additionalDocument => additionalDocument.WithAdditionalDocumentText(text),
+            _ => throw ExceptionUtilities.Unreachable(),
+        };
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
         private ImmutableArray<TypeParameterSymbol> _lazyTypeParameters;
 
         private NamedTypeSymbol _lazyBaseType = ErrorTypeSymbol.UnknownResultType;
-        private ImmutableArray<NamedTypeSymbol> _lazyInterfaces = default(ImmutableArray<NamedTypeSymbol>);
+        private ImmutableArray<NamedTypeSymbol> _lazyInterfaces = default;
 
         private NamedTypeSymbol _lazyDeclaredBaseType = ErrorTypeSymbol.UnknownResultType;
         private ImmutableArray<NamedTypeSymbol> _lazyDeclaredInterfaces;
@@ -73,7 +73,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
                     else
                     {
                         ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters,
-                            this.RetargetingTranslator.Retarget(_underlyingType.TypeParameters), default(ImmutableArray<TypeParameterSymbol>));
+                            this.RetargetingTranslator.Retarget(_underlyingType.TypeParameters), default);
                     }
                 }
 
@@ -314,7 +314,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
                 ImmutableArray<NamedTypeSymbol> result = declaredInterfaces
                     .SelectAsArray(t => BaseTypeAnalysis.TypeDependsOn(t, this) ? CyclicInheritanceError(t) : t);
 
-                ImmutableInterlocked.InterlockedCompareExchange(ref _lazyInterfaces, result, default(ImmutableArray<NamedTypeSymbol>));
+                ImmutableInterlocked.InterlockedCompareExchange(ref _lazyInterfaces, result, default);
             }
 
             return _lazyInterfaces;
@@ -343,7 +343,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Retargeting
             {
                 var underlyingBaseInterfaces = _underlyingType.GetDeclaredInterfaces(basesBeingResolved);
                 var result = this.RetargetingTranslator.Retarget(underlyingBaseInterfaces);
-                ImmutableInterlocked.InterlockedCompareExchange(ref _lazyDeclaredInterfaces, result, default(ImmutableArray<NamedTypeSymbol>));
+                ImmutableInterlocked.InterlockedCompareExchange(ref _lazyDeclaredInterfaces, result, default);
             }
 
             return _lazyDeclaredInterfaces;

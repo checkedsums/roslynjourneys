@@ -24,7 +24,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (node == null)
             {
-                return default(R);
+                return default;
             }
 
             // this switch contains fewer than 50 of the most common node kinds
@@ -133,7 +133,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public virtual R DefaultVisit(BoundNode node, A arg)
         {
-            return default(R);
+            return default;
         }
     }
 

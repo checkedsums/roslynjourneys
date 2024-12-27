@@ -11,29 +11,20 @@ namespace Microsoft.CodeAnalysis
     /// indicating whether or not that value is meaningful.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
-    public readonly struct Optional<T>
+    /// <remarks>
+    /// Constructs an <see cref="Optional{T}"/> with a meaningful value.
+    /// </remarks>
+    /// <param name="value"></param>
+    public readonly struct Optional<T>(T value)
     {
-        private readonly bool _hasValue;
-        private readonly T _value;
-
-        /// <summary>
-        /// Constructs an <see cref="Optional{T}"/> with a meaningful value.
-        /// </summary>
-        /// <param name="value"></param>
-        public Optional(T value)
-        {
-            _hasValue = true;
-            _value = value;
-        }
+        private readonly bool _hasValue = true;
+        private readonly T _value = value;
 
         /// <summary>
         /// Returns <see langword="true"/> if the <see cref="Value"/> will return a meaningful value.
         /// </summary>
         /// <returns></returns>
-        public bool HasValue
-        {
-            get { return _hasValue; }
-        }
+        public bool HasValue => _hasValue;
 
         /// <summary>
         /// Gets the value of the current object.  Not meaningful unless <see cref="HasValue"/> returns <see langword="true"/>.
@@ -46,19 +37,13 @@ namespace Microsoft.CodeAnalysis
         /// <para>The value if <see cref="HasValue"/> is <see langword="true"/>; otherwise, the default value for type
         /// <typeparamref name="T"/>.</para>
         /// </returns>
-        public T Value
-        {
-            get { return _value; }
-        }
+        public T Value => _value;
 
         /// <summary>
         /// Creates a new object initialized to a meaningful value. 
         /// </summary>
         /// <param name="value"></param>
-        public static implicit operator Optional<T>(T value)
-        {
-            return new Optional<T>(value);
-        }
+        public static implicit operator Optional<T>(T value) => new Optional<T>(value);
 
         /// <summary>
         /// Returns a string representation of this object.

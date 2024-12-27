@@ -2027,7 +2027,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             Debug.Assert(method is not null);
             BoundExpression call = _inExpressionLambda
-                ? new BoundBinaryOperator(syntax, operatorKind, null, method, constrainedToTypeOpt: null, default(LookupResultKind), loweredLeft, loweredRight, method.ReturnType)
+                ? new BoundBinaryOperator(syntax, operatorKind, null, method, constrainedToTypeOpt: null, default, loweredLeft, loweredRight, method.ReturnType)
                 : (BoundExpression)BoundCall.Synthesized(syntax, receiverOpt: null, initialBindingReceiverIsSubjectToCloning: ThreeState.Unknown, method, loweredLeft, loweredRight);
             BoundExpression result = method.ReturnType.SpecialType == SpecialType.System_Delegate ?
                 MakeConversionNode(syntax, call, Conversion.ExplicitReference, type, @checked: false) :

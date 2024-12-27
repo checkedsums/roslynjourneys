@@ -115,7 +115,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 typeParameters = prevMap.SubstituteTypeParameters(OriginalDefinition.TypeParameters);
             }
 
-            ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters, typeParameters, default(ImmutableArray<TypeParameterSymbol>));
+            ImmutableInterlocked.InterlockedCompareExchange(ref _lazyTypeParameters, typeParameters, default);
             Debug.Assert(_lazyTypeParameters != null);
         }
 

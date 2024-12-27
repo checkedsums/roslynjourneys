@@ -122,7 +122,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal sealed override SyntaxToken IdentifierToken
         {
-            get { return default(SyntaxToken); }
+            get { return default; }
         }
 
         public sealed override Symbol ContainingSymbol

@@ -575,7 +575,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 {
                     style = this.EatToken(SyntaxKind.DisableKeyword, ErrorCode.WRN_IllegalPPWarning, reportError: isActive);
                     var end = this.ParseEndOfDirective(ignoreErrors: true, afterPragma: true);
-                    return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default(SeparatedSyntaxList<ExpressionSyntax>), end, isActive);
+                    return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default, end, isActive);
                 }
             }
             else if (this.CurrentToken.Kind == SyntaxKind.ChecksumKeyword)
@@ -621,7 +621,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 var warning = this.EatToken(SyntaxKind.WarningKeyword, ErrorCode.WRN_IllegalPragma, reportError: isActive);
                 var style = this.EatToken(SyntaxKind.DisableKeyword, reportError: false);
                 var eod = this.ParseEndOfDirective(ignoreErrors: true, afterPragma: true);
-                return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default(SeparatedSyntaxList<ExpressionSyntax>), eod, isActive);
+                return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default, eod, isActive);
             }
         }
 

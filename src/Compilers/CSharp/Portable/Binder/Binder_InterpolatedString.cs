@@ -299,7 +299,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 factoryMethod,
                 expressions,
                 diagnostics,
-                typeArgs: default(ImmutableArray<TypeWithAnnotations>),
+                typeArgs: default,
                 allowFieldsAndProperties: false,
                 ignoreNormalFormIfHasValidParamsParameter: true, // if an interpolation expression is the null literal, it should not match a params parameter.
                 disallowExpandedNonArrayParams: InExpressionTree);

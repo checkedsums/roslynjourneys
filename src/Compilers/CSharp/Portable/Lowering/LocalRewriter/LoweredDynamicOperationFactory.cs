@@ -108,7 +108,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 _factory.TypeofDynamicOperationContextType()
             });
 
-            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), null, resultType);
+            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default, null, resultType);
         }
 
         internal LoweredDynamicOperation MakeDynamicUnaryOperator(
@@ -144,7 +144,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MakeCallSiteArgumentInfos(argumentInfoFactory, loweredArguments)
             }) : null;
 
-            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), null, resultType);
+            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default, null, resultType);
         }
 
         internal LoweredDynamicOperation MakeDynamicBinaryOperator(
@@ -187,7 +187,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MakeCallSiteArgumentInfos(argumentInfoFactory, loweredArguments)
             }) : null;
 
-            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), null, resultType);
+            return MakeDynamicOperation(binderConstruction, null, RefKind.None, loweredArguments, default, null, resultType);
         }
 
         internal LoweredDynamicOperation MakeDynamicMemberInvocation(
@@ -289,7 +289,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MakeCallSiteArgumentInfos(argumentInfoFactory, loweredArguments, loweredReceiver: loweredReceiver, loweredRight: loweredHandler)
             }) : null;
 
-            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), loweredHandler, resultType);
+            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default, loweredHandler, resultType);
         }
 
         internal LoweredDynamicOperation MakeDynamicInvocation(
@@ -388,7 +388,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MakeCallSiteArgumentInfos(argumentInfoFactory, loweredArguments, loweredReceiver: loweredReceiver)
             }) : null;
 
-            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), null, resultType);
+            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default, null, resultType);
         }
 
         internal LoweredDynamicOperation MakeDynamicSetMember(
@@ -429,7 +429,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 MakeCallSiteArgumentInfos(argumentInfoFactory, loweredArguments, loweredReceiver: loweredReceiver, loweredRight: loweredRight)
             }) : null;
 
-            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default(ImmutableArray<RefKind>), loweredRight, AssemblySymbol.DynamicType);
+            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, loweredArguments, default, loweredRight, AssemblySymbol.DynamicType);
         }
 
         internal LoweredDynamicOperation MakeDynamicGetIndex(
@@ -513,7 +513,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 _factory.TypeofDynamicOperationContextType()
             });
 
-            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, ImmutableArray<BoundExpression>.Empty, default(ImmutableArray<RefKind>), null, resultType);
+            return MakeDynamicOperation(binderConstruction, loweredReceiver, RefKind.None, ImmutableArray<BoundExpression>.Empty, default, null, resultType);
         }
 
         private MethodSymbol GetArgumentInfoFactory()
@@ -558,8 +558,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal BoundExpression MakeCallSiteArgumentInfos(
             MethodSymbol argumentInfoFactory,
             ImmutableArray<BoundExpression> loweredArguments,
-            ImmutableArray<string?> argumentNames = default(ImmutableArray<string?>),
-            ImmutableArray<RefKind> refKinds = default(ImmutableArray<RefKind>),
+            ImmutableArray<string?> argumentNames = default,
+            ImmutableArray<RefKind> refKinds = default,
             BoundExpression? loweredReceiver = null,
             RefKind receiverRefKind = RefKind.None,
             bool receiverIsStaticType = false,
@@ -778,7 +778,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                byRefs = default(RefKindVector);
+                byRefs = default;
             }
 
             int parameterCount = delegateSignature.Length - (returnsVoid ? 0 : 1);

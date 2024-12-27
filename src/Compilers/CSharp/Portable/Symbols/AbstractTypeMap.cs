@@ -92,7 +92,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal TypeWithAnnotations SubstituteType(TypeSymbol previous)
         {
             if (ReferenceEquals(previous, null))
-                return default(TypeWithAnnotations);
+                return default;
 
             TypeSymbol result;
 
@@ -321,7 +321,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             if (original.IsDefault)
             {
-                return default(ImmutableArray<TypeWithAnnotations>);
+                return default;
             }
 
             var result = ArrayBuilder<TypeWithAnnotations>.GetInstance(original.Length);

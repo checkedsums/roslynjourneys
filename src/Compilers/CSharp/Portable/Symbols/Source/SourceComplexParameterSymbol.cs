@@ -286,7 +286,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     Debug.Assert(completedOnThisThread);
                 }
 
-                state.SpinWaitComplete(CompletionPart.EndDefaultSyntaxValue, default(CancellationToken));
+                state.SpinWaitComplete(CompletionPart.EndDefaultSyntaxValue, default);
                 return _lazyDefaultSyntaxValue;
             }
         }
@@ -509,7 +509,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var syntax = this.ParameterSyntax;
-                return (syntax != null) ? syntax.AttributeLists : default(SyntaxList<AttributeListSyntax>);
+                return (syntax != null) ? syntax.AttributeLists : default;
             }
         }
 
@@ -1550,7 +1550,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Debug.Assert(completedOnThisThread);
             }
 
-            state.SpinWaitComplete(CompletionPart.EndMiscValidation, default(CancellationToken));
+            state.SpinWaitComplete(CompletionPart.EndMiscValidation, default);
 
             void validateParamsType(BindingDiagnosticBag diagnostics)
             {

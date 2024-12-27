@@ -368,7 +368,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get { return _reducedFrom.DeclaringSyntaxReferences; }
         }
 
-        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
         {
             return _reducedFrom.GetDocumentationCommentXml(preferredCulture, expandIncludes, cancellationToken);
         }

@@ -570,7 +570,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var invokeMethod = type.DelegateInvokeMethod();
             if (invokeMethod is null)
             {
-                return default(ImmutableArray<ParameterSymbol>);
+                return default;
             }
             return invokeMethod.Parameters;
         }
@@ -597,7 +597,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             // source not a tuple
-            elementTypes = default(ImmutableArray<TypeWithAnnotations>);
+            elementTypes = default;
             return false;
         }
 
@@ -1696,10 +1696,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static void GetAllTypeParameters(this NamedTypeSymbol type, ArrayBuilder<TypeParameterSymbol> result)
         {
             var containingType = type.ContainingType;
-            if (containingType is not null)
-            {
-                containingType.GetAllTypeParameters(result);
-            }
+            containingType?.GetAllTypeParameters(result);
 
             result.AddRange(type.TypeParameters);
         }

@@ -66,21 +66,15 @@ internal readonly partial record struct NamingStyle
 
     private IEnumerable<string> ApplyCapitalization(IEnumerable<string> words)
     {
-        switch (CapitalizationScheme)
+        return CapitalizationScheme switch
         {
-            case Capitalization.PascalCase:
-                return words.Select(CapitalizeFirstLetter);
-            case Capitalization.CamelCase:
-                return words.Take(1).Select(DecapitalizeFirstLetter).Concat(words.Skip(1).Select(CapitalizeFirstLetter));
-            case Capitalization.FirstUpper:
-                return words.Take(1).Select(CapitalizeFirstLetter).Concat(words.Skip(1).Select(DecapitalizeFirstLetter));
-            case Capitalization.AllUpper:
-                return words.Select(w => w.ToUpper());
-            case Capitalization.AllLower:
-                return words.Select(w => w.ToLower());
-            default:
-                throw new InvalidOperationException();
-        }
+            Capitalization.PascalCase => words.Select(CapitalizeFirstLetter),
+            Capitalization.CamelCase => words.Take(1).Select(DecapitalizeFirstLetter).Concat(words.Skip(1).Select(CapitalizeFirstLetter)),
+            Capitalization.FirstUpper => words.Take(1).Select(CapitalizeFirstLetter).Concat(words.Skip(1).Select(DecapitalizeFirstLetter)),
+            Capitalization.AllUpper => words.Select(w => w.ToUpper()),
+            Capitalization.AllLower => words.Select(w => w.ToLower()),
+            _ => throw new InvalidOperationException(),
+        };
     }
 
     private string CapitalizeFirstLetter(string word)
@@ -159,15 +153,15 @@ internal readonly partial record struct NamingStyle
         var spanToCheck = TextSpan.FromBounds(0, name.Length - Suffix.Length);
         Debug.Assert(spanToCheck.Length > 0);
 
-        switch (CapitalizationScheme)
+        return CapitalizationScheme switch
         {
-            case Capitalization.PascalCase: return CheckPascalCase(name, spanToCheck, out failureReason);
-            case Capitalization.CamelCase: return CheckCamelCase(name, spanToCheck, out failureReason);
-            case Capitalization.FirstUpper: return CheckFirstUpper(name, spanToCheck, out failureReason);
-            case Capitalization.AllUpper: return CheckAllUpper(name, spanToCheck, out failureReason);
-            case Capitalization.AllLower: return CheckAllLower(name, spanToCheck, out failureReason);
-            default: throw new InvalidOperationException();
-        }
+            Capitalization.PascalCase => CheckPascalCase(name, spanToCheck, out failureReason),
+            Capitalization.CamelCase => CheckCamelCase(name, spanToCheck, out failureReason),
+            Capitalization.FirstUpper => CheckFirstUpper(name, spanToCheck, out failureReason),
+            Capitalization.AllUpper => CheckAllUpper(name, spanToCheck, out failureReason),
+            Capitalization.AllLower => CheckAllLower(name, spanToCheck, out failureReason),
+            _ => throw new InvalidOperationException(),
+        };
     }
 
     private WordSpanEnumerable GetWordSpans(string name, TextSpan nameSpan)

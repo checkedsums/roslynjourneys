@@ -121,11 +121,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case SyntaxKind.RecordStructDeclaration:
                     return ((BaseTypeDeclarationSyntax)node).Identifier;
                 default:
-                    return default(SyntaxToken);
+                    return default;
             }
         }
 
-        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
         {
             ref var lazyDocComment = ref expandIncludes ? ref _lazyExpandedDocComment : ref _lazyDocComment;
             return SourceDocumentationCommentUtils.GetAndCacheDocumentationComment(this, expandIncludes, ref lazyDocComment);
@@ -1065,7 +1065,7 @@ next:;
                 if (lazyCustomAttributesBag != null && lazyCustomAttributesBag.IsEarlyDecodedWellKnownAttributeDataComputed)
                 {
                     var data = (TypeEarlyWellKnownAttributeData)lazyCustomAttributesBag.EarlyDecodedWellKnownAttributeData;
-                    return data != null ? data.ObsoleteAttributeData : null;
+                    return data?.ObsoleteAttributeData;
                 }
 
                 foreach (var decl in this.declaration.Declarations)
@@ -1351,7 +1351,7 @@ next:;
             get
             {
                 TypeWellKnownAttributeData data = this.GetDecodedWellKnownAttributeData();
-                return data != null ? data.ComImportCoClass : null;
+                return data?.ComImportCoClass;
             }
         }
 
@@ -1492,7 +1492,7 @@ next:;
                     return new TypeLayout(LayoutKind.Sequential, this.HasInstanceFields() ? 0 : 1, alignment: 0);
                 }
 
-                return default(TypeLayout);
+                return default;
             }
         }
 

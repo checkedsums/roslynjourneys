@@ -56,7 +56,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         bool Cci.ITypeReference.IsEnum => false;
         bool Cci.ITypeReference.IsValueType => false;
 
-        TypeDefinitionHandle Cci.ITypeReference.TypeDef => default(TypeDefinitionHandle);
+        TypeDefinitionHandle Cci.ITypeReference.TypeDef => default;
         Cci.PrimitiveTypeCode Cci.ITypeReference.TypeCode => Cci.PrimitiveTypeCode.NotPrimitive;
 
         Cci.ITypeDefinition? Cci.ITypeReference.GetResolvedType(EmitContext context) => null;

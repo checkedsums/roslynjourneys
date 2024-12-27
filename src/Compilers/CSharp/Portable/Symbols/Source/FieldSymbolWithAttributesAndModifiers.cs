@@ -116,11 +116,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 #nullable enable
         internal sealed override (CSharpAttributeData?, BoundAttribute?) EarlyDecodeWellKnownAttribute(ref EarlyDecodeWellKnownAttributeArguments<EarlyWellKnownAttributeBinder, NamedTypeSymbol, AttributeSyntax, AttributeLocation> arguments)
         {
-            CSharpAttributeData? attributeData;
-            BoundAttribute? boundAttribute;
-            ObsoleteAttributeData? obsoleteData;
 
-            if (EarlyDecodeDeprecatedOrExperimentalOrObsoleteAttribute(ref arguments, out attributeData, out boundAttribute, out obsoleteData))
+            if (EarlyDecodeDeprecatedOrExperimentalOrObsoleteAttribute(ref arguments, out CSharpAttributeData? attributeData, out BoundAttribute? boundAttribute, out ObsoleteAttributeData? obsoleteData))
             {
                 if (obsoleteData != null)
                 {
@@ -152,7 +149,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (lazyCustomAttributesBag != null && lazyCustomAttributesBag.IsEarlyDecodedWellKnownAttributeDataComputed)
                 {
                     var data = (CommonFieldEarlyWellKnownAttributeData)lazyCustomAttributesBag.EarlyDecodedWellKnownAttributeData;
-                    return data != null ? data.ObsoleteAttributeData : null;
+                    return data?.ObsoleteAttributeData;
                 }
 
                 return ObsoleteAttributeData.Uninitialized;
@@ -319,7 +316,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert(symbolPart == AttributeLocation.None);
 
             var data = (FieldWellKnownAttributeData)decodedData;
-            int? fieldOffset = data != null ? data.Offset : null;
+            int? fieldOffset = data?.Offset;
 
             if (fieldOffset.HasValue)
             {
@@ -372,7 +369,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var data = GetDecodedWellKnownAttributeData();
-                return data != null ? data.MarshallingInformation : null;
+                return data?.MarshallingInformation;
             }
         }
 
@@ -381,7 +378,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var data = GetDecodedWellKnownAttributeData();
-                return data != null ? data.Offset : null;
+                return data?.Offset;
             }
         }
 

@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Immutable;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
@@ -520,12 +519,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 locationOpt: null,
                 elementTypesWithAnnotations: typesWithAnnotationsBuilder.ToImmutableAndFree(),
                 elementLocations: locationsBuilder.ToImmutableAndFree(),
-                elementNames: default(ImmutableArray<string?>),
+                elementNames: default,
                 compilation: Compilation,
                 diagnostics: diagnostics,
                 shouldCheckConstraints: true,
                 includeNullability: false,
-                errorPositions: default(ImmutableArray<bool>),
+                errorPositions: default,
                 syntax: syntax);
         }
 
@@ -608,7 +607,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (receiver.Type?.IsDynamic() ?? false)
             {
                 Error(diagnostics, ErrorCode.ERR_CannotDeconstructDynamic, rightSyntax);
-                outPlaceholders = default(ImmutableArray<BoundDeconstructValuePlaceholder>);
+                outPlaceholders = default;
 
                 return BadExpression(receiverSyntax, receiver);
             }
@@ -637,8 +636,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 const string methodName = WellKnownMemberNames.DeconstructMethodName;
                 var memberAccess = BindInstanceMemberAccess(
                                         rightSyntax, receiverSyntax, receiver, methodName, rightArity: 0,
-                                        typeArgumentsSyntax: default(SeparatedSyntaxList<TypeSyntax>),
-                                        typeArgumentsWithAnnotations: default(ImmutableArray<TypeWithAnnotations>),
+                                        typeArgumentsSyntax: default,
+                                        typeArgumentsWithAnnotations: default,
                                         invoked: true, indexed: false, diagnostics: diagnostics);
 
                 memberAccess = CheckValue(memberAccess, BindValueKind.RValueOrMethodGroup, diagnostics);

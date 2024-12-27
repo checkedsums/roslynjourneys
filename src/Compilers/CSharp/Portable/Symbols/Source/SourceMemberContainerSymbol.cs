@@ -1739,7 +1739,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 diagnostics.Free();
             }
 
-            state.SpinWaitComplete(CompletionPart.Members, default(CancellationToken));
+            state.SpinWaitComplete(CompletionPart.Members, default);
             return _lazyMembersDictionary;
         }
 

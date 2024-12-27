@@ -16,7 +16,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             if (node == null)
             {
-                return default(TResult);
+                return default;
             }
 
             return node.Accept(this);
@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         protected virtual TResult DefaultVisit(CSharpSyntaxNode node)
         {
-            return default(TResult);
+            return default;
         }
     }
 

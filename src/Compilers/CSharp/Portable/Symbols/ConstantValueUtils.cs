@@ -4,24 +4,16 @@
 
 #nullable disable
 
-using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.PooledObjects;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
-    internal sealed class EvaluatedConstant
+    internal sealed class EvaluatedConstant(ConstantValue value, ReadOnlyBindingDiagnostic<AssemblySymbol> diagnostics)
     {
-        public readonly ConstantValue Value;
-        public readonly ReadOnlyBindingDiagnostic<AssemblySymbol> Diagnostics;
-
-        public EvaluatedConstant(ConstantValue value, ReadOnlyBindingDiagnostic<AssemblySymbol> diagnostics)
-        {
-            this.Value = value;
-            this.Diagnostics = diagnostics.NullToEmpty();
-        }
+        public readonly ConstantValue Value = value;
+        public readonly ReadOnlyBindingDiagnostic<AssemblySymbol> Diagnostics = diagnostics.NullToEmpty();
     }
 
     internal static class ConstantValueUtils
@@ -144,26 +136,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return value;
         }
 
-        private sealed class CheckConstantInterpolatedStringValidity : BoundTreeWalkerWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator
+        private sealed class CheckConstantInterpolatedStringValidity() : BoundTreeWalkerWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator
         {
-            internal readonly BindingDiagnosticBag diagnostics;
-
-            public CheckConstantInterpolatedStringValidity(BindingDiagnosticBag diagnostics)
-            {
-                this.diagnostics = diagnostics;
-            }
-
             public override BoundNode VisitInterpolatedString(BoundInterpolatedString node)
             {
                 return null;
             }
         }
 
-        internal static void CheckConstantValue(BoundExpression expression, BindingDiagnosticBag diagnostics)
+        internal static void CheckConstantValue(BoundExpression expression, BindingDiagnosticBag _)
         {
             if (expression.Type is not null && expression.Type.IsStringType())
             {
-                var visitor = new CheckConstantInterpolatedStringValidity(diagnostics);
+                var visitor = new CheckConstantInterpolatedStringValidity();
                 visitor.Visit(expression);
             }
         }

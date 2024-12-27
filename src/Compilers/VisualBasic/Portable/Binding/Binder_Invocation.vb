@@ -2193,79 +2193,6 @@ ProduceBoundNode:
                     parameterToArgumentMap(paramIndex) = i
                 Next
 
-                ' Check whether type inference failed
-                diagnostics.AddRange(candidateAnalysisResult.TypeArgumentInferenceDiagnosticsOpt)
-
-                If candidate.IsGeneric AndAlso candidateAnalysisResult.State = OverloadResolution.CandidateAnalysisResultState.TypeInferenceFailed Then
-                    ' Bug 122092: AddressOf doesn't want detailed info on which parameters could not be
-                    ' inferred, just report the general type inference failed message in this case.
-                    If delegateSymbol IsNot Nothing Then
-                        ReportDiagnostic(diagnostics, diagnosticLocation, ERRID.ERR_DelegateBindingTypeInferenceFails)
-                        Return
-                    End If
-
-                    If Not candidateAnalysisResult.SomeInferenceFailed Then
-
-                        Dim reportedAnError As Boolean = False
-
-                        For i As Integer = 0 To candidate.Arity - 1 Step 1
-                            If candidateAnalysisResult.NotInferredTypeArguments(i) Then
-                                If Not includeMethodNameInErrorMessages Then
-                                    ReportDiagnostic(diagnostics, diagnosticLocation, ERRID.ERR_UnboundTypeParam1, candidate.TypeParameters(i))
-                                ElseIf candidateIsExtension Then
-                                    ReportDiagnostic(diagnostics, diagnosticLocation,
-                                                     ERRID.ERR_UnboundTypeParam3, candidate.TypeParameters(i),
-                                                     candidateSymbol, candidateSymbol.ContainingType)
-                                Else
-                                    ReportDiagnostic(diagnostics, diagnosticLocation,
-                                                     ERRID.ERR_UnboundTypeParam2, candidate.TypeParameters(i), If(representCandidateInDiagnosticsOpt, candidateSymbol))
-                                End If
-
-                                reportedAnError = True
-                            End If
-                        Next
-
-                        If reportedAnError Then
-                            Return
-                        End If
-                    End If
-
-                    Dim inferenceErrorReasons As InferenceErrorReasons = candidateAnalysisResult.InferenceErrorReasons
-
-                    If (inferenceErrorReasons And InferenceErrorReasons.Ambiguous) <> 0 Then
-                        If Not includeMethodNameInErrorMessages Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitAmbiguous1, ERRID.ERR_TypeInferenceFailureAmbiguous1))
-                        ElseIf candidateIsExtension Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitAmbiguous3, ERRID.ERR_TypeInferenceFailureAmbiguous3), candidateSymbol, candidateSymbol.ContainingType)
-                        Else
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitAmbiguous2, ERRID.ERR_TypeInferenceFailureAmbiguous2), If(representCandidateInDiagnosticsOpt, candidateSymbol))
-                        End If
-                    ElseIf (inferenceErrorReasons And InferenceErrorReasons.NoBest) <> 0 Then
-                        If Not includeMethodNameInErrorMessages Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitNoBest1, ERRID.ERR_TypeInferenceFailureNoBest1))
-                        ElseIf candidateIsExtension Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitNoBest3, ERRID.ERR_TypeInferenceFailureNoBest3), candidateSymbol, candidateSymbol.ContainingType)
-                        Else
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicitNoBest2, ERRID.ERR_TypeInferenceFailureNoBest2), If(representCandidateInDiagnosticsOpt, candidateSymbol))
-                        End If
-                    Else
-                        If candidateAnalysisResult.TypeArgumentInferenceDiagnosticsOpt.HasAnyResolvedErrors Then
-                            ' Already reported some errors, let's not report a general inference error
-                            Return
-                        End If
-
-                        If Not includeMethodNameInErrorMessages Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicit1, ERRID.ERR_TypeInferenceFailure1))
-                        ElseIf candidateIsExtension Then
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicit3, ERRID.ERR_TypeInferenceFailure3), candidateSymbol, candidateSymbol.ContainingType)
-                        Else
-                            ReportDiagnostic(diagnostics, diagnosticLocation, If(queryMode, ERRID.ERR_TypeInferenceFailureNoExplicit2, ERRID.ERR_TypeInferenceFailure2), If(representCandidateInDiagnosticsOpt, candidateSymbol))
-                        End If
-                    End If
-
-                    Return
-                End If
-
                 ' Check generic constraints for method type arguments.
                 If candidateAnalysisResult.State = OverloadResolution.CandidateAnalysisResultState.GenericConstraintsViolated Then
                     Debug.Assert(candidate.IsGeneric)
@@ -2276,10 +2203,6 @@ ProduceBoundNode:
                     ' violated the constraint, rather than  the entire invocation expression.
                     Dim succeeded = method.CheckConstraints(Compilation.LanguageVersion, diagnosticLocation, diagnostics, template:=GetNewCompoundUseSiteInfo(diagnostics))
                     Debug.Assert(Not succeeded)
-                    Return
-                End If
-
-                If candidateAnalysisResult.TypeArgumentInferenceDiagnosticsOpt.HasAnyErrors Then
                     Return
                 End If
 

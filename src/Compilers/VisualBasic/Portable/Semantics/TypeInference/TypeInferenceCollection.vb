@@ -336,8 +336,6 @@ Namespace Microsoft.CodeAnalysis.VisualBasic
                                     Binder.InferDominantTypeOfExpressions(VisualBasicSyntaxTree.Dummy.GetRoot(Nothing), elements, dominantTypeDiagnostics, Nothing)
 
                             If inferredElementType IsNot Nothing Then
-                                useSiteInfo.AddDependencies(dominantTypeDiagnostics.DependenciesBag)
-
                                 ' That should match an element type inferred for one of the array literals 
                                 Dim match As TDominantTypeData = Nothing
                                 Dim matchLiteral As BoundArrayLiteral = Nothing

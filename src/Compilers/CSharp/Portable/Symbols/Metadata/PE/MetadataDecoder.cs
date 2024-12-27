@@ -607,7 +607,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                 return peMethod.Handle;
             }
 
-            return default(MethodDefinitionHandle);
+            return default;
         }
     }
 }

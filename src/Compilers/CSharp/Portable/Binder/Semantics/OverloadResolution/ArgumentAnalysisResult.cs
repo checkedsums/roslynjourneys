@@ -48,32 +48,32 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static ArgumentAnalysisResult NameUsedForPositional(int argumentPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NameUsedForPositional, argumentPosition, 0, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NameUsedForPositional, argumentPosition, 0, default);
         }
 
         public static ArgumentAnalysisResult NoCorrespondingParameter(int argumentPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NoCorrespondingParameter, argumentPosition, 0, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NoCorrespondingParameter, argumentPosition, 0, default);
         }
 
         public static ArgumentAnalysisResult NoCorrespondingNamedParameter(int argumentPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NoCorrespondingNamedParameter, argumentPosition, 0, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.NoCorrespondingNamedParameter, argumentPosition, 0, default);
         }
 
         public static ArgumentAnalysisResult DuplicateNamedArgument(int argumentPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.DuplicateNamedArgument, argumentPosition, 0, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.DuplicateNamedArgument, argumentPosition, 0, default);
         }
 
         public static ArgumentAnalysisResult RequiredParameterMissing(int parameterPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.RequiredParameterMissing, 0, parameterPosition, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.RequiredParameterMissing, 0, parameterPosition, default);
         }
 
         public static ArgumentAnalysisResult BadNonTrailingNamedArgument(int argumentPosition)
         {
-            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.BadNonTrailingNamedArgument, argumentPosition, 0, default(ImmutableArray<int>));
+            return new ArgumentAnalysisResult(ArgumentAnalysisResultKind.BadNonTrailingNamedArgument, argumentPosition, 0, default);
         }
 
         public static ArgumentAnalysisResult NormalForm(ImmutableArray<int> argsToParamsOpt)

@@ -131,7 +131,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected void SetConditionalState(TLocalState whenTrue, TLocalState whenFalse)
         {
             IsConditionalState = true;
-            State = default(TLocalState);
+            State = default;
             StateWhenTrue = whenTrue;
             StateWhenFalse = whenFalse;
         }
@@ -139,7 +139,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected void SetState(TLocalState newState)
         {
             Debug.Assert(newState != null);
-            StateWhenTrue = StateWhenFalse = default(TLocalState);
+            StateWhenTrue = StateWhenFalse = default;
             IsConditionalState = false;
             State = newState;
         }
@@ -1129,7 +1129,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundNode VisitTupleExpression(BoundTupleExpression node)
         {
-            VisitArguments(node.Arguments, default(ImmutableArray<RefKind>), null);
+            VisitArguments(node.Arguments, default, null);
             return null;
         }
 
@@ -1334,7 +1334,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // whose condition is not true, then the call has no effect and it is ignored for the purposes of
             // definite assignment analysis.
             bool callsAreOmitted = node.Method.CallsAreOmitted(node.SyntaxTree);
-            TLocalState savedState = default(TLocalState);
+            TLocalState savedState = default;
 
             if (callsAreOmitted)
             {
@@ -3530,7 +3530,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         public override BoundNode VisitAnonymousObjectCreationExpression(BoundAnonymousObjectCreationExpression node)
         {
             //  visit arguments as r-values
-            VisitArguments(node.Arguments, default(ImmutableArray<RefKind>), node.Constructor);
+            VisitArguments(node.Arguments, default, node.Constructor);
 
             return null;
         }
@@ -3614,13 +3614,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 TLocalState savedState = savedState = this.State.Clone();
                 SetUnreachable();
 
-                VisitArguments(node.Arguments, default(ImmutableArray<RefKind>), node.AddMethod);
+                VisitArguments(node.Arguments, default, node.AddMethod);
 
                 this.State = savedState;
             }
             else
             {
-                VisitArguments(node.Arguments, default(ImmutableArray<RefKind>), node.AddMethod);
+                VisitArguments(node.Arguments, default, node.AddMethod);
             }
 
             return null;
@@ -3628,7 +3628,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public override BoundNode VisitDynamicCollectionElementInitializer(BoundDynamicCollectionElementInitializer node)
         {
-            VisitArguments(node.Arguments, default(ImmutableArray<RefKind>), method: null);
+            VisitArguments(node.Arguments, default, method: null);
             return null;
         }
 

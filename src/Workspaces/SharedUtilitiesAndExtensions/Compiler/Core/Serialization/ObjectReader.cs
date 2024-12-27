@@ -155,87 +155,46 @@ internal sealed partial class ObjectReader : IDisposable
     public object? ReadScalarValue()
     {
         var code = (TypeCode)ReadByte();
-        switch (code)
+        return code switch
         {
-            case TypeCode.Null: return null;
-            case TypeCode.Boolean_True: return true;
-            case TypeCode.Boolean_False: return false;
-            case TypeCode.Int8: return ReadSByte();
-            case TypeCode.UInt8: return ReadByte();
-            case TypeCode.Int16: return ReadInt16();
-            case TypeCode.UInt16: return ReadUInt16();
-            case TypeCode.Int32: return ReadInt32();
-            case TypeCode.Int32_1Byte: return (int)ReadByte();
-            case TypeCode.Int32_2Bytes: return (int)ReadUInt16();
-            case TypeCode.Int32_0:
-            case TypeCode.Int32_1:
-            case TypeCode.Int32_2:
-            case TypeCode.Int32_3:
-            case TypeCode.Int32_4:
-            case TypeCode.Int32_5:
-            case TypeCode.Int32_6:
-            case TypeCode.Int32_7:
-            case TypeCode.Int32_8:
-            case TypeCode.Int32_9:
-            case TypeCode.Int32_10:
-                return (int)code - (int)TypeCode.Int32_0;
-            case TypeCode.UInt32: return ReadUInt32();
-            case TypeCode.UInt32_1Byte: return (uint)ReadByte();
-            case TypeCode.UInt32_2Bytes: return (uint)ReadUInt16();
-            case TypeCode.UInt32_0:
-            case TypeCode.UInt32_1:
-            case TypeCode.UInt32_2:
-            case TypeCode.UInt32_3:
-            case TypeCode.UInt32_4:
-            case TypeCode.UInt32_5:
-            case TypeCode.UInt32_6:
-            case TypeCode.UInt32_7:
-            case TypeCode.UInt32_8:
-            case TypeCode.UInt32_9:
-            case TypeCode.UInt32_10:
-                return (uint)((int)code - (int)TypeCode.UInt32_0);
-            case TypeCode.Int64: return ReadInt64();
-            case TypeCode.UInt64: return ReadUInt64();
-            case TypeCode.Float4: return ReadSingle();
-            case TypeCode.Float8: return ReadDouble();
-            case TypeCode.Decimal: return ReadDecimal();
-            case TypeCode.Char:
-                // read as ushort because BinaryWriter fails on chars that are unicode surrogates
-                return (char)ReadUInt16();
-            case TypeCode.StringUtf8:
-            case TypeCode.StringUtf16:
-            case TypeCode.StringRef_4Bytes:
-            case TypeCode.StringRef_1Byte:
-            case TypeCode.StringRef_2Bytes:
-                return ReadStringValue(code);
-            case TypeCode.DateTime:
-                return DateTime.FromBinary(ReadInt64());
-
-            default:
-                throw ExceptionUtilities.UnexpectedValue(code);
-        }
+            TypeCode.Null => null,
+            TypeCode.Boolean_True => true,
+            TypeCode.Boolean_False => false,
+            TypeCode.Int8 => ReadSByte(),
+            TypeCode.UInt8 => ReadByte(),
+            TypeCode.Int16 => ReadInt16(),
+            TypeCode.UInt16 => ReadUInt16(),
+            TypeCode.Int32 => ReadInt32(),
+            TypeCode.Int32_1Byte => (int)ReadByte(),
+            TypeCode.Int32_2Bytes => (int)ReadUInt16(),
+            TypeCode.Int32_0 or TypeCode.Int32_1 or TypeCode.Int32_2 or TypeCode.Int32_3 or TypeCode.Int32_4 or TypeCode.Int32_5 or TypeCode.Int32_6 or TypeCode.Int32_7 or TypeCode.Int32_8 or TypeCode.Int32_9 or TypeCode.Int32_10 => (int)code - (int)TypeCode.Int32_0,
+            TypeCode.UInt32 => ReadUInt32(),
+            TypeCode.UInt32_1Byte => (uint)ReadByte(),
+            TypeCode.UInt32_2Bytes => (uint)ReadUInt16(),
+            TypeCode.UInt32_0 or TypeCode.UInt32_1 or TypeCode.UInt32_2 or TypeCode.UInt32_3 or TypeCode.UInt32_4 or TypeCode.UInt32_5 or TypeCode.UInt32_6 or TypeCode.UInt32_7 or TypeCode.UInt32_8 or TypeCode.UInt32_9 or TypeCode.UInt32_10 => (uint)((int)code - (int)TypeCode.UInt32_0),
+            TypeCode.Int64 => ReadInt64(),
+            TypeCode.UInt64 => ReadUInt64(),
+            TypeCode.Float4 => ReadSingle(),
+            TypeCode.Float8 => ReadDouble(),
+            TypeCode.Decimal => ReadDecimal(),
+            TypeCode.Char => (char)ReadUInt16(),// read as ushort because BinaryWriter fails on chars that are unicode surrogates
+            TypeCode.StringUtf8 or TypeCode.StringUtf16 or TypeCode.StringRef_4Bytes or TypeCode.StringRef_1Byte or TypeCode.StringRef_2Bytes => ReadStringValue(code),
+            TypeCode.DateTime => DateTime.FromBinary(ReadInt64()),
+            _ => throw ExceptionUtilities.UnexpectedValue(code),
+        };
     }
 
     public Encoding? ReadEncoding()
     {
         var code = (TypeCode)ReadByte();
-        switch (code)
+        return code switch
         {
-            case TypeCode.Null:
-                return null;
-
-            case TypeCode.EncodingName:
-                return Encoding.GetEncoding(ReadRequiredString());
-
-            case >= TypeCode.FirstWellKnownTextEncoding and <= TypeCode.LastWellKnownTextEncoding:
-                return ToEncodingKind(code).GetEncoding();
-
-            case TypeCode.EncodingCodePage:
-                return Encoding.GetEncoding(ReadInt32());
-
-            default:
-                throw ExceptionUtilities.UnexpectedValue(code);
-        }
+            TypeCode.Null => null,
+            TypeCode.EncodingName => Encoding.GetEncoding(ReadRequiredString()),
+            >= TypeCode.FirstWellKnownTextEncoding and <= TypeCode.LastWellKnownTextEncoding => ToEncodingKind(code).GetEncoding(),
+            TypeCode.EncodingCodePage => Encoding.GetEncoding(ReadInt32()),
+            _ => throw ExceptionUtilities.UnexpectedValue(code),
+        };
 
         static TextEncodingKind ToEncodingKind(TypeCode code)
         {

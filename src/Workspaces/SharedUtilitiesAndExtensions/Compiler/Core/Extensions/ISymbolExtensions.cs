@@ -569,19 +569,16 @@ internal static partial class ISymbolExtensions
             return Accessibility.Private;
         }
 
-        switch (symbol.DeclaredAccessibility)
+        return symbol.DeclaredAccessibility switch
         {
-            default:
-                return symbol.DeclaredAccessibility;
-            case Accessibility.ProtectedAndInternal:
-                return symbol.ContainingAssembly.GivesAccessTo(finalDestination.ContainingAssembly)
-                    ? Accessibility.ProtectedAndInternal
-                    : Accessibility.Internal;
-            case Accessibility.ProtectedOrInternal:
-                return symbol.ContainingAssembly.GivesAccessTo(finalDestination.ContainingAssembly)
-                    ? Accessibility.ProtectedOrInternal
-                    : Accessibility.Protected;
-        }
+            Accessibility.ProtectedAndInternal => symbol.ContainingAssembly.GivesAccessTo(finalDestination.ContainingAssembly)
+                                ? Accessibility.ProtectedAndInternal
+                                : Accessibility.Internal,
+            Accessibility.ProtectedOrInternal => symbol.ContainingAssembly.GivesAccessTo(finalDestination.ContainingAssembly)
+                                ? Accessibility.ProtectedOrInternal
+                                : Accessibility.Protected,
+            _ => symbol.DeclaredAccessibility,
+        };
     }
 
     /// <returns>

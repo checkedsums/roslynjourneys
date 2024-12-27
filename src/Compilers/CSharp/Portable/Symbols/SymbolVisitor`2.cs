@@ -21,11 +21,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Call the correct VisitXXX method in this class based on the particular type of symbol that is passed in.
         /// Return default(TResult) if symbol is null
         /// </summary>
-        public virtual TResult Visit(Symbol symbol, TArgument argument = default(TArgument))
+        public virtual TResult Visit(Symbol symbol, TArgument argument = default)
         {
             if (symbol is null)
             {
-                return default(TResult);
+                return default;
             }
 
             return symbol.Accept(this, argument);
@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns></returns>
         public virtual TResult DefaultVisit(Symbol symbol, TArgument argument)
         {
-            return default(TResult);
+            return default;
         }
 
         /// <summary>

@@ -14,8 +14,8 @@ namespace Microsoft.CodeAnalysis
 
         static SpecialMembers()
         {
-            byte[] initializationBytes = new byte[]
-            {
+            byte[] initializationBytes =
+            [
                 // System_String__CtorSZArrayChar
                 (byte)MemberFlags.Constructor,                                                                              // Flags
                 (byte)SpecialType.System_String,                                                                            // DeclaringTypeId
@@ -1313,10 +1313,10 @@ namespace Microsoft.CodeAnalysis
                     1,                                                                                                      // Method Signature
                     (byte)SignatureTypeCode.TypeHandle, (byte)InternalSpecialType.System_Type, // Return Type
                     (byte)SignatureTypeCode.TypeHandle, (byte)SpecialType.System_RuntimeTypeHandle,
-            };
+            ];
 
-            string[] allNames = new string[(int)SpecialMember.Count]
-            {
+            string[] allNames =
+            [
                 ".ctor",                                    // System_String__CtorSZArrayChar
                 "Concat",                                   // System_String__ConcatStringString
                 "Concat",                                   // System_String__ConcatStringStringString
@@ -1445,13 +1445,6 @@ namespace Microsoft.CodeAnalysis
                 ".ctor",                                    // System_Nullable_T__ctor
                 "op_Implicit",                              // System_Nullable_T__op_Implicit_FromT
                 "op_Explicit",                              // System_Nullable_T__op_Explicit_ToT
-                "DefaultImplementationsOfInterfaces",       // System_Runtime_CompilerServices_RuntimeFeature__DefaultImplementationsOfInterfaces
-                "UnmanagedSignatureCallingConvention",      // System_Runtime_CompilerServices_RuntimeFeature__UnmanagedSignatureCallingConvention
-                "CovariantReturnsOfClasses",                // System_Runtime_CompilerServices_RuntimeFeature__CovariantReturnsOfClasses
-                "VirtualStaticsInInterfaces",               // System_Runtime_CompilerServices_RuntimeFeature__VirtualStaticsInInterfaces
-                "NumericIntPtr",                            // System_Runtime_CompilerServices_RuntimeFeature__NumericIntPtr
-                "ByRefFields",                              // System_Runtime_CompilerServices_RuntimeFeature__ByRefFields
-                "ByRefLikeGenerics",                        // System_Runtime_CompilerServices_RuntimeFeature__ByRefLikeGenerics
                 ".ctor",                                    // System_Runtime_CompilerServices_PreserveBaseOverridesAttribute__ctor
                 ".ctor",                                    // System_Runtime_CompilerServices_InlineArrayAttribute__ctor
                 ".ctor",                                    // System_ReadOnlySpan_T__ctor_Reference
@@ -1474,7 +1467,7 @@ namespace Microsoft.CodeAnalysis
                 "Empty",                                    // System_Array__Empty
                 "SetValue",                                 // System_Array__SetValue
                 "GetTypeFromHandle",                        // System_Type__GetTypeFromHandle
-            };
+            ];
 
             s_descriptors = MemberDescriptor.InitializeFromStream(new System.IO.MemoryStream(initializationBytes, writable: false), allNames);
         }

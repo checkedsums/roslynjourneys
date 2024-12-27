@@ -320,15 +320,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
             if (!callMethodsDirectly)
             {
-                if (_getMethod is not null)
-                {
-                    _getMethod.SetAssociatedProperty(this, MethodKind.PropertyGet);
-                }
+                _getMethod?.SetAssociatedProperty(this, MethodKind.PropertyGet);
 
-                if (_setMethod is not null)
-                {
-                    _setMethod.SetAssociatedProperty(this, MethodKind.PropertySet);
-                }
+                _setMethod?.SetAssociatedProperty(this, MethodKind.PropertySet);
             }
 
             _flags = new PackedFlags(
@@ -926,7 +920,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             return parameters.AsImmutableOrNull();
         }
 
-        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default(CancellationToken))
+        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
         {
             return PEDocumentationCommentUtils.GetDocumentationComment(this, _containingType.ContainingPEModule, preferredCulture, cancellationToken, ref AccessUncommonFields()._lazyDocComment);
         }

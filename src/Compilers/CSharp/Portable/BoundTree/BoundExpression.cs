@@ -413,7 +413,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal InterpolatedStringHandlerData? InterpolatedStringHandlerData => Data?.InterpolatedStringHandlerData;
 
-        internal ImmutableArray<MethodSymbol> OriginalUserDefinedOperatorsOpt => Data?.OriginalUserDefinedOperatorsOpt ?? default(ImmutableArray<MethodSymbol>);
+        internal ImmutableArray<MethodSymbol> OriginalUserDefinedOperatorsOpt => Data?.OriginalUserDefinedOperatorsOpt ?? default;
     }
 
     internal partial class BoundUserDefinedConditionalLogicalOperator
@@ -543,11 +543,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             return Update(
                 constructor: constructor,
                 arguments: newArguments,
-                argumentNamesOpt: default(ImmutableArray<string?>),
+                argumentNamesOpt: default,
                 argumentRefKindsOpt: newRefKinds,
                 expanded: false,
-                argsToParamsOpt: default(ImmutableArray<int>),
-                defaultArguments: default(BitVector),
+                argsToParamsOpt: default,
+                defaultArguments: default,
                 constantValueOpt: ConstantValueOpt,
                 initializerExpressionOpt: newInitializerExpression,
                 type: changeTypeOpt ?? Type);

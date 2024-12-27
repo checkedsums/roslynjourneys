@@ -89,8 +89,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public void Free()
             {
-                if (_locals != null) _locals.Free();
-                if (_statements != null) _statements.Free();
+                _locals?.Free();
+                _statements?.Free();
             }
 
             internal void Include(BoundSpillSequenceBuilder other)
@@ -577,7 +577,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private ImmutableArray<BoundExpression> VisitExpressionList(
             ref BoundSpillSequenceBuilder builder,
             ImmutableArray<BoundExpression> args,
-            ImmutableArray<RefKind> refKinds = default(ImmutableArray<RefKind>),
+            ImmutableArray<RefKind> refKinds = default,
             bool forceSpill = false,
             bool sideEffectsOnly = false)
         {

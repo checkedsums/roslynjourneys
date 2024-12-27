@@ -74,7 +74,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 var diagnostics = BindingDiagnosticBag.GetInstance();
                 var acyclicInterfaces = MakeAcyclicInterfaces(basesBeingResolved, diagnostics);
-                if (ImmutableInterlocked.InterlockedCompareExchange(ref _lazyInterfaces, acyclicInterfaces, default(ImmutableArray<NamedTypeSymbol>)).IsDefault)
+                if (ImmutableInterlocked.InterlockedCompareExchange(ref _lazyInterfaces, acyclicInterfaces, default).IsDefault)
                 {
                     AddDeclarationDiagnostics(diagnostics);
                 }

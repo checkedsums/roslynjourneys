@@ -55,7 +55,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                UnaryOperatorAnalysisResult best = default(UnaryOperatorAnalysisResult);
+                UnaryOperatorAnalysisResult best = default;
                 foreach (var result in Results)
                 {
                     if (result.IsValid)
@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         if (best.IsValid)
                         {
                             // More than one best applicable method
-                            return default(UnaryOperatorAnalysisResult);
+                            return default;
                         }
                         best = result;
                     }

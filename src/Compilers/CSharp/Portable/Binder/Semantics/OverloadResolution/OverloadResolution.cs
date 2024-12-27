@@ -1161,7 +1161,7 @@ outerDefault:
             bool disallowExpandedNonArrayParams = (options & Options.DisallowExpandedNonArrayParams) != 0;
             bool skipNormalResult = ((options & Options.IgnoreNormalFormIfHasValidParamsParameter) != 0 && IsValidParams(_binder, leastOverriddenMember, disallowExpandedNonArrayParams, out _));
             var normalResult = skipNormalResult
-                ? default(MemberResolutionResult<TMember>)
+                ? default
                 : IsMemberApplicableInNormalForm(
                     member,
                     leastOverriddenMember,
@@ -3411,7 +3411,7 @@ outerDefault:
             }
 
             bool okToDowngradeToNeither;
-            return BetterConversionTargetCore(null, type1, default(Conversion), type2, default(Conversion), ref useSiteInfo, out okToDowngradeToNeither, betterConversionTargetRecursionLimit - 1);
+            return BetterConversionTargetCore(null, type1, default, type2, default, ref useSiteInfo, out okToDowngradeToNeither, betterConversionTargetRecursionLimit - 1);
         }
 
         private BetterResult BetterConversionTarget(
@@ -3648,7 +3648,7 @@ outerDefault:
                             Debug.Assert(
                                 r1.IsErrorType() ||
                                 r2.IsErrorType() ||
-                                currentResult == BetterConversionTargetCore(null, type1, default(Conversion), type2, default(Conversion), ref useSiteInfo, out _, BetterConversionTargetRecursionLimit));
+                                currentResult == BetterConversionTargetCore(null, type1, default, type2, default, ref useSiteInfo, out _, BetterConversionTargetRecursionLimit));
                         }
 #endif
                     }
@@ -3956,7 +3956,7 @@ outerDefault:
                 }
             }
 
-            var refKinds = anyRef ? refs.ToImmutable() : default(ImmutableArray<RefKind>);
+            var refKinds = anyRef ? refs.ToImmutable() : default;
             refs.Free();
             return new EffectiveParameters(types.ToImmutableAndFree(), refKinds, firstParamsElementIndex: firstParamsElementIndex);
         }
@@ -4272,7 +4272,7 @@ outerDefault:
             if (inferenceResult.Success)
             {
                 hasTypeArgumentsInferredFromFunctionType = inferenceResult.HasTypeArgumentInferredFromFunctionType;
-                error = default(MemberAnalysisResult);
+                error = default;
                 return inferenceResult.InferredTypeArguments;
             }
 
@@ -4289,13 +4289,13 @@ outerDefault:
                 {
                     hasTypeArgumentsInferredFromFunctionType = false;
                     error = MemberAnalysisResult.TypeInferenceExtensionInstanceArgumentFailed();
-                    return default(ImmutableArray<TypeWithAnnotations>);
+                    return default;
                 }
             }
 
             hasTypeArgumentsInferredFromFunctionType = false;
             error = MemberAnalysisResult.TypeInferenceFailed();
-            return default(ImmutableArray<TypeWithAnnotations>);
+            return default;
         }
 
         private MemberAnalysisResult IsApplicable(
@@ -4475,7 +4475,7 @@ outerDefault:
             }
 
             MemberAnalysisResult result;
-            var conversionsArray = conversions != null ? conversions.ToImmutableAndFree() : default(ImmutableArray<Conversion>);
+            var conversionsArray = conversions != null ? conversions.ToImmutableAndFree() : default;
             if (!badArguments.IsNull)
             {
                 result = MemberAnalysisResult.BadArgumentConversions(argsToParameters, badArguments, conversionsArray,

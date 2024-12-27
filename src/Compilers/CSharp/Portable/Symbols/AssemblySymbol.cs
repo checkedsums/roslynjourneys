@@ -9,10 +9,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
-using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Symbols;
 using Roslyn.Utilities;
@@ -158,7 +156,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             NamespaceSymbol assemblyContainer = GetAssemblyNamespace(container);
 
-            if ((object)assemblyContainer == (object)container)
+            if (assemblyContainer == container)
             {
                 // Trivial case, container isn't merged.
                 return namespaceSymbol;
@@ -527,14 +525,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// <returns>Symbol for the type or null if type cannot be found or is ambiguous. </returns>
         public NamedTypeSymbol? GetTypeByMetadataName(string fullyQualifiedMetadataName)
         {
-            if (fullyQualifiedMetadataName == null)
+            if (fullyQualifiedMetadataName != null)
             {
-                throw new ArgumentNullException(nameof(fullyQualifiedMetadataName));
+                var result = this.GetTypeByMetadataName(fullyQualifiedMetadataName, includeReferences: false, isWellKnownType: false, conflicts: out var _);
+                Debug.Assert(result?.IsErrorType() != true);
+                return result;
             }
 
-            var result = this.GetTypeByMetadataName(fullyQualifiedMetadataName, includeReferences: false, isWellKnownType: false, conflicts: out var _);
-            Debug.Assert(result?.IsErrorType() != true);
-            return result;
+            throw new ArgumentNullException(nameof(fullyQualifiedMetadataName));
         }
 
         /// <summary>
@@ -575,7 +573,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             NamedTypeSymbol? type;
             MetadataTypeName mdName;
 
-            if (metadataName.IndexOf('+') >= 0)
+            if (metadataName.Contains("+"))
             {
                 var parts = metadataName.Split(s_nestedTypeNameSeparators);
                 Debug.Assert(parts.Length > 0);
@@ -620,7 +618,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return type;
         }
 
-        private static readonly char[] s_nestedTypeNameSeparators = new char[] { '+' };
+        private static readonly char[] s_nestedTypeNameSeparators = ['+'];
 
         /// <summary>
         /// Resolves <see cref="System.Type"/> to a <see cref="TypeSymbol"/> available in this assembly

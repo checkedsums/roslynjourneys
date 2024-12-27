@@ -75,10 +75,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
         private void Free()
         {
-            if (_indentations != null)
-            {
-                _indentations.Free();
-            }
+            _indentations?.Free();
         }
 
         public override SyntaxToken VisitToken(SyntaxToken token)
@@ -139,7 +136,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             }
             else
             {
-                return default(SyntaxToken);
+                return default;
             }
         }
 
@@ -1114,7 +1111,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
                 if (currentTriviaList.Count == 0)
                 {
-                    return default(SyntaxTriviaList);
+                    return default;
                 }
                 else if (currentTriviaList.Count == 1)
                 {
@@ -1149,7 +1146,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             _isInStructuredTrivia = true;
 
             SyntaxToken oldPreviousToken = _previousToken;
-            _previousToken = default(SyntaxToken);
+            _previousToken = default;
 
             SyntaxTrivia result = VisitTrivia(trivia);
 

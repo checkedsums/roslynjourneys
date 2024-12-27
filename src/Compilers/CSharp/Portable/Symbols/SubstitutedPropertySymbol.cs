@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 if (_lazyParameters.IsDefault)
                 {
-                    ImmutableInterlocked.InterlockedCompareExchange(ref _lazyParameters, SubstituteParameters(), default(ImmutableArray<ParameterSymbol>));
+                    ImmutableInterlocked.InterlockedCompareExchange(ref _lazyParameters, SubstituteParameters(), default);
                 }
 
                 return _lazyParameters;
@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 MethodSymbol originalGetMethod = OriginalDefinition.GetMethod;
-                return originalGetMethod is null ? null : originalGetMethod.AsMember(_containingType);
+                return originalGetMethod?.AsMember(_containingType);
             }
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 MethodSymbol originalSetMethod = OriginalDefinition.SetMethod;
-                return originalSetMethod is null ? null : originalSetMethod.AsMember(_containingType);
+                return originalSetMethod?.AsMember(_containingType);
             }
         }
 
@@ -120,7 +120,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     ImmutableInterlocked.InterlockedCompareExchange(
                         ref _lazyExplicitInterfaceImplementations,
                         ExplicitInterfaceHelpers.SubstituteExplicitInterfaceImplementations(OriginalDefinition.ExplicitInterfaceImplementations, _containingType.TypeSubstitution),
-                        default(ImmutableArray<PropertySymbol>));
+                        default);
                 }
                 return _lazyExplicitInterfaceImplementations;
             }

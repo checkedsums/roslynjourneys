@@ -82,10 +82,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             EntityHandle targetHandle,
             PEModuleSymbol containingModule)
         {
-            ImmutableArray<string?> elementNames;
             var hasTupleElementNamesAttribute = containingModule
                 .Module
-                .HasTupleElementNamesAttribute(targetHandle, out elementNames);
+                .HasTupleElementNamesAttribute(targetHandle, out ImmutableArray<string?> elementNames);
 
             // If we have the TupleElementNamesAttribute, but no names, that's
             // bad metadata
@@ -102,10 +101,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             EntityHandle targetHandle,
             PEModuleSymbol containingModule)
         {
-            ImmutableArray<string?> elementNames;
             var hasTupleElementNamesAttribute = containingModule
                 .Module
-                .HasTupleElementNamesAttribute(targetHandle, out elementNames);
+                .HasTupleElementNamesAttribute(targetHandle, out ImmutableArray<string?> elementNames);
 
             // If we have the TupleElementNamesAttribute, but no names, that's
             // bad metadata

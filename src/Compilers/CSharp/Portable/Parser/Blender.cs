@@ -75,8 +75,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
 
             _changeDelta = 0;
-            _newDirectives = default(DirectiveStack);
-            _oldDirectives = default(DirectiveStack);
+            _newDirectives = default;
+            _oldDirectives = default;
             _newLexerDrivenMode = 0;
         }
 

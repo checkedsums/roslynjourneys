@@ -86,17 +86,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return TypeDeclaration(
                 kind,
-                default(SyntaxList<AttributeListSyntax>),
-                default(SyntaxTokenList),
+                default,
+                default,
                 SyntaxFactory.Token(GetTypeDeclarationKeywordKind(kind)),
                 identifier,
                 typeParameterList: null,
                 baseList: null,
-                default(SyntaxList<TypeParameterConstraintClauseSyntax>),
+                default,
                 SyntaxFactory.Token(SyntaxKind.OpenBraceToken),
-                default(SyntaxList<MemberDeclarationSyntax>),
+                default,
                 SyntaxFactory.Token(SyntaxKind.CloseBraceToken),
-                default(SyntaxToken));
+                default);
         }
 
         public static TypeDeclarationSyntax TypeDeclaration(SyntaxKind kind, string identifier)

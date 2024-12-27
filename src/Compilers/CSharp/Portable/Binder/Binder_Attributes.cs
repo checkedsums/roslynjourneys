@@ -998,7 +998,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             private static TypedConstant CreateTypedConstant(BoundExpression node, TypedConstantKind typedConstantKind, BindingDiagnosticBag diagnostics, ref bool attrHasErrors, bool curArgumentHasErrors,
-                object? simpleValue = null, ImmutableArray<TypedConstant> arrayValue = default(ImmutableArray<TypedConstant>))
+                object? simpleValue = null, ImmutableArray<TypedConstant> arrayValue = default)
             {
                 var type = node.Type;
                 RoslynDebug.Assert(type is not null);

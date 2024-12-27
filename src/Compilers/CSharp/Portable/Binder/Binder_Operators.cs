@@ -1299,8 +1299,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!IsTypelessExpressionAllowedInBinaryOperator(kind, left, right))
             {
                 resultKind = LookupResultKind.OverloadResolutionFailure;
-                originalUserDefinedOperators = default(ImmutableArray<MethodSymbol>);
-                return default(BinaryOperatorAnalysisResult);
+                originalUserDefinedOperators = default;
+                return default;
             }
 
             var result = BinaryOperatorOverloadResolutionResult.GetInstance();
@@ -2275,7 +2275,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     resultPlaceholder: null,
                     resultConversion: null,
                     resultKind: LookupResultKind.Viable,
-                    originalUserDefinedOperatorsOpt: default(ImmutableArray<MethodSymbol>),
+                    originalUserDefinedOperatorsOpt: default,
                     type: operandType,
                     hasErrors: false);
             }

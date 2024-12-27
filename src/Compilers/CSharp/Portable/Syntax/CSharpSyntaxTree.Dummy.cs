@@ -86,9 +86,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 get { return true; }
             }
 
-            public override FileLinePositionSpan GetLineSpan(TextSpan span, CancellationToken cancellationToken = default(CancellationToken))
+            public override FileLinePositionSpan GetLineSpan(TextSpan span, CancellationToken cancellationToken = default)
             {
-                return default(FileLinePositionSpan);
+                return default;
             }
 
             public override SyntaxTree WithRootAndOptions(SyntaxNode root, ParseOptions options)

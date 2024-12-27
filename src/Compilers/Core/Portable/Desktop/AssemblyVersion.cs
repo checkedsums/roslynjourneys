@@ -8,20 +8,12 @@ using System;
 
 namespace Microsoft.CodeAnalysis
 {
-    internal readonly struct AssemblyVersion : IEquatable<AssemblyVersion>, IComparable<AssemblyVersion>
+    internal readonly struct AssemblyVersion(ushort major, ushort minor, ushort build, ushort revision) : IEquatable<AssemblyVersion>, IComparable<AssemblyVersion>
     {
-        private readonly ushort _major;
-        private readonly ushort _minor;
-        private readonly ushort _build;
-        private readonly ushort _revision;
-
-        public AssemblyVersion(ushort major, ushort minor, ushort build, ushort revision)
-        {
-            _major = major;
-            _minor = minor;
-            _build = build;
-            _revision = revision;
-        }
+        private readonly ushort _major = major;
+        private readonly ushort _minor = minor;
+        private readonly ushort _build = build;
+        private readonly ushort _revision = revision;
 
         public int Major
         {
@@ -62,7 +54,7 @@ namespace Microsoft.CodeAnalysis
 
         public override bool Equals(object obj)
         {
-            return obj is AssemblyVersion && Equals((AssemblyVersion)obj);
+            return obj is AssemblyVersion version && Equals(version);
         }
 
         public override int GetHashCode()

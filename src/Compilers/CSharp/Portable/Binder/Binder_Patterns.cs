@@ -1493,8 +1493,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 boundLeft: implicitReceiver,
                 rightName: name,
                 rightArity: 0,
-                typeArgumentsSyntax: default(SeparatedSyntaxList<TypeSyntax>),
-                typeArgumentsWithAnnotations: default(ImmutableArray<TypeWithAnnotations>),
+                typeArgumentsSyntax: default,
+                typeArgumentsWithAnnotations: default,
                 invoked: false,
                 indexed: false,
                 diagnostics: diagnostics);

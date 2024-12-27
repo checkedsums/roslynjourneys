@@ -848,7 +848,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 #if DEBUG
             , string? expectedMethodName
 #endif
-            ) => MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), ImmutableArray.Create(arg), diagnostics
+            ) => MakeQueryInvocation(node, receiver, methodName, default, default, ImmutableArray.Create(arg), diagnostics
 #if DEBUG
                 , expectedMethodName
 #endif
@@ -858,7 +858,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 #if DEBUG
             , string? expectedMethodName
 #endif
-            ) => MakeQueryInvocation(node, receiver, methodName, default(SeparatedSyntaxList<TypeSyntax>), default(ImmutableArray<TypeWithAnnotations>), args, diagnostics
+            ) => MakeQueryInvocation(node, receiver, methodName, default, default, args, diagnostics
 #if DEBUG
                 , expectedMethodName
 #endif

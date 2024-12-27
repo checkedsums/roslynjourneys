@@ -117,7 +117,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected virtual ImmutableArray<TypeSymbol> ExtraSynthesizedRefParameters
         {
-            get { return default(ImmutableArray<TypeSymbol>); }
+            get { return default; }
         }
 
         protected virtual ImmutableArray<ParameterSymbol> BaseMethodParameters

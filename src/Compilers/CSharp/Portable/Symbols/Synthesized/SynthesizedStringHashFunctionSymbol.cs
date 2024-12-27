@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal SynthesizedStringSwitchHashMethod(SynthesizedPrivateImplementationDetailsType privateImplType, TypeSymbol returnType, TypeSymbol paramType)
             : base(privateImplType, returnType, PrivateImplementationDetails.SynthesizedStringHashFunctionName)
         {
-            this.SetParameters(ImmutableArray.Create<ParameterSymbol>(SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "s")));
+            this.SetParameters([SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "s")]);
         }
     }
 
@@ -28,7 +28,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             : base(privateImplType, returnType, isReadOnlySpan ? PrivateImplementationDetails.SynthesizedReadOnlySpanHashFunctionName : PrivateImplementationDetails.SynthesizedSpanHashFunctionName)
         {
             _isReadOnlySpan = isReadOnlySpan;
-            this.SetParameters(ImmutableArray.Create<ParameterSymbol>(SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "s")));
+            this.SetParameters([SynthesizedParameterSymbol.Create(this, TypeWithAnnotations.Create(paramType), 0, RefKind.None, "s")]);
         }
 
         private readonly bool _isReadOnlySpan;

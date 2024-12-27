@@ -260,7 +260,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 CheckDefinitionInvariant();
-                return default(ImmutableArray<byte>);
+                return default;
             }
         }
     }

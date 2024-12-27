@@ -56,56 +56,22 @@ namespace Microsoft.CodeAnalysis
             return value >= OutputKind.ConsoleApplication && value <= OutputKind.WindowsRuntimeApplication;
         }
 
-        internal static string GetDefaultExtension(this OutputKind kind)
+        internal static string GetDefaultExtension(this OutputKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case OutputKind.ConsoleApplication:
-                case OutputKind.WindowsApplication:
-                case OutputKind.WindowsRuntimeApplication:
-                    return ".exe";
+            OutputKind.ConsoleApplication or OutputKind.WindowsApplication or OutputKind.WindowsRuntimeApplication => ".exe",
+            OutputKind.DynamicallyLinkedLibrary => ".dll",
+            OutputKind.NetModule => ".netmodule",
+            OutputKind.WindowsRuntimeMetadata => ".winmdobj",
+            _ => ".dll",
+        };
 
-                case OutputKind.DynamicallyLinkedLibrary:
-                    return ".dll";
-
-                case OutputKind.NetModule:
-                    return ".netmodule";
-
-                case OutputKind.WindowsRuntimeMetadata:
-                    return ".winmdobj";
-
-                default:
-                    return ".dll";
-            }
-        }
-
-        internal static bool IsApplication(this OutputKind kind)
+        internal static bool IsApplication(this OutputKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case OutputKind.ConsoleApplication:
-                case OutputKind.WindowsApplication:
-                case OutputKind.WindowsRuntimeApplication:
-                    return true;
+            OutputKind.ConsoleApplication or OutputKind.WindowsApplication or OutputKind.WindowsRuntimeApplication => true,
+            OutputKind.DynamicallyLinkedLibrary or OutputKind.NetModule or OutputKind.WindowsRuntimeMetadata => false,
+            _ => false,
+        };
 
-                case OutputKind.DynamicallyLinkedLibrary:
-                case OutputKind.NetModule:
-                case OutputKind.WindowsRuntimeMetadata:
-                    return false;
-
-                default:
-                    return false;
-            }
-        }
-
-        internal static bool IsNetModule(this OutputKind kind)
-        {
-            return kind == OutputKind.NetModule;
-        }
-
-        internal static bool IsWindowsRuntime(this OutputKind kind)
-        {
-            return kind == OutputKind.WindowsRuntimeMetadata;
-        }
+        internal static bool IsNetModule(this OutputKind kind) => kind == OutputKind.NetModule;
     }
 }

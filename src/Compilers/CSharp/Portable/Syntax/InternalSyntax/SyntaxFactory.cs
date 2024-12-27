@@ -256,7 +256,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         public static SyntaxList<TNode> List<TNode>() where TNode : CSharpSyntaxNode
         {
-            return default(SyntaxList<TNode>);
+            return default;
         }
 
         public static SyntaxList<TNode> List<TNode>(TNode node) where TNode : CSharpSyntaxNode
@@ -291,7 +291,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 return new SyntaxList<TNode>(SyntaxList.List(nodes));
             }
 
-            return default(SyntaxList<TNode>);
+            return default;
         }
 
         internal static GreenNode ListNode(params ArrayElement<GreenNode>[] nodes)
@@ -321,7 +321,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 return new SeparatedSyntaxList<TNode>(SyntaxList.List(nodes));
             }
 
-            return default(SeparatedSyntaxList<TNode>);
+            return default;
         }
 
         internal static IEnumerable<SyntaxTrivia> GetWellKnownTrivia()

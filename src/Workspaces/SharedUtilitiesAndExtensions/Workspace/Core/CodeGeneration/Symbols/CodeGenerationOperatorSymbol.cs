@@ -41,42 +41,12 @@ internal sealed class CodeGenerationOperatorSymbol(
 
     public static int GetParameterCount(CodeGenerationOperatorKind operatorKind)
     {
-        switch (operatorKind)
+        return operatorKind switch
         {
-            case CodeGenerationOperatorKind.Addition:
-            case CodeGenerationOperatorKind.BitwiseAnd:
-            case CodeGenerationOperatorKind.BitwiseOr:
-            case CodeGenerationOperatorKind.Concatenate:
-            case CodeGenerationOperatorKind.Division:
-            case CodeGenerationOperatorKind.Equality:
-            case CodeGenerationOperatorKind.ExclusiveOr:
-            case CodeGenerationOperatorKind.Exponent:
-            case CodeGenerationOperatorKind.GreaterThan:
-            case CodeGenerationOperatorKind.GreaterThanOrEqual:
-            case CodeGenerationOperatorKind.Inequality:
-            case CodeGenerationOperatorKind.IntegerDivision:
-            case CodeGenerationOperatorKind.LeftShift:
-            case CodeGenerationOperatorKind.LessThan:
-            case CodeGenerationOperatorKind.LessThanOrEqual:
-            case CodeGenerationOperatorKind.Like:
-            case CodeGenerationOperatorKind.Modulus:
-            case CodeGenerationOperatorKind.Multiplication:
-            case CodeGenerationOperatorKind.RightShift:
-            case CodeGenerationOperatorKind.UnsignedRightShift:
-            case CodeGenerationOperatorKind.Subtraction:
-                return 2;
-            case CodeGenerationOperatorKind.Increment:
-            case CodeGenerationOperatorKind.Decrement:
-            case CodeGenerationOperatorKind.False:
-            case CodeGenerationOperatorKind.LogicalNot:
-            case CodeGenerationOperatorKind.OnesComplement:
-            case CodeGenerationOperatorKind.True:
-            case CodeGenerationOperatorKind.UnaryPlus:
-            case CodeGenerationOperatorKind.UnaryNegation:
-                return 1;
-            default:
-                throw ExceptionUtilities.UnexpectedValue(operatorKind);
-        }
+            CodeGenerationOperatorKind.Addition or CodeGenerationOperatorKind.BitwiseAnd or CodeGenerationOperatorKind.BitwiseOr or CodeGenerationOperatorKind.Concatenate or CodeGenerationOperatorKind.Division or CodeGenerationOperatorKind.Equality or CodeGenerationOperatorKind.ExclusiveOr or CodeGenerationOperatorKind.Exponent or CodeGenerationOperatorKind.GreaterThan or CodeGenerationOperatorKind.GreaterThanOrEqual or CodeGenerationOperatorKind.Inequality or CodeGenerationOperatorKind.IntegerDivision or CodeGenerationOperatorKind.LeftShift or CodeGenerationOperatorKind.LessThan or CodeGenerationOperatorKind.LessThanOrEqual or CodeGenerationOperatorKind.Like or CodeGenerationOperatorKind.Modulus or CodeGenerationOperatorKind.Multiplication or CodeGenerationOperatorKind.RightShift or CodeGenerationOperatorKind.UnsignedRightShift or CodeGenerationOperatorKind.Subtraction => 2,
+            CodeGenerationOperatorKind.Increment or CodeGenerationOperatorKind.Decrement or CodeGenerationOperatorKind.False or CodeGenerationOperatorKind.LogicalNot or CodeGenerationOperatorKind.OnesComplement or CodeGenerationOperatorKind.True or CodeGenerationOperatorKind.UnaryPlus or CodeGenerationOperatorKind.UnaryNegation => 1,
+            _ => throw ExceptionUtilities.UnexpectedValue(operatorKind),
+        };
     }
 
     private static string GetMetadataName(CodeGenerationOperatorKind operatorKind)

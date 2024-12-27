@@ -461,7 +461,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                             attrName,
                             equals,
                             SyntaxFactory.MissingToken(SyntaxKind.DoubleQuoteToken),
-                            default(SyntaxList<SyntaxToken>),
+                            default,
                             SyntaxFactory.MissingToken(SyntaxKind.DoubleQuoteToken));
                 }
             }

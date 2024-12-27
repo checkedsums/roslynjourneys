@@ -141,7 +141,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 ImmutableInterlocked.InterlockedCompareExchange(ref _lazyAssembliesToEmbedTypesFrom,
                                                     buffer.ToImmutableAndFree(),
-                                                    default(ImmutableArray<AssemblySymbol>));
+                                                    default);
             }
 
             Debug.Assert(!_lazyAssembliesToEmbedTypesFrom.IsDefault);
@@ -254,10 +254,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 _state.NotePartComplete(CompletionPart.FinishValidatingReferencedAssemblies);
                             }
 
-                            if (diagnostics != null)
-                            {
-                                diagnostics.Free();
-                            }
+                            diagnostics?.Free();
                         }
                         break;
 

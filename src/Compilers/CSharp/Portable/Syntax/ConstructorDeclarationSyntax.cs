@@ -49,7 +49,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 initializer,
                 body,
                 expressionBody: null,
-                default(SyntaxToken));
+                default);
 
         public static ConstructorDeclarationSyntax ConstructorDeclaration(
             SyntaxList<AttributeListSyntax> attributeLists,
@@ -84,7 +84,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 initializer,
                 body: null,
                 expressionBody,
-                default(SyntaxToken));
+                default);
 
         public static ConstructorDeclarationSyntax ConstructorDeclaration(
             SyntaxList<AttributeListSyntax> attributeLists,

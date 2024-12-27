@@ -24,27 +24,15 @@ internal static partial class ReportDiagnosticExtensions
     /// </exception>
     public static DiagnosticSeverity? ToDiagnosticSeverity(this ReportDiagnostic reportDiagnostic)
     {
-        switch (reportDiagnostic)
+        return reportDiagnostic switch
         {
-            case ReportDiagnostic.Error:
-                return DiagnosticSeverity.Error;
-
-            case ReportDiagnostic.Warn:
-                return DiagnosticSeverity.Warning;
-
-            case ReportDiagnostic.Info:
-                return DiagnosticSeverity.Info;
-
-            case ReportDiagnostic.Hidden:
-                return DiagnosticSeverity.Hidden;
-
-            case ReportDiagnostic.Suppress:
-            case ReportDiagnostic.Default:
-                return null;
-
-            default:
-                throw ExceptionUtilities.UnexpectedValue(reportDiagnostic);
-        }
+            ReportDiagnostic.Error => (DiagnosticSeverity?)DiagnosticSeverity.Error,
+            ReportDiagnostic.Warn => (DiagnosticSeverity?)DiagnosticSeverity.Warning,
+            ReportDiagnostic.Info => (DiagnosticSeverity?)DiagnosticSeverity.Info,
+            ReportDiagnostic.Hidden => (DiagnosticSeverity?)DiagnosticSeverity.Hidden,
+            ReportDiagnostic.Suppress or ReportDiagnostic.Default => null,
+            _ => throw ExceptionUtilities.UnexpectedValue(reportDiagnostic),
+        };
     }
 
     /// <summary>

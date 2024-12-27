@@ -683,17 +683,13 @@ internal sealed partial class SymbolTreeInfo
             MetadataReader metadataReader,
             EntityHandle baseTypeOrInterfaceHandle)
         {
-            switch (baseTypeOrInterfaceHandle.Kind)
+            return baseTypeOrInterfaceHandle.Kind switch
             {
-                case HandleKind.TypeDefinition:
-                case HandleKind.TypeReference:
-                    return baseTypeOrInterfaceHandle;
-                case HandleKind.TypeSpecification:
-                    return FirstEntityHandleProvider.Instance.GetTypeFromSpecification(
-                        metadataReader, (TypeSpecificationHandle)baseTypeOrInterfaceHandle);
-                default:
-                    return default;
-            }
+                HandleKind.TypeDefinition or HandleKind.TypeReference => baseTypeOrInterfaceHandle,
+                HandleKind.TypeSpecification => FirstEntityHandleProvider.Instance.GetTypeFromSpecification(
+                                        metadataReader, (TypeSpecificationHandle)baseTypeOrInterfaceHandle),
+                _ => default,
+            };
         }
 
         private readonly void EnsureParentsAndChildren(List<string> simpleNames)

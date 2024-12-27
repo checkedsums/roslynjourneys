@@ -128,8 +128,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 rewrittenReceiver,
                 ImmutableArray<TypeWithAnnotations>.Empty,
                 rewrittenArguments,
-                default(ImmutableArray<string?>),
-                default(ImmutableArray<RefKind>),
+                default,
+                default,
                 hasImplicitReceiver: false,
                 resultDiscarded: true).ToExpression();
         }
@@ -304,7 +304,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                             var args = EvaluateSideEffectingArgumentsToTemps(
                                 memberInit.Arguments,
-                                memberInit.MemberSymbol?.GetParameterRefKinds() ?? default(ImmutableArray<RefKind>),
+                                memberInit.MemberSymbol?.GetParameterRefKinds() ?? default,
                                 result,
                                 ref temps);
 
@@ -625,9 +625,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     newArgs.Add(replacement);
                 }
-                else if (newArgs != null)
+                else
                 {
-                    newArgs.Add(arg);
+                    newArgs?.Add(arg);
                 }
             }
 

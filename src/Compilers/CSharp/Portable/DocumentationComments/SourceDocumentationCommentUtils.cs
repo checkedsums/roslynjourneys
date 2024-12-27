@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // doc comment as it appears in source), so it won't affect what we cache.
             if (lazyXmlText == null)
             {
-                string xmlText = DocumentationCommentCompiler.GetDocumentationCommentXml(symbol, expandIncludes, default(CancellationToken));
+                string xmlText = DocumentationCommentCompiler.GetDocumentationCommentXml(symbol, expandIncludes, default);
                 Interlocked.CompareExchange(ref lazyXmlText, xmlText, null);
             }
 

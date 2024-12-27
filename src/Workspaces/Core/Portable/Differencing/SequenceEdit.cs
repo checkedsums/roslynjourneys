@@ -72,19 +72,13 @@ internal readonly struct SequenceEdit : IEquatable<SequenceEdit>
     private string GetDebuggerDisplay()
     {
         var result = Kind.ToString();
-        switch (Kind)
+        return Kind switch
         {
-            case EditKind.Delete:
-                return result + " (" + OldIndex + ")";
-
-            case EditKind.Insert:
-                return result + " (" + NewIndex + ")";
-
-            case EditKind.Update:
-                return result + " (" + OldIndex + " -> " + NewIndex + ")";
-        }
-
-        return result;
+            EditKind.Delete => result + " (" + OldIndex + ")",
+            EditKind.Insert => result + " (" + NewIndex + ")",
+            EditKind.Update => result + " (" + OldIndex + " -> " + NewIndex + ")",
+            _ => result,
+        };
     }
 
     internal TestAccessor GetTestAccessor()

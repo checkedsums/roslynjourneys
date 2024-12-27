@@ -404,32 +404,13 @@ public partial class Project
 
         static bool FilterMatches(DeclaredSymbolInfo info, SymbolFilter filter)
         {
-            switch (info.Kind)
+            return info.Kind switch
             {
-                case DeclaredSymbolInfoKind.Namespace:
-                    return (filter & SymbolFilter.Namespace) != 0;
-                case DeclaredSymbolInfoKind.Class:
-                case DeclaredSymbolInfoKind.Delegate:
-                case DeclaredSymbolInfoKind.Enum:
-                case DeclaredSymbolInfoKind.Interface:
-                case DeclaredSymbolInfoKind.Module:
-                case DeclaredSymbolInfoKind.Record:
-                case DeclaredSymbolInfoKind.RecordStruct:
-                case DeclaredSymbolInfoKind.Struct:
-                    return (filter & SymbolFilter.Type) != 0;
-                case DeclaredSymbolInfoKind.Constant:
-                case DeclaredSymbolInfoKind.Constructor:
-                case DeclaredSymbolInfoKind.EnumMember:
-                case DeclaredSymbolInfoKind.Event:
-                case DeclaredSymbolInfoKind.ExtensionMethod:
-                case DeclaredSymbolInfoKind.Field:
-                case DeclaredSymbolInfoKind.Indexer:
-                case DeclaredSymbolInfoKind.Method:
-                case DeclaredSymbolInfoKind.Property:
-                    return (filter & SymbolFilter.Member) != 0;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(info.Kind);
-            }
+                DeclaredSymbolInfoKind.Namespace => (filter & SymbolFilter.Namespace) != 0,
+                DeclaredSymbolInfoKind.Class or DeclaredSymbolInfoKind.Delegate or DeclaredSymbolInfoKind.Enum or DeclaredSymbolInfoKind.Interface or DeclaredSymbolInfoKind.Module or DeclaredSymbolInfoKind.Record or DeclaredSymbolInfoKind.RecordStruct or DeclaredSymbolInfoKind.Struct => (filter & SymbolFilter.Type) != 0,
+                DeclaredSymbolInfoKind.Constant or DeclaredSymbolInfoKind.Constructor or DeclaredSymbolInfoKind.EnumMember or DeclaredSymbolInfoKind.Event or DeclaredSymbolInfoKind.ExtensionMethod or DeclaredSymbolInfoKind.Field or DeclaredSymbolInfoKind.Indexer or DeclaredSymbolInfoKind.Method or DeclaredSymbolInfoKind.Property => (filter & SymbolFilter.Member) != 0,
+                _ => throw ExceptionUtilities.UnexpectedValue(info.Kind),
+            };
         }
     }
 
