@@ -343,7 +343,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     Debug.Assert(!_frames.ContainsKey(scope.BoundNode));
 
-                    var frame = MakeFrame(scope, env);
+                    var frame = makeFrame(scope, env);
                     env.SynthesizedEnvironment = frame;
 
                     CompilationState.ModuleBuilderOpt.AddSynthesizedDefinition(ContainingType, frame.GetCciAdapter());
@@ -360,7 +360,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             });
 
-            SynthesizedClosureEnvironment MakeFrame(Analysis.Scope scope, Analysis.ClosureEnvironment env)
+            SynthesizedClosureEnvironment makeFrame(Analysis.Scope scope, Analysis.ClosureEnvironment env)
             {
                 var scopeBoundNode = scope.BoundNode;
 
@@ -463,16 +463,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 topLevelMethodId = _analysis.GetTopLevelMethodId();
                 lambdaId = GetLambdaId(syntax, closureKind, closureOrdinal, structEnvironments.SelectAsArray(e => e.ClosureId), containerAsFrame?.RudeEdit);
 
-                var synthesizedMethod = new SynthesizedClosureMethod(
-                    translatedLambdaContainer,
-                    structEnvironments,
-                    closureKind,
-                    _topLevelMethod,
-                    topLevelMethodId,
-                    originalMethod,
-                    nestedFunction.BlockSyntax,
-                    lambdaId,
-                    CompilationState);
+                var synthesizedMethod = new SynthesizedClosureMethod(translatedLambdaContainer, structEnvironments, closureKind,
+                    _topLevelMethod, topLevelMethodId, originalMethod, nestedFunction.BlockSyntax, lambdaId);
                 nestedFunction.SynthesizedLoweredMethod = synthesizedMethod;
             });
 

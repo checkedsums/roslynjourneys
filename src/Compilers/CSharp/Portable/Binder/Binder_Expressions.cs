@@ -1670,12 +1670,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (node is IdentifierNameSyntax id && !this.IsSemanticModelBinder)
                 {
                     Binder current = this;
-                    while (current is not (null or InMethodBinder { IdentifierMap: not null }))
+                    while (current is not (null or InMethodBinder { _identifierMap: not null }))
                     {
                         current = current.Next;
                     }
 
-                    if (current is InMethodBinder { IdentifierMap: { } identifierMap })
+                    if (current is InMethodBinder { _identifierMap: { } identifierMap })
                     {
                         // Assert that we can always figure out lookup mode from syntax
                         Debug.Assert(SyntaxFacts.IsInvoked(id) == invoked);

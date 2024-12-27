@@ -1959,7 +1959,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 throw ExceptionUtilities.UnexpectedValue(syntaxNode);
                         }
 
-                        Interlocked.CompareExchange(ref inMethodBinder.IdentifierMap, identifierMap, null);
+                        Interlocked.CompareExchange(ref inMethodBinder._identifierMap, identifierMap, null);
                         break;
                 }
             }
@@ -2049,9 +2049,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Correctness of SynthesizedPrimaryConstructor.GetCapturedParameters depends on this.
             static void assertBindIdentifierTargets(InMethodBinder? inMethodBinder, ConcurrentDictionary<IdentifierNameSyntax, int>? identifierMap, BoundNode methodBody, BindingDiagnosticBag diagnostics)
             {
-                if (identifierMap != null && inMethodBinder!.IdentifierMap == identifierMap)
+                if (identifierMap != null && inMethodBinder!._identifierMap == identifierMap)
                 {
-                    inMethodBinder.IdentifierMap = null;
+                    inMethodBinder._identifierMap = null;
 
                     // In presence of errors, we're not guaranteed to have bound all identifiers, so we don't care about correctness of our prediction
                     if (!diagnostics.HasAnyResolvedErrors())

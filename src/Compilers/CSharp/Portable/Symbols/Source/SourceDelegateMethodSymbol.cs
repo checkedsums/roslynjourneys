@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _returnType = returnType;
         }
 
-        internal sealed override ExecutableCodeBinder TryGetBodyBinder(BinderFactory binderFactoryOpt = null, bool ignoreAccessibility = false) => throw ExceptionUtilities.Unreachable();
+        internal sealed override ExecutableCodeBinder TryGetBodyBinder(BinderFactory binderFactoryOpt = null!, bool ignoreAccessibility = false) => throw ExceptionUtilities.Unreachable();
 
         protected void InitializeParameters(ImmutableArray<ParameterSymbol> parameters)
         {
@@ -140,15 +140,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                return ImmutableArray<TypeParameterSymbol>.Empty;
+                return [];
             }
         }
 
         public override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes()
-            => ImmutableArray<ImmutableArray<TypeWithAnnotations>>.Empty;
+            => [];
 
         public override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds()
-            => ImmutableArray<TypeParameterConstraintKind>.Empty;
+            => [];
 
         public sealed override TypeWithAnnotations ReturnTypeWithAnnotations
         {
@@ -281,7 +281,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
                 else
                 {
-                    _refCustomModifiers = ImmutableArray<CustomModifier>.Empty;
+                    _refCustomModifiers = [];
                 }
 
                 InitializeParameters(parameters.Cast<SourceParameterSymbol, ParameterSymbol>());

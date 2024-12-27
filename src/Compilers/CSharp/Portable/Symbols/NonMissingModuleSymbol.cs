@@ -4,13 +4,8 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp.Symbols;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
@@ -108,16 +103,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     // warning: Assuming assembly reference '{0}' used by '{1}' matches identity '{2}' of '{3}', you may need to supply runtime policy.
                     info = new CSDiagnosticInfo(
-                        warning,
-                        new object[]
-                        {
+                        warning, [
                             referenceId.GetDisplayName(),
                             ownerAssembly.Name, // TODO (tomat): should rather be MetadataReference.Display for the corresponding reference
                             definitionId.GetDisplayName(),
                             dependentAssembly.Name
-                        },
-                        involvedAssemblies,
-                        ImmutableArray<Location>.Empty);
+                        ], involvedAssemblies, []);
                 }
                 else
                 {
@@ -125,17 +116,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     // error: Assembly '{0}' with identity '{1}' uses '{2}' which has a higher version than referenced assembly '{3}' with identity '{4}'
                     info = new CSDiagnosticInfo(
-                        ErrorCode.ERR_AssemblyMatchBadVersion,
-                        new object[]
-                        {
+                        ErrorCode.ERR_AssemblyMatchBadVersion, [
                             ownerAssembly.Name, // TODO (tomat): should rather be MetadataReference.Display for the corresponding reference
                             ownerAssembly.Identity.GetDisplayName(),
                             referenceId.GetDisplayName(),
                             dependentAssembly.Name, // TODO (tomat): should rather be MetadataReference.Display for the corresponding reference
                             definitionId.GetDisplayName()
-                        },
-                        involvedAssemblies,
-                        ImmutableArray<Location>.Empty);
+                        ], involvedAssemblies, []);
                 }
 
                 if (MergeUseSiteDiagnostics(ref result, info))

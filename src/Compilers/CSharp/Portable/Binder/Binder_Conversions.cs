@@ -2027,7 +2027,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 convertedOperand = CreateConversion(
                     syntax: syntax,
                     source: convertedOperand,
-                    conversion: Conversions.ClassifyStandardConversion(convertedOperand.Type, conversionParameterType, ref useSiteInfo),
+                    conversion: Conversions.ClassifyStandardConversion(convertedOperand.Type!, conversionParameterType, ref useSiteInfo),
                     isCast: false,
                     conversionGroupOpt: conversionGroup,
                     wasCompilerGenerated: true,
@@ -2788,7 +2788,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // If this is an extension method delegate, the caller should have verified the
             // receiver is compatible with the "this" parameter of the extension method.
             Debug.Assert(!isExtensionMethod ||
-                (Conversions.ConvertExtensionMethodThisArg(methodParameters[0].Type, receiverOpt!.Type, ref useSiteInfo, isMethodGroupConversion: true).Exists && useSiteInfo.Diagnostics.IsNullOrEmpty()));
+                (Conversions.ConvertExtensionMethodThisArg(methodParameters[0].Type, receiverOpt!.Type!, ref useSiteInfo, isMethodGroupConversion: true).Exists && useSiteInfo.Diagnostics.IsNullOrEmpty()));
 
             useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo);
 

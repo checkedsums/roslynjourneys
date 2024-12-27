@@ -2552,7 +2552,7 @@ parse_member_name:;
 
                     // First, check if we got absolutely nothing.  If so, then 
                     // We need to consume a bad member and try again.
-                    if (IsNoneOrIncompleteMember(parentKind, attributes, modifiers, type, explicitInterfaceOpt, identifierOrThisOpt, typeParameterListOpt, out result))
+                    if (IsNoneOrIncompleteMember(parentKind, attributes, modifiers, type, explicitInterfaceOpt!, identifierOrThisOpt!, typeParameterListOpt!, out result))
                     {
                         return result;
                     }
@@ -2565,7 +2565,7 @@ parse_member_name:;
                     // For example, if we get
                     //     async Task<
                     // then we want async to be a modifier and Task<MISSING> to be a type.
-                    if (ReconsideredTypeAsAsyncModifier(ref modifiers, ref type, ref afterTypeResetPoint, ref explicitInterfaceOpt, ref identifierOrThisOpt, ref typeParameterListOpt))
+                    if (ReconsideredTypeAsAsyncModifier(ref modifiers, ref type, ref afterTypeResetPoint, ref explicitInterfaceOpt!, ref identifierOrThisOpt!, ref typeParameterListOpt!))
                     {
                         goto parse_member_name;
                     }
@@ -2594,7 +2594,7 @@ parse_member_name:;
 
                     // treat anything else as a method.
 
-                    return this.ParseMethodDeclaration(attributes, modifiers, type, explicitInterfaceOpt, identifierOrThisOpt, typeParameterListOpt);
+                    return this.ParseMethodDeclaration(attributes, modifiers, type, explicitInterfaceOpt!, identifierOrThisOpt, typeParameterListOpt);
                 }
                 finally
                 {
@@ -3568,7 +3568,7 @@ parse_member_name:;
                 // if we encounter `operator unchecked`, we place the `unchecked` as skipped trivia on `operator`
                 var misplacedToken = this.AddError(this.EatToken(), ErrorCode.ERR_MisplacedUnchecked);
                 operatorKeyword = AddTrailingSkippedSyntax(operatorKeyword, misplacedToken);
-                return null;
+                return null!;
             }
 
             return TryEatToken(SyntaxKind.CheckedKeyword);
@@ -3598,14 +3598,14 @@ parse_member_name:;
                         conversionOperator.AttributeLists,
                         conversionOperator.Modifiers,
                         newImplicitOrExplicitKeyword,
-                        conversionOperator.ExplicitInterfaceSpecifier,
+                        conversionOperator.ExplicitInterfaceSpecifier!,
                         conversionOperator.OperatorKeyword,
-                        conversionOperator.CheckedKeyword,
+                        conversionOperator.CheckedKeyword!,
                         conversionOperator.Type,
                         conversionOperator.ParameterList,
-                        conversionOperator.Body,
-                        conversionOperator.ExpressionBody,
-                        conversionOperator.SemicolonToken);
+                        conversionOperator.Body!,
+                        conversionOperator.ExpressionBody!,
+                        conversionOperator.SemicolonToken!);
                 }
             }
 
@@ -3763,9 +3763,9 @@ parse_member_name:;
 
             var parameterList = this.ParseParameterList<BracketedParameterListSyntax>();
 
-            AccessorListSyntax accessorList = null;
-            ArrowExpressionClauseSyntax expressionBody = null;
-            SyntaxToken semicolon = null;
+            AccessorListSyntax accessorList = null!;
+            ArrowExpressionClauseSyntax expressionBody = null!;
+            SyntaxToken semicolon = null!;
             // Try to parse accessor list unless there is an expression
             // body and no accessor list
             if (this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken)
@@ -3832,8 +3832,8 @@ parse_member_name:;
                 ? this.ParseAccessorList(AccessorDeclaringKind.Property)
                 : null;
 
-            ArrowExpressionClauseSyntax expressionBody = null;
-            EqualsValueClauseSyntax initializer = null;
+            ArrowExpressionClauseSyntax expressionBody = null!;
+            EqualsValueClauseSyntax initializer = null!;
 
             // Check for expression body
             if (this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken)
@@ -3851,7 +3851,7 @@ parse_member_name:;
                 initializer = _syntaxFactory.EqualsValueClause(equals, value: value);
             }
 
-            SyntaxToken semicolon = null;
+            SyntaxToken semicolon = null!;
             if (expressionBody != null || initializer != null)
             {
                 semicolon = this.EatToken(SyntaxKind.SemicolonToken);
@@ -4016,13 +4016,12 @@ parse_member_name:;
             Func<LanguageParser, SyntaxKind, bool> abortFunction,
             SyntaxKind expected,
             SyntaxKind closeKind = SyntaxKind.None)
-            where T : CSharpSyntaxNode
+            where T : CSharpSyntaxNode?
             where TNode : CSharpSyntaxNode
         {
             // We're going to cheat here and pass the underlying SyntaxListBuilder of "list" to the helper method so that
             // it can append skipped trivia to the last element, regardless of whether that element is a node or a token.
-            GreenNode trailingTrivia;
-            var action = this.SkipBadListTokensWithExpectedKindHelper(list.UnderlyingBuilder, isNotExpectedFunction, abortFunction, expected, closeKind, out trailingTrivia);
+            var action = this.SkipBadListTokensWithExpectedKindHelper(list.UnderlyingBuilder!, isNotExpectedFunction, abortFunction, expected, closeKind, out GreenNode trailingTrivia);
             if (trailingTrivia != null)
             {
                 startToken = AddTrailingSkippedSyntax(startToken, trailingTrivia);
@@ -4072,7 +4071,7 @@ parse_member_name:;
                 {
                     AddTrailingSkippedSyntax(list, lastItemTrailingTrivia);
                 }
-                trailingTrivia = null;
+                trailingTrivia = null!;
                 return action;
             }
         }
@@ -4096,7 +4095,7 @@ parse_member_name:;
                 {
                     AddTrailingSkippedSyntax(list, lastItemTrailingTrivia);
                 }
-                trailingTrivia = null;
+                trailingTrivia = null!;
                 return action;
             }
         }
@@ -4124,7 +4123,7 @@ parse_member_name:;
                 nodes.Add(token);
             }
 
-            trailingTrivia = _pool.ToTokenListAndFree(nodes).Node;
+            trailingTrivia = _pool.ToTokenListAndFree(nodes).Node!;
             return action;
         }
 
@@ -4150,7 +4149,7 @@ parse_member_name:;
                 nodes.Add(token);
             }
 
-            trailingTrivia = _pool.ToTokenListAndFree(nodes).Node;
+            trailingTrivia = _pool.ToTokenListAndFree(nodes).Node!;
             return action;
         }
 
@@ -4197,9 +4196,9 @@ parse_member_name:;
                 accessorName = ConvertToKeyword(accessorName);
             }
 
-            BlockSyntax blockBody = null;
-            ArrowExpressionClauseSyntax expressionBody = null;
-            SyntaxToken semicolon = null;
+            BlockSyntax blockBody = null!;
+            ArrowExpressionClauseSyntax expressionBody = null!;
+            SyntaxToken semicolon = null!;
 
             bool currentTokenIsSemicolon = this.CurrentToken.Kind == SyntaxKind.SemicolonToken;
             bool currentTokenIsArrow = this.CurrentToken.Kind == SyntaxKind.EqualsGreaterThanToken;
@@ -4307,7 +4306,7 @@ parse_member_name:;
                 return false;
             }
 
-            foreach (var parameter in (node as Syntax.BaseParameterListSyntax)?.Parameters)
+            foreach (var parameter in (node as Syntax.BaseParameterListSyntax)?.Parameters ?? [])
             {
                 if (!CanReuseParameter(parameter))
                 {
@@ -4382,7 +4381,7 @@ parse_member_name:;
             }
         }
 
-        private static bool CanReuseParameter(CSharp.Syntax.ParameterSyntax parameter)
+        private static bool CanReuseParameter(Syntax.ParameterSyntax parameter)
         {
             if (parameter == null)
             {
@@ -4397,7 +4396,7 @@ parse_member_name:;
 
             // cannot reuse lambda parameters as normal parameters (parsed with
             // different rules)
-            CSharp.CSharpSyntaxNode parent = parameter.Parent;
+            CSharp.CSharpSyntaxNode parent = parameter.Parent!;
             if (parent != null)
             {
                 if (parent.Kind() == SyntaxKind.SimpleLambdaExpression)
@@ -4405,7 +4404,7 @@ parse_member_name:;
                     return false;
                 }
 
-                CSharp.CSharpSyntaxNode grandparent = parent.Parent;
+                CSharp.CSharpSyntaxNode grandparent = parent.Parent!;
                 if (grandparent != null && grandparent.Kind() == SyntaxKind.ParenthesizedLambdaExpression)
                 {
                     Debug.Assert(parent.Kind() == SyntaxKind.ParameterList);
@@ -4416,11 +4415,9 @@ parse_member_name:;
             return true;
         }
 
-#nullable enable
-
         private ParameterSyntax ParseParameter()
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameter(this.CurrentNode as CSharp.Syntax.ParameterSyntax))
+            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameter((this.CurrentNode as Syntax.ParameterSyntax)!))
             {
                 return (ParameterSyntax)this.EatNode();
             }

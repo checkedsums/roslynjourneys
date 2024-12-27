@@ -2145,7 +2145,7 @@ done:
                 case SyntaxKind.Subpattern:
                     return node;
                 case SyntaxKind.PositionalPatternClause:
-                    return node.Parent;
+                    return node.Parent!;
             }
 
             while (true)
@@ -2184,7 +2184,7 @@ done:
                 {
                     case SyntaxKind.IdentifierName:
                     case SyntaxKind.GenericName:
-                        var tmp = SyntaxFactory.GetStandaloneNode(node);
+                        var tmp = SyntaxFactory.GetStandaloneNode(node)!;
                         if (tmp != node)
                         {
                             return GetBindableSyntaxNode(tmp);

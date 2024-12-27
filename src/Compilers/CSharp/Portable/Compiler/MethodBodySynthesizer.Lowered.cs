@@ -308,7 +308,7 @@ start:
                 get { return true; }
             }
 
-            internal override ExecutableCodeBinder? TryGetBodyBinder(BinderFactory? binderFactoryOpt = null, bool ignoreAccessibility = false) => throw ExceptionUtilities.Unreachable();
+            internal override ExecutableCodeBinder TryGetBodyBinder(BinderFactory? binderFactoryOpt = null, bool ignoreAccessibility = false) => throw ExceptionUtilities.Unreachable();
 
             /// <summary>
             /// Given a SynthesizedSealedPropertyAccessor (an accessor with a reference to the accessor it overrides),
@@ -316,9 +316,10 @@ start:
             /// </summary>
             internal override void GenerateMethodBody(TypeCompilationState compilationState, BindingDiagnosticBag diagnostics)
             {
-                SyntheticBoundNodeFactory F = new SyntheticBoundNodeFactory(this, this.GetNonNullSyntaxNode(), compilationState, diagnostics);
-                F.CurrentFunction = this.OriginalDefinition;
-
+                SyntheticBoundNodeFactory f = new SyntheticBoundNodeFactory(this, this.GetNonNullSyntaxNode(), compilationState, diagnostics)
+                {
+                    CurrentFunction = this.OriginalDefinition
+                };
                 try
                 {
                     MethodSymbol methodBeingWrapped = this.BaseMethod;
@@ -329,9 +330,9 @@ start:
                         methodBeingWrapped = methodBeingWrapped.ConstructedFrom.Construct(StaticCast<TypeSymbol>.From(this.TypeParameters));
                     }
 
-                    BoundBlock body = MethodBodySynthesizer.ConstructSingleInvocationMethodBody(F, methodBeingWrapped, useBaseReference: true);
-                    if (body.Kind != BoundKind.Block) body = F.Block(body);
-                    F.CompilationState.AddMethodWrapper(methodBeingWrapped, this, body);
+                    BoundBlock body = MethodBodySynthesizer.ConstructSingleInvocationMethodBody(f, methodBeingWrapped, useBaseReference: true);
+                    if (body.Kind != BoundKind.Block) body = f.Block(body);
+                    f.CompilationState.AddMethodWrapper(methodBeingWrapped, this, body);
                 }
                 catch (SyntheticBoundNodeFactory.MissingPredefinedMember ex)
                 {

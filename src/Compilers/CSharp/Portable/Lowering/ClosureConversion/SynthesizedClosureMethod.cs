@@ -30,8 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             DebugId topLevelMethodId,
             MethodSymbol originalMethod,
             SyntaxReference blockSyntax,
-            DebugId lambdaId,
-            TypeCompilationState compilationState)
+            DebugId lambdaId)
             : base(containingType,
                    originalMethod,
                    blockSyntax,
@@ -189,7 +188,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public ClosureKind ClosureKind { get; }
 
-        internal override ExecutableCodeBinder? TryGetBodyBinder(BinderFactory? binderFactoryOpt = null, bool ignoreAccessibility = false)
+        internal override ExecutableCodeBinder TryGetBodyBinder(BinderFactory? binderFactoryOpt = null, bool ignoreAccessibility = false)
         {
             throw ExceptionUtilities.Unreachable();
         }

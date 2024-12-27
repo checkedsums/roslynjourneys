@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool NotVoidLiteral(this BoundExpression node, out Syntax.InternalSyntax.LiteralExpressionSyntax lite)
         {
-            return (lite = node.Syntax.Green as Syntax.InternalSyntax.LiteralExpressionSyntax) is null || lite.token.Kind is not SyntaxKind.VoidKeyword;
+            return (lite = (node.Syntax.Green as Syntax.InternalSyntax.LiteralExpressionSyntax)!) is null || lite.token.Kind is not SyntaxKind.VoidKeyword;
         }
 
         public static bool IsLiteralDefault(this BoundExpression node)

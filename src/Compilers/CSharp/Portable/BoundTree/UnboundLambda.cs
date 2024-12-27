@@ -304,9 +304,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             var delegateReturnType = delegateType?.GetDelegateType()?.DelegateInvokeMethod?.ReturnType as NamedTypeSymbol;
             if (delegateReturnType?.SpecialType != SpecialType.System_Void)
             {
-                if (delegateReturnType.IsCustomTaskType(builderArgument: out _))
+                if (delegateReturnType!.IsCustomTaskType(builderArgument: out _))
                 {
-                    taskType = delegateReturnType.ConstructedFrom;
+                    taskType = delegateReturnType!.ConstructedFrom;
                 }
             }
 
@@ -1095,9 +1095,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                         var delegateReturnType = invoke.ReturnType as NamedTypeSymbol;
                         if (delegateReturnType?.SpecialType != SpecialType.System_Void)
                         {
-                            if (delegateReturnType.IsCustomTaskType(out var builderType))
+                            if (delegateReturnType!.IsCustomTaskType(out var builderType))
                             {
-                                taskLikeReturnTypeOpt = delegateReturnType.ConstructedFrom;
+                                taskLikeReturnTypeOpt = delegateReturnType!.ConstructedFrom;
                             }
                         }
                     }

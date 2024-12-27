@@ -59,9 +59,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     left = BindToNaturalType(left, diagnostics);
                     right = BindToNaturalType(right, diagnostics);
                     var placeholder = new BoundValuePlaceholder(right.Syntax, left.HasDynamicType() ? left.Type : right.Type).MakeCompilerGenerated();
-                    var finalDynamicConversion = this.Compilation.Conversions.ClassifyConversionFromExpression(placeholder, left.Type, isChecked: CheckOverflowAtRuntime, ref useSiteInfo);
+                    var finalDynamicConversion = this.Compilation.Conversions.ClassifyConversionFromExpression(placeholder, left.Type!, isChecked: CheckOverflowAtRuntime, ref useSiteInfo);
                     diagnostics.Add(node, useSiteInfo);
-                    var conversion = (BoundConversion)CreateConversion(node, placeholder, finalDynamicConversion, isCast: true, conversionGroupOpt: null, left.Type, diagnostics);
+                    var conversion = (BoundConversion)CreateConversion(node, placeholder, finalDynamicConversion, isCast: true, conversionGroupOpt: null, left.Type!, diagnostics);
 
                     conversion = conversion.Update(conversion.Operand, conversion.Conversion, conversion.IsBaseConversion, conversion.Checked,
                                                    explicitCastInCode: true, conversion.ConstantValueOpt, conversion.ConversionGroupOpt, conversion.Type);
@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         finalPlaceholder: placeholder,
                         finalConversion: conversion,
                         LookupResultKind.Viable,
-                        left.Type,
+                        left.Type!,
                         hasErrors: false);
                 }
                 else
@@ -205,18 +205,18 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (finalConversion is not BoundConversion final)
             {
-                Debug.Assert(finalConversion.HasErrors || (object)finalConversion == finalPlaceholder);
-                if ((object)finalConversion != finalPlaceholder)
+                Debug.Assert(finalConversion.HasErrors || finalConversion == finalPlaceholder);
+                if (finalConversion != finalPlaceholder)
                 {
                     finalPlaceholder = null;
-                    finalConversion = null;
+                    finalConversion = null!;
                 }
             }
             else if (final.Conversion.IsExplicit &&
                 isPredefinedOperator &&
                 !kind.IsShift())
             {
-                Conversion rightToLeftConversion = this.Conversions.ClassifyConversionFromExpression(right, leftType, isChecked: CheckOverflowAtRuntime, ref useSiteInfo);
+                Conversion rightToLeftConversion = this.Conversions.ClassifyConversionFromExpression(right, leftType!, isChecked: CheckOverflowAtRuntime, ref useSiteInfo);
                 if (!rightToLeftConversion.IsImplicit || !rightToLeftConversion.IsValid)
                 {
                     hasError = true;
@@ -234,7 +234,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             var leftConversion = CreateConversion(node.Left, leftPlaceholder, best.LeftConversion, isCast: false, conversionGroupOpt: null, best.Signature.LeftType, diagnostics);
 
             return new BoundCompoundAssignmentOperator(node, bestSignature, left, rightConverted,
-                leftPlaceholder, leftConversion, finalPlaceholder, finalConversion, resultKind, originalUserDefinedOperators, leftType, hasError);
+                leftPlaceholder, leftConversion, finalPlaceholder, finalConversion, resultKind, originalUserDefinedOperators, leftType!, hasError);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool hasErrors = false;
 
             EventSymbol eventSymbol = left.EventSymbol;
-            BoundExpression receiverOpt = left.ReceiverOpt;
+            BoundExpression receiverOpt = left.ReceiverOpt!;
 
             TypeSymbol delegateType = left.Type;
 
@@ -271,7 +271,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression argument = CreateConversion(right, argumentConversion, delegateType, diagnostics);
 
             bool isAddition = opKind == BinaryOperatorKind.Addition;
-            MethodSymbol method = isAddition ? eventSymbol.AddMethod : eventSymbol.RemoveMethod;
+            MethodSymbol method = isAddition ? eventSymbol.AddMethod! : eventSymbol.RemoveMethod!;
 
             TypeSymbol type;
             if (method is null)
@@ -375,7 +375,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 hasError = true;
             }
 
-            MethodSymbol userDefinedOperator = null;
+            MethodSymbol userDefinedOperator = null!;
 
             if (kind.IsLogical() && leftValidOperand)
             {
@@ -386,7 +386,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     // Dev11 reports ERR_MustHaveOpTF. The error was shared between this case and user-defined binary Boolean operators.
                     // We report two distinct more specific error messages.
-                    Error(diagnostics, ErrorCode.ERR_InvalidDynamicCondition, node.Left, left.Type, kind == BinaryOperatorKind.LogicalAnd ? "false" : "true");
+                    Error(diagnostics, ErrorCode.ERR_InvalidDynamicCondition, node.Left, left.Type!, kind == BinaryOperatorKind.LogicalAnd ? "false" : "true");
 
                     hasError = true;
                 }
@@ -491,8 +491,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return new BoundBinaryOperator(node, kind, ConstantValue.NotAvailable, methodOpt: null, constrainedToTypeOpt: null, LookupResultKind.Empty, left, right, GetBinaryOperatorErrorType(kind, diagnostics, node), true);
             }
 
-            TypeSymbol leftType = left.Type;
-            TypeSymbol rightType = right.Type;
+            TypeSymbol leftType = left.Type!;
+            TypeSymbol rightType = right.Type!;
 
             if (leftType is not null && leftType.IsDynamic() || rightType is not null && rightType.IsDynamic())
             {
@@ -524,7 +524,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 && left is BoundUnconvertedInterpolatedString or BoundBinaryOperator { IsUnconvertedInterpolatedStringAddition: true }
                 && right is BoundUnconvertedInterpolatedString or BoundBinaryOperator { IsUnconvertedInterpolatedStringAddition: true })
             {
-                Debug.Assert(right.Type.SpecialType == SpecialType.System_String);
+                Debug.Assert(right.Type!.SpecialType == SpecialType.System_String);
                 var stringConstant = FoldBinaryOperator(node, BinaryOperatorKind.StringConcatenation, left, right, right.Type, diagnostics);
                 return new BoundBinaryOperator(node, BinaryOperatorKind.StringConcatenation, BoundBinaryOperator.UncommonData.UnconvertedInterpolatedStringAddition(stringConstant), LookupResultKind.Empty, left, right, right.Type);
             }
@@ -591,7 +591,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol resultType = signature.ReturnType;
             BoundExpression resultLeft = left;
             BoundExpression resultRight = right;
-            ConstantValue resultConstant = null;
+            ConstantValue resultConstant = null!;
 
             if (foundOperator && (resultOperatorKind.OperandTypes() != BinaryOperatorKind.NullableNull))
             {
@@ -630,7 +630,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     conversionDiagnostics.Free();
                 }
 
-                resultConstant = FoldBinaryOperator(node, resultOperatorKind, resultLeft, resultRight, resultType, diagnostics);
+                resultConstant = FoldBinaryOperator(node, resultOperatorKind, resultLeft, resultRight, resultType, diagnostics)!;
             }
             else
             {
@@ -684,8 +684,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 bool leftNull = left.IsLiteralNull();
                 bool rightNull = right.IsLiteralNull();
 
-                TypeSymbol leftType = left.Type;
-                TypeSymbol rightType = right.Type;
+                TypeSymbol leftType = left.Type!;
+                TypeSymbol rightType = right.Type!;
 
                 bool isNullableEquality = signature.Method is null &&
                     (signature.Kind.Operator() == BinaryOperatorKind.Equal || signature.Kind.Operator() == BinaryOperatorKind.NotEqual) &&
@@ -2375,11 +2375,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal bool IsMoveableVariable(BoundExpression expr, out Symbol accessedLocalOrParameterOpt)
         {
-            accessedLocalOrParameterOpt = null;
+            accessedLocalOrParameterOpt = null!;
 
             while (true)
             {
-                BoundKind exprKind = expr.Kind;
+                BoundKind exprKind = expr!.Kind;
                 switch (exprKind)
                 {
                     case BoundKind.FieldAccess:
@@ -2391,7 +2391,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             {
                                 BoundFieldAccess fieldAccess = (BoundFieldAccess)expr;
                                 fieldSymbol = fieldAccess.FieldSymbol;
-                                receiver = fieldAccess.ReceiverOpt;
+                                receiver = fieldAccess.ReceiverOpt!;
                             }
                             else
                             {
@@ -2401,8 +2401,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                                     return true;
                                 }
                                 EventSymbol eventSymbol = eventAccess.EventSymbol;
-                                fieldSymbol = eventSymbol.AssociatedField;
-                                receiver = eventAccess.ReceiverOpt;
+                                fieldSymbol = eventSymbol.AssociatedField!;
+                                receiver = eventAccess.ReceiverOpt!;
                             }
 
                             if (fieldSymbol is null || fieldSymbol.IsStatic || receiver is null)
@@ -2421,7 +2421,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             // variable of type parameter type has to be cast to an effective
                             // base or interface type before its fields can be accessed and a
                             // conversion isn't an lvalue.
-                            if (receiver.Type.IsReferenceType)
+                            if (receiver.Type!.IsReferenceType)
                             {
                                 return true;
                             }
@@ -2475,7 +2475,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BoundKind.ThisReference:
                     case BoundKind.BaseReference:
                         {
-                            accessedLocalOrParameterOpt = this.ContainingMemberOrLambda.EnclosingThisSymbol()!;
+                            accessedLocalOrParameterOpt = this.ContainingMemberOrLambda!.EnclosingThisSymbol()!;
                             return true;
                         }
                     case BoundKind.Local:
@@ -2502,7 +2502,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             BoundExpression underlyingExpr = ((BoundPointerElementAccess)expr).Expression;
                             if (underlyingExpr is BoundFieldAccess fieldAccess && fieldAccess.FieldSymbol.IsFixedSizeBuffer)
                             {
-                                expr = fieldAccess.ReceiverOpt;
+                                expr = fieldAccess.ReceiverOpt!;
                                 continue;
                             }
 

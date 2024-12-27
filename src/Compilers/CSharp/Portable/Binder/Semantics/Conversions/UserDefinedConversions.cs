@@ -100,7 +100,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 foreach (NamedTypeSymbol iface in interfaces)
                 {
-                    if (!excludeExisting || !HasIdentityConversionToAny(iface, result))
+                    if (!excludeExisting || !HasIdentityConversionToAny(iface, result!))
                     {
                         result.Add((iface, typeParameter));
                     }
@@ -116,7 +116,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (type.IsClassType() || type.IsStructType())
                 {
                     var namedType = (NamedTypeSymbol)type;
-                    if (!excludeExisting || !HasIdentityConversionToAny(namedType, result))
+                    if (!excludeExisting || !HasIdentityConversionToAny(namedType, result!))
                     {
                         result.Add((namedType, null));
                     }
@@ -130,7 +130,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 NamedTypeSymbol t = type.BaseTypeWithDefinitionUseSiteDiagnostics(ref useSiteInfo);
                 while (t is not null)
                 {
-                    if (!excludeExisting || !HasIdentityConversionToAny(t, result))
+                    if (!excludeExisting || !HasIdentityConversionToAny(t, result!))
                     {
                         result.Add((t, null));
                     }

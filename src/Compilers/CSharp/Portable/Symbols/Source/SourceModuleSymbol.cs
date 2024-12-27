@@ -45,8 +45,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private NamespaceSymbol _globalNamespace;
 
         private bool _hasBadAttributes;
-
-        private ThreeState _lazyUseUpdatedEscapeRules;
         private ThreeState _lazyRequiresRefSafetyRulesAttribute;
 
         internal SourceModuleSymbol(
@@ -673,11 +671,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ModuleMetadata? GetMetadata() => null;
 
-        internal override bool UseUpdatedEscapeRules => _lazyUseUpdatedEscapeRules != ThreeState.False;
+        internal override bool UseUpdatedEscapeRules => true;
 
         /// <summary>
         /// Returns data decoded from <see cref="ObsoleteAttribute"/> attribute or null if there is no <see cref="ObsoleteAttribute"/> attribute.
-        /// This property returns <see cref="Microsoft.CodeAnalysis.ObsoleteAttributeData.Uninitialized"/> if attribute arguments haven't been decoded yet.
+        /// This property returns <see cref="ObsoleteAttributeData.Uninitialized"/> if attribute arguments haven't been decoded yet.
         /// </summary>
         internal sealed override ObsoleteAttributeData? ObsoleteAttributeData
         {
