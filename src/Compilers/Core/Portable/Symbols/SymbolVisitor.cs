@@ -6,6 +6,18 @@ namespace Microsoft.CodeAnalysis
 {
     public abstract class SymbolVisitor
     {
+        public void Visit(params ISymbol?[] symbols)
+        {
+            foreach (var symbol in symbols)
+                Visit(symbol);
+        }
+
+        public void Visit(ISymbol? s1, ISymbol? s2)
+        {
+            Visit(s1);
+            Visit(s2);
+        }
+
         public virtual void Visit(ISymbol? symbol)
         {
             symbol?.Accept(this);
