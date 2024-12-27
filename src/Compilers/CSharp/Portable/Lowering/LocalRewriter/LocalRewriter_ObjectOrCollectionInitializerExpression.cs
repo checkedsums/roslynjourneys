@@ -17,15 +17,12 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private static BoundObjectInitializerExpressionBase UpdateInitializers(BoundObjectInitializerExpressionBase initializerExpression, ImmutableArray<BoundExpression> newInitializers)
         {
-            switch (initializerExpression)
+            return initializerExpression switch
             {
-                case BoundObjectInitializerExpression objectInitializer:
-                    return objectInitializer.Update(objectInitializer.Placeholder, newInitializers, initializerExpression.Type);
-                case BoundCollectionInitializerExpression collectionInitializer:
-                    return collectionInitializer.Update(collectionInitializer.Placeholder, newInitializers, initializerExpression.Type);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(initializerExpression.Kind);
-            }
+                BoundObjectInitializerExpression objectInitializer => objectInitializer.Update(objectInitializer.Placeholder, newInitializers, initializerExpression.Type),
+                BoundCollectionInitializerExpression collectionInitializer => collectionInitializer.Update(collectionInitializer.Placeholder, newInitializers, initializerExpression.Type),
+                _ => throw ExceptionUtilities.UnexpectedValue(initializerExpression.Kind),
+            };
         }
 
         private void AddObjectOrCollectionInitializers(

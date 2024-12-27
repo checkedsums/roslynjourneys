@@ -236,12 +236,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private ParameterSymbol Param(BoundNode node)
         {
-            switch (node.Kind)
+            return node.Kind switch
             {
-                case BoundKind.Parameter: return ((BoundParameter)node).ParameterSymbol;
-                case BoundKind.ThisReference: return this.MethodThisParameter;
-                default: return null;
-            }
+                BoundKind.Parameter => ((BoundParameter)node).ParameterSymbol,
+                BoundKind.ThisReference => this.MethodThisParameter,
+                _ => null,
+            };
         }
 
         public override BoundNode VisitQueryClause(BoundQueryClause node)

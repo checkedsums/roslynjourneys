@@ -171,117 +171,66 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return mods;
         }
 
-        internal static string ConvertSingleModifierToSyntaxText(DeclarationModifiers modifier)
+        internal static string ConvertSingleModifierToSyntaxText(DeclarationModifiers modifier) => modifier switch
         {
-            switch (modifier)
+            DeclarationModifiers.ProtectedInternal => SyntaxFacts.GetText(SyntaxKind.ProtectedKeyword) + " " + SyntaxFacts.GetText(SyntaxKind.InternalKeyword),
+            DeclarationModifiers.PrivateProtected => SyntaxFacts.GetText(SyntaxKind.PrivateKeyword) + " " + SyntaxFacts.GetText(SyntaxKind.ProtectedKeyword),
+            _ => SyntaxFacts.GetText(modifier switch
             {
-                case DeclarationModifiers.Abstract:
-                    return SyntaxFacts.GetText(SyntaxKind.AbstractKeyword);
-                case DeclarationModifiers.Sealed:
-                    return SyntaxFacts.GetText(SyntaxKind.SealedKeyword);
-                case DeclarationModifiers.Static:
-                    return SyntaxFacts.GetText(SyntaxKind.StaticKeyword);
-                case DeclarationModifiers.New:
-                    return SyntaxFacts.GetText(SyntaxKind.NewKeyword);
-                case DeclarationModifiers.Public:
-                    return SyntaxFacts.GetText(SyntaxKind.PublicKeyword);
-                case DeclarationModifiers.Protected:
-                    return SyntaxFacts.GetText(SyntaxKind.ProtectedKeyword);
-                case DeclarationModifiers.Internal:
-                    return SyntaxFacts.GetText(SyntaxKind.InternalKeyword);
-                case DeclarationModifiers.ProtectedInternal:
-                    return SyntaxFacts.GetText(SyntaxKind.ProtectedKeyword) + " " + SyntaxFacts.GetText(SyntaxKind.InternalKeyword);
-                case DeclarationModifiers.Private:
-                    return SyntaxFacts.GetText(SyntaxKind.PrivateKeyword);
-                case DeclarationModifiers.PrivateProtected:
-                    return SyntaxFacts.GetText(SyntaxKind.PrivateKeyword) + " " + SyntaxFacts.GetText(SyntaxKind.ProtectedKeyword);
-                case DeclarationModifiers.ReadOnly:
-                    return SyntaxFacts.GetText(SyntaxKind.ReadOnlyKeyword);
-                case DeclarationModifiers.Const:
-                    return SyntaxFacts.GetText(SyntaxKind.ConstKeyword);
-                case DeclarationModifiers.Volatile:
-                    return SyntaxFacts.GetText(SyntaxKind.VolatileKeyword);
-                case DeclarationModifiers.Extern:
-                    return SyntaxFacts.GetText(SyntaxKind.ExternKeyword);
-                case DeclarationModifiers.Partial:
-                    return SyntaxFacts.GetText(SyntaxKind.PartialKeyword);
-                case DeclarationModifiers.Unsafe:
-                    return SyntaxFacts.GetText(SyntaxKind.UnsafeKeyword);
-                case DeclarationModifiers.Fixed:
-                    return SyntaxFacts.GetText(SyntaxKind.FixedKeyword);
-                case DeclarationModifiers.Virtual:
-                    return SyntaxFacts.GetText(SyntaxKind.VirtualKeyword);
-                case DeclarationModifiers.Override:
-                    return SyntaxFacts.GetText(SyntaxKind.OverrideKeyword);
-                case DeclarationModifiers.Async:
-                    return SyntaxFacts.GetText(SyntaxKind.AsyncKeyword);
-                case DeclarationModifiers.Ref:
-                    return SyntaxFacts.GetText(SyntaxKind.RefKeyword);
-                case DeclarationModifiers.Required:
-                    return SyntaxFacts.GetText(SyntaxKind.RequiredKeyword);
-                case DeclarationModifiers.Scoped:
-                    return SyntaxFacts.GetText(SyntaxKind.ScopedKeyword);
-                case DeclarationModifiers.File:
-                    return SyntaxFacts.GetText(SyntaxKind.FileKeyword);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(modifier);
-            }
-        }
+                DeclarationModifiers.Abstract => SyntaxKind.AbstractKeyword,
+                DeclarationModifiers.Sealed => SyntaxKind.SealedKeyword,
+                DeclarationModifiers.Static => SyntaxKind.StaticKeyword,
+                DeclarationModifiers.New => SyntaxKind.NewKeyword,
+                DeclarationModifiers.Public => SyntaxKind.PublicKeyword,
+                DeclarationModifiers.Protected => SyntaxKind.ProtectedKeyword,
+                DeclarationModifiers.Internal => SyntaxKind.InternalKeyword,
+                DeclarationModifiers.Private => SyntaxKind.PrivateKeyword,
+                DeclarationModifiers.ReadOnly => SyntaxKind.ReadOnlyKeyword,
+                DeclarationModifiers.Const => SyntaxKind.ConstKeyword,
+                DeclarationModifiers.Volatile => SyntaxKind.VolatileKeyword,
+                DeclarationModifiers.Extern => SyntaxKind.ExternKeyword,
+                DeclarationModifiers.Partial => SyntaxKind.PartialKeyword,
+                DeclarationModifiers.Unsafe => SyntaxKind.UnsafeKeyword,
+                DeclarationModifiers.Fixed => SyntaxKind.FixedKeyword,
+                DeclarationModifiers.Virtual => SyntaxKind.VirtualKeyword,
+                DeclarationModifiers.Override => SyntaxKind.OverrideKeyword,
+                DeclarationModifiers.Async => SyntaxKind.AsyncKeyword,
+                DeclarationModifiers.Ref => SyntaxKind.RefKeyword,
+                DeclarationModifiers.Required => SyntaxKind.RequiredKeyword,
+                DeclarationModifiers.Scoped => SyntaxKind.ScopedKeyword,
+                DeclarationModifiers.File => SyntaxKind.FileKeyword,
+                _ => throw ExceptionUtilities.UnexpectedValue(modifier)
+            })
+        };
 
-        private static DeclarationModifiers ToDeclarationModifier(SyntaxKind kind)
+        private static DeclarationModifiers ToDeclarationModifier(SyntaxKind kind) => kind switch
         {
-            switch (kind)
-            {
-                case SyntaxKind.AbstractKeyword:
-                    return DeclarationModifiers.Abstract;
-                case SyntaxKind.AsyncKeyword:
-                    return DeclarationModifiers.Async;
-                case SyntaxKind.SealedKeyword:
-                    return DeclarationModifiers.Sealed;
-                case SyntaxKind.StaticKeyword:
-                    return DeclarationModifiers.Static;
-                case SyntaxKind.NewKeyword:
-                    return DeclarationModifiers.New;
-                case SyntaxKind.PublicKeyword:
-                    return DeclarationModifiers.Public;
-                case SyntaxKind.ProtectedKeyword:
-                    return DeclarationModifiers.Protected;
-                case SyntaxKind.InternalKeyword:
-                    return DeclarationModifiers.Internal;
-                case SyntaxKind.PrivateKeyword:
-                    return DeclarationModifiers.Private;
-                case SyntaxKind.ExternKeyword:
-                    return DeclarationModifiers.Extern;
-                case SyntaxKind.ReadOnlyKeyword:
-                    return DeclarationModifiers.ReadOnly;
-                case SyntaxKind.PartialKeyword:
-                    return DeclarationModifiers.Partial;
-                case SyntaxKind.UnsafeKeyword:
-                    return DeclarationModifiers.Unsafe;
-                case SyntaxKind.VirtualKeyword:
-                    return DeclarationModifiers.Virtual;
-                case SyntaxKind.OverrideKeyword:
-                    return DeclarationModifiers.Override;
-                case SyntaxKind.ConstKeyword:
-                    return DeclarationModifiers.Const;
-                case SyntaxKind.FixedKeyword:
-                    return DeclarationModifiers.Fixed;
-                case SyntaxKind.VolatileKeyword:
-                    return DeclarationModifiers.Volatile;
-                case SyntaxKind.RefKeyword:
-                    return DeclarationModifiers.Ref;
-                case SyntaxKind.RequiredKeyword:
-                    return DeclarationModifiers.Required;
-                case SyntaxKind.ScopedKeyword:
-                    return DeclarationModifiers.Scoped;
-                case SyntaxKind.FileKeyword:
-                    return DeclarationModifiers.File;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
-        }
+            SyntaxKind.AbstractKeyword => DeclarationModifiers.Abstract,
+            SyntaxKind.AsyncKeyword => DeclarationModifiers.Async,
+            SyntaxKind.SealedKeyword => DeclarationModifiers.Sealed,
+            SyntaxKind.StaticKeyword => DeclarationModifiers.Static,
+            SyntaxKind.NewKeyword => DeclarationModifiers.New,
+            SyntaxKind.PublicKeyword => DeclarationModifiers.Public,
+            SyntaxKind.ProtectedKeyword => DeclarationModifiers.Protected,
+            SyntaxKind.InternalKeyword => DeclarationModifiers.Internal,
+            SyntaxKind.PrivateKeyword => DeclarationModifiers.Private,
+            SyntaxKind.ExternKeyword => DeclarationModifiers.Extern,
+            SyntaxKind.ReadOnlyKeyword => DeclarationModifiers.ReadOnly,
+            SyntaxKind.PartialKeyword => DeclarationModifiers.Partial,
+            SyntaxKind.UnsafeKeyword => DeclarationModifiers.Unsafe,
+            SyntaxKind.VirtualKeyword => DeclarationModifiers.Virtual,
+            SyntaxKind.OverrideKeyword => DeclarationModifiers.Override,
+            SyntaxKind.ConstKeyword => DeclarationModifiers.Const,
+            SyntaxKind.FixedKeyword => DeclarationModifiers.Fixed,
+            SyntaxKind.VolatileKeyword => DeclarationModifiers.Volatile,
+            SyntaxKind.RefKeyword => DeclarationModifiers.Ref,
+            SyntaxKind.RequiredKeyword => DeclarationModifiers.Required,
+            SyntaxKind.ScopedKeyword => DeclarationModifiers.Scoped,
+            SyntaxKind.FileKeyword => DeclarationModifiers.File,
+            _ => throw ExceptionUtilities.UnexpectedValue(kind),
+        };
 
-        public static DeclarationModifiers ToDeclarationModifiers(this SyntaxTokenList modifiers, 
+        public static DeclarationModifiers ToDeclarationModifiers(this SyntaxTokenList modifiers,
             DiagnosticBag diagnostics, bool isOrdinaryMethod = false)
         {
             var result = DeclarationModifiers.None;
@@ -351,7 +300,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        internal static bool CheckAccessibility(DeclarationModifiers modifiers, Symbol symbol, bool isExplicitInterfaceImplementation, BindingDiagnosticBag diagnostics, Location errorLocation)
+        internal static bool CheckAccessibility(DeclarationModifiers modifiers, Symbol symbol, BindingDiagnosticBag diagnostics, Location errorLocation)
         {
             if (!IsValidAccessibility(modifiers))
             {
@@ -392,49 +341,30 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         // In a case of bogus accessibility (i.e. "public private"), defaults to public.
         internal static Accessibility EffectiveAccessibility(DeclarationModifiers modifiers)
         {
-            switch (modifiers & DeclarationModifiers.AccessibilityMask)
+            return (modifiers & DeclarationModifiers.AccessibilityMask) switch
             {
-                case DeclarationModifiers.None:
-                    return Accessibility.NotApplicable; // for explicit interface implementation
-                case DeclarationModifiers.Private:
-                    return Accessibility.Private;
-                case DeclarationModifiers.Protected:
-                    return Accessibility.Protected;
-                case DeclarationModifiers.Internal:
-                    return Accessibility.Internal;
-                case DeclarationModifiers.Public:
-                    return Accessibility.Public;
-                case DeclarationModifiers.ProtectedInternal:
-                    return Accessibility.ProtectedOrInternal;
-                case DeclarationModifiers.PrivateProtected:
-                    return Accessibility.ProtectedAndInternal;
-                default:
-                    // This happens when you have a mix of accessibilities.
-                    //
-                    // i.e.: public private void Goo()
-                    return Accessibility.Public;
-            }
+                DeclarationModifiers.None => Accessibility.NotApplicable,// for explicit interface implementation
+                DeclarationModifiers.Private => Accessibility.Private,
+                DeclarationModifiers.Protected => Accessibility.Protected,
+                DeclarationModifiers.Internal => Accessibility.Internal,
+                DeclarationModifiers.Public => Accessibility.Public,
+                DeclarationModifiers.ProtectedInternal => Accessibility.ProtectedOrInternal,
+                DeclarationModifiers.PrivateProtected => Accessibility.ProtectedAndInternal,
+                _ => Accessibility.Public,// This happens when you have a mix of accessibilities.
+                                          //
+                                          // i.e.: public private void Goo()
+            };
         }
 
         internal static bool IsValidAccessibility(DeclarationModifiers modifiers)
         {
-            switch (modifiers & DeclarationModifiers.AccessibilityMask)
+            return (modifiers & DeclarationModifiers.AccessibilityMask) switch
             {
-                case DeclarationModifiers.None:
-                case DeclarationModifiers.Private:
-                case DeclarationModifiers.Protected:
-                case DeclarationModifiers.Internal:
-                case DeclarationModifiers.Public:
-                case DeclarationModifiers.ProtectedInternal:
-                case DeclarationModifiers.PrivateProtected:
-                    return true;
-
-                default:
-                    // This happens when you have a mix of accessibilities.
-                    //
-                    // i.e.: public private void Goo()
-                    return false;
-            }
+                DeclarationModifiers.None or DeclarationModifiers.Private or DeclarationModifiers.Protected or DeclarationModifiers.Internal or DeclarationModifiers.Public or DeclarationModifiers.ProtectedInternal or DeclarationModifiers.PrivateProtected => true,
+                _ => false,// This happens when you have a mix of accessibilities.
+                           //
+                           // i.e.: public private void Goo()
+            };
         }
     }
 }

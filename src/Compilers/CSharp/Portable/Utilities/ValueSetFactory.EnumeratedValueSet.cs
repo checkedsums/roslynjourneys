@@ -76,13 +76,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public bool Any(BinaryOperatorKind relation, T value)
             {
-                switch (relation)
+                return relation switch
                 {
-                    case BinaryOperatorKind.Equal:
-                        return _included == _membersIncludedOrExcluded.Contains(value);
-                    default:
-                        return true; // supported for error recovery
-                }
+                    BinaryOperatorKind.Equal => _included == _membersIncludedOrExcluded.Contains(value),
+                    _ => true,// supported for error recovery
+                };
             }
 
             bool IValueSet.Any(BinaryOperatorKind relation, ConstantValue value) => value.IsBad || Any(relation, _tc.FromConstantValue(value));
@@ -94,15 +92,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BinaryOperatorKind.Equal:
                         if (!_included)
                             return false;
-                        switch (_membersIncludedOrExcluded.Count)
+                        return _membersIncludedOrExcluded.Count switch
                         {
-                            case 0:
-                                return true;
-                            case 1:
-                                return _membersIncludedOrExcluded.Contains(value);
-                            default:
-                                return false;
-                        }
+                            0 => true,
+                            1 => _membersIncludedOrExcluded.Contains(value),
+                            _ => false,
+                        };
                     default:
                         return false; // supported for error recovery
                 }

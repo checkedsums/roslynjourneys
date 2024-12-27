@@ -345,19 +345,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 crefSyntax = ((QualifiedCrefSyntax)crefSyntax).Member;
             }
 
-            switch (crefSyntax.Kind())
+            return crefSyntax.Kind() switch
             {
-                case SyntaxKind.NameMemberCref:
-                    return ((NameMemberCrefSyntax)crefSyntax).Parameters != null;
-                case SyntaxKind.IndexerMemberCref:
-                    return ((IndexerMemberCrefSyntax)crefSyntax).Parameters != null;
-                case SyntaxKind.OperatorMemberCref:
-                    return ((OperatorMemberCrefSyntax)crefSyntax).Parameters != null;
-                case SyntaxKind.ConversionOperatorMemberCref:
-                    return ((ConversionOperatorMemberCrefSyntax)crefSyntax).Parameters != null;
-            }
-
-            return false;
+                SyntaxKind.NameMemberCref => ((NameMemberCrefSyntax)crefSyntax).Parameters != null,
+                SyntaxKind.IndexerMemberCref => ((IndexerMemberCrefSyntax)crefSyntax).Parameters != null,
+                SyntaxKind.OperatorMemberCref => ((OperatorMemberCrefSyntax)crefSyntax).Parameters != null,
+                SyntaxKind.ConversionOperatorMemberCref => ((ConversionOperatorMemberCrefSyntax)crefSyntax).Parameters != null,
+                _ => false,
+            };
         }
 
         private static SymbolInfo GetCrefSymbolInfo(OneOrMany<Symbol> symbols, SymbolInfoOptions options, bool hasParameterList)
@@ -588,15 +583,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var variable = GetDeclaredSymbol(variableDesignation, cancellationToken);
 
-            switch (variable)
+            return variable switch
             {
-                case ILocalSymbol local:
-                    return (local.Type, local.NullableAnnotation);
-                case IFieldSymbol field:
-                    return (field.Type, field.NullableAnnotation);
-            }
-
-            return default;
+                ILocalSymbol local => (local.Type, local.NullableAnnotation),
+                IFieldSymbol field => (field.Type, field.NullableAnnotation),
+                _ => default,
+            };
         }
 
         /// <summary>
@@ -1775,16 +1767,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private Symbol RemapSymbolIfNecessary(Symbol symbol)
         {
-            switch (symbol)
+            return symbol switch
             {
-                case LocalSymbol _:
-                case ParameterSymbol _:
-                case MethodSymbol { MethodKind: MethodKind.LambdaMethod }:
-                    return RemapSymbolIfNecessaryCore(symbol);
-
-                default:
-                    return symbol;
-            }
+                LocalSymbol _ or ParameterSymbol _ or MethodSymbol { MethodKind: MethodKind.LambdaMethod } => RemapSymbolIfNecessaryCore(symbol),
+                _ => symbol,
+            };
         }
 
         /// <summary>
@@ -4947,67 +4934,45 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private SymbolInfo GetSymbolInfoFromNode(SyntaxNode node, CancellationToken cancellationToken)
         {
-            switch (node)
+            return node switch
             {
-                case null:
-                    throw new ArgumentNullException(nameof(node));
-                case ExpressionSyntax expression:
-                    return this.GetSymbolInfo(expression, cancellationToken);
-                case ConstructorInitializerSyntax initializer:
-                    return this.GetSymbolInfo(initializer, cancellationToken);
-                case PrimaryConstructorBaseTypeSyntax initializer:
-                    return this.GetSymbolInfo(initializer, cancellationToken);
-                case AttributeSyntax attribute:
-                    return this.GetSymbolInfo(attribute, cancellationToken);
-                case CrefSyntax cref:
-                    return this.GetSymbolInfo(cref, cancellationToken);
-                case SelectOrGroupClauseSyntax selectOrGroupClause:
-                    return this.GetSymbolInfo(selectOrGroupClause, cancellationToken);
-                case OrderingSyntax orderingSyntax:
-                    return this.GetSymbolInfo(orderingSyntax, cancellationToken);
-                case PositionalPatternClauseSyntax ppcSyntax:
-                    return this.GetSymbolInfo(ppcSyntax, cancellationToken);
-            }
-
-            return SymbolInfo.None;
+                null => throw new ArgumentNullException(nameof(node)),
+                ExpressionSyntax expression => this.GetSymbolInfo(expression, cancellationToken),
+                ConstructorInitializerSyntax initializer => this.GetSymbolInfo(initializer, cancellationToken),
+                PrimaryConstructorBaseTypeSyntax initializer => this.GetSymbolInfo(initializer, cancellationToken),
+                AttributeSyntax attribute => this.GetSymbolInfo(attribute, cancellationToken),
+                CrefSyntax cref => this.GetSymbolInfo(cref, cancellationToken),
+                SelectOrGroupClauseSyntax selectOrGroupClause => this.GetSymbolInfo(selectOrGroupClause, cancellationToken),
+                OrderingSyntax orderingSyntax => this.GetSymbolInfo(orderingSyntax, cancellationToken),
+                PositionalPatternClauseSyntax ppcSyntax => this.GetSymbolInfo(ppcSyntax, cancellationToken),
+                _ => SymbolInfo.None,
+            };
         }
 
         private TypeInfo GetTypeInfoFromNode(SyntaxNode node, CancellationToken cancellationToken)
         {
-            switch (node)
+            return node switch
             {
-                case null:
-                    throw new ArgumentNullException(nameof(node));
-                case ExpressionSyntax expression:
-                    return this.GetTypeInfo(expression, cancellationToken);
-                case ConstructorInitializerSyntax initializer:
-                    return this.GetTypeInfo(initializer, cancellationToken);
-                case AttributeSyntax attribute:
-                    return this.GetTypeInfo(attribute, cancellationToken);
-                case SelectOrGroupClauseSyntax selectOrGroupClause:
-                    return this.GetTypeInfo(selectOrGroupClause, cancellationToken);
-                case PatternSyntax pattern:
-                    return this.GetTypeInfo(pattern, cancellationToken);
-            }
-
-            return CSharpTypeInfo.None;
+                null => throw new ArgumentNullException(nameof(node)),
+                ExpressionSyntax expression => this.GetTypeInfo(expression, cancellationToken),
+                ConstructorInitializerSyntax initializer => this.GetTypeInfo(initializer, cancellationToken),
+                AttributeSyntax attribute => this.GetTypeInfo(attribute, cancellationToken),
+                SelectOrGroupClauseSyntax selectOrGroupClause => this.GetTypeInfo(selectOrGroupClause, cancellationToken),
+                PatternSyntax pattern => this.GetTypeInfo(pattern, cancellationToken),
+                _ => (TypeInfo)CSharpTypeInfo.None,
+            };
         }
 
         private ImmutableArray<ISymbol> GetMemberGroupFromNode(SyntaxNode node, CancellationToken cancellationToken)
         {
-            switch (node)
+            return node switch
             {
-                case null:
-                    throw new ArgumentNullException(nameof(node));
-                case ExpressionSyntax expression:
-                    return this.GetMemberGroup(expression, cancellationToken);
-                case ConstructorInitializerSyntax initializer:
-                    return this.GetMemberGroup(initializer, cancellationToken);
-                case AttributeSyntax attribute:
-                    return this.GetMemberGroup(attribute, cancellationToken);
-            }
-
-            return ImmutableArray<ISymbol>.Empty;
+                null => throw new ArgumentNullException(nameof(node)),
+                ExpressionSyntax expression => this.GetMemberGroup(expression, cancellationToken),
+                ConstructorInitializerSyntax initializer => this.GetMemberGroup(initializer, cancellationToken),
+                AttributeSyntax attribute => this.GetMemberGroup(attribute, cancellationToken),
+                _ => ImmutableArray<ISymbol>.Empty,
+            };
         }
 
         protected sealed override ImmutableArray<ISymbol> GetMemberGroupCore(SyntaxNode node, CancellationToken cancellationToken)
@@ -5018,21 +4983,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         protected sealed override SymbolInfo GetSpeculativeSymbolInfoCore(int position, SyntaxNode node, SpeculativeBindingOption bindingOption)
         {
-            switch (node)
+            return node switch
             {
-                case ExpressionSyntax expression:
-                    return GetSpeculativeSymbolInfo(position, expression, bindingOption);
-                case ConstructorInitializerSyntax initializer:
-                    return GetSpeculativeSymbolInfo(position, initializer);
-                case PrimaryConstructorBaseTypeSyntax initializer:
-                    return GetSpeculativeSymbolInfo(position, initializer);
-                case AttributeSyntax attribute:
-                    return GetSpeculativeSymbolInfo(position, attribute);
-                case CrefSyntax cref:
-                    return GetSpeculativeSymbolInfo(position, cref);
-            }
-
-            return SymbolInfo.None;
+                ExpressionSyntax expression => GetSpeculativeSymbolInfo(position, expression, bindingOption),
+                ConstructorInitializerSyntax initializer => GetSpeculativeSymbolInfo(position, initializer),
+                PrimaryConstructorBaseTypeSyntax initializer => GetSpeculativeSymbolInfo(position, initializer),
+                AttributeSyntax attribute => GetSpeculativeSymbolInfo(position, attribute),
+                CrefSyntax cref => GetSpeculativeSymbolInfo(position, cref),
+                _ => SymbolInfo.None,
+            };
         }
 
         protected sealed override TypeInfo GetSpeculativeTypeInfoCore(int position, SyntaxNode node, SpeculativeBindingOption bindingOption)
@@ -5366,21 +5325,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         protected sealed override DataFlowAnalysis AnalyzeDataFlowCore(SyntaxNode statementOrExpression)
         {
-            switch (statementOrExpression)
+            return statementOrExpression switch
             {
-                case null:
-                    throw new ArgumentNullException(nameof(statementOrExpression));
-                case StatementSyntax statementSyntax:
-                    return this.AnalyzeDataFlow(statementSyntax);
-                case ExpressionSyntax expressionSyntax:
-                    return this.AnalyzeDataFlow(expressionSyntax);
-                case ConstructorInitializerSyntax constructorInitializer:
-                    return this.AnalyzeDataFlow(constructorInitializer);
-                case PrimaryConstructorBaseTypeSyntax primaryConstructorBaseType:
-                    return this.AnalyzeDataFlow(primaryConstructorBaseType);
-                default:
-                    throw new ArgumentException("statementOrExpression is not a StatementSyntax or an ExpressionSyntax or a ConstructorInitializerSyntax or a PrimaryConstructorBaseTypeSyntax.");
-            }
+                null => throw new ArgumentNullException(nameof(statementOrExpression)),
+                StatementSyntax statementSyntax => this.AnalyzeDataFlow(statementSyntax),
+                ExpressionSyntax expressionSyntax => this.AnalyzeDataFlow(expressionSyntax),
+                ConstructorInitializerSyntax constructorInitializer => this.AnalyzeDataFlow(constructorInitializer),
+                PrimaryConstructorBaseTypeSyntax primaryConstructorBaseType => this.AnalyzeDataFlow(primaryConstructorBaseType),
+                _ => throw new ArgumentException("statementOrExpression is not a StatementSyntax or an ExpressionSyntax or a ConstructorInitializerSyntax or a PrimaryConstructorBaseTypeSyntax."),
+            };
         }
 
         protected sealed override Optional<object> GetConstantValueCore(SyntaxNode node, CancellationToken cancellationToken)

@@ -27,16 +27,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public IValueSet<bool> Related(BinaryOperatorKind relation, bool value)
             {
-                switch (relation, value)
+                return (relation, value)
+switch
                 {
-                    case (Equal, true):
-                        return BoolValueSet.OnlyTrue;
-                    case (Equal, false):
-                        return BoolValueSet.OnlyFalse;
-                    default:
-                        // for error recovery
-                        return BoolValueSet.AllValues;
-                }
+                    (Equal, true) => BoolValueSet.OnlyTrue,
+                    (Equal, false) => BoolValueSet.OnlyFalse,
+                    _ => BoolValueSet.AllValues,// for error recovery
+                };
             }
 
             IValueSet IValueSetFactory.Random(int expectedSize, Random random) => random.Next(4) switch

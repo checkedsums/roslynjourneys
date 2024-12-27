@@ -214,15 +214,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static bool IsDeconstructionLeft(this ExpressionSyntax node)
         {
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.TupleExpression:
-                    return true;
-                case SyntaxKind.DeclarationExpression:
-                    return ((DeclarationExpressionSyntax)node).Designation.Kind() == SyntaxKind.ParenthesizedVariableDesignation;
-                default:
-                    return false;
-            }
+                SyntaxKind.TupleExpression => true,
+                SyntaxKind.DeclarationExpression => ((DeclarationExpressionSyntax)node).Designation.Kind() == SyntaxKind.ParenthesizedVariableDesignation,
+                _ => false,
+            };
         }
 
         internal static bool IsDeconstruction(this AssignmentExpressionSyntax self)
@@ -234,33 +231,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(node != null);
 
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.Parameter:
-                case SyntaxKind.FieldDeclaration:
-                case SyntaxKind.MethodDeclaration:
-                case SyntaxKind.IndexerDeclaration:
-                case SyntaxKind.OperatorDeclaration:
-                case SyntaxKind.ConversionOperatorDeclaration:
-                case SyntaxKind.PropertyDeclaration:
-                case SyntaxKind.DelegateDeclaration:
-                case SyntaxKind.EventDeclaration:
-                case SyntaxKind.EventFieldDeclaration:
-                case SyntaxKind.BaseList:
-                case SyntaxKind.SimpleBaseType:
-                case SyntaxKind.PrimaryConstructorBaseType:
-                    return true;
-
-                case SyntaxKind.Block:
-                case SyntaxKind.VariableDeclarator:
-                case SyntaxKind.TypeParameterConstraintClause:
-                case SyntaxKind.Attribute:
-                case SyntaxKind.EqualsValueClause:
-                    return false;
-
-                default:
-                    return node.Parent != null && IsInContextWhichNeedsDynamicAttribute(node.Parent);
-            }
+                SyntaxKind.Parameter or SyntaxKind.FieldDeclaration or SyntaxKind.MethodDeclaration or SyntaxKind.IndexerDeclaration or SyntaxKind.OperatorDeclaration or SyntaxKind.ConversionOperatorDeclaration or SyntaxKind.PropertyDeclaration or SyntaxKind.DelegateDeclaration or SyntaxKind.EventDeclaration or SyntaxKind.EventFieldDeclaration or SyntaxKind.BaseList or SyntaxKind.SimpleBaseType or SyntaxKind.PrimaryConstructorBaseType => true,
+                SyntaxKind.Block or SyntaxKind.VariableDeclarator or SyntaxKind.TypeParameterConstraintClause or SyntaxKind.Attribute or SyntaxKind.EqualsValueClause => false,
+                _ => node.Parent != null && IsInContextWhichNeedsDynamicAttribute(node.Parent),
+            };
         }
 
         public static IndexerDeclarationSyntax Update(

@@ -283,17 +283,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             get
             {
-                switch (this.Kind)
+                return this.Kind switch
                 {
-                    case SyntaxKind.TrueKeyword:
-                        return Boxes.BoxedTrue;
-                    case SyntaxKind.FalseKeyword:
-                        return Boxes.BoxedFalse;
-                    case SyntaxKind.NullKeyword:
-                        return null;
-                    default:
-                        return this.Text;
-                }
+                    SyntaxKind.TrueKeyword => Boxes.BoxedTrue,
+                    SyntaxKind.FalseKeyword => Boxes.BoxedFalse,
+                    SyntaxKind.NullKeyword => null,
+                    _ => this.Text,
+                };
             }
         }
 

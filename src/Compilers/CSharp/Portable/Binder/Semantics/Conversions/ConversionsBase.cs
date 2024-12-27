@@ -577,22 +577,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         // "The standard conversions are those pre-defined conversions that can occur as part of a user-defined conversion."
         private static bool IsStandardImplicitConversionFromType(ConversionKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case ConversionKind.Identity:
-                case ConversionKind.ImplicitNumeric:
-                case ConversionKind.ImplicitNullable:
-                case ConversionKind.ImplicitReference:
-                case ConversionKind.Boxing:
-                case ConversionKind.ImplicitConstant:
-                case ConversionKind.ImplicitPointer:
-                case ConversionKind.ImplicitPointerToVoid:
-                case ConversionKind.ImplicitTuple:
-                case ConversionKind.ImplicitSpan:
-                    return true;
-                default:
-                    return false;
-            }
+                ConversionKind.Identity or ConversionKind.ImplicitNumeric or ConversionKind.ImplicitNullable or ConversionKind.ImplicitReference or ConversionKind.Boxing or ConversionKind.ImplicitConstant or ConversionKind.ImplicitPointer or ConversionKind.ImplicitPointerToVoid or ConversionKind.ImplicitTuple or ConversionKind.ImplicitSpan => true,
+                _ => false,
+            };
         }
 
         private Conversion ClassifyStandardImplicitConversion(BoundExpression sourceExpression, TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
@@ -665,23 +654,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return true;
                 }
 
-                switch (kind)
+                return kind switch
                 {
-                    case ConversionKind.NullLiteral:
-                    case ConversionKind.AnonymousFunction:
-                    case ConversionKind.MethodGroup:
-                    case ConversionKind.ImplicitEnumeration:
-                    case ConversionKind.ImplicitDynamic:
-                    case ConversionKind.ImplicitNullToPointer:
-                    case ConversionKind.ImplicitTupleLiteral:
-                    case ConversionKind.StackAllocToPointerType:
-                    case ConversionKind.StackAllocToSpanType:
-                    case ConversionKind.InlineArray:
-                    case ConversionKind.InterpolatedString:
-                        return true;
-                    default:
-                        return false;
-                }
+                    ConversionKind.NullLiteral or ConversionKind.AnonymousFunction or ConversionKind.MethodGroup or ConversionKind.ImplicitEnumeration or ConversionKind.ImplicitDynamic or ConversionKind.ImplicitNullToPointer or ConversionKind.ImplicitTupleLiteral or ConversionKind.StackAllocToPointerType or ConversionKind.StackAllocToSpanType or ConversionKind.InlineArray or ConversionKind.InterpolatedString => true,
+                    _ => false,
+                };
             }
         }
 
@@ -992,20 +969,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private static bool ExplicitConversionMayDifferFromImplicit(Conversion implicitConversion)
         {
-            switch (implicitConversion.Kind)
+            return implicitConversion.Kind switch
             {
-                case ConversionKind.ImplicitUserDefined:
-                case ConversionKind.ImplicitDynamic:
-                case ConversionKind.ImplicitTuple:
-                case ConversionKind.ImplicitTupleLiteral:
-                case ConversionKind.ImplicitNullable:
-                case ConversionKind.ConditionalExpression:
-                case ConversionKind.ImplicitSpan:
-                    return true;
-
-                default:
-                    return false;
-            }
+                ConversionKind.ImplicitUserDefined or ConversionKind.ImplicitDynamic or ConversionKind.ImplicitTuple or ConversionKind.ImplicitTupleLiteral or ConversionKind.ImplicitNullable or ConversionKind.ConditionalExpression or ConversionKind.ImplicitSpan => true,
+                _ => false,
+            };
         }
 
         private Conversion ClassifyImplicitBuiltInConversionFromExpression(BoundExpression sourceExpression, TypeSymbol source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
@@ -2042,33 +2010,20 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsConstantNumericZero(ConstantValue value)
         {
-            switch (value.Discriminator)
+            return value.Discriminator switch
             {
-                case ConstantValueTypeDiscriminator.SByte:
-                    return value.SByteValue == 0;
-                case ConstantValueTypeDiscriminator.Byte:
-                    return value.ByteValue == 0;
-                case ConstantValueTypeDiscriminator.Int16:
-                    return value.Int16Value == 0;
-                case ConstantValueTypeDiscriminator.Int32:
-                case ConstantValueTypeDiscriminator.NInt:
-                    return value.Int32Value == 0;
-                case ConstantValueTypeDiscriminator.Int64:
-                    return value.Int64Value == 0;
-                case ConstantValueTypeDiscriminator.UInt16:
-                    return value.UInt16Value == 0;
-                case ConstantValueTypeDiscriminator.UInt32:
-                case ConstantValueTypeDiscriminator.NUInt:
-                    return value.UInt32Value == 0;
-                case ConstantValueTypeDiscriminator.UInt64:
-                    return value.UInt64Value == 0;
-                case ConstantValueTypeDiscriminator.Single:
-                case ConstantValueTypeDiscriminator.Double:
-                    return value.DoubleValue == 0;
-                case ConstantValueTypeDiscriminator.Decimal:
-                    return value.DecimalValue == 0;
-            }
-            return false;
+                ConstantValueTypeDiscriminator.SByte => value.SByteValue == 0,
+                ConstantValueTypeDiscriminator.Byte => value.ByteValue == 0,
+                ConstantValueTypeDiscriminator.Int16 => value.Int16Value == 0,
+                ConstantValueTypeDiscriminator.Int32 or ConstantValueTypeDiscriminator.NInt => value.Int32Value == 0,
+                ConstantValueTypeDiscriminator.Int64 => value.Int64Value == 0,
+                ConstantValueTypeDiscriminator.UInt16 => value.UInt16Value == 0,
+                ConstantValueTypeDiscriminator.UInt32 or ConstantValueTypeDiscriminator.NUInt => value.UInt32Value == 0,
+                ConstantValueTypeDiscriminator.UInt64 => value.UInt64Value == 0,
+                ConstantValueTypeDiscriminator.Single or ConstantValueTypeDiscriminator.Double => value.DoubleValue == 0,
+                ConstantValueTypeDiscriminator.Decimal => value.DecimalValue == 0,
+                _ => false,
+            };
         }
 
         private static bool IsNumericType(TypeSymbol type)
@@ -2158,24 +2113,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return true;
             }
 
-            switch (otherType.SpecialType)
+            return otherType.SpecialType switch
             {
-                case SpecialType.System_SByte:
-                case SpecialType.System_Byte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Char:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Double:
-                case SpecialType.System_Single:
-                case SpecialType.System_Decimal:
-                    return true;
-            }
-
-            return false;
+                SpecialType.System_SByte or SpecialType.System_Byte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Char or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 or SpecialType.System_Double or SpecialType.System_Single or SpecialType.System_Decimal => true,
+                _ => false,
+            };
 
             static bool isIntPtrOrUIntPtr(TypeSymbol type) =>
                 (type.SpecialType == SpecialType.System_IntPtr || type.SpecialType == SpecialType.System_UIntPtr) && !type.IsNativeIntegerType;
@@ -3385,18 +3327,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             bool hasConversion(RefKind refKind, TypeWithAnnotations sourceType, TypeWithAnnotations destinationType, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
             {
-                switch (refKind)
+                return refKind switch
                 {
-                    case RefKind.None:
-                        return (!IncludeNullability || HasTopLevelNullabilityImplicitConversion(sourceType, destinationType))
-                               && (HasIdentityOrImplicitReferenceConversion(sourceType.Type, destinationType.Type, ref useSiteInfo)
-                                   || HasImplicitPointerToVoidConversion(sourceType.Type, destinationType.Type)
-                                   || HasImplicitPointerConversion(sourceType.Type, destinationType.Type, ref useSiteInfo));
-
-                    default:
-                        return (!IncludeNullability || HasTopLevelNullabilityIdentityConversion(sourceType, destinationType))
-                               && HasIdentityConversion(sourceType.Type, destinationType.Type);
-                }
+                    RefKind.None => (!IncludeNullability || HasTopLevelNullabilityImplicitConversion(sourceType, destinationType))
+                                                   && (HasIdentityOrImplicitReferenceConversion(sourceType.Type, destinationType.Type, ref useSiteInfo)
+                                                       || HasImplicitPointerToVoidConversion(sourceType.Type, destinationType.Type)
+                                                       || HasImplicitPointerConversion(sourceType.Type, destinationType.Type, ref useSiteInfo)),
+                    _ => (!IncludeNullability || HasTopLevelNullabilityIdentityConversion(sourceType, destinationType))
+                                                   && HasIdentityConversion(sourceType.Type, destinationType.Type),
+                };
             }
         }
 
@@ -3891,23 +3830,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsIntegerTypeSupportingPointerConversions(TypeSymbol type)
         {
-            switch (type.SpecialType)
+            return type.SpecialType switch
             {
-                case SpecialType.System_SByte:
-                case SpecialType.System_Byte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                    return true;
-                case SpecialType.System_IntPtr:
-                case SpecialType.System_UIntPtr:
-                    return type.IsNativeIntegerType;
-            }
-
-            return false;
+                SpecialType.System_SByte or SpecialType.System_Byte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 => true,
+                SpecialType.System_IntPtr or SpecialType.System_UIntPtr => type.IsNativeIntegerType,
+                _ => false,
+            };
         }
 
         private bool HasImplicitSpanConversion(TypeSymbol? source, TypeSymbol destination, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)

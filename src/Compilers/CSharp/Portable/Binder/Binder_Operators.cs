@@ -413,28 +413,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected static bool IsSimpleBinaryOperator(SyntaxKind kind)
         {
             // We deliberately exclude &&, ||, ??, etc.
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.AddExpression:
-                case SyntaxKind.MultiplyExpression:
-                case SyntaxKind.SubtractExpression:
-                case SyntaxKind.DivideExpression:
-                case SyntaxKind.ModuloExpression:
-                case SyntaxKind.EqualsExpression:
-                case SyntaxKind.NotEqualsExpression:
-                case SyntaxKind.GreaterThanExpression:
-                case SyntaxKind.LessThanExpression:
-                case SyntaxKind.GreaterThanOrEqualExpression:
-                case SyntaxKind.LessThanOrEqualExpression:
-                case SyntaxKind.BitwiseAndExpression:
-                case SyntaxKind.BitwiseOrExpression:
-                case SyntaxKind.ExclusiveOrExpression:
-                case SyntaxKind.LeftShiftExpression:
-                case SyntaxKind.RightShiftExpression:
-                case SyntaxKind.UnsignedRightShiftExpression:
-                    return true;
-            }
-            return false;
+                SyntaxKind.AddExpression or SyntaxKind.MultiplyExpression or SyntaxKind.SubtractExpression or SyntaxKind.DivideExpression or SyntaxKind.ModuloExpression or SyntaxKind.EqualsExpression or SyntaxKind.NotEqualsExpression or SyntaxKind.GreaterThanExpression or SyntaxKind.LessThanExpression or SyntaxKind.GreaterThanOrEqualExpression or SyntaxKind.LessThanOrEqualExpression or SyntaxKind.BitwiseAndExpression or SyntaxKind.BitwiseOrExpression or SyntaxKind.ExclusiveOrExpression or SyntaxKind.LeftShiftExpression or SyntaxKind.RightShiftExpression or SyntaxKind.UnsignedRightShiftExpression => true,
+                _ => false,
+            };
         }
 
         private BoundExpression BindSimpleBinaryOperator(BinaryExpressionSyntax node, BindingDiagnosticBag diagnostics)
@@ -836,23 +819,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
 #nullable enable
-            ErrorCode errorCode;
-
-            switch (resultKind)
+            var errorCode = resultKind switch
             {
-                case LookupResultKind.Ambiguous:
-                    errorCode = ErrorCode.ERR_AmbigBinaryOps; // Operator '{0}' is ambiguous on operands of type '{1}' and '{2}'
-                    break;
-
-                case LookupResultKind.OverloadResolutionFailure when operatorToken.Kind() is SyntaxKind.PlusToken && isReadOnlySpanOfByte(left.Type) && isReadOnlySpanOfByte(right.Type):
-                    errorCode = ErrorCode.ERR_BadBinaryReadOnlySpanConcatenation; // Operator '{0}' cannot be applied to operands of type '{1}' and '{2}' that are not UTF-8 byte representations
-                    break;
-
-                default:
-                    errorCode = ErrorCode.ERR_BadBinaryOps;    // Operator '{0}' cannot be applied to operands of type '{1}' and '{2}'
-                    break;
-            }
-
+                LookupResultKind.Ambiguous => ErrorCode.ERR_AmbigBinaryOps,// Operator '{0}' is ambiguous on operands of type '{1}' and '{2}'
+                LookupResultKind.OverloadResolutionFailure when operatorToken.Kind() is SyntaxKind.PlusToken && isReadOnlySpanOfByte(left.Type) && isReadOnlySpanOfByte(right.Type) => ErrorCode.ERR_BadBinaryReadOnlySpanConcatenation,// Operator '{0}' cannot be applied to operands of type '{1}' and '{2}' that are not UTF-8 byte representations
+                _ => ErrorCode.ERR_BadBinaryOps,// Operator '{0}' cannot be applied to operands of type '{1}' and '{2}'
+            };
             Error(diagnostics, errorCode, node, operatorToken.Text, left.Display, right.Display);
 
             bool isReadOnlySpanOfByte(TypeSymbol? type)
@@ -1272,18 +1244,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private TypeSymbol GetBinaryOperatorErrorType(BinaryOperatorKind kind, BindingDiagnosticBag diagnostics, CSharpSyntaxNode node)
         {
-            switch (kind)
+            return kind switch
             {
-                case BinaryOperatorKind.Equal:
-                case BinaryOperatorKind.NotEqual:
-                case BinaryOperatorKind.GreaterThan:
-                case BinaryOperatorKind.LessThan:
-                case BinaryOperatorKind.GreaterThanOrEqual:
-                case BinaryOperatorKind.LessThanOrEqual:
-                    return GetSpecialType(SpecialType.System_Boolean, diagnostics, node);
-                default:
-                    return CreateErrorType();
-            }
+                BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual or BinaryOperatorKind.GreaterThan or BinaryOperatorKind.LessThan or BinaryOperatorKind.GreaterThanOrEqual or BinaryOperatorKind.LessThanOrEqual => GetSpecialType(SpecialType.System_Boolean, diagnostics, node),
+                _ => CreateErrorType(),
+            };
         }
 
         private BinaryOperatorAnalysisResult BinaryOperatorOverloadResolution(
@@ -1473,21 +1438,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             // constant and non-constant expressions behave consistently in Roslyn.
             // (In Dev11, (+0 + -0) != (x + y) when x = +0, y = -0.)
 
-            switch (kind)
+            return kind switch
             {
-                case BinaryOperatorKind.DecimalAddition:
-                    return valueLeft.DecimalValue + valueRight.DecimalValue;
-                case BinaryOperatorKind.DecimalSubtraction:
-                    return valueLeft.DecimalValue - valueRight.DecimalValue;
-                case BinaryOperatorKind.DecimalMultiplication:
-                    return valueLeft.DecimalValue * valueRight.DecimalValue;
-                case BinaryOperatorKind.DecimalDivision:
-                    return valueLeft.DecimalValue / valueRight.DecimalValue;
-                case BinaryOperatorKind.DecimalRemainder:
-                    return valueLeft.DecimalValue % valueRight.DecimalValue;
-            }
-
-            return null;
+                BinaryOperatorKind.DecimalAddition => valueLeft.DecimalValue + valueRight.DecimalValue,
+                BinaryOperatorKind.DecimalSubtraction => valueLeft.DecimalValue - valueRight.DecimalValue,
+                BinaryOperatorKind.DecimalMultiplication => valueLeft.DecimalValue * valueRight.DecimalValue,
+                BinaryOperatorKind.DecimalDivision => valueLeft.DecimalValue / valueRight.DecimalValue,
+                BinaryOperatorKind.DecimalRemainder => valueLeft.DecimalValue % valueRight.DecimalValue,
+                _ => null,
+            };
         }
 
         private static object FoldNativeIntegerOverflowingBinaryOperator(BinaryOperatorKind kind, ConstantValue valueLeft, ConstantValue valueRight)
@@ -1596,86 +1555,45 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             checked
             {
-                switch (kind)
+                return kind switch
                 {
-                    case BinaryOperatorKind.IntAddition:
-                        return valueLeft.Int32Value + valueRight.Int32Value;
-                    case BinaryOperatorKind.LongAddition:
-                        return valueLeft.Int64Value + valueRight.Int64Value;
-                    case BinaryOperatorKind.UIntAddition:
-                        return valueLeft.UInt32Value + valueRight.UInt32Value;
-                    case BinaryOperatorKind.ULongAddition:
-                        return valueLeft.UInt64Value + valueRight.UInt64Value;
-                    case BinaryOperatorKind.IntSubtraction:
-                        return valueLeft.Int32Value - valueRight.Int32Value;
-                    case BinaryOperatorKind.LongSubtraction:
-                        return valueLeft.Int64Value - valueRight.Int64Value;
-                    case BinaryOperatorKind.UIntSubtraction:
-                        return valueLeft.UInt32Value - valueRight.UInt32Value;
-                    case BinaryOperatorKind.ULongSubtraction:
-                        return valueLeft.UInt64Value - valueRight.UInt64Value;
-                    case BinaryOperatorKind.IntMultiplication:
-                        return valueLeft.Int32Value * valueRight.Int32Value;
-                    case BinaryOperatorKind.LongMultiplication:
-                        return valueLeft.Int64Value * valueRight.Int64Value;
-                    case BinaryOperatorKind.UIntMultiplication:
-                        return valueLeft.UInt32Value * valueRight.UInt32Value;
-                    case BinaryOperatorKind.ULongMultiplication:
-                        return valueLeft.UInt64Value * valueRight.UInt64Value;
-                    case BinaryOperatorKind.IntDivision:
-                        return valueLeft.Int32Value / valueRight.Int32Value;
-                    case BinaryOperatorKind.LongDivision:
-                        return valueLeft.Int64Value / valueRight.Int64Value;
-                }
-
-                return null;
+                    BinaryOperatorKind.IntAddition => valueLeft.Int32Value + valueRight.Int32Value,
+                    BinaryOperatorKind.LongAddition => valueLeft.Int64Value + valueRight.Int64Value,
+                    BinaryOperatorKind.UIntAddition => valueLeft.UInt32Value + valueRight.UInt32Value,
+                    BinaryOperatorKind.ULongAddition => valueLeft.UInt64Value + valueRight.UInt64Value,
+                    BinaryOperatorKind.IntSubtraction => valueLeft.Int32Value - valueRight.Int32Value,
+                    BinaryOperatorKind.LongSubtraction => valueLeft.Int64Value - valueRight.Int64Value,
+                    BinaryOperatorKind.UIntSubtraction => valueLeft.UInt32Value - valueRight.UInt32Value,
+                    BinaryOperatorKind.ULongSubtraction => valueLeft.UInt64Value - valueRight.UInt64Value,
+                    BinaryOperatorKind.IntMultiplication => valueLeft.Int32Value * valueRight.Int32Value,
+                    BinaryOperatorKind.LongMultiplication => valueLeft.Int64Value * valueRight.Int64Value,
+                    BinaryOperatorKind.UIntMultiplication => valueLeft.UInt32Value * valueRight.UInt32Value,
+                    BinaryOperatorKind.ULongMultiplication => valueLeft.UInt64Value * valueRight.UInt64Value,
+                    BinaryOperatorKind.IntDivision => valueLeft.Int32Value / valueRight.Int32Value,
+                    BinaryOperatorKind.LongDivision => valueLeft.Int64Value / valueRight.Int64Value,
+                    _ => null,
+                };
             }
         }
 
         internal static TypeSymbol GetEnumType(BinaryOperatorKind kind, BoundExpression left, BoundExpression right)
         {
-            switch (kind)
+            return kind switch
             {
-                case BinaryOperatorKind.EnumAndUnderlyingAddition:
-                case BinaryOperatorKind.EnumAndUnderlyingSubtraction:
-                case BinaryOperatorKind.EnumAnd:
-                case BinaryOperatorKind.EnumOr:
-                case BinaryOperatorKind.EnumXor:
-                case BinaryOperatorKind.EnumEqual:
-                case BinaryOperatorKind.EnumGreaterThan:
-                case BinaryOperatorKind.EnumGreaterThanOrEqual:
-                case BinaryOperatorKind.EnumLessThan:
-                case BinaryOperatorKind.EnumLessThanOrEqual:
-                case BinaryOperatorKind.EnumNotEqual:
-                case BinaryOperatorKind.EnumSubtraction:
-                    return left.Type;
-                case BinaryOperatorKind.UnderlyingAndEnumAddition:
-                case BinaryOperatorKind.UnderlyingAndEnumSubtraction:
-                    return right.Type;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                BinaryOperatorKind.EnumAndUnderlyingAddition or BinaryOperatorKind.EnumAndUnderlyingSubtraction or BinaryOperatorKind.EnumAnd or BinaryOperatorKind.EnumOr or BinaryOperatorKind.EnumXor or BinaryOperatorKind.EnumEqual or BinaryOperatorKind.EnumGreaterThan or BinaryOperatorKind.EnumGreaterThanOrEqual or BinaryOperatorKind.EnumLessThan or BinaryOperatorKind.EnumLessThanOrEqual or BinaryOperatorKind.EnumNotEqual or BinaryOperatorKind.EnumSubtraction => left.Type,
+                BinaryOperatorKind.UnderlyingAndEnumAddition or BinaryOperatorKind.UnderlyingAndEnumSubtraction => right.Type,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         internal static SpecialType GetEnumPromotedType(SpecialType underlyingType)
         {
-            switch (underlyingType)
+            return underlyingType switch
             {
-                case SpecialType.System_Byte:
-                case SpecialType.System_SByte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                    return SpecialType.System_Int32;
-
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                    return underlyingType;
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(underlyingType);
-            }
+                SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 => SpecialType.System_Int32,
+                SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 => underlyingType,
+                _ => throw ExceptionUtilities.UnexpectedValue(underlyingType),
+            };
         }
 
 #nullable enable
@@ -2196,40 +2114,29 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static BinaryOperatorKind SyntaxKindToBinaryOperatorKind(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.MultiplyAssignmentExpression:
-                case SyntaxKind.MultiplyExpression: return BinaryOperatorKind.Multiplication;
-                case SyntaxKind.DivideAssignmentExpression:
-                case SyntaxKind.DivideExpression: return BinaryOperatorKind.Division;
-                case SyntaxKind.ModuloAssignmentExpression:
-                case SyntaxKind.ModuloExpression: return BinaryOperatorKind.Remainder;
-                case SyntaxKind.AddAssignmentExpression:
-                case SyntaxKind.AddExpression: return BinaryOperatorKind.Addition;
-                case SyntaxKind.SubtractAssignmentExpression:
-                case SyntaxKind.SubtractExpression: return BinaryOperatorKind.Subtraction;
-                case SyntaxKind.RightShiftAssignmentExpression:
-                case SyntaxKind.RightShiftExpression: return BinaryOperatorKind.RightShift;
-                case SyntaxKind.UnsignedRightShiftAssignmentExpression:
-                case SyntaxKind.UnsignedRightShiftExpression: return BinaryOperatorKind.UnsignedRightShift;
-                case SyntaxKind.LeftShiftAssignmentExpression:
-                case SyntaxKind.LeftShiftExpression: return BinaryOperatorKind.LeftShift;
-                case SyntaxKind.EqualsExpression: return BinaryOperatorKind.Equal;
-                case SyntaxKind.NotEqualsExpression: return BinaryOperatorKind.NotEqual;
-                case SyntaxKind.GreaterThanExpression: return BinaryOperatorKind.GreaterThan;
-                case SyntaxKind.LessThanExpression: return BinaryOperatorKind.LessThan;
-                case SyntaxKind.GreaterThanOrEqualExpression: return BinaryOperatorKind.GreaterThanOrEqual;
-                case SyntaxKind.LessThanOrEqualExpression: return BinaryOperatorKind.LessThanOrEqual;
-                case SyntaxKind.AndAssignmentExpression:
-                case SyntaxKind.BitwiseAndExpression: return BinaryOperatorKind.And;
-                case SyntaxKind.OrAssignmentExpression:
-                case SyntaxKind.BitwiseOrExpression: return BinaryOperatorKind.Or;
-                case SyntaxKind.ExclusiveOrAssignmentExpression:
-                case SyntaxKind.ExclusiveOrExpression: return BinaryOperatorKind.Xor;
-                case SyntaxKind.LogicalAndExpression: return BinaryOperatorKind.LogicalAnd;
-                case SyntaxKind.LogicalOrExpression: return BinaryOperatorKind.LogicalOr;
-                default: throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                SyntaxKind.MultiplyAssignmentExpression or SyntaxKind.MultiplyExpression => BinaryOperatorKind.Multiplication,
+                SyntaxKind.DivideAssignmentExpression or SyntaxKind.DivideExpression => BinaryOperatorKind.Division,
+                SyntaxKind.ModuloAssignmentExpression or SyntaxKind.ModuloExpression => BinaryOperatorKind.Remainder,
+                SyntaxKind.AddAssignmentExpression or SyntaxKind.AddExpression => BinaryOperatorKind.Addition,
+                SyntaxKind.SubtractAssignmentExpression or SyntaxKind.SubtractExpression => BinaryOperatorKind.Subtraction,
+                SyntaxKind.RightShiftAssignmentExpression or SyntaxKind.RightShiftExpression => BinaryOperatorKind.RightShift,
+                SyntaxKind.UnsignedRightShiftAssignmentExpression or SyntaxKind.UnsignedRightShiftExpression => BinaryOperatorKind.UnsignedRightShift,
+                SyntaxKind.LeftShiftAssignmentExpression or SyntaxKind.LeftShiftExpression => BinaryOperatorKind.LeftShift,
+                SyntaxKind.EqualsExpression => BinaryOperatorKind.Equal,
+                SyntaxKind.NotEqualsExpression => BinaryOperatorKind.NotEqual,
+                SyntaxKind.GreaterThanExpression => BinaryOperatorKind.GreaterThan,
+                SyntaxKind.LessThanExpression => BinaryOperatorKind.LessThan,
+                SyntaxKind.GreaterThanOrEqualExpression => BinaryOperatorKind.GreaterThanOrEqual,
+                SyntaxKind.LessThanOrEqualExpression => BinaryOperatorKind.LessThanOrEqual,
+                SyntaxKind.AndAssignmentExpression or SyntaxKind.BitwiseAndExpression => BinaryOperatorKind.And,
+                SyntaxKind.OrAssignmentExpression or SyntaxKind.BitwiseOrExpression => BinaryOperatorKind.Or,
+                SyntaxKind.ExclusiveOrAssignmentExpression or SyntaxKind.ExclusiveOrExpression => BinaryOperatorKind.Xor,
+                SyntaxKind.LogicalAndExpression => BinaryOperatorKind.LogicalAnd,
+                SyntaxKind.LogicalOrExpression => BinaryOperatorKind.LogicalOr,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         private BoundExpression BindIncrementOperator(CSharpSyntaxNode node, ExpressionSyntax operandSyntax, SyntaxToken operatorToken, BindingDiagnosticBag diagnostics)
@@ -2568,7 +2475,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case BoundKind.ThisReference:
                     case BoundKind.BaseReference:
                         {
-                            accessedLocalOrParameterOpt = this.ContainingMemberOrLambda.EnclosingThisSymbol();
+                            accessedLocalOrParameterOpt = this.ContainingMemberOrLambda.EnclosingThisSymbol()!;
                             return true;
                         }
                     case BoundKind.Local:
@@ -2824,41 +2731,23 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static object? FoldNeverOverflowUnaryOperator(UnaryOperatorKind kind, ConstantValue value)
         {
             // Note that we do operations on single-precision floats as double-precision.
-            switch (kind)
+            return kind switch
             {
-                case UnaryOperatorKind.DecimalUnaryMinus:
-                    return -value.DecimalValue;
-                case UnaryOperatorKind.DoubleUnaryMinus:
-                case UnaryOperatorKind.FloatUnaryMinus:
-                    return -value.DoubleValue;
-                case UnaryOperatorKind.DecimalUnaryPlus:
-                    return +value.DecimalValue;
-                case UnaryOperatorKind.FloatUnaryPlus:
-                case UnaryOperatorKind.DoubleUnaryPlus:
-                    return +value.DoubleValue;
-                case UnaryOperatorKind.LongUnaryPlus:
-                    return +value.Int64Value;
-                case UnaryOperatorKind.ULongUnaryPlus:
-                    return +value.UInt64Value;
-                case UnaryOperatorKind.IntUnaryPlus:
-                case UnaryOperatorKind.NIntUnaryPlus:
-                    return +value.Int32Value;
-                case UnaryOperatorKind.UIntUnaryPlus:
-                case UnaryOperatorKind.NUIntUnaryPlus:
-                    return +value.UInt32Value;
-                case UnaryOperatorKind.BoolLogicalNegation:
-                    return !value.BooleanValue;
-                case UnaryOperatorKind.IntBitwiseComplement:
-                    return ~value.Int32Value;
-                case UnaryOperatorKind.LongBitwiseComplement:
-                    return ~value.Int64Value;
-                case UnaryOperatorKind.UIntBitwiseComplement:
-                    return ~value.UInt32Value;
-                case UnaryOperatorKind.ULongBitwiseComplement:
-                    return ~value.UInt64Value;
-            }
-
-            return null;
+                UnaryOperatorKind.DecimalUnaryMinus => -value.DecimalValue,
+                UnaryOperatorKind.DoubleUnaryMinus or UnaryOperatorKind.FloatUnaryMinus => -value.DoubleValue,
+                UnaryOperatorKind.DecimalUnaryPlus => +value.DecimalValue,
+                UnaryOperatorKind.FloatUnaryPlus or UnaryOperatorKind.DoubleUnaryPlus => +value.DoubleValue,
+                UnaryOperatorKind.LongUnaryPlus => +value.Int64Value,
+                UnaryOperatorKind.ULongUnaryPlus => +value.UInt64Value,
+                UnaryOperatorKind.IntUnaryPlus or UnaryOperatorKind.NIntUnaryPlus => +value.Int32Value,
+                UnaryOperatorKind.UIntUnaryPlus or UnaryOperatorKind.NUIntUnaryPlus => +value.UInt32Value,
+                UnaryOperatorKind.BoolLogicalNegation => !value.BooleanValue,
+                UnaryOperatorKind.IntBitwiseComplement => ~value.Int32Value,
+                UnaryOperatorKind.LongBitwiseComplement => ~value.Int64Value,
+                UnaryOperatorKind.UIntBitwiseComplement => ~value.UInt32Value,
+                UnaryOperatorKind.ULongBitwiseComplement => ~value.UInt64Value,
+                _ => null,
+            };
         }
 
         private static object? FoldUncheckedIntegralUnaryOperator(UnaryOperatorKind kind, ConstantValue value)
@@ -2912,42 +2801,28 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static UnaryOperatorKind SyntaxKindToUnaryOperatorKind(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.PreIncrementExpression: return UnaryOperatorKind.PrefixIncrement;
-                case SyntaxKind.PostIncrementExpression: return UnaryOperatorKind.PostfixIncrement;
-                case SyntaxKind.PreDecrementExpression: return UnaryOperatorKind.PrefixDecrement;
-                case SyntaxKind.PostDecrementExpression: return UnaryOperatorKind.PostfixDecrement;
-                case SyntaxKind.UnaryPlusExpression: return UnaryOperatorKind.UnaryPlus;
-                case SyntaxKind.UnaryMinusExpression: return UnaryOperatorKind.UnaryMinus;
-                case SyntaxKind.LogicalNotExpression: return UnaryOperatorKind.LogicalNegation;
-                case SyntaxKind.BitwiseNotExpression: return UnaryOperatorKind.BitwiseComplement;
-                default: throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                SyntaxKind.PreIncrementExpression => UnaryOperatorKind.PrefixIncrement,
+                SyntaxKind.PostIncrementExpression => UnaryOperatorKind.PostfixIncrement,
+                SyntaxKind.PreDecrementExpression => UnaryOperatorKind.PrefixDecrement,
+                SyntaxKind.PostDecrementExpression => UnaryOperatorKind.PostfixDecrement,
+                SyntaxKind.UnaryPlusExpression => UnaryOperatorKind.UnaryPlus,
+                SyntaxKind.UnaryMinusExpression => UnaryOperatorKind.UnaryMinus,
+                SyntaxKind.LogicalNotExpression => UnaryOperatorKind.LogicalNegation,
+                SyntaxKind.BitwiseNotExpression => UnaryOperatorKind.BitwiseComplement,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         private static BindValueKind GetBinaryAssignmentKind(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.SimpleAssignmentExpression:
-                    return BindValueKind.Assignable;
-                case SyntaxKind.AddAssignmentExpression:
-                case SyntaxKind.AndAssignmentExpression:
-                case SyntaxKind.DivideAssignmentExpression:
-                case SyntaxKind.ExclusiveOrAssignmentExpression:
-                case SyntaxKind.LeftShiftAssignmentExpression:
-                case SyntaxKind.ModuloAssignmentExpression:
-                case SyntaxKind.MultiplyAssignmentExpression:
-                case SyntaxKind.OrAssignmentExpression:
-                case SyntaxKind.RightShiftAssignmentExpression:
-                case SyntaxKind.UnsignedRightShiftAssignmentExpression:
-                case SyntaxKind.SubtractAssignmentExpression:
-                case SyntaxKind.CoalesceAssignmentExpression:
-                    return BindValueKind.CompoundAssignment;
-                default:
-                    return BindValueKind.RValue;
-            }
+                SyntaxKind.SimpleAssignmentExpression => BindValueKind.Assignable,
+                SyntaxKind.AddAssignmentExpression or SyntaxKind.AndAssignmentExpression or SyntaxKind.DivideAssignmentExpression or SyntaxKind.ExclusiveOrAssignmentExpression or SyntaxKind.LeftShiftAssignmentExpression or SyntaxKind.ModuloAssignmentExpression or SyntaxKind.MultiplyAssignmentExpression or SyntaxKind.OrAssignmentExpression or SyntaxKind.RightShiftAssignmentExpression or SyntaxKind.UnsignedRightShiftAssignmentExpression or SyntaxKind.SubtractAssignmentExpression or SyntaxKind.CoalesceAssignmentExpression => BindValueKind.CompoundAssignment,
+                _ => BindValueKind.RValue,
+            };
         }
 
         private static BindValueKind GetUnaryAssignmentKind(SyntaxKind kind)
@@ -3031,30 +2906,15 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(valueRight != null);
 
-            switch (kind)
+            return kind switch
             {
-                case BinaryOperatorKind.DecimalDivision:
-                case BinaryOperatorKind.DecimalRemainder:
-                    return valueRight.DecimalValue == 0.0m;
-                case BinaryOperatorKind.IntDivision:
-                case BinaryOperatorKind.IntRemainder:
-                case BinaryOperatorKind.NIntDivision:
-                case BinaryOperatorKind.NIntRemainder:
-                    return valueRight.Int32Value == 0;
-                case BinaryOperatorKind.LongDivision:
-                case BinaryOperatorKind.LongRemainder:
-                    return valueRight.Int64Value == 0;
-                case BinaryOperatorKind.UIntDivision:
-                case BinaryOperatorKind.UIntRemainder:
-                case BinaryOperatorKind.NUIntDivision:
-                case BinaryOperatorKind.NUIntRemainder:
-                    return valueRight.UInt32Value == 0;
-                case BinaryOperatorKind.ULongDivision:
-                case BinaryOperatorKind.ULongRemainder:
-                    return valueRight.UInt64Value == 0;
-            }
-
-            return false;
+                BinaryOperatorKind.DecimalDivision or BinaryOperatorKind.DecimalRemainder => valueRight.DecimalValue == 0.0m,
+                BinaryOperatorKind.IntDivision or BinaryOperatorKind.IntRemainder or BinaryOperatorKind.NIntDivision or BinaryOperatorKind.NIntRemainder => valueRight.Int32Value == 0,
+                BinaryOperatorKind.LongDivision or BinaryOperatorKind.LongRemainder => valueRight.Int64Value == 0,
+                BinaryOperatorKind.UIntDivision or BinaryOperatorKind.UIntRemainder or BinaryOperatorKind.NUIntDivision or BinaryOperatorKind.NUIntRemainder => valueRight.UInt32Value == 0,
+                BinaryOperatorKind.ULongDivision or BinaryOperatorKind.ULongRemainder => valueRight.UInt64Value == 0,
+                _ => false,
+            };
         }
 
         private bool IsOperandErrors(CSharpSyntaxNode node, ref BoundExpression operand, BindingDiagnosticBag diagnostics)
@@ -3149,7 +3009,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     bag.Free();
                     diagnostics.AddRangeAndFree(isPatternDiagnostics);
                     var boundConstantPattern = new BoundConstantPattern(
-                        node.Right, convertedExpression, constantValueOpt ?? ConstantValue.Bad, operand.Type, convertedExpression.Type ?? operand.Type, hasErrors) { WasCompilerGenerated = true };
+                        node.Right, convertedExpression, constantValueOpt ?? ConstantValue.Bad, operand.Type, convertedExpression.Type ?? operand.Type, hasErrors)
+                    { WasCompilerGenerated = true };
                     return MakeIsPatternExpression(node, operand, boundConstantPattern, resultType, operandHasErrors, diagnostics);
                 }
 

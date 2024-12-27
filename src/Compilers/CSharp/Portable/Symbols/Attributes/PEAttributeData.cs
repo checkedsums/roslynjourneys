@@ -178,27 +178,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             {
                 if (HasErrors)
                 {
-                    switch (AttributeConstructor)
+                    return AttributeConstructor switch
                     {
-                        case { HasUseSiteError: true } attributeConstructor:
-                            return attributeConstructor.GetUseSiteInfo().DiagnosticInfo;
-
-                        case { }:
-                            return new CSDiagnosticInfo(ErrorCode.ERR_BogusType, string.Empty);
-
-                        default:
-                            switch (AttributeClass)
-                            {
-                                case { HasUseSiteError: true } attributeClass:
-                                    return attributeClass.GetUseSiteInfo().DiagnosticInfo;
-
-                                case { } attributeClass:
-                                    return new CSDiagnosticInfo(ErrorCode.ERR_MissingPredefinedMember, attributeClass, WellKnownMemberNames.InstanceConstructorName);
-
-                                default:
-                                    return new CSDiagnosticInfo(ErrorCode.ERR_BogusType, string.Empty);
-                            }
-                    }
+                        { HasUseSiteError: true } attributeConstructor => attributeConstructor.GetUseSiteInfo().DiagnosticInfo,
+                        { } => new CSDiagnosticInfo(ErrorCode.ERR_BogusType, string.Empty),
+                        _ => AttributeClass switch
+                        {
+                            { HasUseSiteError: true } attributeClass => attributeClass.GetUseSiteInfo().DiagnosticInfo,
+                            { } attributeClass => new CSDiagnosticInfo(ErrorCode.ERR_MissingPredefinedMember, attributeClass, WellKnownMemberNames.InstanceConstructorName),
+                            _ => new CSDiagnosticInfo(ErrorCode.ERR_BogusType, string.Empty),
+                        },
+                    };
                 }
                 else
                 {

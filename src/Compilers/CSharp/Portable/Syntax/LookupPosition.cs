@@ -310,63 +310,33 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         private static SyntaxToken GetFirstIncludedToken(StatementSyntax statement)
         {
             Debug.Assert(statement != null);
-            switch (statement.Kind())
+            return statement.Kind() switch
             {
-                case SyntaxKind.Block:
-                    return ((BlockSyntax)statement).OpenBraceToken;
-                case SyntaxKind.BreakStatement:
-                    return ((BreakStatementSyntax)statement).BreakKeyword;
-                case SyntaxKind.CheckedStatement:
-                case SyntaxKind.UncheckedStatement:
-                    return ((CheckedStatementSyntax)statement).Keyword;
-                case SyntaxKind.ContinueStatement:
-                    return ((ContinueStatementSyntax)statement).ContinueKeyword;
-                case SyntaxKind.ExpressionStatement:
-                case SyntaxKind.LocalDeclarationStatement:
-                    return statement.GetFirstToken();
-                case SyntaxKind.DoStatement:
-                    return ((DoStatementSyntax)statement).DoKeyword;
-                case SyntaxKind.EmptyStatement:
-                    return default; //The caller will have to check for this.
-                case SyntaxKind.FixedStatement:
-                    return ((FixedStatementSyntax)statement).FixedKeyword;
-                case SyntaxKind.ForEachStatement:
-                case SyntaxKind.ForEachVariableStatement:
-                    return ((CommonForEachStatementSyntax)statement).OpenParenToken.GetNextToken();
-                case SyntaxKind.ForStatement:
-                    return ((ForStatementSyntax)statement).OpenParenToken.GetNextToken();
-                case SyntaxKind.GotoDefaultStatement:
-                case SyntaxKind.GotoCaseStatement:
-                case SyntaxKind.GotoStatement:
-                    return ((GotoStatementSyntax)statement).GotoKeyword;
-                case SyntaxKind.IfStatement:
-                    return ((IfStatementSyntax)statement).IfKeyword;
-                case SyntaxKind.LabeledStatement:
-                    return ((LabeledStatementSyntax)statement).Identifier;
-                case SyntaxKind.LockStatement:
-                    return ((LockStatementSyntax)statement).LockKeyword;
-                case SyntaxKind.ReturnStatement:
-                    return ((ReturnStatementSyntax)statement).ReturnKeyword;
-                case SyntaxKind.SwitchStatement:
-                    return ((SwitchStatementSyntax)statement).Expression.GetFirstToken();
-                case SyntaxKind.ThrowStatement:
-                    return ((ThrowStatementSyntax)statement).ThrowKeyword;
-                case SyntaxKind.TryStatement:
-                    return ((TryStatementSyntax)statement).TryKeyword;
-                case SyntaxKind.UnsafeStatement:
-                    return ((UnsafeStatementSyntax)statement).UnsafeKeyword;
-                case SyntaxKind.UsingStatement:
-                    return ((UsingStatementSyntax)statement).UsingKeyword;
-                case SyntaxKind.WhileStatement:
-                    return ((WhileStatementSyntax)statement).WhileKeyword;
-                case SyntaxKind.YieldReturnStatement:
-                case SyntaxKind.YieldBreakStatement:
-                    return ((YieldStatementSyntax)statement).YieldKeyword;
-                case SyntaxKind.LocalFunctionStatement:
-                    return statement.GetFirstToken();
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(statement.Kind());
-            }
+                SyntaxKind.Block => ((BlockSyntax)statement).OpenBraceToken,
+                SyntaxKind.BreakStatement => ((BreakStatementSyntax)statement).BreakKeyword,
+                SyntaxKind.CheckedStatement or SyntaxKind.UncheckedStatement => ((CheckedStatementSyntax)statement).Keyword,
+                SyntaxKind.ContinueStatement => ((ContinueStatementSyntax)statement).ContinueKeyword,
+                SyntaxKind.ExpressionStatement or SyntaxKind.LocalDeclarationStatement => statement.GetFirstToken(),
+                SyntaxKind.DoStatement => ((DoStatementSyntax)statement).DoKeyword,
+                SyntaxKind.EmptyStatement => default,//The caller will have to check for this.
+                SyntaxKind.FixedStatement => ((FixedStatementSyntax)statement).FixedKeyword,
+                SyntaxKind.ForEachStatement or SyntaxKind.ForEachVariableStatement => ((CommonForEachStatementSyntax)statement).OpenParenToken.GetNextToken(),
+                SyntaxKind.ForStatement => ((ForStatementSyntax)statement).OpenParenToken.GetNextToken(),
+                SyntaxKind.GotoDefaultStatement or SyntaxKind.GotoCaseStatement or SyntaxKind.GotoStatement => ((GotoStatementSyntax)statement).GotoKeyword,
+                SyntaxKind.IfStatement => ((IfStatementSyntax)statement).IfKeyword,
+                SyntaxKind.LabeledStatement => ((LabeledStatementSyntax)statement).Identifier,
+                SyntaxKind.LockStatement => ((LockStatementSyntax)statement).LockKeyword,
+                SyntaxKind.ReturnStatement => ((ReturnStatementSyntax)statement).ReturnKeyword,
+                SyntaxKind.SwitchStatement => ((SwitchStatementSyntax)statement).Expression.GetFirstToken(),
+                SyntaxKind.ThrowStatement => ((ThrowStatementSyntax)statement).ThrowKeyword,
+                SyntaxKind.TryStatement => ((TryStatementSyntax)statement).TryKeyword,
+                SyntaxKind.UnsafeStatement => ((UnsafeStatementSyntax)statement).UnsafeKeyword,
+                SyntaxKind.UsingStatement => ((UsingStatementSyntax)statement).UsingKeyword,
+                SyntaxKind.WhileStatement => ((WhileStatementSyntax)statement).WhileKeyword,
+                SyntaxKind.YieldReturnStatement or SyntaxKind.YieldBreakStatement => ((YieldStatementSyntax)statement).YieldKeyword,
+                SyntaxKind.LocalFunctionStatement => statement.GetFirstToken(),
+                _ => throw ExceptionUtilities.UnexpectedValue(statement.Kind()),
+            };
         }
 
         internal static SyntaxToken GetFirstExcludedToken(StatementSyntax statement)

@@ -634,41 +634,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             {
                 Accessibility access = Accessibility.Private;
 
-                switch (_flags & TypeAttributes.VisibilityMask)
+                access = (_flags & TypeAttributes.VisibilityMask) switch
                 {
-                    case TypeAttributes.NestedAssembly:
-                        access = Accessibility.Internal;
-                        break;
-
-                    case TypeAttributes.NestedFamORAssem:
-                        access = Accessibility.ProtectedOrInternal;
-                        break;
-
-                    case TypeAttributes.NestedFamANDAssem:
-                        access = Accessibility.ProtectedAndInternal;
-                        break;
-
-                    case TypeAttributes.NestedPrivate:
-                        access = Accessibility.Private;
-                        break;
-
-                    case TypeAttributes.Public:
-                    case TypeAttributes.NestedPublic:
-                        access = Accessibility.Public;
-                        break;
-
-                    case TypeAttributes.NestedFamily:
-                        access = Accessibility.Protected;
-                        break;
-
-                    case TypeAttributes.NotPublic:
-                        access = Accessibility.Internal;
-                        break;
-
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(_flags & TypeAttributes.VisibilityMask);
-                }
-
+                    TypeAttributes.NestedAssembly => Accessibility.Internal,
+                    TypeAttributes.NestedFamORAssem => Accessibility.ProtectedOrInternal,
+                    TypeAttributes.NestedFamANDAssem => Accessibility.ProtectedAndInternal,
+                    TypeAttributes.NestedPrivate => Accessibility.Private,
+                    TypeAttributes.Public or TypeAttributes.NestedPublic => Accessibility.Public,
+                    TypeAttributes.NestedFamily => Accessibility.Protected,
+                    TypeAttributes.NotPublic => Accessibility.Internal,
+                    _ => throw ExceptionUtilities.UnexpectedValue(_flags & TypeAttributes.VisibilityMask),
+                };
                 return access;
             }
         }
@@ -829,28 +805,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
         private static ICollection<string> CreateReadOnlyMemberNames(HashSet<string> names)
         {
-            switch (names.Count)
+            return names.Count switch
             {
-                case 0:
-                    return SpecializedCollections.EmptySet<string>();
-
-                case 1:
-                    return SpecializedCollections.SingletonCollection(names.First());
-
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    // PERF: Small collections can be implemented as ImmutableArray.
-                    // While lookup is O(n), when n is small, the memory savings are more valuable.
-                    // Size 6 was chosen because that represented 50% of the names generated in the Picasso end to end.
-                    // This causes boxing, but that's still superior to a wrapped HashSet
-                    return ImmutableArray.CreateRange(names);
-
-                default:
-                    return SpecializedCollections.ReadOnlySet(names);
-            }
+                0 => SpecializedCollections.EmptySet<string>(),
+                1 => SpecializedCollections.SingletonCollection(names.First()),
+                2 or 3 or 4 or 5 or 6 => ImmutableArray.CreateRange(names),// PERF: Small collections can be implemented as ImmutableArray.
+                                                                           // While lookup is O(n), when n is small, the memory savings are more valuable.
+                                                                           // Size 6 was chosen because that represented 50% of the names generated in the Picasso end to end.
+                                                                           // This causes boxing, but that's still superior to a wrapped HashSet
+                _ => SpecializedCollections.ReadOnlySet(names),
+            };
         }
 
         internal override bool HasDeclaredRequiredMembers
@@ -1885,37 +1849,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                     isOrdinaryEmbeddableStruct = this.ContainingAssembly.IsLinked;
                 }
 
-                switch (this.SpecialType)
+                isOrdinaryStruct = this.SpecialType switch
                 {
-                    case SpecialType.System_Void:
-                    case SpecialType.System_Boolean:
-                    case SpecialType.System_Char:
-                    case SpecialType.System_Byte:
-                    case SpecialType.System_SByte:
-                    case SpecialType.System_Int16:
-                    case SpecialType.System_UInt16:
-                    case SpecialType.System_Int32:
-                    case SpecialType.System_UInt32:
-                    case SpecialType.System_Int64:
-                    case SpecialType.System_UInt64:
-                    case SpecialType.System_Single:
-                    case SpecialType.System_Double:
-                    case SpecialType.System_Decimal:
-                    case SpecialType.System_IntPtr:
-                    case SpecialType.System_UIntPtr:
-                    case SpecialType.System_DateTime:
-                    case SpecialType.System_TypedReference:
-                    case SpecialType.System_ArgIterator:
-                    case SpecialType.System_RuntimeArgumentHandle:
-                    case SpecialType.System_RuntimeFieldHandle:
-                    case SpecialType.System_RuntimeMethodHandle:
-                    case SpecialType.System_RuntimeTypeHandle:
-                        isOrdinaryStruct = false;
-                        break;
-                    default:
-                        isOrdinaryStruct = true;
-                        break;
-                }
+                    SpecialType.System_Void or SpecialType.System_Boolean or SpecialType.System_Char or SpecialType.System_Byte or SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal or SpecialType.System_IntPtr or SpecialType.System_UIntPtr or SpecialType.System_DateTime or SpecialType.System_TypedReference or SpecialType.System_ArgIterator or SpecialType.System_RuntimeArgumentHandle or SpecialType.System_RuntimeFieldHandle or SpecialType.System_RuntimeMethodHandle or SpecialType.System_RuntimeTypeHandle => false,
+                    _ => true,
+                };
             }
 
             try

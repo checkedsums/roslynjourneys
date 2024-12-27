@@ -849,16 +849,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static Cci.CallingConvention GetCallingConvention(Symbol member)
         {
-            switch (member.Kind)
+            return member.Kind switch
             {
-                case SymbolKind.Method:
-                    return ((MethodSymbol)member).CallingConvention;
-                case SymbolKind.Property: //NOTE: Not using PropertySymbol.CallingConvention
-                case SymbolKind.Event:
-                    return member.IsStatic ? 0 : Cci.CallingConvention.HasThis;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(member.Kind);
-            }
+                SymbolKind.Method => ((MethodSymbol)member).CallingConvention,
+                //NOTE: Not using PropertySymbol.CallingConvention
+                SymbolKind.Property or SymbolKind.Event => member.IsStatic ? 0 : Cci.CallingConvention.HasThis,
+                _ => throw ExceptionUtilities.UnexpectedValue(member.Kind),
+            };
         }
 
         private static bool IsVarargMethod(Symbol member)

@@ -96,25 +96,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool IsIntegral(this UnaryOperatorKind kind)
         {
-            switch (kind.OperandTypes())
+            return kind.OperandTypes() switch
             {
-                case UnaryOperatorKind.SByte:
-                case UnaryOperatorKind.Byte:
-                case UnaryOperatorKind.Short:
-                case UnaryOperatorKind.UShort:
-                case UnaryOperatorKind.Int:
-                case UnaryOperatorKind.UInt:
-                case UnaryOperatorKind.Long:
-                case UnaryOperatorKind.ULong:
-                case UnaryOperatorKind.NInt:
-                case UnaryOperatorKind.NUInt:
-                case UnaryOperatorKind.Char:
-                case UnaryOperatorKind.Enum:
-                case UnaryOperatorKind.Pointer:
-                    return true;
-            }
-
-            return false;
+                UnaryOperatorKind.SByte or UnaryOperatorKind.Byte or UnaryOperatorKind.Short or UnaryOperatorKind.UShort or UnaryOperatorKind.Int or UnaryOperatorKind.UInt or UnaryOperatorKind.Long or UnaryOperatorKind.ULong or UnaryOperatorKind.NInt or UnaryOperatorKind.NUInt or UnaryOperatorKind.Char or UnaryOperatorKind.Enum or UnaryOperatorKind.Pointer => true,
+                _ => false,
+            };
         }
 
         public static UnaryOperatorKind WithType(this UnaryOperatorKind kind, UnaryOperatorKind type)
@@ -147,37 +133,27 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static BinaryOperatorKind WithType(this BinaryOperatorKind kind, SpecialType type)
         {
             Debug.Assert(kind == (kind & ~BinaryOperatorKind.TypeMask));
-            switch (type)
+            return type switch
             {
-                case SpecialType.System_Int32:
-                    return kind | BinaryOperatorKind.Int;
-                case SpecialType.System_UInt32:
-                    return kind | BinaryOperatorKind.UInt;
-                case SpecialType.System_Int64:
-                    return kind | BinaryOperatorKind.Long;
-                case SpecialType.System_UInt64:
-                    return kind | BinaryOperatorKind.ULong;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(type);
-            }
+                SpecialType.System_Int32 => kind | BinaryOperatorKind.Int,
+                SpecialType.System_UInt32 => kind | BinaryOperatorKind.UInt,
+                SpecialType.System_Int64 => kind | BinaryOperatorKind.Long,
+                SpecialType.System_UInt64 => kind | BinaryOperatorKind.ULong,
+                _ => throw ExceptionUtilities.UnexpectedValue(type),
+            };
         }
 
         public static UnaryOperatorKind WithType(this UnaryOperatorKind kind, SpecialType type)
         {
             Debug.Assert(kind == (kind & ~UnaryOperatorKind.TypeMask));
-            switch (type)
+            return type switch
             {
-                case SpecialType.System_Int32:
-                    return kind | UnaryOperatorKind.Int;
-                case SpecialType.System_UInt32:
-                    return kind | UnaryOperatorKind.UInt;
-                case SpecialType.System_Int64:
-                    return kind | UnaryOperatorKind.Long;
-                case SpecialType.System_UInt64:
-                    return kind | UnaryOperatorKind.ULong;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(type);
-            }
+                SpecialType.System_Int32 => kind | UnaryOperatorKind.Int,
+                SpecialType.System_UInt32 => kind | UnaryOperatorKind.UInt,
+                SpecialType.System_Int64 => kind | UnaryOperatorKind.Long,
+                SpecialType.System_UInt64 => kind | UnaryOperatorKind.ULong,
+                _ => throw ExceptionUtilities.UnexpectedValue(type),
+            };
         }
 
         public static BinaryOperatorKind WithType(this BinaryOperatorKind kind, BinaryOperatorKind type)
@@ -199,17 +175,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool IsComparison(this BinaryOperatorKind kind)
         {
-            switch (kind.Operator())
+            return kind.Operator() switch
             {
-                case BinaryOperatorKind.Equal:
-                case BinaryOperatorKind.NotEqual:
-                case BinaryOperatorKind.GreaterThan:
-                case BinaryOperatorKind.GreaterThanOrEqual:
-                case BinaryOperatorKind.LessThan:
-                case BinaryOperatorKind.LessThanOrEqual:
-                    return true;
-            }
-            return false;
+                BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual or BinaryOperatorKind.GreaterThan or BinaryOperatorKind.GreaterThanOrEqual or BinaryOperatorKind.LessThan or BinaryOperatorKind.LessThanOrEqual => true,
+                _ => false,
+            };
         }
 
         public static bool IsChecked(this BinaryOperatorKind kind)
@@ -224,15 +194,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            switch (kind.Operator())
+            return kind.Operator() switch
             {
-                case BinaryOperatorKind.Addition:
-                case BinaryOperatorKind.Subtraction:
-                case BinaryOperatorKind.Multiplication:
-                    return true;
-            }
-
-            return false;
+                BinaryOperatorKind.Addition or BinaryOperatorKind.Subtraction or BinaryOperatorKind.Multiplication => true,
+                _ => false,
+            };
         }
 
         public static BinaryOperatorKind WithOverflowChecksIfApplicable(this BinaryOperatorKind kind, bool enabled)
@@ -267,15 +233,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool IsEnum(this BinaryOperatorKind kind)
         {
-            switch (kind.OperandTypes())
+            return kind.OperandTypes() switch
             {
-                case BinaryOperatorKind.Enum:
-                case BinaryOperatorKind.EnumAndUnderlying:
-                case BinaryOperatorKind.UnderlyingAndEnum:
-                    return true;
-            }
-
-            return false;
+                BinaryOperatorKind.Enum or BinaryOperatorKind.EnumAndUnderlying or BinaryOperatorKind.UnderlyingAndEnum => true,
+                _ => false,
+            };
         }
 
         public static bool IsEnum(this UnaryOperatorKind kind)
@@ -285,31 +247,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static bool IsIntegral(this BinaryOperatorKind kind)
         {
-            switch (kind.OperandTypes())
+            return kind.OperandTypes() switch
             {
-                case BinaryOperatorKind.Int:
-                case BinaryOperatorKind.UInt:
-                case BinaryOperatorKind.Long:
-                case BinaryOperatorKind.ULong:
-                case BinaryOperatorKind.NInt:
-                case BinaryOperatorKind.NUInt:
-                case BinaryOperatorKind.Char:
-                case BinaryOperatorKind.Enum:
-                case BinaryOperatorKind.EnumAndUnderlying:
-                case BinaryOperatorKind.UnderlyingAndEnum:
-                case BinaryOperatorKind.Pointer:
-                case BinaryOperatorKind.PointerAndInt:
-                case BinaryOperatorKind.PointerAndUInt:
-                case BinaryOperatorKind.PointerAndLong:
-                case BinaryOperatorKind.PointerAndULong:
-                case BinaryOperatorKind.IntAndPointer:
-                case BinaryOperatorKind.UIntAndPointer:
-                case BinaryOperatorKind.LongAndPointer:
-                case BinaryOperatorKind.ULongAndPointer:
-                    return true;
-            }
-
-            return false;
+                BinaryOperatorKind.Int or BinaryOperatorKind.UInt or BinaryOperatorKind.Long or BinaryOperatorKind.ULong or BinaryOperatorKind.NInt or BinaryOperatorKind.NUInt or BinaryOperatorKind.Char or BinaryOperatorKind.Enum or BinaryOperatorKind.EnumAndUnderlying or BinaryOperatorKind.UnderlyingAndEnum or BinaryOperatorKind.Pointer or BinaryOperatorKind.PointerAndInt or BinaryOperatorKind.PointerAndUInt or BinaryOperatorKind.PointerAndLong or BinaryOperatorKind.PointerAndULong or BinaryOperatorKind.IntAndPointer or BinaryOperatorKind.UIntAndPointer or BinaryOperatorKind.LongAndPointer or BinaryOperatorKind.ULongAndPointer => true,
+                _ => false,
+            };
         }
 
         public static bool IsLogical(this BinaryOperatorKind kind)
@@ -379,25 +321,18 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static ExpressionType ToExpressionType(this UnaryOperatorKind kind)
         {
-            switch (kind.Operator())
+            return kind.Operator() switch
             {
-                case UnaryOperatorKind.PrefixIncrement:
-                case UnaryOperatorKind.PostfixIncrement:
-                    return ExpressionType.Increment;
-
-                case UnaryOperatorKind.PostfixDecrement:
-                case UnaryOperatorKind.PrefixDecrement:
-                    return ExpressionType.Decrement;
-
-                case UnaryOperatorKind.UnaryPlus: return ExpressionType.UnaryPlus;
-                case UnaryOperatorKind.UnaryMinus: return ExpressionType.Negate;
-                case UnaryOperatorKind.LogicalNegation: return ExpressionType.Not;
-                case UnaryOperatorKind.BitwiseComplement: return ExpressionType.OnesComplement;
-                case UnaryOperatorKind.True: return ExpressionType.IsTrue;
-                case UnaryOperatorKind.False: return ExpressionType.IsFalse;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind.Operator());
-            }
+                UnaryOperatorKind.PrefixIncrement or UnaryOperatorKind.PostfixIncrement => ExpressionType.Increment,
+                UnaryOperatorKind.PostfixDecrement or UnaryOperatorKind.PrefixDecrement => ExpressionType.Decrement,
+                UnaryOperatorKind.UnaryPlus => ExpressionType.UnaryPlus,
+                UnaryOperatorKind.UnaryMinus => ExpressionType.Negate,
+                UnaryOperatorKind.LogicalNegation => ExpressionType.Not,
+                UnaryOperatorKind.BitwiseComplement => ExpressionType.OnesComplement,
+                UnaryOperatorKind.True => ExpressionType.IsTrue,
+                UnaryOperatorKind.False => ExpressionType.IsFalse,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind.Operator()),
+            };
         }
 
 #if DEBUG

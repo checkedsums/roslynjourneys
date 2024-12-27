@@ -23,19 +23,13 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         private BoundExpression BindMethodGroup(ExpressionSyntax node, bool invoked, bool indexed, BindingDiagnosticBag diagnostics)
         {
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.IdentifierName:
-                case SyntaxKind.GenericName:
-                    return BindIdentifier((SimpleNameSyntax)node, invoked, indexed, diagnostics);
-                case SyntaxKind.SimpleMemberAccessExpression:
-                case SyntaxKind.PointerMemberAccessExpression:
-                    return BindMemberAccess((MemberAccessExpressionSyntax)node, invoked, indexed, diagnostics);
-                case SyntaxKind.ParenthesizedExpression:
-                    return BindMethodGroup(((ParenthesizedExpressionSyntax)node).Expression, invoked: false, indexed: false, diagnostics: diagnostics);
-                default:
-                    return BindExpression(node, diagnostics, invoked, indexed);
-            }
+                SyntaxKind.IdentifierName or SyntaxKind.GenericName => BindIdentifier((SimpleNameSyntax)node, invoked, indexed, diagnostics),
+                SyntaxKind.SimpleMemberAccessExpression or SyntaxKind.PointerMemberAccessExpression => BindMemberAccess((MemberAccessExpressionSyntax)node, invoked, indexed, diagnostics),
+                SyntaxKind.ParenthesizedExpression => BindMethodGroup(((ParenthesizedExpressionSyntax)node).Expression, invoked: false, indexed: false, diagnostics: diagnostics),
+                _ => BindExpression(node, diagnostics, invoked, indexed),
+            };
         }
 
         private static ImmutableArray<MethodSymbol> GetOriginalMethods(OverloadResolutionResult<MethodSymbol> overloadResolutionResult)
@@ -1838,18 +1832,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return null;
             }
 
-            switch (receiver)
+            return receiver switch
             {
-                case BoundTypeOrValueExpression typeOrValueExpression:
-                    return typeOrValueExpression.Data.ValueExpression;
-
-                case BoundQueryClause queryClause:
-                    // a query clause may wrap a TypeOrValueExpression.
-                    return GetValueExpressionIfTypeOrValueReceiver(queryClause.Value);
-
-                default:
-                    return null;
-            }
+                BoundTypeOrValueExpression typeOrValueExpression => typeOrValueExpression.Data.ValueExpression,
+                BoundQueryClause queryClause => GetValueExpressionIfTypeOrValueReceiver(queryClause.Value),// a query clause may wrap a TypeOrValueExpression.
+                _ => null,
+            };
         }
 
         /// <summary>

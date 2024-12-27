@@ -12,16 +12,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         public static bool HasProtected(this Accessibility accessibility)
         {
-            switch (accessibility)
+            return accessibility switch
             {
-                case Accessibility.Protected:
-                case Accessibility.ProtectedOrInternal:
-                case Accessibility.ProtectedAndInternal:
-                    return true;
-
-                default:
-                    return false;
-            }
+                Accessibility.Protected or Accessibility.ProtectedOrInternal or Accessibility.ProtectedAndInternal => true,
+                _ => false,
+            };
         }
     }
 }

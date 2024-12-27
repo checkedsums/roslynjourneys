@@ -151,21 +151,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (MethodKind)
+                return MethodKind switch
                 {
-                    case MethodKind.Constructor:
-                    case MethodKind.Destructor:
-                    case MethodKind.StaticConstructor:
-                        return AttributeLocation.Method;
-
-                    case MethodKind.PropertySet:
-                    case MethodKind.EventRemove:
-                    case MethodKind.EventAdd:
-                        return AttributeLocation.Method | AttributeLocation.Return | AttributeLocation.Parameter;
-
-                    default:
-                        return AttributeLocation.Method | AttributeLocation.Return;
-                }
+                    MethodKind.Constructor or MethodKind.Destructor or MethodKind.StaticConstructor => AttributeLocation.Method,
+                    MethodKind.PropertySet or MethodKind.EventRemove or MethodKind.EventAdd => AttributeLocation.Method | AttributeLocation.Return | AttributeLocation.Parameter,
+                    _ => AttributeLocation.Method | AttributeLocation.Return,
+                };
             }
         }
 

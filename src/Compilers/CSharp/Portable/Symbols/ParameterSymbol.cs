@@ -96,15 +96,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (this.MarshallingType)
+                return this.MarshallingType switch
                 {
-                    case UnmanagedType.Interface:
-                    case UnmanagedType.IUnknown:
-                    case Cci.Constants.UnmanagedType_IDispatch:
-                        return true;
-                }
-
-                return false;
+                    UnmanagedType.Interface or UnmanagedType.IUnknown or Cci.Constants.UnmanagedType_IDispatch => true,
+                    _ => false,
+                };
             }
         }
 

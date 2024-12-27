@@ -301,16 +301,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (this.DeclarationKind)
+                return this.DeclarationKind switch
                 {
-                    case LocalDeclarationKind.Constant:
-                    case LocalDeclarationKind.FixedVariable:
-                    case LocalDeclarationKind.ForEachIterationVariable:
-                    case LocalDeclarationKind.UsingVariable:
-                        return false;
-                    default:
-                        return true;
-                }
+                    LocalDeclarationKind.Constant or LocalDeclarationKind.FixedVariable or LocalDeclarationKind.ForEachIterationVariable or LocalDeclarationKind.UsingVariable => false,
+                    _ => true,
+                };
             }
         }
 

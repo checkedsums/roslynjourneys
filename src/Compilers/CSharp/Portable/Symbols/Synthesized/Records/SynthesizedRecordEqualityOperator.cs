@@ -22,16 +22,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     ///The 'Equals' method called by the '==' operator is the 'Equals(R? other)' (<see cref="SynthesizedRecordEquals"/>).
     ///The '!=' operator delegates to the '==' operator. It is an error if the operators are declared explicitly.
     /// </summary>
-    internal sealed class SynthesizedRecordEqualityOperator : SynthesizedRecordEqualityOperatorBase
+    internal sealed class SynthesizedRecordEqualityOperator(SourceMemberContainerTypeSymbol containingType, int memberOffset, BindingDiagnosticBag diagnostics) : SynthesizedRecordEqualityOperatorBase(containingType, WellKnownMemberNames.EqualityOperatorName, memberOffset, diagnostics)
     {
-        public SynthesizedRecordEqualityOperator(SourceMemberContainerTypeSymbol containingType, int memberOffset, BindingDiagnosticBag diagnostics)
-            : base(containingType, WellKnownMemberNames.EqualityOperatorName, memberOffset, diagnostics)
-        {
-        }
-
         internal override void GenerateMethodBody(TypeCompilationState compilationState, BindingDiagnosticBag diagnostics)
         {
-            var F = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
+            var f = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
 
             try
             {
@@ -54,32 +49,32 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (equals is null)
                 {
                     // Unable to locate expected method, an error was reported elsewhere
-                    F.CloseMethod(F.ThrowNull());
+                    f.CloseMethod(f.ThrowNull());
                     return;
                 }
 
-                var left = F.Parameter(Parameters[0]);
-                var right = F.Parameter(Parameters[1]);
+                var left = f.Parameter(Parameters[0]);
+                var right = f.Parameter(Parameters[1]);
 
                 BoundExpression expression;
                 if (ContainingType.IsRecordStruct)
                 {
-                    expression = F.Call(left, equals, right);
+                    expression = f.Call(left, equals, right);
                 }
                 else
                 {
-                    BoundExpression objectEqual = F.ObjectEqual(left, right);
-                    BoundExpression recordEquals = F.LogicalAnd(F.ObjectNotEqual(left, F.Null(F.SpecialType(SpecialType.System_Object))),
-                                                            F.Call(left, equals, right));
-                    expression = F.LogicalOr(objectEqual, recordEquals);
+                    BoundExpression objectEqual = f.ObjectEqual(left, right);
+                    BoundExpression recordEquals = f.LogicalAnd(f.ObjectNotEqual(left, f.Null(f.SpecialType(SpecialType.System_Object))),
+                                                            f.Call(left, equals, right));
+                    expression = f.LogicalOr(objectEqual, recordEquals);
                 }
 
-                F.CloseMethod(F.Block(F.Return(expression)));
+                f.CloseMethod(f.Block(f.Return(expression)));
             }
             catch (SyntheticBoundNodeFactory.MissingPredefinedMember ex)
             {
                 diagnostics.Add(ex.Diagnostic);
-                F.CloseMethod(F.ThrowNull());
+                f.CloseMethod(f.ThrowNull());
             }
         }
     }

@@ -847,17 +847,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return CreateTypedConstant(node, typedConstantKind, diagnostics, ref attrHasErrors, curArgumentHasErrors, simpleValue: constantValue.Value);
                 }
 
-                switch (node.Kind)
+                return node.Kind switch
                 {
-                    case BoundKind.Conversion:
-                        return VisitConversion((BoundConversion)node, diagnostics, ref attrHasErrors, curArgumentHasErrors);
-                    case BoundKind.TypeOfOperator:
-                        return VisitTypeOfExpression((BoundTypeOfOperator)node, diagnostics, ref attrHasErrors, curArgumentHasErrors);
-                    case BoundKind.ArrayCreation:
-                        return VisitArrayCreation((BoundArrayCreation)node, diagnostics, ref attrHasErrors, curArgumentHasErrors);
-                    default:
-                        return CreateTypedConstant(node, TypedConstantKind.Error, diagnostics, ref attrHasErrors, curArgumentHasErrors);
-                }
+                    BoundKind.Conversion => VisitConversion((BoundConversion)node, diagnostics, ref attrHasErrors, curArgumentHasErrors),
+                    BoundKind.TypeOfOperator => VisitTypeOfExpression((BoundTypeOfOperator)node, diagnostics, ref attrHasErrors, curArgumentHasErrors),
+                    BoundKind.ArrayCreation => VisitArrayCreation((BoundArrayCreation)node, diagnostics, ref attrHasErrors, curArgumentHasErrors),
+                    _ => CreateTypedConstant(node, TypedConstantKind.Error, diagnostics, ref attrHasErrors, curArgumentHasErrors),
+                };
             }
 
             private TypedConstant VisitArrayCollectionExpression(TypeSymbol type, BoundCollectionExpression collection, BindingDiagnosticBag diagnostics, ref bool attrHasErrors, bool curArgumentHasErrors)
@@ -932,18 +928,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (typeOfArgument is not null) // skip this if the argument was an alias symbol
                 {
                     var isValidArgument = true;
-                    switch (typeOfArgument.Kind)
+                    isValidArgument = typeOfArgument.Kind switch
                     {
-                        case SymbolKind.TypeParameter:
-                            // type parameter represents an open type
-                            isValidArgument = false;
-                            break;
-
-                        default:
-                            isValidArgument = typeOfArgument.IsUnboundGenericType() || !typeOfArgument.ContainsTypeParameter();
-                            break;
-                    }
-
+                        SymbolKind.TypeParameter => false,// type parameter represents an open type
+                        _ => typeOfArgument.IsUnboundGenericType() || !typeOfArgument.ContainsTypeParameter(),
+                    };
                     if (!isValidArgument && !curArgumentHasErrors)
                     {
                         // attribute argument type cannot be an open type

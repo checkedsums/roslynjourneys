@@ -177,16 +177,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                switch (this.Kind)
+                return this.Kind switch
                 {
-                    case MemberResolutionKind.ApplicableInNormalForm:
-                    case MemberResolutionKind.ApplicableInExpandedForm:
-                    case MemberResolutionKind.Worse:
-                    case MemberResolutionKind.Worst:
-                        return true;
-                    default:
-                        return false;
-                }
+                    MemberResolutionKind.ApplicableInNormalForm or MemberResolutionKind.ApplicableInExpandedForm or MemberResolutionKind.Worse or MemberResolutionKind.Worst => true,
+                    _ => false,
+                };
             }
         }
 
@@ -194,14 +189,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                switch (this.Kind)
+                return this.Kind switch
                 {
-                    case MemberResolutionKind.ApplicableInNormalForm:
-                    case MemberResolutionKind.ApplicableInExpandedForm:
-                        return true;
-                    default:
-                        return false;
-                }
+                    MemberResolutionKind.ApplicableInNormalForm or MemberResolutionKind.ApplicableInExpandedForm => true,
+                    _ => false,
+                };
             }
         }
 
@@ -220,43 +212,27 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool SuppressUseSiteDiagnosticsForKind(MemberResolutionKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case MemberResolutionKind.UnsupportedMetadata:
-                    return true;
-                case MemberResolutionKind.NoCorrespondingParameter:
-                case MemberResolutionKind.NoCorrespondingNamedParameter:
-                case MemberResolutionKind.DuplicateNamedArgument:
-                case MemberResolutionKind.NameUsedForPositional:
-                case MemberResolutionKind.RequiredParameterMissing:
-                case MemberResolutionKind.LessDerived:
-                    // Dev12 checks all of these things before considering use site diagnostics.
-                    // That is, use site diagnostics are suppressed for candidates rejected for these reasons.
-                    return true;
-                default:
-                    return false;
-            }
+                MemberResolutionKind.UnsupportedMetadata => true,
+                MemberResolutionKind.NoCorrespondingParameter or MemberResolutionKind.NoCorrespondingNamedParameter or MemberResolutionKind.DuplicateNamedArgument or MemberResolutionKind.NameUsedForPositional or MemberResolutionKind.RequiredParameterMissing or MemberResolutionKind.LessDerived => true,// Dev12 checks all of these things before considering use site diagnostics.
+                                                                                                                                                                                                                                                                                                              // That is, use site diagnostics are suppressed for candidates rejected for these reasons.
+                _ => false,
+            };
         }
 
         public static MemberAnalysisResult ArgumentParameterMismatch(ArgumentAnalysisResult argAnalysis)
         {
-            switch (argAnalysis.Kind)
+            return argAnalysis.Kind switch
             {
-                case ArgumentAnalysisResultKind.NoCorrespondingParameter:
-                    return NoCorrespondingParameter(argAnalysis.ArgumentPosition);
-                case ArgumentAnalysisResultKind.NoCorrespondingNamedParameter:
-                    return NoCorrespondingNamedParameter(argAnalysis.ArgumentPosition);
-                case ArgumentAnalysisResultKind.DuplicateNamedArgument:
-                    return DuplicateNamedArgument(argAnalysis.ArgumentPosition);
-                case ArgumentAnalysisResultKind.RequiredParameterMissing:
-                    return RequiredParameterMissing(argAnalysis.ParameterPosition);
-                case ArgumentAnalysisResultKind.NameUsedForPositional:
-                    return NameUsedForPositional(argAnalysis.ArgumentPosition);
-                case ArgumentAnalysisResultKind.BadNonTrailingNamedArgument:
-                    return BadNonTrailingNamedArgument(argAnalysis.ArgumentPosition);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(argAnalysis.Kind);
-            }
+                ArgumentAnalysisResultKind.NoCorrespondingParameter => NoCorrespondingParameter(argAnalysis.ArgumentPosition),
+                ArgumentAnalysisResultKind.NoCorrespondingNamedParameter => NoCorrespondingNamedParameter(argAnalysis.ArgumentPosition),
+                ArgumentAnalysisResultKind.DuplicateNamedArgument => DuplicateNamedArgument(argAnalysis.ArgumentPosition),
+                ArgumentAnalysisResultKind.RequiredParameterMissing => RequiredParameterMissing(argAnalysis.ParameterPosition),
+                ArgumentAnalysisResultKind.NameUsedForPositional => NameUsedForPositional(argAnalysis.ArgumentPosition),
+                ArgumentAnalysisResultKind.BadNonTrailingNamedArgument => BadNonTrailingNamedArgument(argAnalysis.ArgumentPosition),
+                _ => throw ExceptionUtilities.UnexpectedValue(argAnalysis.Kind),
+            };
         }
 
         public static MemberAnalysisResult NameUsedForPositional(int argumentPosition)

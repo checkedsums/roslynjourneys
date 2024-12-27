@@ -567,78 +567,57 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal bool CheckIfAttributeShouldBeEmbedded(EmbeddableAttributes attribute, BindingDiagnosticBag? diagnosticsOpt, Location locationOpt)
         {
-            switch (attribute)
+            return attribute switch
             {
-                case EmbeddableAttributes.IsReadOnlyAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_IsReadOnlyAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_IsReadOnlyAttribute__ctor);
-
-                case EmbeddableAttributes.IsByRefLikeAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_IsByRefLikeAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_IsByRefLikeAttribute__ctor);
-
-                case EmbeddableAttributes.IsUnmanagedAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_IsUnmanagedAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_IsUnmanagedAttribute__ctor);
-
-                case EmbeddableAttributes.NullableAttribute:
-                    // If the type exists, we'll check both constructors, regardless of which one(s) we'll eventually need.
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_NullableAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorByte,
-                        WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorTransformFlags);
-
-                case EmbeddableAttributes.NativeIntegerAttribute:
-                    // If the type exists, we'll check both constructors, regardless of which one(s) we'll eventually need.
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_NativeIntegerAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctor,
-                        WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctorTransformFlags);
-
-                case EmbeddableAttributes.ScopedRefAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_ScopedRefAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_ScopedRefAttribute__ctor);
-
-                case EmbeddableAttributes.RefSafetyRulesAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_RefSafetyRulesAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_RefSafetyRulesAttribute__ctor);
-
-                case EmbeddableAttributes.RequiresLocationAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_RequiresLocationAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_RequiresLocationAttribute__ctor);
-
-                case EmbeddableAttributes.ParamCollectionAttribute:
-                    return CheckIfAttributeShouldBeEmbedded(
-                        diagnosticsOpt,
-                        locationOpt,
-                        WellKnownType.System_Runtime_CompilerServices_ParamCollectionAttribute,
-                        WellKnownMember.System_Runtime_CompilerServices_ParamCollectionAttribute__ctor);
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(attribute);
-            }
+                EmbeddableAttributes.IsReadOnlyAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_IsReadOnlyAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_IsReadOnlyAttribute__ctor),
+                EmbeddableAttributes.IsByRefLikeAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_IsByRefLikeAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_IsByRefLikeAttribute__ctor),
+                EmbeddableAttributes.IsUnmanagedAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_IsUnmanagedAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_IsUnmanagedAttribute__ctor),
+                EmbeddableAttributes.NullableAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_NullableAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorByte,
+                                        WellKnownMember.System_Runtime_CompilerServices_NullableAttribute__ctorTransformFlags),// If the type exists, we'll check both constructors, regardless of which one(s) we'll eventually need.
+                EmbeddableAttributes.NativeIntegerAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_NativeIntegerAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctor,
+                                        WellKnownMember.System_Runtime_CompilerServices_NativeIntegerAttribute__ctorTransformFlags),// If the type exists, we'll check both constructors, regardless of which one(s) we'll eventually need.
+                EmbeddableAttributes.ScopedRefAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_ScopedRefAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_ScopedRefAttribute__ctor),
+                EmbeddableAttributes.RefSafetyRulesAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_RefSafetyRulesAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_RefSafetyRulesAttribute__ctor),
+                EmbeddableAttributes.RequiresLocationAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_RequiresLocationAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_RequiresLocationAttribute__ctor),
+                EmbeddableAttributes.ParamCollectionAttribute => CheckIfAttributeShouldBeEmbedded(
+                                        diagnosticsOpt,
+                                        locationOpt,
+                                        WellKnownType.System_Runtime_CompilerServices_ParamCollectionAttribute,
+                                        WellKnownMember.System_Runtime_CompilerServices_ParamCollectionAttribute__ctor),
+                _ => throw ExceptionUtilities.UnexpectedValue(attribute),
+            };
         }
 
         private bool CheckIfAttributeShouldBeEmbedded(BindingDiagnosticBag? diagnosticsOpt, Location? locationOpt, WellKnownType attributeType, WellKnownMember attributeCtor, WellKnownMember? secondAttributeCtor = null)

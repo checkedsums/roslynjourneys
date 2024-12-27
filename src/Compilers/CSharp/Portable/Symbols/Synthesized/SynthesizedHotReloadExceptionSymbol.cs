@@ -7,7 +7,6 @@ using Roslyn.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Emit;
@@ -132,30 +131,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal sealed override bool HasPossibleWellKnownCloneMethod() => false;
         internal sealed override NamedTypeSymbol? NativeIntegerUnderlyingType => null;
         internal sealed override IEnumerable<(MethodSymbol Body, MethodSymbol Implemented)> SynthesizedInterfaceMethodImpls() => [];
-
-        internal override bool GetGuidString([NotNullWhen(true)] out string? guidString)
-        {
-            guidString = null;
-            return false;
-        }
-
-        internal sealed override bool HasInlineArrayAttribute(out int length)
-        {
-            length = 0;
-            return false;
-        }
-
-        internal sealed override bool HasCollectionBuilderAttribute(out TypeSymbol? builderType, out string? methodName)
-        {
-            builderType = null;
-            methodName = null;
-            return false;
-        }
-
-        internal sealed override bool HasAsyncMethodBuilderAttribute(out TypeSymbol? builderArgument)
-        {
-            builderArgument = null;
-            return false;
-        }
+        internal override bool GetGuidString([NotNullWhen(true)] out string? guidString) => (guidString = null) is not null;
+        internal sealed override bool HasInlineArrayAttribute(out int length) => (length = 0) == 1;
+        internal sealed override bool HasCollectionBuilderAttribute(out TypeSymbol? builderType, out string? methodName) => ((builderType, methodName) = (null, null)).builderType is not null;
+        internal sealed override bool HasAsyncMethodBuilderAttribute(out TypeSymbol? builderArgument) => (builderArgument = null) is not null;
     }
 }

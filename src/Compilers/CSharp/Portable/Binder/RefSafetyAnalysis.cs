@@ -230,19 +230,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // _placeholderScopes should contain all placeholders that may be used by GetValEscape() or CheckValEscape().
             // The following placeholders are not needed by those methods and can be ignored, however.
-            switch (placeholder)
+            return placeholder switch
             {
-                case BoundObjectOrCollectionValuePlaceholder:
-                    return true; // CheckValEscapeOfObjectInitializer() does not use BoundObjectOrCollectionValuePlaceholder.
-                case BoundInterpolatedStringHandlerPlaceholder:
-                    return true; // CheckInterpolatedStringHandlerConversionEscape() does not use BoundInterpolatedStringHandlerPlaceholder.
-                case BoundImplicitIndexerValuePlaceholder:
-                    return placeholder.Type?.SpecialType == SpecialType.System_Int32;
-                case BoundCapturedReceiverPlaceholder:
-                    return true; // BoundCapturedReceiverPlaceholder is created in GetInvocationArgumentsForEscape(), and was not part of the BoundNode tree.
-                default:
-                    return false;
-            }
+                BoundObjectOrCollectionValuePlaceholder => true,// CheckValEscapeOfObjectInitializer() does not use BoundObjectOrCollectionValuePlaceholder.
+                BoundInterpolatedStringHandlerPlaceholder => true,// CheckInterpolatedStringHandlerConversionEscape() does not use BoundInterpolatedStringHandlerPlaceholder.
+                BoundImplicitIndexerValuePlaceholder => placeholder.Type?.SpecialType == SpecialType.System_Int32,
+                BoundCapturedReceiverPlaceholder => true,// BoundCapturedReceiverPlaceholder is created in GetInvocationArgumentsForEscape(), and was not part of the BoundNode tree.
+                _ => false,
+            };
         }
 #endif
 

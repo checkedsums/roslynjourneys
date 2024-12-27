@@ -148,15 +148,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 correspondingAccessNode = query.Body.SelectOrGroup;
 
-                switch (query.Body.SelectOrGroup.Kind())
+                return query.Body.SelectOrGroup.Kind() switch
                 {
-                    case SyntaxKind.SelectClause:
-                        return "Select";
-                    case SyntaxKind.GroupClause:
-                        return "GroupBy";
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(query.Body.SelectOrGroup.Kind());
-                }
+                    SyntaxKind.SelectClause => "Select",
+                    SyntaxKind.GroupClause => "GroupBy",
+                    _ => throw ExceptionUtilities.UnexpectedValue(query.Body.SelectOrGroup.Kind()),
+                };
             }
         }
 

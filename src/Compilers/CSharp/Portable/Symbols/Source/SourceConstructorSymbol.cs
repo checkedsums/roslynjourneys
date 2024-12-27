@@ -59,7 +59,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, isExplicitInterfaceImplementation: false, diagnostics, location);
+            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, diagnostics, location);
 
             if (!modifierErrors)
             {

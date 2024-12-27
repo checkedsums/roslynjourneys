@@ -53,16 +53,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case SymbolKind.Method:
                     var method = (MethodSymbol)this;
-                    switch (method.MethodKind)
+                    return method.MethodKind switch
                     {
-                        case MethodKind.Constructor:
-                        case MethodKind.StaticConstructor:
-                            return AttributeTargets.Constructor;
-
-                        default:
-                            return AttributeTargets.Method;
-                    }
-
+                        MethodKind.Constructor or MethodKind.StaticConstructor => AttributeTargets.Constructor,
+                        _ => AttributeTargets.Method,
+                    };
                 case SymbolKind.NamedType:
                     var namedType = (NamedTypeSymbol)this;
                     switch (namedType.TypeKind)

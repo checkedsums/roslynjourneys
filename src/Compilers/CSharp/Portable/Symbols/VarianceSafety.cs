@@ -274,18 +274,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             MessageID expectedVariance)
             where T : Symbol
         {
-            MessageID actualVariance;
-            switch (unsafeTypeParameter.Variance)
+            var actualVariance = unsafeTypeParameter.Variance switch
             {
-                case VarianceKind.In:
-                    actualVariance = MessageID.IDS_Contravariant;
-                    break;
-                case VarianceKind.Out:
-                    actualVariance = MessageID.IDS_Covariant;
-                    break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(unsafeTypeParameter.Variance);
-            }
+                VarianceKind.In => MessageID.IDS_Contravariant,
+                VarianceKind.Out => MessageID.IDS_Covariant,
+                _ => throw ExceptionUtilities.UnexpectedValue(unsafeTypeParameter.Variance),
+            };
 
             // Get a location that roughly represents the unsafe type parameter use.
             // (Typically, the locationProvider will return the location of the entire type

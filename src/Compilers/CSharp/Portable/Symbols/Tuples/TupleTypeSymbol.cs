@@ -446,19 +446,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             static bool isElementNameForbidden(string name)
             {
-                switch (name)
+                return name switch
                 {
-                    case "CompareTo":
-                    case WellKnownMemberNames.DeconstructMethodName:
-                    case "Equals":
-                    case "GetHashCode":
-                    case "Rest":
-                    case "ToString":
-                        return true;
-
-                    default:
-                        return false;
-                }
+                    "CompareTo" or WellKnownMemberNames.DeconstructMethodName or "Equals" or "GetHashCode" or "Rest" or "ToString" => true,
+                    _ => false,
+                };
             }
         }
 

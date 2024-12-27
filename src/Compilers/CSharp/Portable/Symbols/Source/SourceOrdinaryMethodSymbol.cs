@@ -69,7 +69,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 CheckModifiersForBody(location, diagnostics);
             }
 
-            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, isExplicitInterfaceImplementation: methodKind == MethodKind.ExplicitInterfaceImplementation, diagnostics, location);
+            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, diagnostics, location);
 
             Debug.Assert(syntax.ReturnType is not ScopedTypeSyntax);
 

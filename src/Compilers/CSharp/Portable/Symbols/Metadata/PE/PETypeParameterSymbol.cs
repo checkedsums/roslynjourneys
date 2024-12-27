@@ -490,15 +490,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
                     return false;
                 }
 
-                switch (GetNullableAttributeValue())
+                return GetNullableAttributeValue() switch
                 {
-                    case NullableAnnotationExtensions.AnnotatedAttributeValue:
-                        return true;
-                    case NullableAnnotationExtensions.NotAnnotatedAttributeValue:
-                        return false;
-                }
-
-                return null;
+                    NullableAnnotationExtensions.AnnotatedAttributeValue => true,
+                    NullableAnnotationExtensions.NotAnnotatedAttributeValue => false,
+                    _ => null,
+                };
             }
         }
 

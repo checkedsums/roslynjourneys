@@ -1330,50 +1330,14 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             //  // will consider ambiguous to an unmanaged pointer when it is on the stack (see VSW #396011)
             //  bool AggregateSymbol::IsCLRAmbigStruct()
             //      . . .
-            switch (type.SpecialType)
+            return type.SpecialType switch
             {
                 // case PT_BYTE:
-                case SpecialType.System_Byte:
-                // case PT_SHORT:
-                case SpecialType.System_Int16:
-                // case PT_INT:
-                case SpecialType.System_Int32:
-                // case PT_LONG:
-                case SpecialType.System_Int64:
-                // case PT_CHAR:
-                case SpecialType.System_Char:
-                // case PT_BOOL:
-                case SpecialType.System_Boolean:
-                // case PT_SBYTE:
-                case SpecialType.System_SByte:
-                // case PT_USHORT:
-                case SpecialType.System_UInt16:
-                // case PT_UINT:
-                case SpecialType.System_UInt32:
-                // case PT_ULONG:
-                case SpecialType.System_UInt64:
-                // case PT_INTPTR:
-                case SpecialType.System_IntPtr:
-                // case PT_UINTPTR:
-                case SpecialType.System_UIntPtr:
-                // case PT_FLOAT:
-                case SpecialType.System_Single:
-                // case PT_DOUBLE:
-                case SpecialType.System_Double:
-                // case PT_TYPEHANDLE:
-                case SpecialType.System_RuntimeTypeHandle:
-                // case PT_FIELDHANDLE:
-                case SpecialType.System_RuntimeFieldHandle:
-                // case PT_METHODHANDLE:
-                case SpecialType.System_RuntimeMethodHandle:
-                //case PT_ARGUMENTHANDLE:
-                case SpecialType.System_RuntimeArgumentHandle:
-                    return true;
-            }
-
-            // this is for value__
-            // I do not know how to hit this, since value__ is not bindable in C#, but Dev12 has code to handle this
-            return type.IsEnumType();
+                SpecialType.System_Byte or SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 or SpecialType.System_Char or SpecialType.System_Boolean or SpecialType.System_SByte or SpecialType.System_UInt16 or SpecialType.System_UInt32 or SpecialType.System_UInt64 or SpecialType.System_IntPtr or SpecialType.System_UIntPtr or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_RuntimeTypeHandle or SpecialType.System_RuntimeFieldHandle or SpecialType.System_RuntimeMethodHandle or SpecialType.System_RuntimeArgumentHandle => true,
+                // this is for value__
+                // I do not know how to hit this, since value__ is not bindable in C#, but Dev12 has code to handle this
+                _ => type.IsEnumType(),
+            };
         }
 
         private static int ParameterSlot(BoundParameter parameter)
@@ -2208,28 +2172,16 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
         // calling through indirectly loaded value.
         internal static bool IsRef(BoundExpression receiver)
         {
-            switch (receiver.Kind)
+            return receiver.Kind switch
             {
-                case BoundKind.Local:
-                    return ((BoundLocal)receiver).LocalSymbol.RefKind != RefKind.None;
-
-                case BoundKind.Parameter:
-                    return ((BoundParameter)receiver).ParameterSymbol.RefKind != RefKind.None;
-
-                case BoundKind.Call:
-                    return ((BoundCall)receiver).Method.RefKind != RefKind.None;
-
-                case BoundKind.FunctionPointerInvocation:
-                    return ((BoundFunctionPointerInvocation)receiver).FunctionPointer.Signature.RefKind != RefKind.None;
-
-                case BoundKind.Dup:
-                    return ((BoundDup)receiver).RefKind != RefKind.None;
-
-                case BoundKind.Sequence:
-                    return IsRef(((BoundSequence)receiver).Value);
-            }
-
-            return false;
+                BoundKind.Local => ((BoundLocal)receiver).LocalSymbol.RefKind != RefKind.None,
+                BoundKind.Parameter => ((BoundParameter)receiver).ParameterSymbol.RefKind != RefKind.None,
+                BoundKind.Call => ((BoundCall)receiver).Method.RefKind != RefKind.None,
+                BoundKind.FunctionPointerInvocation => ((BoundFunctionPointerInvocation)receiver).FunctionPointer.Signature.RefKind != RefKind.None,
+                BoundKind.Dup => ((BoundDup)receiver).RefKind != RefKind.None,
+                BoundKind.Sequence => IsRef(((BoundSequence)receiver).Value),
+                _ => false,
+            };
         }
 
         private static int GetCallStackBehavior(MethodSymbol method, ImmutableArray<BoundExpression> arguments)
@@ -2751,18 +2703,13 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
         // returns True when assignment target is definitely not on the heap
         private static bool TargetIsNotOnHeap(BoundExpression left)
         {
-            switch (left.Kind)
+            return left.Kind switch
             {
-                case BoundKind.Parameter:
-                    return ((BoundParameter)left).ParameterSymbol.RefKind == RefKind.None;
-
-                case BoundKind.Local:
-                    // NOTE: stack locals are either homeless or refs, no need to special case them
-                    //       they will never be assigned in-place.
-                    return ((BoundLocal)left).LocalSymbol.RefKind == RefKind.None;
-            }
-
-            return false;
+                BoundKind.Parameter => ((BoundParameter)left).ParameterSymbol.RefKind == RefKind.None,
+                BoundKind.Local => ((BoundLocal)left).LocalSymbol.RefKind == RefKind.None,// NOTE: stack locals are either homeless or refs, no need to special case them
+                                                                                          //       they will never be assigned in-place.
+                _ => false,
+            };
         }
 
         private bool EmitAssignmentPreamble(BoundAssignmentOperator assignmentOperator)

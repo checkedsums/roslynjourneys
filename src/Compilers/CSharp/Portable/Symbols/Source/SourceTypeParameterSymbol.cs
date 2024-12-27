@@ -282,21 +282,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private bool ModifyCompilationForAttributeEmbedding()
         {
-            bool modifyCompilation;
-
-            switch (this.ContainingSymbol)
+            var modifyCompilation = this.ContainingSymbol switch
             {
-                case SourceOrdinaryMethodSymbol _:
-                case SourceMemberContainerTypeSymbol _:
-                    modifyCompilation = true;
-                    break;
-                case LocalFunctionSymbol _:
-                    modifyCompilation = false;
-                    break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(this.ContainingSymbol);
-            }
-
+                SourceOrdinaryMethodSymbol _ or SourceMemberContainerTypeSymbol _ => true,
+                LocalFunctionSymbol _ => false,
+                _ => throw ExceptionUtilities.UnexpectedValue(this.ContainingSymbol),
+            };
             return modifyCompilation;
         }
 
@@ -443,15 +434,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return false;
             }
 
-            switch (constraints & TypeParameterConstraintKind.AllReferenceTypeKinds)
+            return (constraints & TypeParameterConstraintKind.AllReferenceTypeKinds) switch
             {
-                case TypeParameterConstraintKind.NullableReferenceType:
-                    return true;
-                case TypeParameterConstraintKind.NotNullableReferenceType:
-                    return false;
-            }
-
-            return null;
+                TypeParameterConstraintKind.NullableReferenceType => true,
+                TypeParameterConstraintKind.NotNullableReferenceType => false,
+                _ => null,
+            };
         }
     }
 

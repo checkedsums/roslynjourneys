@@ -82,7 +82,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                         diagnostics.Add(ErrorCode.ERR_EmptyFormatSpecifier, interpolation.FormatClause.Location);
                                         hasErrors = true;
                                     }
-                                    else if (SyntaxFacts.IsWhitespace(lastChar = text[text.Length - 1]) || SyntaxFacts.IsNewLine(lastChar))
+                                    else if (SyntaxFacts.IsWhitespace(lastChar = text[^1]) || SyntaxFacts.IsNewLine(lastChar))
                                     {
                                         diagnostics.Add(ErrorCode.ERR_TrailingWhitespaceInFormatSpecifier, interpolation.FormatClause.Location);
                                         hasErrors = true;
@@ -365,7 +365,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                 }
 
-                expressions[0] = new BoundLiteral(syntax, ConstantValue.Create(formatString.ToStringAndFree()), GetSpecialType(Microsoft.CodeAnalysis.SpecialType.System_String, diagnostics, syntax)) { WasCompilerGenerated = true };
+                expressions[0] = new BoundLiteral(syntax, ConstantValue.Create(formatString.ToStringAndFree()), GetSpecialType(SpecialType.System_String, diagnostics, syntax)) { WasCompilerGenerated = true };
                 return expressions.ToImmutableAndFree();
             }
 
@@ -535,7 +535,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var (appendCalls, interpolationData) = BindUnconvertedInterpolatedPartsToHandlerType(
                 unconvertedInterpolatedString.Syntax,
-                ImmutableArray.Create(unconvertedInterpolatedString.Parts),
+                [unconvertedInterpolatedString.Parts],
                 interpolatedStringHandlerType, diagnostics,
                 isHandlerConversion,
                 additionalConstructorArguments,

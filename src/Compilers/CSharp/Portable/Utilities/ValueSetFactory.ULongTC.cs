@@ -23,21 +23,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             bool INumericTC<ulong>.Related(BinaryOperatorKind relation, ulong left, ulong right)
             {
-                switch (relation)
+                return relation switch
                 {
-                    case Equal:
-                        return left == right;
-                    case GreaterThanOrEqual:
-                        return left >= right;
-                    case GreaterThan:
-                        return left > right;
-                    case LessThanOrEqual:
-                        return left <= right;
-                    case LessThan:
-                        return left < right;
-                    default:
-                        throw new ArgumentException("relation");
-                }
+                    Equal => left == right,
+                    GreaterThanOrEqual => left >= right,
+                    GreaterThan => left > right,
+                    LessThanOrEqual => left <= right,
+                    LessThan => left < right,
+                    _ => throw new ArgumentException("relation"),
+                };
             }
 
             ulong INumericTC<ulong>.Next(ulong value)

@@ -86,19 +86,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (DeclaringCompilation.Options.Platform)
+                return DeclaringCompilation.Options.Platform switch
                 {
-                    case Platform.Arm:
-                        return Machine.ArmThumb2;
-                    case Platform.X64:
-                        return Machine.Amd64;
-                    case Platform.Arm64:
-                        return Machine.Arm64;
-                    case Platform.Itanium:
-                        return Machine.IA64;
-                    default:
-                        return Machine.I386;
-                }
+                    Platform.Arm => Machine.ArmThumb2,
+                    Platform.X64 => Machine.Amd64,
+                    Platform.Arm64 => Machine.Arm64,
+                    Platform.Itanium => Machine.IA64,
+                    _ => Machine.I386,
+                };
             }
         }
 

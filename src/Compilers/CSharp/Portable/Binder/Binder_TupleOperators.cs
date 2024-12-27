@@ -142,19 +142,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // It was not. Does it implement operator true (or false)?
 
-            UnaryOperatorKind boolOpKind;
-            switch (binaryOperator)
+            var boolOpKind = binaryOperator switch
             {
-                case BinaryOperatorKind.Equal:
-                    boolOpKind = UnaryOperatorKind.False;
-                    break;
-                case BinaryOperatorKind.NotEqual:
-                    boolOpKind = UnaryOperatorKind.True;
-                    break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(binaryOperator);
-            }
-
+                BinaryOperatorKind.Equal => UnaryOperatorKind.False,
+                BinaryOperatorKind.NotEqual => UnaryOperatorKind.True,
+                _ => throw ExceptionUtilities.UnexpectedValue(binaryOperator),
+            };
             LookupResultKind resultKind;
             ImmutableArray<MethodSymbol> originalUserDefinedOperators;
             BoundExpression comparisonResult = new BoundTupleOperandPlaceholder(node, type);

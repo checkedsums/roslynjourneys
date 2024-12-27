@@ -18,36 +18,21 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static bool IsAnonymousFunction(this SyntaxNode syntax)
         {
             Debug.Assert(syntax != null);
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                case SyntaxKind.ParenthesizedLambdaExpression:
-                case SyntaxKind.SimpleLambdaExpression:
-                case SyntaxKind.AnonymousMethodExpression:
-                    return true;
-                default:
-                    return false;
-            }
+                SyntaxKind.ParenthesizedLambdaExpression or SyntaxKind.SimpleLambdaExpression or SyntaxKind.AnonymousMethodExpression => true,
+                _ => false,
+            };
         }
 
         public static bool IsQuery(this SyntaxNode syntax)
         {
             Debug.Assert(syntax != null);
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                case SyntaxKind.FromClause:
-                case SyntaxKind.GroupClause:
-                case SyntaxKind.JoinClause:
-                case SyntaxKind.JoinIntoClause:
-                case SyntaxKind.LetClause:
-                case SyntaxKind.OrderByClause:
-                case SyntaxKind.QueryContinuation:
-                case SyntaxKind.QueryExpression:
-                case SyntaxKind.SelectClause:
-                case SyntaxKind.WhereClause:
-                    return true;
-                default:
-                    return false;
-            }
+                SyntaxKind.FromClause or SyntaxKind.GroupClause or SyntaxKind.JoinClause or SyntaxKind.JoinIntoClause or SyntaxKind.LetClause or SyntaxKind.OrderByClause or SyntaxKind.QueryContinuation or SyntaxKind.QueryExpression or SyntaxKind.SelectClause or SyntaxKind.WhereClause => true,
+                _ => false,
+            };
         }
 
         internal static bool MayBeNameofOperator(this InvocationExpressionSyntax node)
@@ -78,36 +63,13 @@ namespace Microsoft.CodeAnalysis.CSharp
         internal static bool CanHaveAssociatedLocalBinder(this SyntaxNode syntax)
         {
             SyntaxKind kind = syntax.Kind();
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.InvocationExpression when ((InvocationExpressionSyntax)syntax).MayBeNameofOperator():
-                    return true;
-                case SyntaxKind.CatchClause:
-                case SyntaxKind.ParenthesizedLambdaExpression:
-                case SyntaxKind.SimpleLambdaExpression:
-                case SyntaxKind.AnonymousMethodExpression:
-                case SyntaxKind.CatchFilterClause:
-                case SyntaxKind.SwitchSection:
-                case SyntaxKind.EqualsValueClause:
-                case SyntaxKind.Attribute:
-                case SyntaxKind.ArgumentList:
-                case SyntaxKind.ArrowExpressionClause:
-                case SyntaxKind.SwitchExpression:
-                case SyntaxKind.SwitchExpressionArm:
-                case SyntaxKind.BaseConstructorInitializer:
-                case SyntaxKind.ThisConstructorInitializer:
-                case SyntaxKind.ConstructorDeclaration:
-                case SyntaxKind.PrimaryConstructorBaseType:
-                case SyntaxKind.CheckedExpression:
-                case SyntaxKind.UncheckedExpression:
-                    return true;
-
-                case SyntaxKind.RecordStructDeclaration:
-                    return false;
-
-                default:
-                    return syntax is StatementSyntax || IsValidScopeDesignator(syntax as ExpressionSyntax);
-            }
+                SyntaxKind.InvocationExpression when ((InvocationExpressionSyntax)syntax).MayBeNameofOperator() => true,
+                SyntaxKind.CatchClause or SyntaxKind.ParenthesizedLambdaExpression or SyntaxKind.SimpleLambdaExpression or SyntaxKind.AnonymousMethodExpression or SyntaxKind.CatchFilterClause or SyntaxKind.SwitchSection or SyntaxKind.EqualsValueClause or SyntaxKind.Attribute or SyntaxKind.ArgumentList or SyntaxKind.ArrowExpressionClause or SyntaxKind.SwitchExpression or SyntaxKind.SwitchExpressionArm or SyntaxKind.BaseConstructorInitializer or SyntaxKind.ThisConstructorInitializer or SyntaxKind.ConstructorDeclaration or SyntaxKind.PrimaryConstructorBaseType or SyntaxKind.CheckedExpression or SyntaxKind.UncheckedExpression => true,
+                SyntaxKind.RecordStructDeclaration => false,
+                _ => syntax is StatementSyntax || IsValidScopeDesignator(syntax as ExpressionSyntax),
+            };
         }
 
         internal static bool IsValidScopeDesignator(this ExpressionSyntax? expression)

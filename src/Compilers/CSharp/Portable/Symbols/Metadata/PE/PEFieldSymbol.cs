@@ -532,38 +532,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
             {
                 var access = Accessibility.Private;
 
-                switch (_flags & FieldAttributes.FieldAccessMask)
+                access = (_flags & FieldAttributes.FieldAccessMask) switch
                 {
-                    case FieldAttributes.Assembly:
-                        access = Accessibility.Internal;
-                        break;
-
-                    case FieldAttributes.FamORAssem:
-                        access = Accessibility.ProtectedOrInternal;
-                        break;
-
-                    case FieldAttributes.FamANDAssem:
-                        access = Accessibility.ProtectedAndInternal;
-                        break;
-
-                    case FieldAttributes.Private:
-                    case FieldAttributes.PrivateScope:
-                        access = Accessibility.Private;
-                        break;
-
-                    case FieldAttributes.Public:
-                        access = Accessibility.Public;
-                        break;
-
-                    case FieldAttributes.Family:
-                        access = Accessibility.Protected;
-                        break;
-
-                    default:
-                        access = Accessibility.Private;
-                        break;
-                }
-
+                    FieldAttributes.Assembly => Accessibility.Internal,
+                    FieldAttributes.FamORAssem => Accessibility.ProtectedOrInternal,
+                    FieldAttributes.FamANDAssem => Accessibility.ProtectedAndInternal,
+                    FieldAttributes.Private or FieldAttributes.PrivateScope => Accessibility.Private,
+                    FieldAttributes.Public => Accessibility.Public,
+                    FieldAttributes.Family => Accessibility.Protected,
+                    _ => Accessibility.Private,
+                };
                 return access;
             }
         }

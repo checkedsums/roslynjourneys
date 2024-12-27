@@ -37,8 +37,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var containingType = (SynthesizedHotReloadExceptionSymbol)ContainingType;
 
-            var factory = new SyntheticBoundNodeFactory(this, this.GetNonNullSyntaxNode(), compilationState, diagnostics);
-            factory.CurrentFunction = this;
+            var factory = new SyntheticBoundNodeFactory(this, this.GetNonNullSyntaxNode(), compilationState, diagnostics)
+            {
+                CurrentFunction = this
+            };
 
             var exceptionConstructor = (MethodSymbol?)factory.WellKnownMember(WellKnownMember.System_Exception__ctorString, isOptional: true);
             if (exceptionConstructor is null)

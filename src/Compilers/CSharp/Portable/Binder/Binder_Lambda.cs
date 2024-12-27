@@ -56,9 +56,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             bool hasSignature;
 
             if (syntax is LambdaExpressionSyntax lambdaSyntax)
-            {
                 checkAttributes(syntax, lambdaSyntax.AttributeLists, diagnostics);
-            }
 
             switch (syntax.Kind())
             {
@@ -88,10 +86,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     hasSignature = anon.ParameterList != null;
                     if (hasSignature)
-                    {
                         parameterSyntaxList = anon.ParameterList!.Parameters;
-                    }
-
                     break;
             }
 
@@ -101,13 +96,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             foreach (var modifier in syntax.Modifiers)
             {
                 if (modifier.IsKind(SyntaxKind.AsyncKeyword))
-                {
                     isAsync = true;
-                }
                 else if (modifier.IsKind(SyntaxKind.StaticKeyword))
-                {
                     isStatic = true;
-                }
             }
 
             if (parameterSyntaxList != null)

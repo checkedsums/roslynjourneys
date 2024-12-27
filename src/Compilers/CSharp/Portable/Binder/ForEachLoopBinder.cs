@@ -1661,14 +1661,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal static bool IsIEnumerable(TypeSymbol type)
         {
-            switch (((TypeSymbol)type.OriginalDefinition).SpecialType)
+            return ((TypeSymbol)type.OriginalDefinition).SpecialType switch
             {
-                case SpecialType.System_Collections_IEnumerable:
-                case SpecialType.System_Collections_Generic_IEnumerable_T:
-                    return true;
-                default:
-                    return false;
-            }
+                SpecialType.System_Collections_IEnumerable or SpecialType.System_Collections_Generic_IEnumerable_T => true,
+                _ => false,
+            };
         }
 
         private bool IsIAsyncEnumerable(TypeSymbol type)

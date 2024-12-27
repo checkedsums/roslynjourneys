@@ -858,18 +858,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case BoundKind.ImplicitIndexerAccess:
                     var implicitIndexer = (BoundImplicitIndexerAccess)expr;
-                    switch (implicitIndexer.IndexerOrSliceAccess)
+                    return implicitIndexer.IndexerOrSliceAccess switch
                     {
-                        case BoundArrayAccess arrayAccess:
-                            return checkArrayAccessValueKind(node, valueKind, arrayAccess.Indices, diagnostics);
-
-                        case BoundCall sliceAccess:
-                            return CheckMethodReturnValueKind(sliceAccess.Method, sliceAccess.Syntax, node, valueKind, checkingReceiver, diagnostics);
-
-                        default:
-                            throw ExceptionUtilities.UnexpectedValue(implicitIndexer.IndexerOrSliceAccess.Kind);
-                    }
-
+                        BoundArrayAccess arrayAccess => checkArrayAccessValueKind(node, valueKind, arrayAccess.Indices, diagnostics),
+                        BoundCall sliceAccess => CheckMethodReturnValueKind(sliceAccess.Method, sliceAccess.Syntax, node, valueKind, checkingReceiver, diagnostics),
+                        _ => throw ExceptionUtilities.UnexpectedValue(implicitIndexer.IndexerOrSliceAccess.Kind),
+                    };
                 case BoundKind.InlineArrayAccess:
                     {
                         var elementAccess = (BoundInlineArrayAccess)expr;

@@ -102,19 +102,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return false;
             }
 
-            switch (hidingMemberKind)
+            return hidingMemberKind switch
             {
-                case SymbolKind.ErrorType:
-                case SymbolKind.NamedType:
-                case SymbolKind.Method:
-                case SymbolKind.Property:
-                    return CanBeHiddenByMethodPropertyOrType(hiddenMethod);
-                case SymbolKind.Field:
-                case SymbolKind.Event: // Events are not covered by CSemanticChecker::FindSymHiddenByMethPropAgg.
-                    return true;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(hidingMemberKind);
-            }
+                SymbolKind.ErrorType or SymbolKind.NamedType or SymbolKind.Method or SymbolKind.Property => CanBeHiddenByMethodPropertyOrType(hiddenMethod),
+                SymbolKind.Field or SymbolKind.Event => true,
+                _ => throw ExceptionUtilities.UnexpectedValue(hidingMemberKind),
+            };
         }
 
         /// <summary>
@@ -123,23 +116,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         private static bool CanBeHiddenByMethodPropertyOrType(MethodSymbol method)
         {
-            switch (method.MethodKind)
+            return method.MethodKind switch
             {
                 // See CSemanticChecker::FindSymHiddenByMethPropAgg.
-                case MethodKind.Destructor:
-                case MethodKind.Constructor:
-                case MethodKind.StaticConstructor:
-                case MethodKind.UserDefinedOperator:
-                case MethodKind.Conversion:
-                    return false;
-                case MethodKind.EventAdd:
-                case MethodKind.EventRemove:
-                case MethodKind.PropertyGet:
-                case MethodKind.PropertySet:
-                    return method.IsIndexedPropertyAccessor();
-                default:
-                    return true;
-            }
+                MethodKind.Destructor or MethodKind.Constructor or MethodKind.StaticConstructor or MethodKind.UserDefinedOperator or MethodKind.Conversion => false,
+                MethodKind.EventAdd or MethodKind.EventRemove or MethodKind.PropertyGet or MethodKind.PropertySet => method.IsIndexedPropertyAccessor(),
+                _ => true,
+            };
         }
 
 #nullable enable

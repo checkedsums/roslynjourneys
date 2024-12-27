@@ -490,24 +490,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             // only some intrinsic conversions are side effect free
             // the only side effect of an intrinsic conversion is a throw when we fail to convert.
             // and some intrinsic conversion always succeed
-            switch (this.ConversionKind)
+            return this.ConversionKind switch
             {
-                case ConversionKind.Identity:
-                // NOTE: even explicit float/double identity conversion does not have side
-                // effects since it does not throw
-                case ConversionKind.ImplicitNumeric:
-                case ConversionKind.ImplicitEnumeration:
-                // implicit ref cast does not throw ...
-                case ConversionKind.ImplicitReference:
-                case ConversionKind.Boxing:
-                    return false;
-
+                ConversionKind.Identity or ConversionKind.ImplicitNumeric or ConversionKind.ImplicitEnumeration or ConversionKind.ImplicitReference or ConversionKind.Boxing => false,
                 // unchecked numeric conversion does not throw
-                case ConversionKind.ExplicitNumeric:
-                    return this.Checked;
-            }
-
-            return true;
+                ConversionKind.ExplicitNumeric => this.Checked,
+                _ => true,
+            };
         }
 
         public new bool IsParamsArrayOrCollection

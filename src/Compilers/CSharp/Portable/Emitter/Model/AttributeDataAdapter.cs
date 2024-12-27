@@ -103,17 +103,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 return CreateMetadataConstant(argument.TypeInternal, null, context);
             }
 
-            switch (argument.Kind)
+            return argument.Kind switch
             {
-                case TypedConstantKind.Array:
-                    return CreateMetadataArray(argument, context);
-
-                case TypedConstantKind.Type:
-                    return CreateType(argument, context);
-
-                default:
-                    return CreateMetadataConstant(argument.TypeInternal, argument.ValueInternal, context);
-            }
+                TypedConstantKind.Array => CreateMetadataArray(argument, context),
+                TypedConstantKind.Type => CreateType(argument, context),
+                _ => CreateMetadataConstant(argument.TypeInternal, argument.ValueInternal, context),
+            };
         }
 
         private MetadataCreateArray CreateMetadataArray(TypedConstant argument, EmitContext context)

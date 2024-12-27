@@ -599,28 +599,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal static bool CanOverrideOrHide(MethodKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case MethodKind.AnonymousFunction:
-                case MethodKind.Constructor:
-                case MethodKind.Destructor:
-                case MethodKind.ExplicitInterfaceImplementation:
-                case MethodKind.StaticConstructor:
-                case MethodKind.ReducedExtension:
-                    return false;
-                case MethodKind.Conversion:
-                case MethodKind.DelegateInvoke:
-                case MethodKind.EventAdd:
-                case MethodKind.EventRemove:
-                case MethodKind.LocalFunction:
-                case MethodKind.UserDefinedOperator:
-                case MethodKind.Ordinary:
-                case MethodKind.PropertyGet:
-                case MethodKind.PropertySet:
-                    return true;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                MethodKind.AnonymousFunction or MethodKind.Constructor or MethodKind.Destructor or MethodKind.ExplicitInterfaceImplementation or MethodKind.StaticConstructor or MethodKind.ReducedExtension => false,
+                MethodKind.Conversion or MethodKind.DelegateInvoke or MethodKind.EventAdd or MethodKind.EventRemove or MethodKind.LocalFunction or MethodKind.UserDefinedOperator or MethodKind.Ordinary or MethodKind.PropertyGet or MethodKind.PropertySet => true,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         internal virtual OverriddenOrHiddenMembersResult OverriddenOrHiddenMembers

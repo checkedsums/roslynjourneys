@@ -116,19 +116,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private void ReportInferenceFailure(BindingDiagnosticBag diagnostics)
         {
-            SingleVariableDesignationSyntax designation;
-            switch (this.Syntax.Kind())
+            SingleVariableDesignationSyntax designation = this.Syntax.Kind() switch
             {
-                case SyntaxKind.DeclarationExpression:
-                    designation = (SingleVariableDesignationSyntax)((DeclarationExpressionSyntax)this.Syntax).Designation;
-                    break;
-                case SyntaxKind.SingleVariableDesignation:
-                    designation = (SingleVariableDesignationSyntax)this.Syntax;
-                    break;
-                default:
-                    throw ExceptionUtilities.Unreachable();
-            }
-
+                SyntaxKind.DeclarationExpression => (SingleVariableDesignationSyntax)((DeclarationExpressionSyntax)this.Syntax).Designation,
+                SyntaxKind.SingleVariableDesignation => (SingleVariableDesignationSyntax)this.Syntax,
+                _ => throw ExceptionUtilities.Unreachable(),
+            };
             Binder.Error(
                 diagnostics, this.InferenceFailedError, designation.Identifier,
                 designation.Identifier.ValueText);

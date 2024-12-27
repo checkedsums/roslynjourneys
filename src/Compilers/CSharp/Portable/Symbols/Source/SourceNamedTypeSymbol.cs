@@ -108,21 +108,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static SyntaxToken GetName(CSharpSyntaxNode node)
         {
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.EnumDeclaration:
-                    return ((EnumDeclarationSyntax)node).Identifier;
-                case SyntaxKind.DelegateDeclaration:
-                    return ((DelegateDeclarationSyntax)node).Identifier;
-                case SyntaxKind.ClassDeclaration:
-                case SyntaxKind.InterfaceDeclaration:
-                case SyntaxKind.StructDeclaration:
-                case SyntaxKind.RecordDeclaration:
-                case SyntaxKind.RecordStructDeclaration:
-                    return ((BaseTypeDeclarationSyntax)node).Identifier;
-                default:
-                    return default;
-            }
+                SyntaxKind.EnumDeclaration => ((EnumDeclarationSyntax)node).Identifier,
+                SyntaxKind.DelegateDeclaration => ((DelegateDeclarationSyntax)node).Identifier,
+                SyntaxKind.ClassDeclaration or SyntaxKind.InterfaceDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration => ((BaseTypeDeclarationSyntax)node).Identifier,
+                _ => default,
+            };
         }
 
         public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
@@ -151,29 +143,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 var typeDecl = (CSharpSyntaxNode)syntaxRef.GetSyntax();
                 var syntaxTree = syntaxRef.SyntaxTree;
-
-                TypeParameterListSyntax tpl;
                 SyntaxKind typeKind = typeDecl.Kind();
-                switch (typeKind)
+                TypeParameterListSyntax tpl = typeKind switch
                 {
-                    case SyntaxKind.ClassDeclaration:
-                    case SyntaxKind.StructDeclaration:
-                    case SyntaxKind.InterfaceDeclaration:
-                    case SyntaxKind.RecordDeclaration:
-                    case SyntaxKind.RecordStructDeclaration:
-                        tpl = ((TypeDeclarationSyntax)typeDecl).TypeParameterList;
-                        break;
-
-                    case SyntaxKind.DelegateDeclaration:
-                        tpl = ((DelegateDeclarationSyntax)typeDecl).TypeParameterList;
-                        break;
-
-                    case SyntaxKind.EnumDeclaration:
-                    default:
-                        // there is no such thing as a generic enum, so code should never reach here.
-                        throw ExceptionUtilities.UnexpectedValue(typeDecl.Kind());
-                }
-
+                    SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.InterfaceDeclaration or SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration => ((TypeDeclarationSyntax)typeDecl).TypeParameterList,
+                    SyntaxKind.DelegateDeclaration => ((DelegateDeclarationSyntax)typeDecl).TypeParameterList,
+                    _ => throw ExceptionUtilities.UnexpectedValue(typeDecl.Kind()),// there is no such thing as a generic enum, so code should never reach here.
+                };
                 bool isInterfaceOrDelegate = typeKind == SyntaxKind.InterfaceDeclaration || typeKind == SyntaxKind.DelegateDeclaration;
                 var parameterBuilder = new List<TypeParameterBuilder>();
                 parameterBuilders1.Add(parameterBuilder);
@@ -801,22 +777,13 @@ next:;
         {
             get
             {
-                switch (TypeKind)
+                return TypeKind switch
                 {
-                    case TypeKind.Delegate:
-                        return AttributeLocation.Type | AttributeLocation.Return;
-
-                    case TypeKind.Enum:
-                    case TypeKind.Interface:
-                        return AttributeLocation.Type;
-
-                    case TypeKind.Struct:
-                    case TypeKind.Class:
-                        return AttributeLocation.Type | (HasPrimaryConstructor ? AttributeLocation.Method : 0);
-
-                    default:
-                        return AttributeLocation.None;
-                }
+                    TypeKind.Delegate => AttributeLocation.Type | AttributeLocation.Return,
+                    TypeKind.Enum or TypeKind.Interface => AttributeLocation.Type,
+                    TypeKind.Struct or TypeKind.Class => AttributeLocation.Type | (HasPrimaryConstructor ? AttributeLocation.Method : 0),
+                    _ => AttributeLocation.None,
+                };
             }
         }
 

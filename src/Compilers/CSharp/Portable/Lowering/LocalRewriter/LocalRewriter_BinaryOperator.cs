@@ -1206,21 +1206,14 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression callY_GetValueOrDefault = MakeOptimizedGetValueOrDefault(syntax, boundTempY);
             BoundExpression callX_HasValue = MakeOptimizedHasValue(syntax, boundTempX);
             BoundExpression callY_HasValue = MakeOptimizedHasValue(syntax, boundTempY);
+            BinaryOperatorKind operatorKind = kind.Operator();
 
             // tempx.HasValue == tempy.HasValue
-            BinaryOperatorKind conditionOperator;
-            BinaryOperatorKind operatorKind = kind.Operator();
-            switch (operatorKind)
+            var conditionOperator = operatorKind switch
             {
-                case BinaryOperatorKind.Equal:
-                case BinaryOperatorKind.NotEqual:
-                    conditionOperator = BinaryOperatorKind.BoolEqual;
-                    break;
-                default:
-                    conditionOperator = BinaryOperatorKind.BoolAnd;
-                    break;
-            }
-
+                BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual => BinaryOperatorKind.BoolEqual,
+                _ => BinaryOperatorKind.BoolAnd,
+            };
             TypeSymbol boolType = _compilation.GetSpecialType(SpecialType.System_Boolean);
 
             BoundExpression condition = MakeBinaryOperator(
@@ -2039,25 +2032,21 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(loweredLeft.Type is { SpecialType: SpecialType.System_Decimal });
             Debug.Assert(loweredRight.Type is { SpecialType: SpecialType.System_Decimal });
-
-            SpecialMember member;
-
-            switch (operatorKind)
+            var member = operatorKind switch
             {
-                case BinaryOperatorKind.DecimalAddition: member = SpecialMember.System_Decimal__op_Addition; break;
-                case BinaryOperatorKind.DecimalSubtraction: member = SpecialMember.System_Decimal__op_Subtraction; break;
-                case BinaryOperatorKind.DecimalMultiplication: member = SpecialMember.System_Decimal__op_Multiply; break;
-                case BinaryOperatorKind.DecimalDivision: member = SpecialMember.System_Decimal__op_Division; break;
-                case BinaryOperatorKind.DecimalRemainder: member = SpecialMember.System_Decimal__op_Modulus; break;
-                case BinaryOperatorKind.DecimalEqual: member = SpecialMember.System_Decimal__op_Equality; break;
-                case BinaryOperatorKind.DecimalNotEqual: member = SpecialMember.System_Decimal__op_Inequality; break;
-                case BinaryOperatorKind.DecimalLessThan: member = SpecialMember.System_Decimal__op_LessThan; break;
-                case BinaryOperatorKind.DecimalLessThanOrEqual: member = SpecialMember.System_Decimal__op_LessThanOrEqual; break;
-                case BinaryOperatorKind.DecimalGreaterThan: member = SpecialMember.System_Decimal__op_GreaterThan; break;
-                case BinaryOperatorKind.DecimalGreaterThanOrEqual: member = SpecialMember.System_Decimal__op_GreaterThanOrEqual; break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(operatorKind);
-            }
+                BinaryOperatorKind.DecimalAddition => SpecialMember.System_Decimal__op_Addition,
+                BinaryOperatorKind.DecimalSubtraction => SpecialMember.System_Decimal__op_Subtraction,
+                BinaryOperatorKind.DecimalMultiplication => SpecialMember.System_Decimal__op_Multiply,
+                BinaryOperatorKind.DecimalDivision => SpecialMember.System_Decimal__op_Division,
+                BinaryOperatorKind.DecimalRemainder => SpecialMember.System_Decimal__op_Modulus,
+                BinaryOperatorKind.DecimalEqual => SpecialMember.System_Decimal__op_Equality,
+                BinaryOperatorKind.DecimalNotEqual => SpecialMember.System_Decimal__op_Inequality,
+                BinaryOperatorKind.DecimalLessThan => SpecialMember.System_Decimal__op_LessThan,
+                BinaryOperatorKind.DecimalLessThanOrEqual => SpecialMember.System_Decimal__op_LessThanOrEqual,
+                BinaryOperatorKind.DecimalGreaterThan => SpecialMember.System_Decimal__op_GreaterThan,
+                BinaryOperatorKind.DecimalGreaterThanOrEqual => SpecialMember.System_Decimal__op_GreaterThanOrEqual,
+                _ => throw ExceptionUtilities.UnexpectedValue(operatorKind),
+            };
 
             // call Operator (left, right)
             var method = UnsafeGetSpecialTypeMethod(syntax, member);

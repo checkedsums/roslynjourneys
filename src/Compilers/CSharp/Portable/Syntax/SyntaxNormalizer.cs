@@ -285,22 +285,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 return 1;
             }
 
-            switch (nextToken.Kind())
+            return nextToken.Kind() switch
             {
-                case SyntaxKind.OpenBraceToken:
-                    return LineBreaksBeforeOpenBrace(nextToken);
-                case SyntaxKind.CloseBraceToken:
-                    return LineBreaksBeforeCloseBrace(nextToken);
-                case SyntaxKind.ElseKeyword:
-                case SyntaxKind.FinallyKeyword:
-                    return 1;
-                case SyntaxKind.OpenBracketToken:
-                    return (nextToken.Parent is AttributeListSyntax && !(nextToken.Parent.Parent is ParameterSyntax)) ? 1 : 0;
-                case SyntaxKind.WhereKeyword:
-                    return currentToken.Parent is TypeParameterListSyntax ? 1 : 0;
-            }
-
-            return 0;
+                SyntaxKind.OpenBraceToken => LineBreaksBeforeOpenBrace(nextToken),
+                SyntaxKind.CloseBraceToken => LineBreaksBeforeCloseBrace(nextToken),
+                SyntaxKind.ElseKeyword or SyntaxKind.FinallyKeyword => 1,
+                SyntaxKind.OpenBracketToken => (nextToken.Parent is AttributeListSyntax && !(nextToken.Parent.Parent is ParameterSyntax)) ? 1 : 0,
+                SyntaxKind.WhereKeyword => currentToken.Parent is TypeParameterListSyntax ? 1 : 0,
+                _ => 0,
+            };
         }
 
         private static bool IsAccessorListWithoutAccessorsWithBlockBody(SyntaxNode? node)
@@ -951,57 +944,39 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 return true;
             }
 
-            switch (token.Parent.Kind(), next.Parent.Kind())
+            return (token.Parent.Kind(), next.Parent.Kind())
+switch
             {
-                case (SyntaxKind.LineSpanDirectiveTrivia, SyntaxKind.LineDirectivePosition):
-                case (SyntaxKind.LineDirectivePosition, SyntaxKind.LineSpanDirectiveTrivia):
-                    return true;
-            }
-
-            return false;
+                (SyntaxKind.LineSpanDirectiveTrivia, SyntaxKind.LineDirectivePosition) or (SyntaxKind.LineDirectivePosition, SyntaxKind.LineSpanDirectiveTrivia) => true,
+                _ => false,
+            };
         }
 
         private static bool KeywordNeedsSeparatorBeforeOpenParen(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.TypeOfKeyword:
-                case SyntaxKind.DefaultKeyword:
-                case SyntaxKind.NewKeyword:
-                case SyntaxKind.BaseKeyword:
-                case SyntaxKind.ThisKeyword:
-                case SyntaxKind.CheckedKeyword:
-                case SyntaxKind.UncheckedKeyword:
-                case SyntaxKind.SizeOfKeyword:
-                case SyntaxKind.ArgListKeyword:
-                    return false;
-                default:
-                    return true;
-            }
+                SyntaxKind.TypeOfKeyword or SyntaxKind.DefaultKeyword or SyntaxKind.NewKeyword or SyntaxKind.BaseKeyword or SyntaxKind.ThisKeyword or SyntaxKind.CheckedKeyword or SyntaxKind.UncheckedKeyword or SyntaxKind.SizeOfKeyword or SyntaxKind.ArgListKeyword => false,
+                _ => true,
+            };
         }
 
         private static bool IsXmlTextToken(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.XmlTextLiteralNewLineToken:
-                case SyntaxKind.XmlTextLiteralToken:
-                    return true;
-                default:
-                    return false;
-            }
+                SyntaxKind.XmlTextLiteralNewLineToken or SyntaxKind.XmlTextLiteralToken => true,
+                _ => false,
+            };
         }
 
         private static bool BinaryTokenNeedsSeparator(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.DotToken:
-                case SyntaxKind.MinusGreaterThanToken:
-                    return false;
-                default:
-                    return SyntaxFacts.GetBinaryExpression(kind) != SyntaxKind.None;
-            }
+                SyntaxKind.DotToken or SyntaxKind.MinusGreaterThanToken => false,
+                _ => SyntaxFacts.GetBinaryExpression(kind) != SyntaxKind.None,
+            };
         }
 
         private static bool AssignmentTokenNeedsSeparator(SyntaxKind kind)
@@ -1158,15 +1133,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
         private static bool NeedsSeparatorBetween(SyntaxTrivia trivia)
         {
-            switch (trivia.Kind())
+            return trivia.Kind() switch
             {
-                case SyntaxKind.None:
-                case SyntaxKind.WhitespaceTrivia:
-                case SyntaxKind.DocumentationCommentExteriorTrivia:
-                    return false;
-                default:
-                    return !SyntaxFacts.IsPreprocessorDirective(trivia.Kind());
-            }
+                SyntaxKind.None or SyntaxKind.WhitespaceTrivia or SyntaxKind.DocumentationCommentExteriorTrivia => false,
+                _ => !SyntaxFacts.IsPreprocessorDirective(trivia.Kind()),
+            };
         }
 
         private static bool NeedsLineBreakBetween(SyntaxTrivia trivia, SyntaxTrivia next, bool isTrailingTrivia)
@@ -1178,42 +1149,31 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         private static bool NeedsLineBreakBefore(SyntaxTrivia trivia, bool isTrailingTrivia)
         {
             var kind = trivia.Kind();
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.DocumentationCommentExteriorTrivia:
-                    return !isTrailingTrivia;
-                default:
-                    return SyntaxFacts.IsPreprocessorDirective(kind);
-            }
+                SyntaxKind.DocumentationCommentExteriorTrivia => !isTrailingTrivia,
+                _ => SyntaxFacts.IsPreprocessorDirective(kind),
+            };
         }
 
         private static bool NeedsLineBreakAfter(SyntaxTrivia trivia, bool isTrailingTrivia)
         {
             var kind = trivia.Kind();
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.SingleLineCommentTrivia:
-                    return true;
-                case SyntaxKind.MultiLineCommentTrivia:
-                    return !isTrailingTrivia;
-                default:
-                    return SyntaxFacts.IsPreprocessorDirective(kind);
-            }
+                SyntaxKind.SingleLineCommentTrivia => true,
+                SyntaxKind.MultiLineCommentTrivia => !isTrailingTrivia,
+                _ => SyntaxFacts.IsPreprocessorDirective(kind),
+            };
         }
 
         private static bool NeedsIndentAfterLineBreak(SyntaxTrivia trivia)
         {
-            switch (trivia.Kind())
+            return trivia.Kind() switch
             {
-                case SyntaxKind.SingleLineCommentTrivia:
-                case SyntaxKind.MultiLineCommentTrivia:
-                case SyntaxKind.DocumentationCommentExteriorTrivia:
-                case SyntaxKind.SingleLineDocumentationCommentTrivia:
-                case SyntaxKind.MultiLineDocumentationCommentTrivia:
-                    return true;
-                default:
-                    return false;
-            }
+                SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia or SyntaxKind.DocumentationCommentExteriorTrivia or SyntaxKind.SingleLineDocumentationCommentTrivia or SyntaxKind.MultiLineDocumentationCommentTrivia => true,
+                _ => false,
+            };
         }
 
         private static bool IsLineBreak(SyntaxToken token)
@@ -1271,19 +1231,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
         private static bool TokenCharacterCanBeDoubled(char c)
         {
-            switch (c)
+            return c switch
             {
-                case '+':
-                case '-':
-                case '<':
-                case ':':
-                case '?':
-                case '=':
-                case '"':
-                    return true;
-                default:
-                    return false;
-            }
+                '+' or '-' or '<' or ':' or '?' or '=' or '"' => true,
+                _ => false,
+            };
         }
 
         private static int GetDeclarationDepth(SyntaxToken token)

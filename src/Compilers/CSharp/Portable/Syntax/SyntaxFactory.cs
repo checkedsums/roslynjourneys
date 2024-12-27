@@ -195,18 +195,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 throw new ArgumentNullException(nameof(text));
             }
 
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.DisabledTextTrivia:
-                case SyntaxKind.DocumentationCommentExteriorTrivia:
-                case SyntaxKind.EndOfLineTrivia:
-                case SyntaxKind.MultiLineCommentTrivia:
-                case SyntaxKind.SingleLineCommentTrivia:
-                case SyntaxKind.WhitespaceTrivia:
-                    return new SyntaxTrivia(default, new Syntax.InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0);
-                default:
-                    throw new ArgumentException("kind");
-            }
+                SyntaxKind.DisabledTextTrivia or SyntaxKind.DocumentationCommentExteriorTrivia or SyntaxKind.EndOfLineTrivia or SyntaxKind.MultiLineCommentTrivia or SyntaxKind.SingleLineCommentTrivia or SyntaxKind.WhitespaceTrivia => new SyntaxTrivia(default, new Syntax.InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0),
+                _ => throw new ArgumentException("kind"),
+            };
         }
 
         /// <summary>

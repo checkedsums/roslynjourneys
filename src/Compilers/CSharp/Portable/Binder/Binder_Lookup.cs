@@ -1703,18 +1703,11 @@ symIsHidden:;
 
         internal bool IsNonInvocableMember(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Method:
-                case SymbolKind.Field:
-                case SymbolKind.Property:
-                case SymbolKind.NamedType:
-                case SymbolKind.Event:
-                    return !IsInvocableMember(symbol);
-
-                default:
-                    return false;
-            }
+                SymbolKind.Method or SymbolKind.Field or SymbolKind.Property or SymbolKind.NamedType or SymbolKind.Event => !IsInvocableMember(symbol),
+                _ => false,
+            };
         }
 
         private bool IsInvocableMember(Symbol symbol)
@@ -1744,16 +1737,11 @@ symIsHidden:;
 
         private static bool IsInstance(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Field:
-                case SymbolKind.Property:
-                case SymbolKind.Method:
-                case SymbolKind.Event:
-                    return symbol.RequiresInstanceReceiver();
-                default:
-                    return false;
-            }
+                SymbolKind.Field or SymbolKind.Property or SymbolKind.Method or SymbolKind.Event => symbol.RequiresInstanceReceiver(),
+                _ => false,
+            };
         }
 
         // Check if the given symbol can be accessed with the given arity. If OK, return false.

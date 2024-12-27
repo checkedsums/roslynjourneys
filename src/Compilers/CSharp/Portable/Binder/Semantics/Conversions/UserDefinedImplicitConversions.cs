@@ -613,77 +613,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsEncompassingImplicitConversionKind(ConversionKind kind)
         {
-            switch (kind)
+            return kind switch
             {
                 // Doesn't even exist.
-                case ConversionKind.NoConversion:
-
-                // These are conversions from expression and do not apply.
-                // Specifically disallowed because there would be subtle consequences for the overload betterness rules.
-                case ConversionKind.ImplicitDynamic:
-                case ConversionKind.MethodGroup:
-                case ConversionKind.AnonymousFunction:
-                case ConversionKind.InterpolatedString:
-                case ConversionKind.SwitchExpression:
-                case ConversionKind.ConditionalExpression:
-                case ConversionKind.ImplicitEnumeration:
-                case ConversionKind.StackAllocToPointerType:
-                case ConversionKind.StackAllocToSpanType:
-                case ConversionKind.InterpolatedStringHandler:
-
-                // Not "standard".
-                case ConversionKind.ImplicitUserDefined:
-                case ConversionKind.ExplicitUserDefined:
-                case ConversionKind.FunctionType:
-
-                // Not implicit.
-                case ConversionKind.ExplicitNumeric:
-                case ConversionKind.ExplicitEnumeration:
-                case ConversionKind.ExplicitNullable:
-                case ConversionKind.ExplicitReference:
-                case ConversionKind.Unboxing:
-                case ConversionKind.ExplicitDynamic:
-                case ConversionKind.ExplicitPointerToPointer:
-                case ConversionKind.ExplicitPointerToInteger:
-                case ConversionKind.ExplicitIntegerToPointer:
-                case ConversionKind.IntPtr:
-                case ConversionKind.ExplicitTupleLiteral:
-                case ConversionKind.ExplicitTuple:
-                case ConversionKind.ExplicitSpan:
-                    return false;
-
+                ConversionKind.NoConversion or ConversionKind.ImplicitDynamic or ConversionKind.MethodGroup or ConversionKind.AnonymousFunction or ConversionKind.InterpolatedString or ConversionKind.SwitchExpression or ConversionKind.ConditionalExpression or ConversionKind.ImplicitEnumeration or ConversionKind.StackAllocToPointerType or ConversionKind.StackAllocToSpanType or ConversionKind.InterpolatedStringHandler or ConversionKind.ImplicitUserDefined or ConversionKind.ExplicitUserDefined or ConversionKind.FunctionType or ConversionKind.ExplicitNumeric or ConversionKind.ExplicitEnumeration or ConversionKind.ExplicitNullable or ConversionKind.ExplicitReference or ConversionKind.Unboxing or ConversionKind.ExplicitDynamic or ConversionKind.ExplicitPointerToPointer or ConversionKind.ExplicitPointerToInteger or ConversionKind.ExplicitIntegerToPointer or ConversionKind.IntPtr or ConversionKind.ExplicitTupleLiteral or ConversionKind.ExplicitTuple or ConversionKind.ExplicitSpan => false,
                 // Spec'd in C# 4.
-                case ConversionKind.Identity:
-                case ConversionKind.ImplicitNumeric:
-                case ConversionKind.ImplicitNullable:
-                case ConversionKind.ImplicitReference:
-                case ConversionKind.Boxing:
-                case ConversionKind.ImplicitConstant:
-                case ConversionKind.ImplicitPointerToVoid:
-
-                // Added to spec in Roslyn timeframe.
-                case ConversionKind.NullLiteral:
-                case ConversionKind.ImplicitNullToPointer:
-
-                // Added for C# 7.
-                case ConversionKind.ImplicitTupleLiteral:
-                case ConversionKind.ImplicitTuple:
-                case ConversionKind.ImplicitThrow:
-
-                // Added for C# 7.1
-                case ConversionKind.DefaultLiteral:
-
-                // Added for C# 9
-                case ConversionKind.ImplicitPointer:
-                // Added for C# 12
-                case ConversionKind.InlineArray:
-                // Added for C# 13
-                case ConversionKind.ImplicitSpan:
-                    return true;
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                ConversionKind.Identity or ConversionKind.ImplicitNumeric or ConversionKind.ImplicitNullable or ConversionKind.ImplicitReference or ConversionKind.Boxing or ConversionKind.ImplicitConstant or ConversionKind.ImplicitPointerToVoid or ConversionKind.NullLiteral or ConversionKind.ImplicitNullToPointer or ConversionKind.ImplicitTupleLiteral or ConversionKind.ImplicitTuple or ConversionKind.ImplicitThrow or ConversionKind.DefaultLiteral or ConversionKind.ImplicitPointer or ConversionKind.InlineArray or ConversionKind.ImplicitSpan => true,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         private TypeSymbol MostEncompassedType<T>(

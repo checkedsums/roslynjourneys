@@ -224,17 +224,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             // CONSIDER: There are others:
             // http://en.wikipedia.org/wiki/Quotation_mark_glyphs#Quotation_marks_in_Unicode
-            switch (ch)
+            return ch switch
             {
-                case '\u2018': //LEFT SINGLE QUOTATION MARK
-                case '\u2019': //RIGHT SINGLE QUOTATION MARK
-                    return true;
-                case '\u201C': //LEFT DOUBLE QUOTATION MARK
-                case '\u201D': //RIGHT DOUBLE QUOTATION MARK
-                    return true;
-                default:
-                    return false;
-            }
+                //LEFT SINGLE QUOTATION MARK
+                '\u2018' or '\u2019' => true,
+                //LEFT DOUBLE QUOTATION MARK
+                '\u201C' or '\u201D' => true,
+                _ => false,
+            };
         }
     }
 }

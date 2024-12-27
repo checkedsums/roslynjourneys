@@ -413,15 +413,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         return false;
                 }
 
-                switch (constraint.SpecialType)
+                return constraint.SpecialType switch
                 {
-                    case SpecialType.System_Object:
-                    case SpecialType.System_ValueType:
-                    case SpecialType.System_Enum:
-                        return false; // can be satisfied by value types
-                }
-
-                return true;
+                    SpecialType.System_Object or SpecialType.System_ValueType or SpecialType.System_Enum => false,// can be satisfied by value types
+                    _ => true,
+                };
             }
         }
 

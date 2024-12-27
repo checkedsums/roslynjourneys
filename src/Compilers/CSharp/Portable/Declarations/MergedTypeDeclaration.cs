@@ -70,29 +70,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 var syntaxRef = decl.SyntaxReference;
                 var typeDecl = syntaxRef.GetSyntax();
-                SyntaxList<AttributeListSyntax> attributesSyntaxList;
-                switch (typeDecl.Kind())
+                var attributesSyntaxList = typeDecl.Kind() switch
                 {
-                    case SyntaxKind.ClassDeclaration:
-                    case SyntaxKind.StructDeclaration:
-                    case SyntaxKind.InterfaceDeclaration:
-                    case SyntaxKind.RecordDeclaration:
-                    case SyntaxKind.RecordStructDeclaration:
-                        attributesSyntaxList = ((TypeDeclarationSyntax)typeDecl).AttributeLists;
-                        break;
-
-                    case SyntaxKind.DelegateDeclaration:
-                        attributesSyntaxList = ((DelegateDeclarationSyntax)typeDecl).AttributeLists;
-                        break;
-
-                    case SyntaxKind.EnumDeclaration:
-                        attributesSyntaxList = ((EnumDeclarationSyntax)typeDecl).AttributeLists;
-                        break;
-
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(typeDecl.Kind());
-                }
-
+                    SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.InterfaceDeclaration or SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration => ((TypeDeclarationSyntax)typeDecl).AttributeLists,
+                    SyntaxKind.DelegateDeclaration => ((DelegateDeclarationSyntax)typeDecl).AttributeLists,
+                    SyntaxKind.EnumDeclaration => ((EnumDeclarationSyntax)typeDecl).AttributeLists,
+                    _ => throw ExceptionUtilities.UnexpectedValue(typeDecl.Kind()),
+                };
                 attributeSyntaxListBuilder.Add(attributesSyntaxList);
             }
 

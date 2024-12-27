@@ -2745,15 +2745,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (receiverOpt == null) return true;
             if (!receiverOpt.WasCompilerGenerated) return false;
-            switch (receiverOpt.Kind)
+            return receiverOpt.Kind switch
             {
-                case BoundKind.ThisReference:
-                case BoundKind.HostObjectMemberReference:
-                case BoundKind.PreviousSubmissionReference:
-                    return true;
-                default:
-                    return false;
-            }
+                BoundKind.ThisReference or BoundKind.HostObjectMemberReference or BoundKind.PreviousSubmissionReference => true,
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -3097,16 +3093,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // An identity conversion to a floating-point type (for example from a cast in
                     // source code) changes the internal representation of the constant value
                     // to precisely the required precision.
-                    switch (destination.SpecialType)
+                    return destination.SpecialType switch
                     {
-                        case SpecialType.System_Single:
-                            return ConstantValue.Create(sourceConstantValue.SingleValue);
-                        case SpecialType.System_Double:
-                            return ConstantValue.Create(sourceConstantValue.DoubleValue);
-                        default:
-                            return sourceConstantValue;
-                    }
-
+                        SpecialType.System_Single => ConstantValue.Create(sourceConstantValue.SingleValue),
+                        SpecialType.System_Double => ConstantValue.Create(sourceConstantValue.DoubleValue),
+                        _ => sourceConstantValue,
+                    };
                 case ConversionKind.NullLiteral:
                     return sourceConstantValue;
 
@@ -3242,267 +3234,262 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     case ConstantValueTypeDiscriminator.Byte:
                         byte byteValue = value.ByteValue;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)byteValue;
-                            case SpecialType.System_Char: return (char)byteValue;
-                            case SpecialType.System_UInt16: return (ushort)byteValue;
-                            case SpecialType.System_UInt32: return (uint)byteValue;
-                            case SpecialType.System_UInt64: return (ulong)byteValue;
-                            case SpecialType.System_SByte: return (sbyte)byteValue;
-                            case SpecialType.System_Int16: return (short)byteValue;
-                            case SpecialType.System_Int32: return (int)byteValue;
-                            case SpecialType.System_Int64: return (long)byteValue;
-                            case SpecialType.System_IntPtr: return (int)byteValue;
-                            case SpecialType.System_UIntPtr: return (uint)byteValue;
-                            case SpecialType.System_Single:
-                            case SpecialType.System_Double: return (double)byteValue;
-                            case SpecialType.System_Decimal: return (decimal)byteValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)byteValue,
+                            SpecialType.System_Char => (char)byteValue,
+                            SpecialType.System_UInt16 => (ushort)byteValue,
+                            SpecialType.System_UInt32 => (uint)byteValue,
+                            SpecialType.System_UInt64 => (ulong)byteValue,
+                            SpecialType.System_SByte => (sbyte)byteValue,
+                            SpecialType.System_Int16 => (short)byteValue,
+                            SpecialType.System_Int32 => (int)byteValue,
+                            SpecialType.System_Int64 => (long)byteValue,
+                            SpecialType.System_IntPtr => (int)byteValue,
+                            SpecialType.System_UIntPtr => (uint)byteValue,
+                            SpecialType.System_Single or SpecialType.System_Double => (double)byteValue,
+                            SpecialType.System_Decimal => (decimal)byteValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Char:
                         char charValue = value.CharValue;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)charValue;
-                            case SpecialType.System_Char: return (char)charValue;
-                            case SpecialType.System_UInt16: return (ushort)charValue;
-                            case SpecialType.System_UInt32: return (uint)charValue;
-                            case SpecialType.System_UInt64: return (ulong)charValue;
-                            case SpecialType.System_SByte: return (sbyte)charValue;
-                            case SpecialType.System_Int16: return (short)charValue;
-                            case SpecialType.System_Int32: return (int)charValue;
-                            case SpecialType.System_Int64: return (long)charValue;
-                            case SpecialType.System_IntPtr: return (int)charValue;
-                            case SpecialType.System_UIntPtr: return (uint)charValue;
-                            case SpecialType.System_Single:
-                            case SpecialType.System_Double: return (double)charValue;
-                            case SpecialType.System_Decimal: return (decimal)charValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)charValue,
+                            SpecialType.System_Char => (char)charValue,
+                            SpecialType.System_UInt16 => (ushort)charValue,
+                            SpecialType.System_UInt32 => (uint)charValue,
+                            SpecialType.System_UInt64 => (ulong)charValue,
+                            SpecialType.System_SByte => (sbyte)charValue,
+                            SpecialType.System_Int16 => (short)charValue,
+                            SpecialType.System_Int32 => (int)charValue,
+                            SpecialType.System_Int64 => (long)charValue,
+                            SpecialType.System_IntPtr => (int)charValue,
+                            SpecialType.System_UIntPtr => (uint)charValue,
+                            SpecialType.System_Single or SpecialType.System_Double => (double)charValue,
+                            SpecialType.System_Decimal => (decimal)charValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.UInt16:
                         ushort uint16Value = value.UInt16Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)uint16Value;
-                            case SpecialType.System_Char: return (char)uint16Value;
-                            case SpecialType.System_UInt16: return (ushort)uint16Value;
-                            case SpecialType.System_UInt32: return (uint)uint16Value;
-                            case SpecialType.System_UInt64: return (ulong)uint16Value;
-                            case SpecialType.System_SByte: return (sbyte)uint16Value;
-                            case SpecialType.System_Int16: return (short)uint16Value;
-                            case SpecialType.System_Int32: return (int)uint16Value;
-                            case SpecialType.System_Int64: return (long)uint16Value;
-                            case SpecialType.System_IntPtr: return (int)uint16Value;
-                            case SpecialType.System_UIntPtr: return (uint)uint16Value;
-                            case SpecialType.System_Single:
-                            case SpecialType.System_Double: return (double)uint16Value;
-                            case SpecialType.System_Decimal: return (decimal)uint16Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)uint16Value,
+                            SpecialType.System_Char => (char)uint16Value,
+                            SpecialType.System_UInt16 => (ushort)uint16Value,
+                            SpecialType.System_UInt32 => (uint)uint16Value,
+                            SpecialType.System_UInt64 => (ulong)uint16Value,
+                            SpecialType.System_SByte => (sbyte)uint16Value,
+                            SpecialType.System_Int16 => (short)uint16Value,
+                            SpecialType.System_Int32 => (int)uint16Value,
+                            SpecialType.System_Int64 => (long)uint16Value,
+                            SpecialType.System_IntPtr => (int)uint16Value,
+                            SpecialType.System_UIntPtr => (uint)uint16Value,
+                            SpecialType.System_Single or SpecialType.System_Double => (double)uint16Value,
+                            SpecialType.System_Decimal => (decimal)uint16Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.UInt32:
                         uint uint32Value = value.UInt32Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)uint32Value;
-                            case SpecialType.System_Char: return (char)uint32Value;
-                            case SpecialType.System_UInt16: return (ushort)uint32Value;
-                            case SpecialType.System_UInt32: return (uint)uint32Value;
-                            case SpecialType.System_UInt64: return (ulong)uint32Value;
-                            case SpecialType.System_SByte: return (sbyte)uint32Value;
-                            case SpecialType.System_Int16: return (short)uint32Value;
-                            case SpecialType.System_Int32: return (int)uint32Value;
-                            case SpecialType.System_Int64: return (long)uint32Value;
-                            case SpecialType.System_IntPtr: return (int)uint32Value;
-                            case SpecialType.System_UIntPtr: return (uint)uint32Value;
-                            case SpecialType.System_Single: return (double)(float)uint32Value;
-                            case SpecialType.System_Double: return (double)uint32Value;
-                            case SpecialType.System_Decimal: return (decimal)uint32Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)uint32Value,
+                            SpecialType.System_Char => (char)uint32Value,
+                            SpecialType.System_UInt16 => (ushort)uint32Value,
+                            SpecialType.System_UInt32 => (uint)uint32Value,
+                            SpecialType.System_UInt64 => (ulong)uint32Value,
+                            SpecialType.System_SByte => (sbyte)uint32Value,
+                            SpecialType.System_Int16 => (short)uint32Value,
+                            SpecialType.System_Int32 => (int)uint32Value,
+                            SpecialType.System_Int64 => (long)uint32Value,
+                            SpecialType.System_IntPtr => (int)uint32Value,
+                            SpecialType.System_UIntPtr => (uint)uint32Value,
+                            SpecialType.System_Single => (double)(float)uint32Value,
+                            SpecialType.System_Double => (double)uint32Value,
+                            SpecialType.System_Decimal => (decimal)uint32Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.UInt64:
                         ulong uint64Value = value.UInt64Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)uint64Value;
-                            case SpecialType.System_Char: return (char)uint64Value;
-                            case SpecialType.System_UInt16: return (ushort)uint64Value;
-                            case SpecialType.System_UInt32: return (uint)uint64Value;
-                            case SpecialType.System_UInt64: return (ulong)uint64Value;
-                            case SpecialType.System_SByte: return (sbyte)uint64Value;
-                            case SpecialType.System_Int16: return (short)uint64Value;
-                            case SpecialType.System_Int32: return (int)uint64Value;
-                            case SpecialType.System_Int64: return (long)uint64Value;
-                            case SpecialType.System_IntPtr: return (int)uint64Value;
-                            case SpecialType.System_UIntPtr: return (uint)uint64Value;
-                            case SpecialType.System_Single: return (double)(float)uint64Value;
-                            case SpecialType.System_Double: return (double)uint64Value;
-                            case SpecialType.System_Decimal: return (decimal)uint64Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)uint64Value,
+                            SpecialType.System_Char => (char)uint64Value,
+                            SpecialType.System_UInt16 => (ushort)uint64Value,
+                            SpecialType.System_UInt32 => (uint)uint64Value,
+                            SpecialType.System_UInt64 => (ulong)uint64Value,
+                            SpecialType.System_SByte => (sbyte)uint64Value,
+                            SpecialType.System_Int16 => (short)uint64Value,
+                            SpecialType.System_Int32 => (int)uint64Value,
+                            SpecialType.System_Int64 => (long)uint64Value,
+                            SpecialType.System_IntPtr => (int)uint64Value,
+                            SpecialType.System_UIntPtr => (uint)uint64Value,
+                            SpecialType.System_Single => (double)(float)uint64Value,
+                            SpecialType.System_Double => (double)uint64Value,
+                            SpecialType.System_Decimal => (decimal)uint64Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.NUInt:
                         uint nuintValue = value.UInt32Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)nuintValue;
-                            case SpecialType.System_Char: return (char)nuintValue;
-                            case SpecialType.System_UInt16: return (ushort)nuintValue;
-                            case SpecialType.System_UInt32: return (uint)nuintValue;
-                            case SpecialType.System_UInt64: return (ulong)nuintValue;
-                            case SpecialType.System_SByte: return (sbyte)nuintValue;
-                            case SpecialType.System_Int16: return (short)nuintValue;
-                            case SpecialType.System_Int32: return (int)nuintValue;
-                            case SpecialType.System_Int64: return (long)nuintValue;
-                            case SpecialType.System_IntPtr: return (int)nuintValue;
-                            case SpecialType.System_Single: return (double)(float)nuintValue;
-                            case SpecialType.System_Double: return (double)nuintValue;
-                            case SpecialType.System_Decimal: return (decimal)nuintValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)nuintValue,
+                            SpecialType.System_Char => (char)nuintValue,
+                            SpecialType.System_UInt16 => (ushort)nuintValue,
+                            SpecialType.System_UInt32 => (uint)nuintValue,
+                            SpecialType.System_UInt64 => (ulong)nuintValue,
+                            SpecialType.System_SByte => (sbyte)nuintValue,
+                            SpecialType.System_Int16 => (short)nuintValue,
+                            SpecialType.System_Int32 => (int)nuintValue,
+                            SpecialType.System_Int64 => (long)nuintValue,
+                            SpecialType.System_IntPtr => (int)nuintValue,
+                            SpecialType.System_Single => (double)(float)nuintValue,
+                            SpecialType.System_Double => (double)nuintValue,
+                            SpecialType.System_Decimal => (decimal)nuintValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.SByte:
                         sbyte sbyteValue = value.SByteValue;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)sbyteValue;
-                            case SpecialType.System_Char: return (char)sbyteValue;
-                            case SpecialType.System_UInt16: return (ushort)sbyteValue;
-                            case SpecialType.System_UInt32: return (uint)sbyteValue;
-                            case SpecialType.System_UInt64: return (ulong)sbyteValue;
-                            case SpecialType.System_SByte: return (sbyte)sbyteValue;
-                            case SpecialType.System_Int16: return (short)sbyteValue;
-                            case SpecialType.System_Int32: return (int)sbyteValue;
-                            case SpecialType.System_Int64: return (long)sbyteValue;
-                            case SpecialType.System_IntPtr: return (int)sbyteValue;
-                            case SpecialType.System_UIntPtr: return (uint)sbyteValue;
-                            case SpecialType.System_Single:
-                            case SpecialType.System_Double: return (double)sbyteValue;
-                            case SpecialType.System_Decimal: return (decimal)sbyteValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)sbyteValue,
+                            SpecialType.System_Char => (char)sbyteValue,
+                            SpecialType.System_UInt16 => (ushort)sbyteValue,
+                            SpecialType.System_UInt32 => (uint)sbyteValue,
+                            SpecialType.System_UInt64 => (ulong)sbyteValue,
+                            SpecialType.System_SByte => (sbyte)sbyteValue,
+                            SpecialType.System_Int16 => (short)sbyteValue,
+                            SpecialType.System_Int32 => (int)sbyteValue,
+                            SpecialType.System_Int64 => (long)sbyteValue,
+                            SpecialType.System_IntPtr => (int)sbyteValue,
+                            SpecialType.System_UIntPtr => (uint)sbyteValue,
+                            SpecialType.System_Single or SpecialType.System_Double => (double)sbyteValue,
+                            SpecialType.System_Decimal => (decimal)sbyteValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Int16:
                         short int16Value = value.Int16Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)int16Value;
-                            case SpecialType.System_Char: return (char)int16Value;
-                            case SpecialType.System_UInt16: return (ushort)int16Value;
-                            case SpecialType.System_UInt32: return (uint)int16Value;
-                            case SpecialType.System_UInt64: return (ulong)int16Value;
-                            case SpecialType.System_SByte: return (sbyte)int16Value;
-                            case SpecialType.System_Int16: return (short)int16Value;
-                            case SpecialType.System_Int32: return (int)int16Value;
-                            case SpecialType.System_Int64: return (long)int16Value;
-                            case SpecialType.System_IntPtr: return (int)int16Value;
-                            case SpecialType.System_UIntPtr: return (uint)int16Value;
-                            case SpecialType.System_Single:
-                            case SpecialType.System_Double: return (double)int16Value;
-                            case SpecialType.System_Decimal: return (decimal)int16Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)int16Value,
+                            SpecialType.System_Char => (char)int16Value,
+                            SpecialType.System_UInt16 => (ushort)int16Value,
+                            SpecialType.System_UInt32 => (uint)int16Value,
+                            SpecialType.System_UInt64 => (ulong)int16Value,
+                            SpecialType.System_SByte => (sbyte)int16Value,
+                            SpecialType.System_Int16 => (short)int16Value,
+                            SpecialType.System_Int32 => (int)int16Value,
+                            SpecialType.System_Int64 => (long)int16Value,
+                            SpecialType.System_IntPtr => (int)int16Value,
+                            SpecialType.System_UIntPtr => (uint)int16Value,
+                            SpecialType.System_Single or SpecialType.System_Double => (double)int16Value,
+                            SpecialType.System_Decimal => (decimal)int16Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Int32:
                         int int32Value = value.Int32Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)int32Value;
-                            case SpecialType.System_Char: return (char)int32Value;
-                            case SpecialType.System_UInt16: return (ushort)int32Value;
-                            case SpecialType.System_UInt32: return (uint)int32Value;
-                            case SpecialType.System_UInt64: return (ulong)int32Value;
-                            case SpecialType.System_SByte: return (sbyte)int32Value;
-                            case SpecialType.System_Int16: return (short)int32Value;
-                            case SpecialType.System_Int32: return (int)int32Value;
-                            case SpecialType.System_Int64: return (long)int32Value;
-                            case SpecialType.System_IntPtr: return (int)int32Value;
-                            case SpecialType.System_UIntPtr: return (uint)int32Value;
-                            case SpecialType.System_Single: return (double)(float)int32Value;
-                            case SpecialType.System_Double: return (double)int32Value;
-                            case SpecialType.System_Decimal: return (decimal)int32Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)int32Value,
+                            SpecialType.System_Char => (char)int32Value,
+                            SpecialType.System_UInt16 => (ushort)int32Value,
+                            SpecialType.System_UInt32 => (uint)int32Value,
+                            SpecialType.System_UInt64 => (ulong)int32Value,
+                            SpecialType.System_SByte => (sbyte)int32Value,
+                            SpecialType.System_Int16 => (short)int32Value,
+                            SpecialType.System_Int32 => (int)int32Value,
+                            SpecialType.System_Int64 => (long)int32Value,
+                            SpecialType.System_IntPtr => (int)int32Value,
+                            SpecialType.System_UIntPtr => (uint)int32Value,
+                            SpecialType.System_Single => (double)(float)int32Value,
+                            SpecialType.System_Double => (double)int32Value,
+                            SpecialType.System_Decimal => (decimal)int32Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Int64:
                         long int64Value = value.Int64Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)int64Value;
-                            case SpecialType.System_Char: return (char)int64Value;
-                            case SpecialType.System_UInt16: return (ushort)int64Value;
-                            case SpecialType.System_UInt32: return (uint)int64Value;
-                            case SpecialType.System_UInt64: return (ulong)int64Value;
-                            case SpecialType.System_SByte: return (sbyte)int64Value;
-                            case SpecialType.System_Int16: return (short)int64Value;
-                            case SpecialType.System_Int32: return (int)int64Value;
-                            case SpecialType.System_Int64: return (long)int64Value;
-                            case SpecialType.System_IntPtr: return (int)int64Value;
-                            case SpecialType.System_UIntPtr: return (uint)int64Value;
-                            case SpecialType.System_Single: return (double)(float)int64Value;
-                            case SpecialType.System_Double: return (double)int64Value;
-                            case SpecialType.System_Decimal: return (decimal)int64Value;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)int64Value,
+                            SpecialType.System_Char => (char)int64Value,
+                            SpecialType.System_UInt16 => (ushort)int64Value,
+                            SpecialType.System_UInt32 => (uint)int64Value,
+                            SpecialType.System_UInt64 => (ulong)int64Value,
+                            SpecialType.System_SByte => (sbyte)int64Value,
+                            SpecialType.System_Int16 => (short)int64Value,
+                            SpecialType.System_Int32 => (int)int64Value,
+                            SpecialType.System_Int64 => (long)int64Value,
+                            SpecialType.System_IntPtr => (int)int64Value,
+                            SpecialType.System_UIntPtr => (uint)int64Value,
+                            SpecialType.System_Single => (double)(float)int64Value,
+                            SpecialType.System_Double => (double)int64Value,
+                            SpecialType.System_Decimal => (decimal)int64Value,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.NInt:
                         int nintValue = value.Int32Value;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)nintValue;
-                            case SpecialType.System_Char: return (char)nintValue;
-                            case SpecialType.System_UInt16: return (ushort)nintValue;
-                            case SpecialType.System_UInt32: return (uint)nintValue;
-                            case SpecialType.System_UInt64: return (ulong)nintValue;
-                            case SpecialType.System_SByte: return (sbyte)nintValue;
-                            case SpecialType.System_Int16: return (short)nintValue;
-                            case SpecialType.System_Int32: return (int)nintValue;
-                            case SpecialType.System_Int64: return (long)nintValue;
-                            case SpecialType.System_IntPtr: return (int)nintValue;
-                            case SpecialType.System_UIntPtr: return (uint)nintValue;
-                            case SpecialType.System_Single: return (double)(float)nintValue;
-                            case SpecialType.System_Double: return (double)nintValue;
-                            case SpecialType.System_Decimal: return (decimal)nintValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)nintValue,
+                            SpecialType.System_Char => (char)nintValue,
+                            SpecialType.System_UInt16 => (ushort)nintValue,
+                            SpecialType.System_UInt32 => (uint)nintValue,
+                            SpecialType.System_UInt64 => (ulong)nintValue,
+                            SpecialType.System_SByte => (sbyte)nintValue,
+                            SpecialType.System_Int16 => (short)nintValue,
+                            SpecialType.System_Int32 => (int)nintValue,
+                            SpecialType.System_Int64 => (long)nintValue,
+                            SpecialType.System_IntPtr => (int)nintValue,
+                            SpecialType.System_UIntPtr => (uint)nintValue,
+                            SpecialType.System_Single => (double)(float)nintValue,
+                            SpecialType.System_Double => (double)nintValue,
+                            SpecialType.System_Decimal => (decimal)nintValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Single:
                     case ConstantValueTypeDiscriminator.Double:
                         // When converting from a floating-point type to an integral type, if the checked conversion would
                         // throw an overflow exception, then the unchecked conversion is undefined.  So that we have
                         // identical behavior on every host platform, we yield a result of zero in that case.
                         double doubleValue = CheckConstantBounds(destinationType, value.DoubleValue, out _) ? value.DoubleValue : 0D;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)doubleValue;
-                            case SpecialType.System_Char: return (char)doubleValue;
-                            case SpecialType.System_UInt16: return (ushort)doubleValue;
-                            case SpecialType.System_UInt32: return (uint)doubleValue;
-                            case SpecialType.System_UInt64: return (ulong)doubleValue;
-                            case SpecialType.System_SByte: return (sbyte)doubleValue;
-                            case SpecialType.System_Int16: return (short)doubleValue;
-                            case SpecialType.System_Int32: return (int)doubleValue;
-                            case SpecialType.System_Int64: return (long)doubleValue;
-                            case SpecialType.System_IntPtr: return (int)doubleValue;
-                            case SpecialType.System_UIntPtr: return (uint)doubleValue;
-                            case SpecialType.System_Single: return (double)(float)doubleValue;
-                            case SpecialType.System_Double: return (double)doubleValue;
-                            case SpecialType.System_Decimal: return (value.Discriminator == ConstantValueTypeDiscriminator.Single) ? (decimal)(float)doubleValue : (decimal)doubleValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)doubleValue,
+                            SpecialType.System_Char => (char)doubleValue,
+                            SpecialType.System_UInt16 => (ushort)doubleValue,
+                            SpecialType.System_UInt32 => (uint)doubleValue,
+                            SpecialType.System_UInt64 => (ulong)doubleValue,
+                            SpecialType.System_SByte => (sbyte)doubleValue,
+                            SpecialType.System_Int16 => (short)doubleValue,
+                            SpecialType.System_Int32 => (int)doubleValue,
+                            SpecialType.System_Int64 => (long)doubleValue,
+                            SpecialType.System_IntPtr => (int)doubleValue,
+                            SpecialType.System_UIntPtr => (uint)doubleValue,
+                            SpecialType.System_Single => (double)(float)doubleValue,
+                            SpecialType.System_Double => (double)doubleValue,
+                            SpecialType.System_Decimal => (value.Discriminator == ConstantValueTypeDiscriminator.Single) ? (decimal)(float)doubleValue : (decimal)doubleValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     case ConstantValueTypeDiscriminator.Decimal:
                         decimal decimalValue = CheckConstantBounds(destinationType, value.DecimalValue, out _) ? value.DecimalValue : 0m;
-                        switch (destinationType)
+                        return destinationType switch
                         {
-                            case SpecialType.System_Byte: return (byte)decimalValue;
-                            case SpecialType.System_Char: return (char)decimalValue;
-                            case SpecialType.System_UInt16: return (ushort)decimalValue;
-                            case SpecialType.System_UInt32: return (uint)decimalValue;
-                            case SpecialType.System_UInt64: return (ulong)decimalValue;
-                            case SpecialType.System_SByte: return (sbyte)decimalValue;
-                            case SpecialType.System_Int16: return (short)decimalValue;
-                            case SpecialType.System_Int32: return (int)decimalValue;
-                            case SpecialType.System_Int64: return (long)decimalValue;
-                            case SpecialType.System_IntPtr: return (int)decimalValue;
-                            case SpecialType.System_UIntPtr: return (uint)decimalValue;
-                            case SpecialType.System_Single: return (double)(float)decimalValue;
-                            case SpecialType.System_Double: return (double)decimalValue;
-                            case SpecialType.System_Decimal: return (decimal)decimalValue;
-                            default: throw ExceptionUtilities.UnexpectedValue(destinationType);
-                        }
+                            SpecialType.System_Byte => (byte)decimalValue,
+                            SpecialType.System_Char => (char)decimalValue,
+                            SpecialType.System_UInt16 => (ushort)decimalValue,
+                            SpecialType.System_UInt32 => (uint)decimalValue,
+                            SpecialType.System_UInt64 => (ulong)decimalValue,
+                            SpecialType.System_SByte => (sbyte)decimalValue,
+                            SpecialType.System_Int16 => (short)decimalValue,
+                            SpecialType.System_Int32 => (int)decimalValue,
+                            SpecialType.System_Int64 => (long)decimalValue,
+                            SpecialType.System_IntPtr => (int)decimalValue,
+                            SpecialType.System_UIntPtr => (uint)decimalValue,
+                            SpecialType.System_Single => (double)(float)decimalValue,
+                            SpecialType.System_Double => (double)decimalValue,
+                            SpecialType.System_Decimal => (decimal)decimalValue,
+                            _ => throw ExceptionUtilities.UnexpectedValue(destinationType),
+                        };
                     default:
                         throw ExceptionUtilities.UnexpectedValue(value.Discriminator);
                 }
@@ -3591,24 +3578,23 @@ namespace Microsoft.CodeAnalysis.CSharp
         // Takes in a constant of any kind and returns the constant as either a double or decimal
         private static object CanonicalizeConstant(ConstantValue value)
         {
-            switch (value.Discriminator)
+            return value.Discriminator switch
             {
-                case ConstantValueTypeDiscriminator.SByte: return (decimal)value.SByteValue;
-                case ConstantValueTypeDiscriminator.Int16: return (decimal)value.Int16Value;
-                case ConstantValueTypeDiscriminator.Int32: return (decimal)value.Int32Value;
-                case ConstantValueTypeDiscriminator.Int64: return (decimal)value.Int64Value;
-                case ConstantValueTypeDiscriminator.NInt: return (decimal)value.Int32Value;
-                case ConstantValueTypeDiscriminator.Byte: return (decimal)value.ByteValue;
-                case ConstantValueTypeDiscriminator.Char: return (decimal)value.CharValue;
-                case ConstantValueTypeDiscriminator.UInt16: return (decimal)value.UInt16Value;
-                case ConstantValueTypeDiscriminator.UInt32: return (decimal)value.UInt32Value;
-                case ConstantValueTypeDiscriminator.UInt64: return (decimal)value.UInt64Value;
-                case ConstantValueTypeDiscriminator.NUInt: return (decimal)value.UInt32Value;
-                case ConstantValueTypeDiscriminator.Single:
-                case ConstantValueTypeDiscriminator.Double: return value.DoubleValue;
-                case ConstantValueTypeDiscriminator.Decimal: return value.DecimalValue;
-                default: throw ExceptionUtilities.UnexpectedValue(value.Discriminator);
-            }
+                ConstantValueTypeDiscriminator.SByte => (decimal)value.SByteValue,
+                ConstantValueTypeDiscriminator.Int16 => (decimal)value.Int16Value,
+                ConstantValueTypeDiscriminator.Int32 => (decimal)value.Int32Value,
+                ConstantValueTypeDiscriminator.Int64 => (decimal)value.Int64Value,
+                ConstantValueTypeDiscriminator.NInt => (decimal)value.Int32Value,
+                ConstantValueTypeDiscriminator.Byte => (decimal)value.ByteValue,
+                ConstantValueTypeDiscriminator.Char => (decimal)value.CharValue,
+                ConstantValueTypeDiscriminator.UInt16 => (decimal)value.UInt16Value,
+                ConstantValueTypeDiscriminator.UInt32 => (decimal)value.UInt32Value,
+                ConstantValueTypeDiscriminator.UInt64 => (decimal)value.UInt64Value,
+                ConstantValueTypeDiscriminator.NUInt => (decimal)value.UInt32Value,
+                ConstantValueTypeDiscriminator.Single or ConstantValueTypeDiscriminator.Double => value.DoubleValue,
+                ConstantValueTypeDiscriminator.Decimal => value.DecimalValue,
+                _ => throw ExceptionUtilities.UnexpectedValue(value.Discriminator),
+            };
 
             // all cases handled in the switch, above.
         }

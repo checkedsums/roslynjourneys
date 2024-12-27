@@ -829,16 +829,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         private bool IsDefined(string id)
         {
             var defState = _context.IsDefined(id);
-            switch (defState)
+            return defState switch
             {
-                default:
-                case DefineState.Unspecified:
-                    return this.Options.PreprocessorSymbols.Contains(id);
-                case DefineState.Defined:
-                    return true;
-                case DefineState.Undefined:
-                    return false;
-            }
+                DefineState.Defined => true,
+                DefineState.Undefined => false,
+                _ => this.Options.PreprocessorSymbols.Contains(id),
+            };
         }
     }
 }

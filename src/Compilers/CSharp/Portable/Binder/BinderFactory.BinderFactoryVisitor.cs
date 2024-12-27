@@ -1171,23 +1171,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 XmlNameAttributeElementKind elementKind = parent.GetElementKind();
-
-                NodeUsage extraInfo;
-                switch (elementKind)
+                var extraInfo = elementKind switch
                 {
-                    case XmlNameAttributeElementKind.Parameter:
-                    case XmlNameAttributeElementKind.ParameterReference:
-                        extraInfo = NodeUsage.DocumentationCommentParameter;
-                        break;
-                    case XmlNameAttributeElementKind.TypeParameter:
-                        extraInfo = NodeUsage.DocumentationCommentTypeParameter;
-                        break;
-                    case XmlNameAttributeElementKind.TypeParameterReference:
-                        extraInfo = NodeUsage.DocumentationCommentTypeParameterReference;
-                        break;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(elementKind);
-                }
+                    XmlNameAttributeElementKind.Parameter or XmlNameAttributeElementKind.ParameterReference => NodeUsage.DocumentationCommentParameter,
+                    XmlNameAttributeElementKind.TypeParameter => NodeUsage.DocumentationCommentTypeParameter,
+                    XmlNameAttributeElementKind.TypeParameterReference => NodeUsage.DocumentationCommentTypeParameterReference,
+                    _ => throw ExceptionUtilities.UnexpectedValue(elementKind),
+                };
 
                 // Cleverness: rather than using this node as the key, we're going to use the
                 // enclosing doc comment, because all name attributes with the same element

@@ -2928,25 +2928,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return true;
             }
 
-            switch (argumentSyntax.Expression.Kind())
+            return argumentSyntax.Expression.Kind() switch
             {
                 // The next 3 cases should never be allowed as they cannot be ref/out. Assuming a bug in legacy compiler.
-                case SyntaxKind.ParenthesizedLambdaExpression:
-                case SyntaxKind.SimpleLambdaExpression:
-                case SyntaxKind.AnonymousMethodExpression:
-                case SyntaxKind.InvocationExpression:
-                case SyntaxKind.ObjectCreationExpression:
-                case SyntaxKind.ImplicitObjectCreationExpression:
-                case SyntaxKind.ParenthesizedExpression: // this is never allowed in legacy compiler
-                case SyntaxKind.DeclarationExpression:
-                    // A property/indexer is also invalid as it cannot be ref/out, but cannot be checked here. Assuming a bug in legacy compiler.
-                    return true;
-                default:
-                    // The only ones that concern us here for compat is: locals, params, fields
-                    // BindArgumentAndName correctly rejects all other cases, except for properties and indexers.
-                    // They are handled after BindArgumentAndName returns and the binding can be checked.
-                    return false;
-            }
+                SyntaxKind.ParenthesizedLambdaExpression or SyntaxKind.SimpleLambdaExpression or SyntaxKind.AnonymousMethodExpression or SyntaxKind.InvocationExpression or SyntaxKind.ObjectCreationExpression or SyntaxKind.ImplicitObjectCreationExpression or SyntaxKind.ParenthesizedExpression or SyntaxKind.DeclarationExpression => true,// A property/indexer is also invalid as it cannot be ref/out, but cannot be checked here. Assuming a bug in legacy compiler.
+                _ => false,// The only ones that concern us here for compat is: locals, params, fields
+                           // BindArgumentAndName correctly rejects all other cases, except for properties and indexers.
+                           // They are handled after BindArgumentAndName returns and the binding can be checked.
+            };
         }
 
         private void BindArgumentAndName(
@@ -5380,23 +5369,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var implicitReceiver = new BoundObjectOrCollectionValuePlaceholder(typeSyntax, isForNewInstance, type) { WasCompilerGenerated = true };
 
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                case SyntaxKind.ObjectInitializerExpression:
-                    // Uses a special binder to produce customized diagnostics for the object initializer
-                    return BindObjectInitializerExpression(
-                        syntax, type, diagnostics, implicitReceiver, useObjectInitDiagnostics: true);
-
-                case SyntaxKind.WithInitializerExpression:
-                    return BindObjectInitializerExpression(
-                        syntax, type, diagnostics, implicitReceiver, useObjectInitDiagnostics: false);
-
-                case SyntaxKind.CollectionInitializerExpression:
-                    return BindCollectionInitializerExpression(syntax, type, diagnostics, implicitReceiver);
-
-                default:
-                    throw ExceptionUtilities.Unreachable();
-            }
+                SyntaxKind.ObjectInitializerExpression => BindObjectInitializerExpression(
+                                        syntax, type, diagnostics, implicitReceiver, useObjectInitDiagnostics: true),// Uses a special binder to produce customized diagnostics for the object initializer
+                SyntaxKind.WithInitializerExpression => BindObjectInitializerExpression(
+                                        syntax, type, diagnostics, implicitReceiver, useObjectInitDiagnostics: false),
+                SyntaxKind.CollectionInitializerExpression => BindCollectionInitializerExpression(syntax, type, diagnostics, implicitReceiver),
+                _ => throw ExceptionUtilities.Unreachable(),
+            };
         }
 #nullable disable
 
@@ -7056,25 +7037,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 specialType = type.EnumUnderlyingType.SpecialType;
             }
 
-            switch (specialType)
+            return specialType switch
             {
-                case SpecialType.System_SByte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_Byte:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Single:
-                case SpecialType.System_Double:
-                case SpecialType.System_Decimal:
-                case SpecialType.System_Boolean:
-                case SpecialType.System_Char:
-                    return ConstantValue.Default(specialType);
-            }
-
-            return null;
+                SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 or SpecialType.System_Byte or SpecialType.System_UInt16 or SpecialType.System_UInt32 or SpecialType.System_UInt64 or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal or SpecialType.System_Boolean or SpecialType.System_Char => ConstantValue.Default(specialType),
+                _ => null,
+            };
         }
 
         private BoundExpression BindLiteralConstant(LiteralExpressionSyntax node, BindingDiagnosticBag diagnostics)
@@ -8483,18 +8450,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                switch (receiver.Kind)
+                return receiver.Kind switch
                 {
-                    case BoundKind.PreviousSubmissionReference:
-                        // Could be either instance or static reference.
-                        return null;
-                    case BoundKind.TypeExpression:
-                        return false;
-                    case BoundKind.QueryClause:
-                        return IsInstanceReceiver(((BoundQueryClause)receiver).Value);
-                    default:
-                        return true;
-                }
+                    BoundKind.PreviousSubmissionReference => null,// Could be either instance or static reference.
+                    BoundKind.TypeExpression => false,
+                    BoundKind.QueryClause => IsInstanceReceiver(((BoundQueryClause)receiver).Value),
+                    _ => true,
+                };
             }
         }
 
@@ -8970,27 +8932,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(arguments != null);
 
             var exprType = expr.Type;
-            switch (exprType.TypeKind)
+            return exprType.TypeKind switch
             {
-                case TypeKind.Array:
-                    return BindArrayAccess(node, expr, arguments, diagnostics);
-
-                case TypeKind.Dynamic:
-                    return BindDynamicIndexer(node, expr, arguments, ImmutableArray<PropertySymbol>.Empty, diagnostics);
-
-                case TypeKind.Pointer:
-                    return BindPointerElementAccess(node, expr, arguments, diagnostics);
-
-                case TypeKind.Class:
-                case TypeKind.Struct:
-                case TypeKind.Interface:
-                case TypeKind.TypeParameter:
-                    return BindIndexerAccess(node, expr, arguments, diagnostics);
-
-                case TypeKind.Submission: // script class is synthesized and should not be used as a type of an indexer expression:
-                default:
-                    return BadIndexerExpression(node, expr, arguments, null, diagnostics);
-            }
+                TypeKind.Array => BindArrayAccess(node, expr, arguments, diagnostics),
+                TypeKind.Dynamic => BindDynamicIndexer(node, expr, arguments, ImmutableArray<PropertySymbol>.Empty, diagnostics),
+                TypeKind.Pointer => BindPointerElementAccess(node, expr, arguments, diagnostics),
+                TypeKind.Class or TypeKind.Struct or TypeKind.Interface or TypeKind.TypeParameter => BindIndexerAccess(node, expr, arguments, diagnostics),
+                // script class is synthesized and should not be used as a type of an indexer expression:
+                _ => BadIndexerExpression(node, expr, arguments, null, diagnostics),
+            };
         }
 
         private BoundExpression BindArrayAccess(SyntaxNode node, BoundExpression expr, AnalyzedArguments arguments, BindingDiagnosticBag diagnostics)

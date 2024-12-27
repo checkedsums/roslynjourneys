@@ -48,20 +48,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected override ImmutableArray<LocalSymbol> BuildLocals()
         {
             var locals = ArrayBuilder<LocalSymbol>.GetInstance();
-            ExpressionSyntax condition;
-
-            switch (_syntax.Kind())
+            ExpressionSyntax condition = _syntax.Kind() switch
             {
-                case SyntaxKind.WhileStatement:
-                    condition = ((WhileStatementSyntax)_syntax).Condition;
-                    break;
-                case SyntaxKind.DoStatement:
-                    condition = ((DoStatementSyntax)_syntax).Condition;
-                    break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(_syntax.Kind());
-            }
-
+                SyntaxKind.WhileStatement => ((WhileStatementSyntax)_syntax).Condition,
+                SyntaxKind.DoStatement => ((DoStatementSyntax)_syntax).Condition,
+                _ => throw ExceptionUtilities.UnexpectedValue(_syntax.Kind()),
+            };
             ExpressionVariableFinder.FindExpressionVariables(this, locals, node: condition);
             return locals.ToImmutableAndFree();
         }

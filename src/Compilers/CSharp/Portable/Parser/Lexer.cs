@@ -205,24 +205,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             get
             {
-                switch (ModeOf(_mode))
+                return ModeOf(_mode) switch
                 {
-                    case LexerMode.XmlDocComment:
-                    case LexerMode.XmlElementTag:
-                    case LexerMode.XmlAttributeTextQuote:
-                    case LexerMode.XmlAttributeTextDoubleQuote:
-                    case LexerMode.XmlCrefQuote:
-                    case LexerMode.XmlCrefDoubleQuote:
-                    case LexerMode.XmlNameQuote:
-                    case LexerMode.XmlNameDoubleQuote:
-                    case LexerMode.XmlCDataSectionText:
-                    case LexerMode.XmlCommentText:
-                    case LexerMode.XmlProcessingInstructionText:
-                    case LexerMode.XmlCharacter:
-                        return true;
-                    default:
-                        return false;
-                }
+                    LexerMode.XmlDocComment or LexerMode.XmlElementTag or LexerMode.XmlAttributeTextQuote or LexerMode.XmlAttributeTextDoubleQuote or LexerMode.XmlCrefQuote or LexerMode.XmlCrefDoubleQuote or LexerMode.XmlNameQuote or LexerMode.XmlNameDoubleQuote or LexerMode.XmlCDataSectionText or LexerMode.XmlCommentText or LexerMode.XmlProcessingInstructionText or LexerMode.XmlCharacter => true,
+                    _ => false,
+                };
             }
         }
 
@@ -252,33 +239,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     return this.LexDirectiveToken();
             }
 
-            switch (ModeOf(_mode))
+            return ModeOf(_mode) switch
             {
-                case LexerMode.XmlDocComment:
-                    return this.LexXmlToken();
-                case LexerMode.XmlElementTag:
-                    return this.LexXmlElementTagToken();
-                case LexerMode.XmlAttributeTextQuote:
-                case LexerMode.XmlAttributeTextDoubleQuote:
-                    return this.LexXmlAttributeTextToken();
-                case LexerMode.XmlCDataSectionText:
-                    return this.LexXmlCDataSectionTextToken();
-                case LexerMode.XmlCommentText:
-                    return this.LexXmlCommentTextToken();
-                case LexerMode.XmlProcessingInstructionText:
-                    return this.LexXmlProcessingInstructionTextToken();
-                case LexerMode.XmlCrefQuote:
-                case LexerMode.XmlCrefDoubleQuote:
-                    return this.LexXmlCrefOrNameToken();
-                case LexerMode.XmlNameQuote:
-                case LexerMode.XmlNameDoubleQuote:
-                    // Same lexing as a cref attribute, just treat the identifiers a little differently.
-                    return this.LexXmlCrefOrNameToken();
-                case LexerMode.XmlCharacter:
-                    return this.LexXmlCharacter();
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(ModeOf(_mode));
-            }
+                LexerMode.XmlDocComment => this.LexXmlToken(),
+                LexerMode.XmlElementTag => this.LexXmlElementTagToken(),
+                LexerMode.XmlAttributeTextQuote or LexerMode.XmlAttributeTextDoubleQuote => this.LexXmlAttributeTextToken(),
+                LexerMode.XmlCDataSectionText => this.LexXmlCDataSectionTextToken(),
+                LexerMode.XmlCommentText => this.LexXmlCommentTextToken(),
+                LexerMode.XmlProcessingInstructionText => this.LexXmlProcessingInstructionTextToken(),
+                LexerMode.XmlCrefQuote or LexerMode.XmlCrefDoubleQuote => this.LexXmlCrefOrNameToken(),
+                LexerMode.XmlNameQuote or LexerMode.XmlNameDoubleQuote => this.LexXmlCrefOrNameToken(),// Same lexing as a cref attribute, just treat the identifiers a little differently.
+                LexerMode.XmlCharacter => this.LexXmlCharacter(),
+                _ => throw ExceptionUtilities.UnexpectedValue(ModeOf(_mode)),
+            };
         }
 
         private SyntaxListBuilder _leadingTriviaCache = new SyntaxListBuilder(10);
@@ -355,33 +328,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         token = SyntaxFactory.Identifier(info.ContextualKind, leadingNode, info.Text, info.StringValue, trailingNode);
                         break;
                     case SyntaxKind.NumericLiteralToken:
-                        switch (info.ValueKind)
+                        token = info.ValueKind switch
                         {
-                            case SpecialType.System_Int32:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.IntValue, trailingNode);
-                                break;
-                            case SpecialType.System_UInt32:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.UintValue, trailingNode);
-                                break;
-                            case SpecialType.System_Int64:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.LongValue, trailingNode);
-                                break;
-                            case SpecialType.System_UInt64:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.UlongValue, trailingNode);
-                                break;
-                            case SpecialType.System_Single:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.FloatValue, trailingNode);
-                                break;
-                            case SpecialType.System_Double:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.DoubleValue, trailingNode);
-                                break;
-                            case SpecialType.System_Decimal:
-                                token = SyntaxFactory.Literal(leadingNode, info.Text, info.DecimalValue, trailingNode);
-                                break;
-                            default:
-                                throw ExceptionUtilities.UnexpectedValue(info.ValueKind);
-                        }
-
+                            SpecialType.System_Int32 => SyntaxFactory.Literal(leadingNode, info.Text, info.IntValue, trailingNode),
+                            SpecialType.System_UInt32 => SyntaxFactory.Literal(leadingNode, info.Text, info.UintValue, trailingNode),
+                            SpecialType.System_Int64 => SyntaxFactory.Literal(leadingNode, info.Text, info.LongValue, trailingNode),
+                            SpecialType.System_UInt64 => SyntaxFactory.Literal(leadingNode, info.Text, info.UlongValue, trailingNode),
+                            SpecialType.System_Single => SyntaxFactory.Literal(leadingNode, info.Text, info.FloatValue, trailingNode),
+                            SpecialType.System_Double => SyntaxFactory.Literal(leadingNode, info.Text, info.DoubleValue, trailingNode),
+                            SpecialType.System_Decimal => SyntaxFactory.Literal(leadingNode, info.Text, info.DecimalValue, trailingNode),
+                            _ => throw ExceptionUtilities.UnexpectedValue(info.ValueKind),
+                        };
                         break;
                     case SyntaxKind.InterpolatedStringToken:
                         // we do not record a separate "value" for an interpolated string token, as it must be rescanned during parsing.
@@ -3911,16 +3868,11 @@ top:
         {
             get
             {
-                switch (_mode & LexerMode.MaskLexMode)
+                return (_mode & LexerMode.MaskLexMode) switch
                 {
-                    case LexerMode.XmlCrefQuote:
-                    case LexerMode.XmlCrefDoubleQuote:
-                    case LexerMode.XmlNameQuote:
-                    case LexerMode.XmlNameDoubleQuote:
-                        return true;
-                    default:
-                        return false;
-                }
+                    LexerMode.XmlCrefQuote or LexerMode.XmlCrefDoubleQuote or LexerMode.XmlNameQuote or LexerMode.XmlNameDoubleQuote => true,
+                    _ => false,
+                };
             }
         }
 
@@ -3932,14 +3884,11 @@ top:
         {
             get
             {
-                switch (_mode & LexerMode.MaskLexMode)
+                return (_mode & LexerMode.MaskLexMode) switch
                 {
-                    case LexerMode.XmlNameQuote:
-                    case LexerMode.XmlNameDoubleQuote:
-                        return true;
-                    default:
-                        return false;
-                }
+                    LexerMode.XmlNameQuote or LexerMode.XmlNameDoubleQuote => true,
+                    _ => false,
+                };
             }
         }
 

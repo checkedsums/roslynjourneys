@@ -388,95 +388,78 @@ namespace Microsoft.CodeAnalysis.CSharp
             isLifted = opKind.IsLifted();
             requiresLifted = opKind.IsComparison();
 
-            switch (opKind.Operator())
+            return opKind.Operator() switch
             {
-                case BinaryOperatorKind.Addition:
-                    return useCheckedFactory(isChecked, methodOpt) ?
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__AddChecked :
-                               WellKnownMember.System_Linq_Expressions_Expression__AddChecked_MethodInfo) :
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__Add :
-                               WellKnownMember.System_Linq_Expressions_Expression__Add_MethodInfo);
-                case BinaryOperatorKind.Multiplication:
-                    return useCheckedFactory(isChecked, methodOpt) ?
-                           (methodOpt is null ?
-                                   WellKnownMember.System_Linq_Expressions_Expression__MultiplyChecked :
-                                   WellKnownMember.System_Linq_Expressions_Expression__MultiplyChecked_MethodInfo) :
-                           (methodOpt is null ?
-                                   WellKnownMember.System_Linq_Expressions_Expression__Multiply :
-                                   WellKnownMember.System_Linq_Expressions_Expression__Multiply_MethodInfo);
-                case BinaryOperatorKind.Subtraction:
-                    return useCheckedFactory(isChecked, methodOpt) ?
-                           (methodOpt is null ?
-                                   WellKnownMember.System_Linq_Expressions_Expression__SubtractChecked :
-                                   WellKnownMember.System_Linq_Expressions_Expression__SubtractChecked_MethodInfo) :
-                           (methodOpt is null ?
-                                   WellKnownMember.System_Linq_Expressions_Expression__Subtract :
-                                   WellKnownMember.System_Linq_Expressions_Expression__Subtract_MethodInfo);
-                case BinaryOperatorKind.Division:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__Divide :
-                           WellKnownMember.System_Linq_Expressions_Expression__Divide_MethodInfo;
-                case BinaryOperatorKind.Remainder:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__Modulo :
-                           WellKnownMember.System_Linq_Expressions_Expression__Modulo_MethodInfo;
-                case BinaryOperatorKind.And:
-                    return opKind.IsLogical() ?
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__AndAlso :
-                               WellKnownMember.System_Linq_Expressions_Expression__AndAlso_MethodInfo) :
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__And :
-                               WellKnownMember.System_Linq_Expressions_Expression__And_MethodInfo);
-                case BinaryOperatorKind.Xor:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__ExclusiveOr :
-                           WellKnownMember.System_Linq_Expressions_Expression__ExclusiveOr_MethodInfo;
-                case BinaryOperatorKind.Or:
-                    return opKind.IsLogical() ?
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__OrElse :
-                               WellKnownMember.System_Linq_Expressions_Expression__OrElse_MethodInfo) :
-                           (methodOpt is null ?
-                               WellKnownMember.System_Linq_Expressions_Expression__Or :
-                               WellKnownMember.System_Linq_Expressions_Expression__Or_MethodInfo);
-                case BinaryOperatorKind.LeftShift:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__LeftShift :
-                           WellKnownMember.System_Linq_Expressions_Expression__LeftShift_MethodInfo;
-                case BinaryOperatorKind.RightShift:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__RightShift :
-                           WellKnownMember.System_Linq_Expressions_Expression__RightShift_MethodInfo;
-                case BinaryOperatorKind.Equal:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__Equal :
-                           WellKnownMember.System_Linq_Expressions_Expression__Equal_MethodInfo;
-                case BinaryOperatorKind.NotEqual:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__NotEqual :
-                           WellKnownMember.System_Linq_Expressions_Expression__NotEqual_MethodInfo;
-                case BinaryOperatorKind.LessThan:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__LessThan :
-                           WellKnownMember.System_Linq_Expressions_Expression__LessThan_MethodInfo;
-                case BinaryOperatorKind.LessThanOrEqual:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__LessThanOrEqual :
-                           WellKnownMember.System_Linq_Expressions_Expression__LessThanOrEqual_MethodInfo;
-                case BinaryOperatorKind.GreaterThan:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThan :
-                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThan_MethodInfo;
-                case BinaryOperatorKind.GreaterThanOrEqual:
-                    return methodOpt is null ?
-                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThanOrEqual :
-                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThanOrEqual_MethodInfo;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(opKind.Operator());
-            }
+                BinaryOperatorKind.Addition => useCheckedFactory(isChecked, methodOpt) ?
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__AddChecked :
+                                               WellKnownMember.System_Linq_Expressions_Expression__AddChecked_MethodInfo) :
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__Add :
+                                               WellKnownMember.System_Linq_Expressions_Expression__Add_MethodInfo),
+                BinaryOperatorKind.Multiplication => useCheckedFactory(isChecked, methodOpt) ?
+                                           (methodOpt is null ?
+                                                   WellKnownMember.System_Linq_Expressions_Expression__MultiplyChecked :
+                                                   WellKnownMember.System_Linq_Expressions_Expression__MultiplyChecked_MethodInfo) :
+                                           (methodOpt is null ?
+                                                   WellKnownMember.System_Linq_Expressions_Expression__Multiply :
+                                                   WellKnownMember.System_Linq_Expressions_Expression__Multiply_MethodInfo),
+                BinaryOperatorKind.Subtraction => useCheckedFactory(isChecked, methodOpt) ?
+                                           (methodOpt is null ?
+                                                   WellKnownMember.System_Linq_Expressions_Expression__SubtractChecked :
+                                                   WellKnownMember.System_Linq_Expressions_Expression__SubtractChecked_MethodInfo) :
+                                           (methodOpt is null ?
+                                                   WellKnownMember.System_Linq_Expressions_Expression__Subtract :
+                                                   WellKnownMember.System_Linq_Expressions_Expression__Subtract_MethodInfo),
+                BinaryOperatorKind.Division => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__Divide :
+                                           WellKnownMember.System_Linq_Expressions_Expression__Divide_MethodInfo,
+                BinaryOperatorKind.Remainder => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__Modulo :
+                                           WellKnownMember.System_Linq_Expressions_Expression__Modulo_MethodInfo,
+                BinaryOperatorKind.And => opKind.IsLogical() ?
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__AndAlso :
+                                               WellKnownMember.System_Linq_Expressions_Expression__AndAlso_MethodInfo) :
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__And :
+                                               WellKnownMember.System_Linq_Expressions_Expression__And_MethodInfo),
+                BinaryOperatorKind.Xor => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__ExclusiveOr :
+                                           WellKnownMember.System_Linq_Expressions_Expression__ExclusiveOr_MethodInfo,
+                BinaryOperatorKind.Or => opKind.IsLogical() ?
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__OrElse :
+                                               WellKnownMember.System_Linq_Expressions_Expression__OrElse_MethodInfo) :
+                                           (methodOpt is null ?
+                                               WellKnownMember.System_Linq_Expressions_Expression__Or :
+                                               WellKnownMember.System_Linq_Expressions_Expression__Or_MethodInfo),
+                BinaryOperatorKind.LeftShift => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__LeftShift :
+                                           WellKnownMember.System_Linq_Expressions_Expression__LeftShift_MethodInfo,
+                BinaryOperatorKind.RightShift => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__RightShift :
+                                           WellKnownMember.System_Linq_Expressions_Expression__RightShift_MethodInfo,
+                BinaryOperatorKind.Equal => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__Equal :
+                                           WellKnownMember.System_Linq_Expressions_Expression__Equal_MethodInfo,
+                BinaryOperatorKind.NotEqual => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__NotEqual :
+                                           WellKnownMember.System_Linq_Expressions_Expression__NotEqual_MethodInfo,
+                BinaryOperatorKind.LessThan => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__LessThan :
+                                           WellKnownMember.System_Linq_Expressions_Expression__LessThan_MethodInfo,
+                BinaryOperatorKind.LessThanOrEqual => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__LessThanOrEqual :
+                                           WellKnownMember.System_Linq_Expressions_Expression__LessThanOrEqual_MethodInfo,
+                BinaryOperatorKind.GreaterThan => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThan :
+                                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThan_MethodInfo,
+                BinaryOperatorKind.GreaterThanOrEqual => methodOpt is null ?
+                                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThanOrEqual :
+                                           WellKnownMember.System_Linq_Expressions_Expression__GreaterThanOrEqual_MethodInfo,
+                _ => throw ExceptionUtilities.UnexpectedValue(opKind.Operator()),
+            };
 
             static bool useCheckedFactory(bool isChecked, MethodSymbol methodOpt)
             {
@@ -622,15 +605,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(useSiteInfo.Diagnostics.IsNullOrEmpty());
             Diagnostics.AddDependencies(useSiteInfo);
 
-            switch (kind)
+            return kind switch
             {
-                case ConversionKind.Identity:
-                    return expr;
-                case ConversionKind.ExplicitNumeric:
-                    return Convert(expr, newType, true);
-                default:
-                    return Convert(expr, _int32Type, false);
-            }
+                ConversionKind.Identity => expr,
+                ConversionKind.ExplicitNumeric => Convert(expr, newType, true),
+                _ => Convert(expr, _int32Type, false),
+            };
         }
 
         private BoundExpression VisitCall(BoundCall node)
@@ -908,32 +888,24 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundExpression InitializerMemberSetter(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Field:
-                    return _bound.Convert(MemberInfoType, _bound.FieldInfo((FieldSymbol)symbol));
-                case SymbolKind.Property:
-                    return _bound.MethodInfo(((PropertySymbol)symbol).GetOwnOrInheritedSetMethod(), _bound.WellKnownType(WellKnownType.System_Reflection_MethodInfo));
-                case SymbolKind.Event:
-                    return _bound.Convert(MemberInfoType, _bound.FieldInfo(((EventSymbol)symbol).AssociatedField));
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
-            }
+                SymbolKind.Field => _bound.Convert(MemberInfoType, _bound.FieldInfo((FieldSymbol)symbol)),
+                SymbolKind.Property => _bound.MethodInfo(((PropertySymbol)symbol).GetOwnOrInheritedSetMethod(), _bound.WellKnownType(WellKnownType.System_Reflection_MethodInfo)),
+                SymbolKind.Event => _bound.Convert(MemberInfoType, _bound.FieldInfo(((EventSymbol)symbol).AssociatedField)),
+                _ => throw ExceptionUtilities.UnexpectedValue(symbol.Kind),
+            };
         }
 
         private BoundExpression InitializerMemberGetter(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Field:
-                    return _bound.Convert(MemberInfoType, _bound.FieldInfo((FieldSymbol)symbol));
-                case SymbolKind.Property:
-                    return _bound.MethodInfo(((PropertySymbol)symbol).GetOwnOrInheritedGetMethod(), _bound.WellKnownType(WellKnownType.System_Reflection_MethodInfo));
-                case SymbolKind.Event:
-                    return _bound.Convert(MemberInfoType, _bound.FieldInfo(((EventSymbol)symbol).AssociatedField));
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
-            }
+                SymbolKind.Field => _bound.Convert(MemberInfoType, _bound.FieldInfo((FieldSymbol)symbol)),
+                SymbolKind.Property => _bound.MethodInfo(((PropertySymbol)symbol).GetOwnOrInheritedGetMethod(), _bound.WellKnownType(WellKnownType.System_Reflection_MethodInfo)),
+                SymbolKind.Event => _bound.Convert(MemberInfoType, _bound.FieldInfo(((EventSymbol)symbol).AssociatedField)),
+                _ => throw ExceptionUtilities.UnexpectedValue(symbol.Kind),
+            };
         }
 
         private enum InitializerKind { Expression, MemberInitializer, CollectionInitializer };
@@ -1033,15 +1005,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (initializerExpressionOpt == null) return result;
             InitializerKind initializerKind;
             var init = VisitInitializer(initializerExpressionOpt, out initializerKind);
-            switch (initializerKind)
+            return initializerKind switch
             {
-                case InitializerKind.CollectionInitializer:
-                    return _bound.StaticCall(WellKnownMember.System_Linq_Expressions_Expression__ListInit, result, init);
-                case InitializerKind.MemberInitializer:
-                    return _bound.StaticCall(WellKnownMember.System_Linq_Expressions_Expression__MemberInit, result, init);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(initializerKind); // no other options at the top level of an initializer
-            }
+                InitializerKind.CollectionInitializer => _bound.StaticCall(WellKnownMember.System_Linq_Expressions_Expression__ListInit, result, init),
+                InitializerKind.MemberInitializer => _bound.StaticCall(WellKnownMember.System_Linq_Expressions_Expression__MemberInit, result, init),
+                _ => throw ExceptionUtilities.UnexpectedValue(initializerKind),// no other options at the top level of an initializer
+            };
         }
 
         private BoundExpression VisitObjectCreationExpressionInternal(BoundObjectCreationExpression node)
@@ -1163,23 +1132,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (node.MethodOpt is null)
             {
-                switch (opFactory)
+                opFactory = opFactory switch
                 {
-                    case WellKnownMember.System_Linq_Expressions_Expression__NegateChecked_Expression_MethodInfo:
-                        opFactory = WellKnownMember.System_Linq_Expressions_Expression__NegateChecked_Expression;
-                        break;
-
-                    case WellKnownMember.System_Linq_Expressions_Expression__Negate_Expression_MethodInfo:
-                        opFactory = WellKnownMember.System_Linq_Expressions_Expression__Negate_Expression;
-                        break;
-
-                    case WellKnownMember.System_Linq_Expressions_Expression__Not_Expression_MethodInfo:
-                        opFactory = WellKnownMember.System_Linq_Expressions_Expression__Not_Expression;
-                        break;
-
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(opFactory);
-                }
+                    WellKnownMember.System_Linq_Expressions_Expression__NegateChecked_Expression_MethodInfo => WellKnownMember.System_Linq_Expressions_Expression__NegateChecked_Expression,
+                    WellKnownMember.System_Linq_Expressions_Expression__Negate_Expression_MethodInfo => WellKnownMember.System_Linq_Expressions_Expression__Negate_Expression,
+                    WellKnownMember.System_Linq_Expressions_Expression__Not_Expression_MethodInfo => WellKnownMember.System_Linq_Expressions_Expression__Not_Expression,
+                    _ => throw ExceptionUtilities.UnexpectedValue(opFactory),
+                };
             }
 
             if (node.OperatorKind.OperandTypes() == UnaryOperatorKind.Enum && (opKind & UnaryOperatorKind.Lifted) != 0)

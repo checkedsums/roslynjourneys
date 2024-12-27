@@ -163,25 +163,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
 
             // The compiler may choose to turn this switch statement into a dictionary lookup
-            switch (text)
+            return text switch
             {
-                case DocumentationCommentXmlNames.CrefAttributeName:
-                    return s_crefToken;
-
-                case DocumentationCommentXmlNames.FileAttributeName:
-                    return s_fileToken;
-
-                case DocumentationCommentXmlNames.NameAttributeName:
-                    return s_nameToken;
-
-                case DocumentationCommentXmlNames.PathAttributeName:
-                    return s_pathToken;
-
-                case DocumentationCommentXmlNames.TypeAttributeName:
-                    return s_typeToken;
-            }
-
-            return null;
+                DocumentationCommentXmlNames.CrefAttributeName => s_crefToken,
+                DocumentationCommentXmlNames.FileAttributeName => s_fileToken,
+                DocumentationCommentXmlNames.NameAttributeName => s_nameToken,
+                DocumentationCommentXmlNames.PathAttributeName => s_pathToken,
+                DocumentationCommentXmlNames.TypeAttributeName => s_typeToken,
+                _ => null,
+            };
         }
     }
 }

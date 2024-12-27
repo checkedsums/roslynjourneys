@@ -637,15 +637,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </remarks>
         private static ImmutableArray<TypeParameterSymbol> GetTypeParameters(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Method:
-                case SymbolKind.NamedType:
-                case SymbolKind.ErrorType:
-                    return symbol.GetMemberTypeParameters();
-            }
-
-            return ImmutableArray<TypeParameterSymbol>.Empty;
+                SymbolKind.Method or SymbolKind.NamedType or SymbolKind.ErrorType => symbol.GetMemberTypeParameters(),
+                _ => ImmutableArray<TypeParameterSymbol>.Empty,
+            };
         }
 
         /// <summary>

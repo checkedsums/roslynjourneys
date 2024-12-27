@@ -200,14 +200,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (_name)
+                return _name switch
                 {
-                    case WellKnownMemberNames.InstanceConstructorName:
-                        return MethodKind.Constructor;
-                    default:
-                        // is there a reason to handle other special names?
-                        return MethodKind.Ordinary;
-                }
+                    WellKnownMemberNames.InstanceConstructorName => MethodKind.Constructor,
+                    _ => MethodKind.Ordinary,// is there a reason to handle other special names?
+                };
             }
         }
 

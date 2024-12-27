@@ -762,17 +762,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             // right hand side of the "::" here because it is so similar to a simple name; the left hand
             // side is in qualifierOpt.
 
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                default:
-                    return TypeWithAnnotations.Create(new ExtendedErrorTypeSymbol(qualifierOpt ?? this.Compilation.Assembly.GlobalNamespace, string.Empty, arity: 0, errorInfo: null));
-
-                case SyntaxKind.IdentifierName:
-                    return BindNonGenericSimpleNamespaceOrTypeOrAliasSymbol((IdentifierNameSyntax)syntax, diagnostics, basesBeingResolved, suppressUseSiteDiagnostics, qualifierOpt);
-
-                case SyntaxKind.GenericName:
-                    return BindGenericSimpleNamespaceOrTypeOrAliasSymbol((GenericNameSyntax)syntax, diagnostics, basesBeingResolved, qualifierOpt);
-            }
+                SyntaxKind.IdentifierName => BindNonGenericSimpleNamespaceOrTypeOrAliasSymbol((IdentifierNameSyntax)syntax, diagnostics, basesBeingResolved, suppressUseSiteDiagnostics, qualifierOpt),
+                SyntaxKind.GenericName => (NamespaceOrTypeOrAliasSymbolWithAnnotations)BindGenericSimpleNamespaceOrTypeOrAliasSymbol((GenericNameSyntax)syntax, diagnostics, basesBeingResolved, qualifierOpt),
+                _ => (NamespaceOrTypeOrAliasSymbolWithAnnotations)TypeWithAnnotations.Create(new ExtendedErrorTypeSymbol(qualifierOpt ?? this.Compilation.Assembly.GlobalNamespace, string.Empty, arity: 0, errorInfo: null)),
+            };
         }
 
         protected NamespaceOrTypeOrAliasSymbolWithAnnotations BindNonGenericSimpleNamespaceOrTypeOrAliasSymbol(
@@ -1369,31 +1364,26 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            switch (members[0].Kind)
+            return members[0].Kind switch
             {
-                case SymbolKind.Method:
-                    return new BoundMethodGroup(
-                        syntax,
-                        typeArguments,
-                        receiver,
-                        plainName,
-                        members.SelectAsArray(s_toMethodSymbolFunc),
-                        lookupResult,
-                        methodGroupFlags,
-                        this,
-                        hasErrors);
-
-                case SymbolKind.Property:
-                    return new BoundPropertyGroup(
-                        syntax,
-                        members.SelectAsArray(s_toPropertySymbolFunc),
-                        receiver,
-                        lookupResult.Kind,
-                        hasErrors);
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(members[0].Kind);
-            }
+                SymbolKind.Method => new BoundMethodGroup(
+                                        syntax,
+                                        typeArguments,
+                                        receiver,
+                                        plainName,
+                                        members.SelectAsArray(s_toMethodSymbolFunc),
+                                        lookupResult,
+                                        methodGroupFlags,
+                                        this,
+                                        hasErrors),
+                SymbolKind.Property => new BoundPropertyGroup(
+                                        syntax,
+                                        members.SelectAsArray(s_toPropertySymbolFunc),
+                                        receiver,
+                                        lookupResult.Kind,
+                                        hasErrors),
+                _ => throw ExceptionUtilities.UnexpectedValue(members[0].Kind),
+            };
         }
 
         private bool IsPossiblyCapturingPrimaryConstructorParameterReference(BoundExpression colorColorValueReceiver, out ParameterSymbol parameterSymbol)

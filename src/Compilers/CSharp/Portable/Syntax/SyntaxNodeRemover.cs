@@ -495,18 +495,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
             private static bool HasRelatedDirectives(DirectiveTriviaSyntax directive)
             {
-                switch (directive.Kind())
+                return directive.Kind() switch
                 {
-                    case SyntaxKind.IfDirectiveTrivia:
-                    case SyntaxKind.ElseDirectiveTrivia:
-                    case SyntaxKind.ElifDirectiveTrivia:
-                    case SyntaxKind.EndIfDirectiveTrivia:
-                    case SyntaxKind.RegionDirectiveTrivia:
-                    case SyntaxKind.EndRegionDirectiveTrivia:
-                        return true;
-                    default:
-                        return false;
-                }
+                    SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.EndIfDirectiveTrivia or SyntaxKind.RegionDirectiveTrivia or SyntaxKind.EndRegionDirectiveTrivia => true,
+                    _ => false,
+                };
             }
         }
     }

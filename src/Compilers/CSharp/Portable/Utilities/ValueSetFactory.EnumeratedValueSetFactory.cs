@@ -26,13 +26,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public IValueSet<T> Related(BinaryOperatorKind relation, T value)
             {
-                switch (relation)
+                return relation switch
                 {
-                    case Equal:
-                        return EnumeratedValueSet<T>.Including(value, _tc);
-                    default:
-                        return EnumeratedValueSet<T>.AllValues(_tc); // supported for error recovery
-                }
+                    Equal => EnumeratedValueSet<T>.Including(value, _tc),
+                    _ => EnumeratedValueSet<T>.AllValues(_tc),// supported for error recovery
+                };
             }
 
             IValueSet IValueSetFactory.Related(BinaryOperatorKind relation, ConstantValue value) =>

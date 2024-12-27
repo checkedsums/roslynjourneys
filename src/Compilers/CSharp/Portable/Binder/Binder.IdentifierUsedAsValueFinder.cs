@@ -398,21 +398,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             private bool ReduceQuery(Binder enclosingBinder, QueryTranslationState state)
             {
                 var topClause = state.clauses.Pop();
-                switch (topClause.Kind())
+                return topClause.Kind() switch
                 {
-                    case SyntaxKind.WhereClause:
-                        return ReduceWhere(enclosingBinder, (WhereClauseSyntax)topClause, state);
-                    case SyntaxKind.JoinClause:
-                        return ReduceJoin(enclosingBinder, (JoinClauseSyntax)topClause, state);
-                    case SyntaxKind.OrderByClause:
-                        return ReduceOrderBy(enclosingBinder, (OrderByClauseSyntax)topClause, state);
-                    case SyntaxKind.FromClause:
-                        return ReduceFrom(enclosingBinder, (FromClauseSyntax)topClause, state);
-                    case SyntaxKind.LetClause:
-                        return ReduceLet(enclosingBinder, (LetClauseSyntax)topClause, state);
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(topClause.Kind());
-                }
+                    SyntaxKind.WhereClause => ReduceWhere(enclosingBinder, (WhereClauseSyntax)topClause, state),
+                    SyntaxKind.JoinClause => ReduceJoin(enclosingBinder, (JoinClauseSyntax)topClause, state),
+                    SyntaxKind.OrderByClause => ReduceOrderBy(enclosingBinder, (OrderByClauseSyntax)topClause, state),
+                    SyntaxKind.FromClause => ReduceFrom(enclosingBinder, (FromClauseSyntax)topClause, state),
+                    SyntaxKind.LetClause => ReduceLet(enclosingBinder, (LetClauseSyntax)topClause, state),
+                    _ => throw ExceptionUtilities.UnexpectedValue(topClause.Kind()),
+                };
             }
 
             /// <summary>

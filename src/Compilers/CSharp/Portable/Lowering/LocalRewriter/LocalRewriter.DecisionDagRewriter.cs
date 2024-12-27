@@ -508,18 +508,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 bool canGenerateSwitchDispatch(BoundDecisionDagNode node)
                 {
-                    switch (node)
+                    return node switch
                     {
                         // These are the forms worth optimizing.
-                        case BoundTestDecisionDagNode { WhenFalse: BoundTestDecisionDagNode test2 } test1:
-                            return canDispatch(test1, test2);
-                        case BoundTestDecisionDagNode { WhenTrue: BoundTestDecisionDagNode test2 } test1:
-                            return canDispatch(test1, test2);
-                        default:
-                            // Other cases are just as well done with a single test.
-                            return false;
-                    }
-
+                        BoundTestDecisionDagNode { WhenFalse: BoundTestDecisionDagNode test2 } test1 => canDispatch(test1, test2),
+                        BoundTestDecisionDagNode { WhenTrue: BoundTestDecisionDagNode test2 } test1 => canDispatch(test1, test2),
+                        _ => false,// Other cases are just as well done with a single test.
+                    };
                     bool canDispatch(BoundTestDecisionDagNode test1, BoundTestDecisionDagNode test2)
                     {
                         if (this._dagNodeLabels.ContainsKey(test2))

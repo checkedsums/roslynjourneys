@@ -51,35 +51,25 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
         internal static SyntaxKind GetTypeDeclarationKeywordKind(DeclarationKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case DeclarationKind.Class:
-                    return SyntaxKind.ClassKeyword;
-                case DeclarationKind.Struct:
-                    return SyntaxKind.StructKeyword;
-                case DeclarationKind.Interface:
-                    return SyntaxKind.InterfaceKeyword;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                DeclarationKind.Class => SyntaxKind.ClassKeyword,
+                DeclarationKind.Struct => SyntaxKind.StructKeyword,
+                DeclarationKind.Interface => SyntaxKind.InterfaceKeyword,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         private static SyntaxKind GetTypeDeclarationKeywordKind(SyntaxKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.ClassDeclaration:
-                    return SyntaxKind.ClassKeyword;
-                case SyntaxKind.StructDeclaration:
-                    return SyntaxKind.StructKeyword;
-                case SyntaxKind.InterfaceDeclaration:
-                    return SyntaxKind.InterfaceKeyword;
-                case SyntaxKind.RecordDeclaration:
-                case SyntaxKind.RecordStructDeclaration:
-                    return SyntaxKind.RecordKeyword;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                SyntaxKind.ClassDeclaration => SyntaxKind.ClassKeyword,
+                SyntaxKind.StructDeclaration => SyntaxKind.StructKeyword,
+                SyntaxKind.InterfaceDeclaration => SyntaxKind.InterfaceKeyword,
+                SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration => SyntaxKind.RecordKeyword,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
 
         public static TypeDeclarationSyntax TypeDeclaration(SyntaxKind kind, SyntaxToken identifier)
@@ -118,21 +108,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxToken closeBraceToken,
             SyntaxToken semicolonToken)
         {
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.ClassDeclaration:
-                    return SyntaxFactory.ClassDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-                case SyntaxKind.StructDeclaration:
-                    return SyntaxFactory.StructDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-                case SyntaxKind.InterfaceDeclaration:
-                    return SyntaxFactory.InterfaceDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-                case SyntaxKind.RecordDeclaration:
-                    return SyntaxFactory.RecordDeclaration(SyntaxKind.RecordDeclaration, attributes, modifiers, keyword, classOrStructKeyword: default, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-                case SyntaxKind.RecordStructDeclaration:
-                    return SyntaxFactory.RecordDeclaration(SyntaxKind.RecordStructDeclaration, attributes, modifiers, keyword, classOrStructKeyword: SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                SyntaxKind.ClassDeclaration => SyntaxFactory.ClassDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.StructDeclaration => SyntaxFactory.StructDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.InterfaceDeclaration => SyntaxFactory.InterfaceDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.RecordDeclaration => SyntaxFactory.RecordDeclaration(SyntaxKind.RecordDeclaration, attributes, modifiers, keyword, classOrStructKeyword: default, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.RecordStructDeclaration => SyntaxFactory.RecordDeclaration(SyntaxKind.RecordStructDeclaration, attributes, modifiers, keyword, classOrStructKeyword: SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
     }
 }

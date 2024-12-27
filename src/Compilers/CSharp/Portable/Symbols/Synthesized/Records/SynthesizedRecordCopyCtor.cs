@@ -21,14 +21,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             : base(containingType)
         {
             _memberOffset = memberOffset;
-            Parameters = ImmutableArray.Create(SynthesizedParameterSymbol.Create(
+            Parameters = [SynthesizedParameterSymbol.Create(
                 this,
                 TypeWithAnnotations.Create(
                     isNullableEnabled: true,
                     ContainingType),
                 ordinal: 0,
                 RefKind.None,
-                "original"));
+                "original")];
         }
 
         public override ImmutableArray<ParameterSymbol> Parameters { get; }
@@ -131,22 +131,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         internal static bool IsCopyConstructor(Symbol member)
-        {
-            if (member is MethodSymbol { ContainingType.IsRecord: true, MethodKind: MethodKind.Constructor } method)
-            {
-                return HasCopyConstructorSignature(method);
-            }
-
-            return false;
-        }
+            => member is MethodSymbol { ContainingType.IsRecord: true, MethodKind: MethodKind.Constructor } method && HasCopyConstructorSignature(method);
 
         internal static bool HasCopyConstructorSignature(MethodSymbol member)
-        {
-            NamedTypeSymbol containingType = member.ContainingType;
-            return member is MethodSymbol { IsStatic: false, ParameterCount: 1, Arity: 0 } method &&
-                method.Parameters[0].Type.Equals(containingType, TypeCompareKind.AllIgnoreOptions) &&
+            => member is MethodSymbol { IsStatic: false, ParameterCount: 1, Arity: 0 } method &&
+                method.Parameters[0].Type.Equals(member.ContainingType, TypeCompareKind.AllIgnoreOptions) &&
                 method.Parameters[0].RefKind == RefKind.None;
-        }
 
         protected sealed override bool HasSetsRequiredMembersImpl
             // If the record type has a required members error, then it does have required members of some kind, we emit the SetsRequiredMembers attribute.

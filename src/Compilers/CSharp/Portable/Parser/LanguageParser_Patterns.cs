@@ -241,29 +241,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         /// </summary>
         bool CanTokenFollowTypeInPattern(Precedence precedence)
         {
-            switch (this.CurrentToken.Kind)
+            return CurrentToken.Kind switch
             {
-                case SyntaxKind.OpenParenToken:
-                case SyntaxKind.OpenBraceToken:
-                case SyntaxKind.IdentifierToken:
-                case SyntaxKind.CloseBraceToken:   // for efficiency, test some tokens that can follow a type pattern
-                case SyntaxKind.CloseBracketToken:
-                case SyntaxKind.CloseParenToken:
-                case SyntaxKind.CommaToken:
-                case SyntaxKind.SemicolonToken:
-                    return true;
-                case SyntaxKind.DotToken:
-                    // int.MaxValue is an expression, not a type.
-                    return false;
-                case SyntaxKind.MinusGreaterThanToken:
-                case SyntaxKind.ExclamationToken:
-                    // parse as an expression for error recovery
-                    return false;
-                case var kind:
-                    // If we find what looks like a continuation of an expression, it is not a type.
-                    return !SyntaxFacts.IsBinaryExpressionOperatorToken(kind) ||
-                           GetPrecedence(SyntaxFacts.GetBinaryExpression(kind)) <= precedence;
-            }
+                SyntaxKind.OpenParenToken or SyntaxKind.OpenBraceToken or SyntaxKind.IdentifierToken or SyntaxKind.CloseBraceToken or SyntaxKind.CloseBracketToken or SyntaxKind.CloseParenToken or SyntaxKind.CommaToken or SyntaxKind.SemicolonToken => true,
+                SyntaxKind.DotToken => false,// int.MaxValue is an expression, not a type.
+                SyntaxKind.MinusGreaterThanToken or SyntaxKind.ExclamationToken => false,// parse as an expression for error recovery
+                var kind => !SyntaxFacts.IsBinaryExpressionOperatorToken(kind) ||
+                                           GetPrecedence(SyntaxFacts.GetBinaryExpression(kind)) <= precedence,// If we find what looks like a continuation of an expression, it is not a type.
+            };
         }
 
         private PatternSyntax? ParsePatternContinued(TypeSyntax? type, Precedence precedence, bool inSwitchArmPattern)

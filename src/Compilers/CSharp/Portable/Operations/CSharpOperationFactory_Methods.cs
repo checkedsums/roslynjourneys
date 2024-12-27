@@ -180,15 +180,12 @@ namespace Microsoft.CodeAnalysis.Operations
         internal IOperation CreateMemberInitializerInitializedMember(BoundNode initializedMember)
         {
 
-            switch (initializedMember)
+            return initializedMember switch
             {
-                case BoundObjectInitializerMember objectInitializer:
-                    return CreateBoundObjectInitializerMemberOperation(objectInitializer, isObjectOrCollectionInitializer: true);
-                case BoundDynamicObjectInitializerMember dynamicInitializer:
-                    return CreateBoundDynamicObjectInitializerMemberOperation(dynamicInitializer);
-                default:
-                    return Create(initializedMember);
-            }
+                BoundObjectInitializerMember objectInitializer => CreateBoundObjectInitializerMemberOperation(objectInitializer, isObjectOrCollectionInitializer: true),
+                BoundDynamicObjectInitializerMember dynamicInitializer => CreateBoundDynamicObjectInitializerMemberOperation(dynamicInitializer),
+                _ => Create(initializedMember),
+            };
         }
 
         internal ImmutableArray<IArgumentOperation> DeriveArguments(BoundNode containingExpression)
@@ -494,119 +491,61 @@ namespace Microsoft.CodeAnalysis.Operations
         {
             internal static bool IsPostfixIncrementOrDecrement(CSharp.UnaryOperatorKind operatorKind)
             {
-                switch (operatorKind.Operator())
+                return operatorKind.Operator() switch
                 {
-                    case CSharp.UnaryOperatorKind.PostfixIncrement:
-                    case CSharp.UnaryOperatorKind.PostfixDecrement:
-                        return true;
-
-                    default:
-                        return false;
-                }
+                    CSharp.UnaryOperatorKind.PostfixIncrement or CSharp.UnaryOperatorKind.PostfixDecrement => true,
+                    _ => false,
+                };
             }
 
             internal static bool IsDecrement(CSharp.UnaryOperatorKind operatorKind)
             {
-                switch (operatorKind.Operator())
+                return operatorKind.Operator() switch
                 {
-                    case CSharp.UnaryOperatorKind.PrefixDecrement:
-                    case CSharp.UnaryOperatorKind.PostfixDecrement:
-                        return true;
-
-                    default:
-                        return false;
-                }
+                    CSharp.UnaryOperatorKind.PrefixDecrement or CSharp.UnaryOperatorKind.PostfixDecrement => true,
+                    _ => false,
+                };
             }
 
             internal static UnaryOperatorKind DeriveUnaryOperatorKind(CSharp.UnaryOperatorKind operatorKind)
             {
-                switch (operatorKind.Operator())
+                return operatorKind.Operator() switch
                 {
-                    case CSharp.UnaryOperatorKind.UnaryPlus:
-                        return UnaryOperatorKind.Plus;
-
-                    case CSharp.UnaryOperatorKind.UnaryMinus:
-                        return UnaryOperatorKind.Minus;
-
-                    case CSharp.UnaryOperatorKind.LogicalNegation:
-                        return UnaryOperatorKind.Not;
-
-                    case CSharp.UnaryOperatorKind.BitwiseComplement:
-                        return UnaryOperatorKind.BitwiseNegation;
-
-                    case CSharp.UnaryOperatorKind.True:
-                        return UnaryOperatorKind.True;
-
-                    case CSharp.UnaryOperatorKind.False:
-                        return UnaryOperatorKind.False;
-                }
-
-                return UnaryOperatorKind.None;
+                    CSharp.UnaryOperatorKind.UnaryPlus => UnaryOperatorKind.Plus,
+                    CSharp.UnaryOperatorKind.UnaryMinus => UnaryOperatorKind.Minus,
+                    CSharp.UnaryOperatorKind.LogicalNegation => UnaryOperatorKind.Not,
+                    CSharp.UnaryOperatorKind.BitwiseComplement => UnaryOperatorKind.BitwiseNegation,
+                    CSharp.UnaryOperatorKind.True => UnaryOperatorKind.True,
+                    CSharp.UnaryOperatorKind.False => UnaryOperatorKind.False,
+                    _ => UnaryOperatorKind.None,
+                };
             }
 
             internal static BinaryOperatorKind DeriveBinaryOperatorKind(CSharp.BinaryOperatorKind operatorKind)
             {
-                switch (operatorKind.OperatorWithLogical())
+                return operatorKind.OperatorWithLogical() switch
                 {
-                    case CSharp.BinaryOperatorKind.Addition:
-                        return BinaryOperatorKind.Add;
-
-                    case CSharp.BinaryOperatorKind.Subtraction:
-                        return BinaryOperatorKind.Subtract;
-
-                    case CSharp.BinaryOperatorKind.Multiplication:
-                        return BinaryOperatorKind.Multiply;
-
-                    case CSharp.BinaryOperatorKind.Division:
-                        return BinaryOperatorKind.Divide;
-
-                    case CSharp.BinaryOperatorKind.Remainder:
-                        return BinaryOperatorKind.Remainder;
-
-                    case CSharp.BinaryOperatorKind.LeftShift:
-                        return BinaryOperatorKind.LeftShift;
-
-                    case CSharp.BinaryOperatorKind.RightShift:
-                        return BinaryOperatorKind.RightShift;
-
-                    case CSharp.BinaryOperatorKind.UnsignedRightShift:
-                        return BinaryOperatorKind.UnsignedRightShift;
-
-                    case CSharp.BinaryOperatorKind.And:
-                        return BinaryOperatorKind.And;
-
-                    case CSharp.BinaryOperatorKind.Or:
-                        return BinaryOperatorKind.Or;
-
-                    case CSharp.BinaryOperatorKind.Xor:
-                        return BinaryOperatorKind.ExclusiveOr;
-
-                    case CSharp.BinaryOperatorKind.LessThan:
-                        return BinaryOperatorKind.LessThan;
-
-                    case CSharp.BinaryOperatorKind.LessThanOrEqual:
-                        return BinaryOperatorKind.LessThanOrEqual;
-
-                    case CSharp.BinaryOperatorKind.Equal:
-                        return BinaryOperatorKind.Equals;
-
-                    case CSharp.BinaryOperatorKind.NotEqual:
-                        return BinaryOperatorKind.NotEquals;
-
-                    case CSharp.BinaryOperatorKind.GreaterThanOrEqual:
-                        return BinaryOperatorKind.GreaterThanOrEqual;
-
-                    case CSharp.BinaryOperatorKind.GreaterThan:
-                        return BinaryOperatorKind.GreaterThan;
-
-                    case CSharp.BinaryOperatorKind.LogicalAnd:
-                        return BinaryOperatorKind.ConditionalAnd;
-
-                    case CSharp.BinaryOperatorKind.LogicalOr:
-                        return BinaryOperatorKind.ConditionalOr;
-                }
-
-                return BinaryOperatorKind.None;
+                    CSharp.BinaryOperatorKind.Addition => BinaryOperatorKind.Add,
+                    CSharp.BinaryOperatorKind.Subtraction => BinaryOperatorKind.Subtract,
+                    CSharp.BinaryOperatorKind.Multiplication => BinaryOperatorKind.Multiply,
+                    CSharp.BinaryOperatorKind.Division => BinaryOperatorKind.Divide,
+                    CSharp.BinaryOperatorKind.Remainder => BinaryOperatorKind.Remainder,
+                    CSharp.BinaryOperatorKind.LeftShift => BinaryOperatorKind.LeftShift,
+                    CSharp.BinaryOperatorKind.RightShift => BinaryOperatorKind.RightShift,
+                    CSharp.BinaryOperatorKind.UnsignedRightShift => BinaryOperatorKind.UnsignedRightShift,
+                    CSharp.BinaryOperatorKind.And => BinaryOperatorKind.And,
+                    CSharp.BinaryOperatorKind.Or => BinaryOperatorKind.Or,
+                    CSharp.BinaryOperatorKind.Xor => BinaryOperatorKind.ExclusiveOr,
+                    CSharp.BinaryOperatorKind.LessThan => BinaryOperatorKind.LessThan,
+                    CSharp.BinaryOperatorKind.LessThanOrEqual => BinaryOperatorKind.LessThanOrEqual,
+                    CSharp.BinaryOperatorKind.Equal => BinaryOperatorKind.Equals,
+                    CSharp.BinaryOperatorKind.NotEqual => BinaryOperatorKind.NotEquals,
+                    CSharp.BinaryOperatorKind.GreaterThanOrEqual => BinaryOperatorKind.GreaterThanOrEqual,
+                    CSharp.BinaryOperatorKind.GreaterThan => BinaryOperatorKind.GreaterThan,
+                    CSharp.BinaryOperatorKind.LogicalAnd => BinaryOperatorKind.ConditionalAnd,
+                    CSharp.BinaryOperatorKind.LogicalOr => BinaryOperatorKind.ConditionalOr,
+                    _ => BinaryOperatorKind.None,
+                };
             }
         }
     }

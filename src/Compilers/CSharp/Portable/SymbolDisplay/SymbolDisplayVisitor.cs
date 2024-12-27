@@ -113,27 +113,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsEscapable(SymbolDisplayPartKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case SymbolDisplayPartKind.AliasName:
-                case SymbolDisplayPartKind.ClassName:
-                case SymbolDisplayPartKind.RecordClassName:
-                case SymbolDisplayPartKind.StructName:
-                case SymbolDisplayPartKind.RecordStructName:
-                case SymbolDisplayPartKind.InterfaceName:
-                case SymbolDisplayPartKind.EnumName:
-                case SymbolDisplayPartKind.DelegateName:
-                case SymbolDisplayPartKind.TypeParameterName:
-                case SymbolDisplayPartKind.MethodName:
-                case SymbolDisplayPartKind.PropertyName:
-                case SymbolDisplayPartKind.FieldName:
-                case SymbolDisplayPartKind.LocalName:
-                case SymbolDisplayPartKind.NamespaceName:
-                case SymbolDisplayPartKind.ParameterName:
-                    return true;
-                default:
-                    return false;
-            }
+                SymbolDisplayPartKind.AliasName or SymbolDisplayPartKind.ClassName or SymbolDisplayPartKind.RecordClassName or SymbolDisplayPartKind.StructName or SymbolDisplayPartKind.RecordStructName or SymbolDisplayPartKind.InterfaceName or SymbolDisplayPartKind.EnumName or SymbolDisplayPartKind.DelegateName or SymbolDisplayPartKind.TypeParameterName or SymbolDisplayPartKind.MethodName or SymbolDisplayPartKind.PropertyName or SymbolDisplayPartKind.FieldName or SymbolDisplayPartKind.LocalName or SymbolDisplayPartKind.NamespaceName or SymbolDisplayPartKind.ParameterName => true,
+                _ => false,
+            };
         }
 
         private static string EscapeIdentifier(string identifier, bool isNamedTypeOrAliasName)

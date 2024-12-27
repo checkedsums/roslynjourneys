@@ -18,47 +18,28 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         {
             get
             {
-                switch (this.Kind())
+                return this.Kind() switch
                 {
-                    case SyntaxKind.IfDirectiveTrivia:
-                        return ((IfDirectiveTriviaSyntax)this).IfKeyword;
-                    case SyntaxKind.ElifDirectiveTrivia:
-                        return ((ElifDirectiveTriviaSyntax)this).ElifKeyword;
-                    case SyntaxKind.ElseDirectiveTrivia:
-                        return ((ElseDirectiveTriviaSyntax)this).ElseKeyword;
-                    case SyntaxKind.EndIfDirectiveTrivia:
-                        return ((EndIfDirectiveTriviaSyntax)this).EndIfKeyword;
-                    case SyntaxKind.RegionDirectiveTrivia:
-                        return ((RegionDirectiveTriviaSyntax)this).RegionKeyword;
-                    case SyntaxKind.EndRegionDirectiveTrivia:
-                        return ((EndRegionDirectiveTriviaSyntax)this).EndRegionKeyword;
-                    case SyntaxKind.ErrorDirectiveTrivia:
-                        return ((ErrorDirectiveTriviaSyntax)this).ErrorKeyword;
-                    case SyntaxKind.WarningDirectiveTrivia:
-                        return ((WarningDirectiveTriviaSyntax)this).WarningKeyword;
-                    case SyntaxKind.BadDirectiveTrivia:
-                        return ((BadDirectiveTriviaSyntax)this).Identifier;
-                    case SyntaxKind.DefineDirectiveTrivia:
-                        return ((DefineDirectiveTriviaSyntax)this).DefineKeyword;
-                    case SyntaxKind.UndefDirectiveTrivia:
-                        return ((UndefDirectiveTriviaSyntax)this).UndefKeyword;
-                    case SyntaxKind.LineDirectiveTrivia:
-                        return ((LineDirectiveTriviaSyntax)this).LineKeyword;
-                    case SyntaxKind.LineSpanDirectiveTrivia:
-                        return ((LineSpanDirectiveTriviaSyntax)this).LineKeyword;
-                    case SyntaxKind.PragmaWarningDirectiveTrivia:
-                        return ((PragmaWarningDirectiveTriviaSyntax)this).PragmaKeyword;
-                    case SyntaxKind.PragmaChecksumDirectiveTrivia:
-                        return ((PragmaChecksumDirectiveTriviaSyntax)this).PragmaKeyword;
-                    case SyntaxKind.ReferenceDirectiveTrivia:
-                        return ((ReferenceDirectiveTriviaSyntax)this).ReferenceKeyword;
-                    case SyntaxKind.LoadDirectiveTrivia:
-                        return ((LoadDirectiveTriviaSyntax)this).LoadKeyword;
-                    case SyntaxKind.ShebangDirectiveTrivia:
-                        return ((ShebangDirectiveTriviaSyntax)this).ExclamationToken;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(this.Kind());
-                }
+                    SyntaxKind.IfDirectiveTrivia => ((IfDirectiveTriviaSyntax)this).IfKeyword,
+                    SyntaxKind.ElifDirectiveTrivia => ((ElifDirectiveTriviaSyntax)this).ElifKeyword,
+                    SyntaxKind.ElseDirectiveTrivia => ((ElseDirectiveTriviaSyntax)this).ElseKeyword,
+                    SyntaxKind.EndIfDirectiveTrivia => ((EndIfDirectiveTriviaSyntax)this).EndIfKeyword,
+                    SyntaxKind.RegionDirectiveTrivia => ((RegionDirectiveTriviaSyntax)this).RegionKeyword,
+                    SyntaxKind.EndRegionDirectiveTrivia => ((EndRegionDirectiveTriviaSyntax)this).EndRegionKeyword,
+                    SyntaxKind.ErrorDirectiveTrivia => ((ErrorDirectiveTriviaSyntax)this).ErrorKeyword,
+                    SyntaxKind.WarningDirectiveTrivia => ((WarningDirectiveTriviaSyntax)this).WarningKeyword,
+                    SyntaxKind.BadDirectiveTrivia => ((BadDirectiveTriviaSyntax)this).Identifier,
+                    SyntaxKind.DefineDirectiveTrivia => ((DefineDirectiveTriviaSyntax)this).DefineKeyword,
+                    SyntaxKind.UndefDirectiveTrivia => ((UndefDirectiveTriviaSyntax)this).UndefKeyword,
+                    SyntaxKind.LineDirectiveTrivia => ((LineDirectiveTriviaSyntax)this).LineKeyword,
+                    SyntaxKind.LineSpanDirectiveTrivia => ((LineSpanDirectiveTriviaSyntax)this).LineKeyword,
+                    SyntaxKind.PragmaWarningDirectiveTrivia => ((PragmaWarningDirectiveTriviaSyntax)this).PragmaKeyword,
+                    SyntaxKind.PragmaChecksumDirectiveTrivia => ((PragmaChecksumDirectiveTriviaSyntax)this).PragmaKeyword,
+                    SyntaxKind.ReferenceDirectiveTrivia => ((ReferenceDirectiveTriviaSyntax)this).ReferenceKeyword,
+                    SyntaxKind.LoadDirectiveTrivia => ((LoadDirectiveTriviaSyntax)this).LoadKeyword,
+                    SyntaxKind.ShebangDirectiveTrivia => ((ShebangDirectiveTriviaSyntax)this).ExclamationToken,
+                    _ => throw ExceptionUtilities.UnexpectedValue(this.Kind()),
+                };
             }
         }
 

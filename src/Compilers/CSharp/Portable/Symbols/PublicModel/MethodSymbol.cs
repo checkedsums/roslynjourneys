@@ -34,45 +34,27 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
         {
             get
             {
-                switch (_underlying.MethodKind)
+                return _underlying.MethodKind switch
                 {
-                    case MethodKind.AnonymousFunction:
-                        return MethodKind.AnonymousFunction;
-                    case MethodKind.Constructor:
-                        return MethodKind.Constructor;
-                    case MethodKind.Conversion:
-                        return MethodKind.Conversion;
-                    case MethodKind.DelegateInvoke:
-                        return MethodKind.DelegateInvoke;
-                    case MethodKind.Destructor:
-                        return MethodKind.Destructor;
-                    case MethodKind.EventAdd:
-                        return MethodKind.EventAdd;
-                    case MethodKind.EventRemove:
-                        return MethodKind.EventRemove;
-                    case MethodKind.ExplicitInterfaceImplementation:
-                        return MethodKind.ExplicitInterfaceImplementation;
-                    case MethodKind.UserDefinedOperator:
-                        return MethodKind.UserDefinedOperator;
-                    case MethodKind.BuiltinOperator:
-                        return MethodKind.BuiltinOperator;
-                    case MethodKind.Ordinary:
-                        return MethodKind.Ordinary;
-                    case MethodKind.PropertyGet:
-                        return MethodKind.PropertyGet;
-                    case MethodKind.PropertySet:
-                        return MethodKind.PropertySet;
-                    case MethodKind.ReducedExtension:
-                        return MethodKind.ReducedExtension;
-                    case MethodKind.StaticConstructor:
-                        return MethodKind.StaticConstructor;
-                    case MethodKind.LocalFunction:
-                        return MethodKind.LocalFunction;
-                    case MethodKind.FunctionPointerSignature:
-                        return MethodKind.FunctionPointerSignature;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(_underlying.MethodKind);
-                }
+                    MethodKind.AnonymousFunction => MethodKind.AnonymousFunction,
+                    MethodKind.Constructor => MethodKind.Constructor,
+                    MethodKind.Conversion => MethodKind.Conversion,
+                    MethodKind.DelegateInvoke => MethodKind.DelegateInvoke,
+                    MethodKind.Destructor => MethodKind.Destructor,
+                    MethodKind.EventAdd => MethodKind.EventAdd,
+                    MethodKind.EventRemove => MethodKind.EventRemove,
+                    MethodKind.ExplicitInterfaceImplementation => MethodKind.ExplicitInterfaceImplementation,
+                    MethodKind.UserDefinedOperator => MethodKind.UserDefinedOperator,
+                    MethodKind.BuiltinOperator => MethodKind.BuiltinOperator,
+                    MethodKind.Ordinary => MethodKind.Ordinary,
+                    MethodKind.PropertyGet => MethodKind.PropertyGet,
+                    MethodKind.PropertySet => MethodKind.PropertySet,
+                    MethodKind.ReducedExtension => MethodKind.ReducedExtension,
+                    MethodKind.StaticConstructor => MethodKind.StaticConstructor,
+                    MethodKind.LocalFunction => MethodKind.LocalFunction,
+                    MethodKind.FunctionPointerSignature => MethodKind.FunctionPointerSignature,
+                    _ => throw ExceptionUtilities.UnexpectedValue(_underlying.MethodKind),
+                };
             }
         }
 

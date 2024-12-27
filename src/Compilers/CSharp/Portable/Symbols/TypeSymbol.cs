@@ -1222,13 +1222,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 MultiDictionary<Symbol, Symbol>.ValueSet implementingMember = FindImplementationInInterface(interfaceMember, implementingInterface);
 
-                switch (implementingMember.Count)
+                return implementingMember.Count switch
                 {
-                    case 1:
-                        return implementingMember.Single();
-                    default:
-                        return null;
-                }
+                    1 => implementingMember.Single(),
+                    _ => null,
+                };
             }
 
             static Symbol findMostSpecificImplementationInBases(
@@ -1538,23 +1536,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             MethodSymbol correspondingImplementingAccessor = null;
             if (implementingPropertyOrEvent is not null && !implementingPropertyOrEvent.ContainingType.IsInterface)
             {
-                switch (interfaceMethod.MethodKind)
+                correspondingImplementingAccessor = interfaceMethod.MethodKind switch
                 {
-                    case MethodKind.PropertyGet:
-                        correspondingImplementingAccessor = ((PropertySymbol)implementingPropertyOrEvent).GetOwnOrInheritedGetMethod();
-                        break;
-                    case MethodKind.PropertySet:
-                        correspondingImplementingAccessor = ((PropertySymbol)implementingPropertyOrEvent).GetOwnOrInheritedSetMethod();
-                        break;
-                    case MethodKind.EventAdd:
-                        correspondingImplementingAccessor = ((EventSymbol)implementingPropertyOrEvent).GetOwnOrInheritedAddMethod();
-                        break;
-                    case MethodKind.EventRemove:
-                        correspondingImplementingAccessor = ((EventSymbol)implementingPropertyOrEvent).GetOwnOrInheritedRemoveMethod();
-                        break;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(interfaceMethod.MethodKind);
-                }
+                    MethodKind.PropertyGet => ((PropertySymbol)implementingPropertyOrEvent).GetOwnOrInheritedGetMethod(),
+                    MethodKind.PropertySet => ((PropertySymbol)implementingPropertyOrEvent).GetOwnOrInheritedSetMethod(),
+                    MethodKind.EventAdd => ((EventSymbol)implementingPropertyOrEvent).GetOwnOrInheritedAddMethod(),
+                    MethodKind.EventRemove => ((EventSymbol)implementingPropertyOrEvent).GetOwnOrInheritedRemoveMethod(),
+                    _ => throw ExceptionUtilities.UnexpectedValue(interfaceMethod.MethodKind),
+                };
             }
 
             if (correspondingImplementingAccessor == implicitImpl)

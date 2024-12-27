@@ -4784,18 +4784,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else if (!operatorKind.IsDynamic() && !resultType.IsValueType)
             {
-                switch (operatorKind.Operator() | operatorKind.OperandTypes())
+                resultState = (operatorKind.Operator() | operatorKind.OperandTypes()) switch
                 {
-                    case BinaryOperatorKind.DelegateCombination:
-                        resultState = leftType.State.Meet(rightType.State);
-                        break;
-                    case BinaryOperatorKind.DelegateRemoval:
-                        resultState = NullableFlowState.MaybeNull; // Delegate removal can produce null.
-                        break;
-                    default:
-                        resultState = NullableFlowState.NotNull;
-                        break;
-                }
+                    BinaryOperatorKind.DelegateCombination => leftType.State.Meet(rightType.State),
+                    BinaryOperatorKind.DelegateRemoval => NullableFlowState.MaybeNull,// Delegate removal can produce null.
+                    _ => NullableFlowState.NotNull,
+                };
             }
 
             if (operatorKind.IsLifted() && !operatorKind.IsComparison())
@@ -11462,19 +11456,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (type.CanContainNull())
             {
-                switch (BoundNode.GetConversion(node.OperandConversion, node.OperandPlaceholder).Kind)
+                resultState = BoundNode.GetConversion(node.OperandConversion, node.OperandPlaceholder).Kind switch
                 {
-                    case ConversionKind.Identity:
-                    case ConversionKind.ImplicitReference:
-                    case ConversionKind.Boxing:
-                    case ConversionKind.ImplicitNullable:
-                        resultState = argumentType.State;
-                        break;
-
-                    default:
-                        resultState = NullableFlowState.MaybeDefault;
-                        break;
-                }
+                    ConversionKind.Identity or ConversionKind.ImplicitReference or ConversionKind.Boxing or ConversionKind.ImplicitNullable => argumentType.State,
+                    _ => NullableFlowState.MaybeDefault,
+                };
             }
 
             VisitTypeExpression(node.TargetType);

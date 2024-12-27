@@ -702,17 +702,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 get
                 {
-                    switch (_deconstruction.Kind())
+                    return _deconstruction.Kind() switch
                     {
-                        case SyntaxKind.SimpleAssignmentExpression:
-                            return _deconstruction;
-
-                        case SyntaxKind.ForEachVariableStatement:
-                            return ((ForEachVariableStatementSyntax)_deconstruction).Variable;
-
-                        default:
-                            return null;
-                    }
+                        SyntaxKind.SimpleAssignmentExpression => _deconstruction,
+                        SyntaxKind.ForEachVariableStatement => ((ForEachVariableStatementSyntax)_deconstruction).Variable,
+                        _ => null,
+                    };
                 }
             }
         }

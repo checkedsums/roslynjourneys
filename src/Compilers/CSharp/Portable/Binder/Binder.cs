@@ -392,19 +392,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             get
             {
                 var containingMember = this.ContainingMemberOrLambda;
-                switch (containingMember?.Kind)
+                return (containingMember?.Kind) switch
                 {
-                    case SymbolKind.Method:
-                        // global statements
-                        return ((MethodSymbol)containingMember).IsScriptInitializer;
-
-                    case SymbolKind.NamedType:
-                        // script variable initializers
-                        return ((NamedTypeSymbol)containingMember).IsScriptClass;
-
-                    default:
-                        return false;
-                }
+                    SymbolKind.Method => ((MethodSymbol)containingMember).IsScriptInitializer,// global statements
+                    SymbolKind.NamedType => ((NamedTypeSymbol)containingMember).IsScriptClass,// script variable initializers
+                    _ => false,
+                };
             }
         }
 

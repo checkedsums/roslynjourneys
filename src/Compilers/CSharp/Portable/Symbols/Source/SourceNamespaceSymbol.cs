@@ -397,28 +397,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private NamespaceOrTypeSymbol BuildSymbol(MergedNamespaceOrTypeDeclaration declaration, BindingDiagnosticBag diagnostics)
         {
-            switch (declaration.Kind)
+            return declaration.Kind switch
             {
-                case DeclarationKind.Namespace:
-                    return new SourceNamespaceSymbol(_module, this, (MergedNamespaceDeclaration)declaration, diagnostics);
-
-                case DeclarationKind.Struct:
-                case DeclarationKind.Interface:
-                case DeclarationKind.Enum:
-                case DeclarationKind.Delegate:
-                case DeclarationKind.Class:
-                case DeclarationKind.Record:
-                case DeclarationKind.RecordStruct:
-                    return new SourceNamedTypeSymbol(this, (MergedTypeDeclaration)declaration, diagnostics);
-
-                case DeclarationKind.Script:
-                case DeclarationKind.Submission:
-                case DeclarationKind.ImplicitClass:
-                    return new ImplicitNamedTypeSymbol(this, (MergedTypeDeclaration)declaration, diagnostics);
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(declaration.Kind);
-            }
+                DeclarationKind.Namespace => new SourceNamespaceSymbol(_module, this, (MergedNamespaceDeclaration)declaration, diagnostics),
+                DeclarationKind.Struct or DeclarationKind.Interface or DeclarationKind.Enum or DeclarationKind.Delegate or DeclarationKind.Class or DeclarationKind.Record or DeclarationKind.RecordStruct => new SourceNamedTypeSymbol(this, (MergedTypeDeclaration)declaration, diagnostics),
+                DeclarationKind.Script or DeclarationKind.Submission or DeclarationKind.ImplicitClass => new ImplicitNamedTypeSymbol(this, (MergedTypeDeclaration)declaration, diagnostics),
+                _ => throw ExceptionUtilities.UnexpectedValue(declaration.Kind),
+            };
         }
 
         /// <summary>

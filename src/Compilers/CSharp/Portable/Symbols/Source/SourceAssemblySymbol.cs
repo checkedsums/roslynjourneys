@@ -2781,25 +2781,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             // TODO: localize these strings
             if (type.IsReferenceType) return "null";
-            switch (type.SpecialType)
+            return type.SpecialType switch
             {
-                case SpecialType.System_Boolean:
-                    return "false";
-                case SpecialType.System_Byte:
-                case SpecialType.System_Decimal:
-                case SpecialType.System_Double:
-                case SpecialType.System_Int16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_SByte:
-                case SpecialType.System_Single:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_UInt64:
-                    return "0";
-                default:
-                    return "";
-            }
+                SpecialType.System_Boolean => "false",
+                SpecialType.System_Byte or SpecialType.System_Decimal or SpecialType.System_Double or SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 or SpecialType.System_SByte or SpecialType.System_Single or SpecialType.System_UInt16 or SpecialType.System_UInt32 or SpecialType.System_UInt64 => "0",
+                _ => "",
+            };
         }
 
 #nullable enable

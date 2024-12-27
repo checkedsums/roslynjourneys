@@ -154,17 +154,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
         {
             get
             {
-                switch (UnderlyingNamedType.AdaptedNamedTypeSymbol.TypeKind)
+                return UnderlyingNamedType.AdaptedNamedTypeSymbol.TypeKind switch
                 {
-                    case TypeKind.Enum:
-                    case TypeKind.Delegate:
-                    //C# interfaces don't have fields so the flag doesn't really matter, but Dev10 omits it
-                    case TypeKind.Interface:
-                        return false;
-                }
-
-                // We shouldn't embed static constructor.
-                return true;
+                    TypeKind.Enum or TypeKind.Delegate or TypeKind.Interface => false,
+                    // We shouldn't embed static constructor.
+                    _ => true,
+                };
             }
         }
 

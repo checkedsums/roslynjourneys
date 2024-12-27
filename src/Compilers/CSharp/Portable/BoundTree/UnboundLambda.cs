@@ -1474,16 +1474,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(HasSignature && 0 <= index && index < ParameterCount);
             var syntax = UnboundLambda.Syntax;
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                default:
-                case SyntaxKind.SimpleLambdaExpression:
-                    return ((SimpleLambdaExpressionSyntax)syntax).Parameter.Identifier.GetLocation();
-                case SyntaxKind.ParenthesizedLambdaExpression:
-                    return ((ParenthesizedLambdaExpressionSyntax)syntax).ParameterList.Parameters[index].Identifier.GetLocation();
-                case SyntaxKind.AnonymousMethodExpression:
-                    return ((AnonymousMethodExpressionSyntax)syntax).ParameterList!.Parameters[index].Identifier.GetLocation();
-            }
+                SyntaxKind.ParenthesizedLambdaExpression => ((ParenthesizedLambdaExpressionSyntax)syntax).ParameterList.Parameters[index].Identifier.GetLocation(),
+                SyntaxKind.AnonymousMethodExpression => ((AnonymousMethodExpressionSyntax)syntax).ParameterList!.Parameters[index].Identifier.GetLocation(),
+                _ => ((SimpleLambdaExpressionSyntax)syntax).Parameter.Identifier.GetLocation(),
+            };
         }
 
         private bool IsExpressionLambda { get { return Body.Kind() != SyntaxKind.Block; } }

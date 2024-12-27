@@ -48,12 +48,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal override void GenerateMethodBody(TypeCompilationState compilationState, BindingDiagnosticBag diagnostics)
         {
-            var F = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
+            var f = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
 
             if (ParameterCount != _positionalMembers.Length)
             {
                 // There is a mismatch, an error was reported elsewhere
-                F.CloseMethod(F.ThrowNull());
+                f.CloseMethod(f.ThrowNull());
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     // There is a mismatch, an error was reported elsewhere
                     statementsBuilder.Free();
-                    F.CloseMethod(F.ThrowNull());
+                    f.CloseMethod(f.ThrowNull());
                     return;
                 }
 
@@ -82,17 +82,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     case PropertySymbol property:
                         // parameter_i = property_i;
-                        statementsBuilder.Add(F.Assignment(F.Parameter(parameter), F.Property(F.This(), property)));
+                        statementsBuilder.Add(f.Assignment(f.Parameter(parameter), f.Property(f.This(), property)));
                         break;
                     case FieldSymbol field:
                         // parameter_i = field_i;
-                        statementsBuilder.Add(F.Assignment(F.Parameter(parameter), F.Field(F.This(), field)));
+                        statementsBuilder.Add(f.Assignment(f.Parameter(parameter), f.Field(f.This(), field)));
                         break;
                 }
             }
 
-            statementsBuilder.Add(F.Return());
-            F.CloseMethod(F.Block(statementsBuilder.ToImmutableAndFree()));
+            statementsBuilder.Add(f.Return());
+            f.CloseMethod(f.Block(statementsBuilder.ToImmutableAndFree()));
         }
 
         private static bool IsReadOnly(SourceMemberContainerTypeSymbol containingType, ImmutableArray<Symbol> positionalMembers)

@@ -1073,23 +1073,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static VarianceKind GetTypeArgumentVariance(VarianceKind typeVariance, VarianceKind typeParameterVariance)
         {
-            switch (typeVariance)
+            return typeVariance switch
             {
-                case VarianceKind.In:
-                    switch (typeParameterVariance)
-                    {
-                        case VarianceKind.In:
-                            return VarianceKind.Out;
-                        case VarianceKind.Out:
-                            return VarianceKind.In;
-                        default:
-                            return VarianceKind.None;
-                    }
-                case VarianceKind.Out:
-                    return typeParameterVariance;
-                default:
-                    return VarianceKind.None;
-            }
+                VarianceKind.In => typeParameterVariance switch
+                {
+                    VarianceKind.In => VarianceKind.Out,
+                    VarianceKind.Out => VarianceKind.In,
+                    _ => VarianceKind.None,
+                },
+                VarianceKind.Out => typeParameterVariance,
+                _ => VarianceKind.None,
+            };
         }
 
         /// <summary>

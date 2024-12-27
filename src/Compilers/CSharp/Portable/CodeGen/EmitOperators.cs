@@ -739,14 +739,11 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
         private static bool OperatorHasSideEffects(BinaryOperatorKind kind)
         {
-            switch (kind.Operator())
+            return kind.Operator() switch
             {
-                case BinaryOperatorKind.Division:
-                case BinaryOperatorKind.Remainder:
-                    return true;
-                default:
-                    return kind.IsChecked();
-            }
+                BinaryOperatorKind.Division or BinaryOperatorKind.Remainder => true,
+                _ => kind.IsChecked(),
+            };
         }
 
         // emits IsTrue/IsFalse according to the sense
@@ -762,15 +759,11 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
 
         private static bool IsUnsigned(SpecialType type)
         {
-            switch (type)
+            return type switch
             {
-                case SpecialType.System_Byte:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_UInt64:
-                    return true;
-            }
-            return false;
+                SpecialType.System_Byte or SpecialType.System_UInt16 or SpecialType.System_UInt32 or SpecialType.System_UInt64 => true,
+                _ => false,
+            };
         }
 
         private static bool IsUnsignedBinaryOperator(BoundBinaryOperator op)
@@ -779,70 +772,34 @@ namespace Microsoft.CodeAnalysis.CSharp.CodeGen
             Debug.Assert(opKind.Operator() != BinaryOperatorKind.UnsignedRightShift);
 
             BinaryOperatorKind type = opKind.OperandTypes();
-            switch (type)
+            return type switch
             {
-                case BinaryOperatorKind.Enum:
-                case BinaryOperatorKind.EnumAndUnderlying:
-                    return IsUnsigned(Binder.GetEnumPromotedType(op.Left.Type.GetEnumUnderlyingType().SpecialType));
-
-                case BinaryOperatorKind.UnderlyingAndEnum:
-                    return IsUnsigned(Binder.GetEnumPromotedType(op.Right.Type.GetEnumUnderlyingType().SpecialType));
-
-                case BinaryOperatorKind.UInt:
-                case BinaryOperatorKind.NUInt:
-                case BinaryOperatorKind.ULong:
-                case BinaryOperatorKind.ULongAndPointer:
-                case BinaryOperatorKind.PointerAndInt:
-                case BinaryOperatorKind.PointerAndUInt:
-                case BinaryOperatorKind.PointerAndLong:
-                case BinaryOperatorKind.PointerAndULong:
-                case BinaryOperatorKind.Pointer:
-                    return true;
-
+                BinaryOperatorKind.Enum or BinaryOperatorKind.EnumAndUnderlying => IsUnsigned(Binder.GetEnumPromotedType(op.Left.Type.GetEnumUnderlyingType().SpecialType)),
+                BinaryOperatorKind.UnderlyingAndEnum => IsUnsigned(Binder.GetEnumPromotedType(op.Right.Type.GetEnumUnderlyingType().SpecialType)),
+                BinaryOperatorKind.UInt or BinaryOperatorKind.NUInt or BinaryOperatorKind.ULong or BinaryOperatorKind.ULongAndPointer or BinaryOperatorKind.PointerAndInt or BinaryOperatorKind.PointerAndUInt or BinaryOperatorKind.PointerAndLong or BinaryOperatorKind.PointerAndULong or BinaryOperatorKind.Pointer => true,
                 // Dev10 bases signedness on the first operand (see ILGENREC::genOperatorExpr).
-                case BinaryOperatorKind.IntAndPointer:
-                case BinaryOperatorKind.LongAndPointer:
-                // Dev10 converts the uint to a native int, so it counts as signed.
-                case BinaryOperatorKind.UIntAndPointer:
-                default:
-                    return false;
-            }
+                _ => false,
+            };
         }
 
         private static bool IsConditional(BinaryOperatorKind opKind)
         {
-            switch (opKind.OperatorWithLogical())
+            return opKind.OperatorWithLogical() switch
             {
-                case BinaryOperatorKind.LogicalAnd:
-                case BinaryOperatorKind.LogicalOr:
-                case BinaryOperatorKind.Equal:
-                case BinaryOperatorKind.NotEqual:
-                case BinaryOperatorKind.LessThan:
-                case BinaryOperatorKind.LessThanOrEqual:
-                case BinaryOperatorKind.GreaterThan:
-                case BinaryOperatorKind.GreaterThanOrEqual:
-                    return true;
-
-                case BinaryOperatorKind.And:
-                case BinaryOperatorKind.Or:
-                case BinaryOperatorKind.Xor:
-                    return opKind.OperandTypes() == BinaryOperatorKind.Bool;
-            }
-
-            return false;
+                BinaryOperatorKind.LogicalAnd or BinaryOperatorKind.LogicalOr or BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual or BinaryOperatorKind.LessThan or BinaryOperatorKind.LessThanOrEqual or BinaryOperatorKind.GreaterThan or BinaryOperatorKind.GreaterThanOrEqual => true,
+                BinaryOperatorKind.And or BinaryOperatorKind.Or or BinaryOperatorKind.Xor => opKind.OperandTypes() == BinaryOperatorKind.Bool,
+                _ => false,
+            };
         }
 
         private static bool IsFloat(BinaryOperatorKind opKind)
         {
             var type = opKind.OperandTypes();
-            switch (type)
+            return type switch
             {
-                case BinaryOperatorKind.Float:
-                case BinaryOperatorKind.Double:
-                    return true;
-                default:
-                    return false;
-            }
+                BinaryOperatorKind.Float or BinaryOperatorKind.Double => true,
+                _ => false,
+            };
         }
     }
 }

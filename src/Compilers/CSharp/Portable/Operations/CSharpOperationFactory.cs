@@ -594,19 +594,15 @@ namespace Microsoft.CodeAnalysis.Operations
 
         internal IOperation? CreateBoundPropertyReferenceInstance(BoundNode boundNode)
         {
-            switch (boundNode)
+            return boundNode switch
             {
-                case BoundPropertyAccess boundPropertyAccess:
-                    return CreateReceiverOperation(boundPropertyAccess.ReceiverOpt, boundPropertyAccess.PropertySymbol);
-                case BoundObjectInitializerMember boundObjectInitializerMember:
-                    return boundObjectInitializerMember.MemberSymbol?.IsStatic == true ?
-                        null :
-                        CreateImplicitReceiver(boundObjectInitializerMember.Syntax, boundObjectInitializerMember.ReceiverType);
-                case BoundIndexerAccess boundIndexerAccess:
-                    return CreateReceiverOperation(boundIndexerAccess.ReceiverOpt, boundIndexerAccess.ExpressionSymbol);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(boundNode.Kind);
-            }
+                BoundPropertyAccess boundPropertyAccess => CreateReceiverOperation(boundPropertyAccess.ReceiverOpt, boundPropertyAccess.PropertySymbol),
+                BoundObjectInitializerMember boundObjectInitializerMember => boundObjectInitializerMember.MemberSymbol?.IsStatic == true ?
+                                        null :
+                                        CreateImplicitReceiver(boundObjectInitializerMember.Syntax, boundObjectInitializerMember.ReceiverType),
+                BoundIndexerAccess boundIndexerAccess => CreateReceiverOperation(boundIndexerAccess.ReceiverOpt, boundIndexerAccess.ExpressionSymbol),
+                _ => throw ExceptionUtilities.UnexpectedValue(boundNode.Kind),
+            };
         }
 
         private IPropertyReferenceOperation CreateBoundPropertyAccessOperation(BoundPropertyAccess boundPropertyAccess)
@@ -758,19 +754,14 @@ namespace Microsoft.CodeAnalysis.Operations
 
         internal IOperation CreateBoundDynamicInvocationExpressionReceiver(BoundNode receiver)
         {
-            switch (receiver)
+            return receiver switch
             {
-                case BoundObjectOrCollectionValuePlaceholder implicitReceiver:
-                    return CreateBoundDynamicMemberAccessOperation(implicitReceiver, typeArgumentsOpt: ImmutableArray<TypeSymbol>.Empty, memberName: "Add",
-                                                                   implicitReceiver.Syntax, type: null, isImplicit: true);
-
-                case BoundMethodGroup methodGroup:
-                    return CreateBoundDynamicMemberAccessOperation(methodGroup.ReceiverOpt, TypeMap.AsTypeSymbols(methodGroup.TypeArgumentsOpt), methodGroup.Name,
-                                                                   methodGroup.Syntax, methodGroup.GetPublicTypeSymbol(), methodGroup.WasCompilerGenerated);
-
-                default:
-                    return Create(receiver);
-            }
+                BoundObjectOrCollectionValuePlaceholder implicitReceiver => CreateBoundDynamicMemberAccessOperation(implicitReceiver, typeArgumentsOpt: ImmutableArray<TypeSymbol>.Empty, memberName: "Add",
+                                                                                   implicitReceiver.Syntax, type: null, isImplicit: true),
+                BoundMethodGroup methodGroup => CreateBoundDynamicMemberAccessOperation(methodGroup.ReceiverOpt, TypeMap.AsTypeSymbols(methodGroup.TypeArgumentsOpt), methodGroup.Name,
+                                                                                   methodGroup.Syntax, methodGroup.GetPublicTypeSymbol(), methodGroup.WasCompilerGenerated),
+                _ => Create(receiver),
+            };
         }
 
         private IDynamicInvocationOperation CreateBoundDynamicInvocationExpressionOperation(BoundDynamicInvocation boundDynamicInvocation)
@@ -787,17 +778,12 @@ namespace Microsoft.CodeAnalysis.Operations
 
         internal IOperation CreateBoundDynamicIndexerAccessExpressionReceiver(BoundExpression indexer)
         {
-            switch (indexer)
+            return indexer switch
             {
-                case BoundDynamicIndexerAccess boundDynamicIndexerAccess:
-                    return Create(boundDynamicIndexerAccess.Receiver);
-
-                case BoundObjectInitializerMember boundObjectInitializerMember:
-                    return CreateImplicitReceiver(boundObjectInitializerMember.Syntax, boundObjectInitializerMember.ReceiverType);
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(indexer.Kind);
-            }
+                BoundDynamicIndexerAccess boundDynamicIndexerAccess => Create(boundDynamicIndexerAccess.Receiver),
+                BoundObjectInitializerMember boundObjectInitializerMember => CreateImplicitReceiver(boundObjectInitializerMember.Syntax, boundObjectInitializerMember.ReceiverType),
+                _ => throw ExceptionUtilities.UnexpectedValue(indexer.Kind),
+            };
         }
 
         internal ImmutableArray<IOperation> CreateBoundDynamicIndexerAccessArguments(BoundExpression indexer)
@@ -1237,21 +1223,13 @@ namespace Microsoft.CodeAnalysis.Operations
 
             static MethodSymbol? getConstructMethod(CSharpCompilation compilation, BoundCollectionExpression expr)
             {
-                switch (expr.CollectionTypeKind)
+                return expr.CollectionTypeKind switch
                 {
-                    case CollectionExpressionTypeKind.None:
-                    case CollectionExpressionTypeKind.Array:
-                    case CollectionExpressionTypeKind.ArrayInterface:
-                    case CollectionExpressionTypeKind.ReadOnlySpan:
-                    case CollectionExpressionTypeKind.Span:
-                        return null;
-                    case CollectionExpressionTypeKind.ImplementsIEnumerable:
-                        return (expr.CollectionCreation as BoundObjectCreationExpression)?.Constructor;
-                    case CollectionExpressionTypeKind.CollectionBuilder:
-                        return expr.CollectionBuilderMethod;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(expr.CollectionTypeKind);
-                }
+                    CollectionExpressionTypeKind.None or CollectionExpressionTypeKind.Array or CollectionExpressionTypeKind.ArrayInterface or CollectionExpressionTypeKind.ReadOnlySpan or CollectionExpressionTypeKind.Span => null,
+                    CollectionExpressionTypeKind.ImplementsIEnumerable => (expr.CollectionCreation as BoundObjectCreationExpression)?.Constructor,
+                    CollectionExpressionTypeKind.CollectionBuilder => expr.CollectionBuilderMethod,
+                    _ => throw ExceptionUtilities.UnexpectedValue(expr.CollectionTypeKind),
+                };
             }
         }
 

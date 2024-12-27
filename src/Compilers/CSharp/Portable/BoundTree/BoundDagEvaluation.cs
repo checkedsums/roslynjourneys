@@ -50,19 +50,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 static Symbol? getSymbolFromIndexerAccess(BoundExpression indexerAccess)
                 {
-                    switch (indexerAccess)
+                    return indexerAccess switch
                     {
                         // array[Range]
-                        case BoundArrayAccess arrayAccess:
-                            return arrayAccess.Expression.Type;
-
+                        BoundArrayAccess arrayAccess => arrayAccess.Expression.Type,
                         // array[Index]
-                        case BoundImplicitIndexerAccess { IndexerOrSliceAccess: BoundArrayAccess arrayAccess }:
-                            return arrayAccess.Expression.Type;
-
-                        default:
-                            return Binder.GetIndexerOrImplicitIndexerSymbol(indexerAccess);
-                    }
+                        BoundImplicitIndexerAccess { IndexerOrSliceAccess: BoundArrayAccess arrayAccess } => arrayAccess.Expression.Type,
+                        _ => Binder.GetIndexerOrImplicitIndexerSymbol(indexerAccess),
+                    };
                 }
             }
         }

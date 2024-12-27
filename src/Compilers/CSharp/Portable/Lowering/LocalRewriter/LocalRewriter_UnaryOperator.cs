@@ -806,15 +806,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private MethodSymbol GetDecimalIncDecOperator(BinaryOperatorKind oper)
         {
-            SpecialMember member;
-            switch (oper.Operator())
+            var member = oper.Operator() switch
             {
-                case BinaryOperatorKind.Addition: member = SpecialMember.System_Decimal__op_Increment; break;
-                case BinaryOperatorKind.Subtraction: member = SpecialMember.System_Decimal__op_Decrement; break;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(oper.Operator());
-            }
-
+                BinaryOperatorKind.Addition => SpecialMember.System_Decimal__op_Increment,
+                BinaryOperatorKind.Subtraction => SpecialMember.System_Decimal__op_Decrement,
+                _ => throw ExceptionUtilities.UnexpectedValue(oper.Operator()),
+            };
             var method = (MethodSymbol)_compilation.Assembly.GetSpecialTypeMember(member);
             Debug.Assert(method is not null); // Should have been checked during Warnings pass
             return method;
@@ -1028,27 +1025,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // Operator overload resolution will not have chosen the enumerated type
                         // unless the operand actually is of the enumerated type (or nullable enum type.)
 
-                        switch (underlyingType.SpecialType)
+                        result = underlyingType.SpecialType switch
                         {
-                            case SpecialType.System_SByte:
-                            case SpecialType.System_Int16:
-                            case SpecialType.System_Int32:
-                                result = BinaryOperatorKind.Int;
-                                break;
-                            case SpecialType.System_Byte:
-                            case SpecialType.System_UInt16:
-                            case SpecialType.System_UInt32:
-                                result = BinaryOperatorKind.UInt;
-                                break;
-                            case SpecialType.System_Int64:
-                                result = BinaryOperatorKind.Long;
-                                break;
-                            case SpecialType.System_UInt64:
-                                result = BinaryOperatorKind.ULong;
-                                break;
-                            default:
-                                throw ExceptionUtilities.UnexpectedValue(underlyingType.SpecialType);
-                        }
+                            SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_Int32 => BinaryOperatorKind.Int,
+                            SpecialType.System_Byte or SpecialType.System_UInt16 or SpecialType.System_UInt32 => BinaryOperatorKind.UInt,
+                            SpecialType.System_Int64 => BinaryOperatorKind.Long,
+                            SpecialType.System_UInt64 => BinaryOperatorKind.ULong,
+                            _ => throw ExceptionUtilities.UnexpectedValue(underlyingType.SpecialType),
+                        };
                     }
                     break;
                 case UnaryOperatorKind.Pointer:

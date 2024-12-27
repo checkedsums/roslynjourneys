@@ -577,23 +577,17 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 static bool usesOriginalInput(BoundDecisionDagNode node)
                 {
-                    switch (node)
+                    return node switch
                     {
-                        case BoundWhenDecisionDagNode n:
-                            return n.Bindings.Any(static b => b.TempContainingValue.IsOriginalInput);
-                        case BoundTestDecisionDagNode t:
-                            return t.Test.Input.IsOriginalInput;
-                        case BoundEvaluationDecisionDagNode e:
-                            switch (e.Evaluation)
-                            {
-                                case BoundDagFieldEvaluation f:
-                                    return f.Input.IsOriginalInput && !f.Field.IsTupleElement();
-                                default:
-                                    return e.Evaluation.Input.IsOriginalInput;
-                            }
-                        default:
-                            return false;
-                    }
+                        BoundWhenDecisionDagNode n => n.Bindings.Any(static b => b.TempContainingValue.IsOriginalInput),
+                        BoundTestDecisionDagNode t => t.Test.Input.IsOriginalInput,
+                        BoundEvaluationDecisionDagNode e => e.Evaluation switch
+                        {
+                            BoundDagFieldEvaluation f => f.Input.IsOriginalInput && !f.Field.IsTupleElement(),
+                            _ => e.Evaluation.Input.IsOriginalInput,
+                        },
+                        _ => false,
+                    };
                 }
             }
 

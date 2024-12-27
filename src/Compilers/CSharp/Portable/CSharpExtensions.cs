@@ -246,12 +246,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static VarianceKind VarianceKindFromToken(this SyntaxToken node)
         {
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.OutKeyword: return VarianceKind.Out;
-                case SyntaxKind.InKeyword: return VarianceKind.In;
-                default: return VarianceKind.None;
-            }
+                SyntaxKind.OutKeyword => VarianceKind.Out,
+                SyntaxKind.InKeyword => VarianceKind.In,
+                _ => VarianceKind.None,
+            };
         }
 
         /// <summary>

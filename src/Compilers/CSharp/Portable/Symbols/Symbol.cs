@@ -208,17 +208,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return null;
                 }
 
-                switch (this.ContainingModule)
+                return this.ContainingModule switch
                 {
-                    case SourceModuleSymbol sourceModuleSymbol:
-                        return sourceModuleSymbol.DeclaringCompilation;
-
-                    case PEModuleSymbol:
-                        // A special handling for EE.
-                        return ContainingSymbol?.DeclaringCompilation;
-                }
-
-                return null;
+                    SourceModuleSymbol sourceModuleSymbol => sourceModuleSymbol.DeclaringCompilation,
+                    PEModuleSymbol => ContainingSymbol?.DeclaringCompilation,// A special handling for EE.
+                    _ => null,
+                };
             }
         }
 
@@ -725,19 +720,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (this.Kind == SymbolKind.Method)
                 {
                     var method = (MethodSymbol)this;
-                    switch (method.MethodKind)
+                    return method.MethodKind switch
                     {
-                        case MethodKind.Ordinary:
-                        case MethodKind.LocalFunction:
-                        case MethodKind.DelegateInvoke:
-                        case MethodKind.Destructor: // See comment in CanBeReferencedByName.
-                            return true;
-                        case MethodKind.PropertyGet:
-                        case MethodKind.PropertySet:
-                            return ((PropertySymbol)method.AssociatedSymbol).CanCallMethodsDirectly();
-                        default:
-                            return false;
-                    }
+                        MethodKind.Ordinary or MethodKind.LocalFunction or MethodKind.DelegateInvoke or MethodKind.Destructor => true,
+                        MethodKind.PropertyGet or MethodKind.PropertySet => ((PropertySymbol)method.AssociatedSymbol).CanCallMethodsDirectly(),
+                        _ => false,
+                    };
                 }
                 return true;
             }
@@ -1403,17 +1391,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                switch (ObsoleteKind)
+                return ObsoleteKind switch
                 {
-                    case ObsoleteAttributeKind.None:
-                    case ObsoleteAttributeKind.WindowsExperimental:
-                    case ObsoleteAttributeKind.Experimental:
-                        return ThreeState.False;
-                    case ObsoleteAttributeKind.Uninitialized:
-                        return ThreeState.Unknown;
-                    default:
-                        return ThreeState.True;
-                }
+                    ObsoleteAttributeKind.None or ObsoleteAttributeKind.WindowsExperimental or ObsoleteAttributeKind.Experimental => ThreeState.False,
+                    ObsoleteAttributeKind.Uninitialized => ThreeState.Unknown,
+                    _ => ThreeState.True,
+                };
             }
         }
 
@@ -1425,15 +1408,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             get
             {
-                switch (ObsoleteKind)
+                return ObsoleteKind switch
                 {
-                    case ObsoleteAttributeKind.Experimental:
-                        return ThreeState.True;
-                    case ObsoleteAttributeKind.Uninitialized:
-                        return ThreeState.Unknown;
-                    default:
-                        return ThreeState.False;
-                }
+                    ObsoleteAttributeKind.Experimental => ThreeState.True,
+                    ObsoleteAttributeKind.Uninitialized => ThreeState.Unknown,
+                    _ => ThreeState.False,
+                };
             }
         }
 

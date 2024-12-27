@@ -156,7 +156,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             CheckModifiersForBody(location, diagnostics);
 
-            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, property.IsExplicitInterfaceImplementation, diagnostics, location);
+            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, diagnostics, location);
 
             this.CheckModifiers(location, hasBody: true, isAutoPropertyOrExpressionBodied: true, diagnostics: diagnostics);
         }
@@ -193,7 +193,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 CheckModifiersForBody(location, diagnostics);
             }
 
-            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, property.IsExplicitInterfaceImplementation, diagnostics, location);
+            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, diagnostics, location);
 
             if (!modifierErrors)
             {
@@ -221,7 +221,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // ReturnsVoid property is overridden in this class so
             // returnsVoid argument to MakeFlags is ignored.
             Flags flags = MakeFlags(methodKind, property.RefKind, declarationModifiers, returnsVoid: false, returnsVoidIsSet: false,
-                                    isExpressionBodied: isExpressionBodied, isExtensionMethod: false, isVarArg: false, 
+                                    isExpressionBodied: isExpressionBodied, isExtensionMethod: false, isVarArg: false,
                                     isExplicitInterfaceImplementation: isExplicitInterfaceImplementation, hasThisInitializer: false);
 
             return (declarationModifiers, flags);
@@ -461,7 +461,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal sealed override bool IsInitOnly => !IsStatic && _usesInit;
 
-        private static DeclarationModifiers MakeModifiers(NamedTypeSymbol containingType, SyntaxTokenList modifiers, 
+        private static DeclarationModifiers MakeModifiers(NamedTypeSymbol containingType, SyntaxTokenList modifiers,
             bool isExplicitInterfaceImplementation, Location location, BindingDiagnosticBag diagnostics, out bool modifierErrors)
         {
             // No default accessibility. If unset, accessibility
@@ -625,15 +625,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var syntax = this.GetSyntax();
-                switch (syntax.Kind())
+                return syntax.Kind() switch
                 {
-                    case SyntaxKind.GetAccessorDeclaration:
-                    case SyntaxKind.SetAccessorDeclaration:
-                    case SyntaxKind.InitAccessorDeclaration:
-                        return ((AccessorDeclarationSyntax)syntax).AttributeLists;
-                }
-
-                return default;
+                    SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration => ((AccessorDeclarationSyntax)syntax).AttributeLists,
+                    _ => default,
+                };
             }
         }
 

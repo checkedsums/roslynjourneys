@@ -1130,21 +1130,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             ImmutableDictionary<BoundDagTemp, IValueSet> values,
             BoundDagTest test)
         {
-            switch (test)
+            return test switch
             {
-                case BoundDagEvaluation _:
-                case BoundDagExplicitNullTest _:
-                case BoundDagNonNullTest _:
-                case BoundDagTypeTest _:
-                    return (values, values, true, true);
-                case BoundDagValueTest t:
-                    return resultForRelation(BinaryOperatorKind.Equal, t.Value);
-                case BoundDagRelationalTest t:
-                    return resultForRelation(t.Relation, t.Value);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(test);
-            }
-
+                BoundDagEvaluation _ or BoundDagExplicitNullTest _ or BoundDagNonNullTest _ or BoundDagTypeTest _ => (values, values, true, true),
+                BoundDagValueTest t => resultForRelation(BinaryOperatorKind.Equal, t.Value),
+                BoundDagRelationalTest t => resultForRelation(t.Relation, t.Value),
+                _ => throw ExceptionUtilities.UnexpectedValue(test),
+            };
             (
             ImmutableDictionary<BoundDagTemp, IValueSet> whenTrueValues,
             ImmutableDictionary<BoundDagTemp, IValueSet> whenFalseValues,

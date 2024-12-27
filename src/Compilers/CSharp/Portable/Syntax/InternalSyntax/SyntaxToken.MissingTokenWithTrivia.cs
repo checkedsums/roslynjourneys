@@ -34,13 +34,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             {
                 get
                 {
-                    switch (this.Kind)
+                    return this.Kind switch
                     {
-                        case SyntaxKind.IdentifierToken:
-                            return string.Empty;
-                        default:
-                            return null;
-                    }
+                        SyntaxKind.IdentifierToken => string.Empty,
+                        _ => null,
+                    };
                 }
             }
 

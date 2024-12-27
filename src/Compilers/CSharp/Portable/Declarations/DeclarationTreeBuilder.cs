@@ -1156,25 +1156,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static bool HasAnyNonTypeMemberNames(
             Syntax.InternalSyntax.CSharpSyntaxNode member, bool skipGlobalStatements)
         {
-            switch (member.Kind)
+            return member.Kind switch
             {
-                case SyntaxKind.FieldDeclaration:
-                case SyntaxKind.EventFieldDeclaration:
-                case SyntaxKind.MethodDeclaration:
-                case SyntaxKind.PropertyDeclaration:
-                case SyntaxKind.EventDeclaration:
-                case SyntaxKind.ConstructorDeclaration:
-                case SyntaxKind.DestructorDeclaration:
-                case SyntaxKind.IndexerDeclaration:
-                case SyntaxKind.OperatorDeclaration:
-                case SyntaxKind.ConversionOperatorDeclaration:
-                    return true;
-
-                case SyntaxKind.GlobalStatement:
-                    return !skipGlobalStatements;
-            }
-
-            return false;
+                SyntaxKind.FieldDeclaration or SyntaxKind.EventFieldDeclaration or SyntaxKind.MethodDeclaration or SyntaxKind.PropertyDeclaration or SyntaxKind.EventDeclaration or SyntaxKind.ConstructorDeclaration or SyntaxKind.DestructorDeclaration or SyntaxKind.IndexerDeclaration or SyntaxKind.OperatorDeclaration or SyntaxKind.ConversionOperatorDeclaration => true,
+                SyntaxKind.GlobalStatement => !skipGlobalStatements,
+                _ => false,
+            };
         }
     }
 }

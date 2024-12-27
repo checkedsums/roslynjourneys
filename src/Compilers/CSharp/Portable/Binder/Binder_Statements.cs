@@ -1493,25 +1493,14 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             var syntax = expr.Syntax;
-            switch (syntax.Kind())
+            propertySyntax = syntax.Kind() switch
             {
-                case SyntaxKind.SimpleMemberAccessExpression:
-                case SyntaxKind.PointerMemberAccessExpression:
-                    propertySyntax = ((MemberAccessExpressionSyntax)syntax).Name;
-                    break;
-                case SyntaxKind.IdentifierName:
-                    propertySyntax = syntax;
-                    break;
-                case SyntaxKind.ElementAccessExpression:
-                    propertySyntax = ((ElementAccessExpressionSyntax)syntax).ArgumentList;
-                    break;
-                default:
-                    // Other syntax types, such as QualifiedName,
-                    // might occur in invalid code.
-                    propertySyntax = syntax;
-                    break;
-            }
-
+                SyntaxKind.SimpleMemberAccessExpression or SyntaxKind.PointerMemberAccessExpression => ((MemberAccessExpressionSyntax)syntax).Name,
+                SyntaxKind.IdentifierName => syntax,
+                SyntaxKind.ElementAccessExpression => ((ElementAccessExpressionSyntax)syntax).ArgumentList,
+                _ => syntax,// Other syntax types, such as QualifiedName,
+                            // might occur in invalid code.
+            };
             return propertySymbol;
         }
 
@@ -1541,21 +1530,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         private static SyntaxNode GetEventName(BoundEventAccess expr)
         {
             SyntaxNode syntax = expr.Syntax;
-            switch (syntax.Kind())
+            return syntax.Kind() switch
             {
-                case SyntaxKind.SimpleMemberAccessExpression:
-                case SyntaxKind.PointerMemberAccessExpression:
-                    return ((MemberAccessExpressionSyntax)syntax).Name;
-                case SyntaxKind.QualifiedName:
-                    // This case is reachable only through SemanticModel
-                    return ((QualifiedNameSyntax)syntax).Right;
-                case SyntaxKind.IdentifierName:
-                    return syntax;
-                case SyntaxKind.MemberBindingExpression:
-                    return ((MemberBindingExpressionSyntax)syntax).Name;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(syntax.Kind());
-            }
+                SyntaxKind.SimpleMemberAccessExpression or SyntaxKind.PointerMemberAccessExpression => ((MemberAccessExpressionSyntax)syntax).Name,
+                SyntaxKind.QualifiedName => ((QualifiedNameSyntax)syntax).Right,// This case is reachable only through SemanticModel
+                SyntaxKind.IdentifierName => syntax,
+                SyntaxKind.MemberBindingExpression => ((MemberBindingExpressionSyntax)syntax).Name,
+                _ => throw ExceptionUtilities.UnexpectedValue(syntax.Kind()),
+            };
         }
 
         /// <summary>
@@ -3188,19 +3170,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static Location GetLocationForDiagnostics(SyntaxNode node)
         {
-            switch (node)
+            return node switch
             {
-                case LambdaExpressionSyntax lambdaSyntax:
-                    return Location.Create(lambdaSyntax.SyntaxTree,
-                        Text.TextSpan.FromBounds(lambdaSyntax.SpanStart, lambdaSyntax.ArrowToken.Span.End));
-
-                case AnonymousMethodExpressionSyntax anonymousMethodSyntax:
-                    return Location.Create(anonymousMethodSyntax.SyntaxTree,
-                        Text.TextSpan.FromBounds(anonymousMethodSyntax.SpanStart,
-                            anonymousMethodSyntax.ParameterList?.Span.End ?? anonymousMethodSyntax.DelegateKeyword.Span.End));
-            }
-
-            return node.Location;
+                LambdaExpressionSyntax lambdaSyntax => Location.Create(lambdaSyntax.SyntaxTree,
+                                        Text.TextSpan.FromBounds(lambdaSyntax.SpanStart, lambdaSyntax.ArrowToken.Span.End)),
+                AnonymousMethodExpressionSyntax anonymousMethodSyntax => Location.Create(anonymousMethodSyntax.SyntaxTree,
+                                        Text.TextSpan.FromBounds(anonymousMethodSyntax.SpanStart,
+                                            anonymousMethodSyntax.ParameterList?.Span.End ?? anonymousMethodSyntax.DelegateKeyword.Span.End)),
+                _ => node.Location,
+            };
         }
 
         private static bool IsValidStatementExpression(SyntaxNode syntax, BoundExpression expression)
@@ -3666,23 +3644,14 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 BinderFactory binderFactory = compilation.GetBinderFactory(sourceConstructor.SyntaxTree);
 
-                switch (sourceConstructor.SyntaxNode)
+                outerBinder = sourceConstructor.SyntaxNode switch
                 {
-                    case ConstructorDeclarationSyntax ctorDecl:
-                        // We have a ctor in source but no explicit constructor initializer.  We can't just use the binder for the
-                        // type containing the ctor because the ctor might be marked unsafe.  Use the binder for the parameter list
-                        // as an approximation - the extra symbols won't matter because there are no identifiers to bind.
-
-                        outerBinder = binderFactory.GetBinder(ctorDecl.ParameterList);
-                        break;
-
-                    case TypeDeclarationSyntax typeDecl:
-                        outerBinder = binderFactory.GetInTypeBodyBinder(typeDecl);
-                        break;
-
-                    default:
-                        throw ExceptionUtilities.Unreachable();
-                }
+                    ConstructorDeclarationSyntax ctorDecl => binderFactory.GetBinder(ctorDecl.ParameterList),// We have a ctor in source but no explicit constructor initializer.  We can't just use the binder for the
+                                                                                                             // type containing the ctor because the ctor might be marked unsafe.  Use the binder for the parameter list
+                                                                                                             // as an approximation - the extra symbols won't matter because there are no identifiers to bind.
+                    TypeDeclarationSyntax typeDecl => binderFactory.GetInTypeBodyBinder(typeDecl),
+                    _ => throw ExceptionUtilities.Unreachable(),
+                };
             }
 
             // wrap in ConstructorInitializerBinder for appropriate errors

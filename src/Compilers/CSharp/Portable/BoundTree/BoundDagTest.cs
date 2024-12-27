@@ -24,21 +24,16 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (!this.Input.Equals(other.Input))
                 return false;
 
-            switch (this, other)
+            return (this, other)
+switch
             {
-                case (BoundDagTypeTest x, BoundDagTypeTest y):
-                    return x.Type.Equals(y.Type, TypeCompareKind.AllIgnoreOptions);
-                case (BoundDagNonNullTest x, BoundDagNonNullTest y):
-                    return x.IsExplicitTest == y.IsExplicitTest;
-                case (BoundDagExplicitNullTest x, BoundDagExplicitNullTest y):
-                    return true;
-                case (BoundDagValueTest x, BoundDagValueTest y):
-                    return x.Value.Equals(y.Value);
-                case (BoundDagRelationalTest x, BoundDagRelationalTest y):
-                    return x.Relation == y.Relation && x.Value.Equals(y.Value);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(this);
-            }
+                (BoundDagTypeTest x, BoundDagTypeTest y) => x.Type.Equals(y.Type, TypeCompareKind.AllIgnoreOptions),
+                (BoundDagNonNullTest x, BoundDagNonNullTest y) => x.IsExplicitTest == y.IsExplicitTest,
+                (BoundDagExplicitNullTest x, BoundDagExplicitNullTest y) => true,
+                (BoundDagValueTest x, BoundDagValueTest y) => x.Value.Equals(y.Value),
+                (BoundDagRelationalTest x, BoundDagRelationalTest y) => x.Relation == y.Relation && x.Value.Equals(y.Value),
+                _ => throw ExceptionUtilities.UnexpectedValue(this),
+            };
         }
 
         public override int GetHashCode()

@@ -1455,26 +1455,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns></returns>
         private static bool TypeIsImmutable(TypeSymbol t)
         {
-            switch (t.SpecialType)
+            return t.SpecialType switch
             {
-                case SpecialType.System_Boolean:
-                case SpecialType.System_Char:
-                case SpecialType.System_SByte:
-                case SpecialType.System_Byte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Decimal:
-                case SpecialType.System_Single:
-                case SpecialType.System_Double:
-                case SpecialType.System_DateTime:
-                    return true;
-                default:
-                    return t.IsNullableType();
-            }
+                SpecialType.System_Boolean or SpecialType.System_Char or SpecialType.System_SByte or SpecialType.System_Byte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 or SpecialType.System_Decimal or SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_DateTime => true,
+                _ => t.IsNullableType(),
+            };
         }
 
         public override BoundNode VisitIndexerAccess(BoundIndexerAccess node)

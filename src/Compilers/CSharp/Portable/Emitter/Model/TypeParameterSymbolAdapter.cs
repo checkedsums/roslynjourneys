@@ -325,17 +325,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (AdaptedTypeParameterSymbol.Variance)
+                return AdaptedTypeParameterSymbol.Variance switch
                 {
-                    case VarianceKind.None:
-                        return Cci.TypeParameterVariance.NonVariant;
-                    case VarianceKind.In:
-                        return Cci.TypeParameterVariance.Contravariant;
-                    case VarianceKind.Out:
-                        return Cci.TypeParameterVariance.Covariant;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(AdaptedTypeParameterSymbol.Variance);
-                }
+                    VarianceKind.None => Cci.TypeParameterVariance.NonVariant,
+                    VarianceKind.In => Cci.TypeParameterVariance.Contravariant,
+                    VarianceKind.Out => Cci.TypeParameterVariance.Covariant,
+                    _ => throw ExceptionUtilities.UnexpectedValue(AdaptedTypeParameterSymbol.Variance),
+                };
             }
         }
 

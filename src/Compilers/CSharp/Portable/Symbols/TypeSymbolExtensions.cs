@@ -307,15 +307,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsValidExtensionParameterType(this TypeSymbol type)
         {
-            switch (type.TypeKind)
+            return type.TypeKind switch
             {
-                case TypeKind.Pointer:
-                case TypeKind.Dynamic:
-                case TypeKind.FunctionPointer:
-                    return false;
-                default:
-                    return true;
-            }
+                TypeKind.Pointer or TypeKind.Dynamic or TypeKind.FunctionPointer => false,
+                _ => true,
+            };
         }
 
         public static bool IsInterfaceType(this TypeSymbol type)
@@ -397,15 +393,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool IsPointerOrFunctionPointer(this TypeSymbol type)
         {
-            switch (type.TypeKind)
+            return type.TypeKind switch
             {
-                case TypeKind.Pointer:
-                case TypeKind.FunctionPointer:
-                    return true;
-
-                default:
-                    return false;
-            }
+                TypeKind.Pointer or TypeKind.FunctionPointer => true,
+                _ => false,
+            };
         }
 
         internal static ImmutableArray<NamedTypeSymbol> GetAllInterfacesOrEffectiveInterfaces(this TypeSymbol type)
@@ -691,19 +683,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static bool IsTypeLessVisibleThan(TypeSymbol type, Symbol sym, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
         {
-            switch (type.TypeKind)
+            return type.TypeKind switch
             {
-                case TypeKind.Class:
-                case TypeKind.Struct:
-                case TypeKind.Interface:
-                case TypeKind.Enum:
-                case TypeKind.Delegate:
-                case TypeKind.Submission:
-                    return !IsAsRestrictive((NamedTypeSymbol)type, sym, ref useSiteInfo);
-
-                default:
-                    return false;
-            }
+                TypeKind.Class or TypeKind.Struct or TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate or TypeKind.Submission => !IsAsRestrictive((NamedTypeSymbol)type, sym, ref useSiteInfo),
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -1335,26 +1319,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 type = type.EnumUnderlyingTypeOrSelf();
             }
 
-            switch (type.SpecialType)
+            return type.SpecialType switch
             {
-                case SpecialType.System_SByte:
-                case SpecialType.System_Byte:
-                case SpecialType.System_Int16:
-                case SpecialType.System_UInt16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_UInt32:
-                case SpecialType.System_Int64:
-                case SpecialType.System_UInt64:
-                case SpecialType.System_Char:
-                case SpecialType.System_String:
-                    return true;
-
-                case SpecialType.System_Boolean:
-                    // User-defined implicit conversion with target type as bool type is not valid.
-                    return !isTargetTypeOfUserDefinedOp;
-            }
-
-            return false;
+                SpecialType.System_SByte or SpecialType.System_Byte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64 or SpecialType.System_Char or SpecialType.System_String => true,
+                SpecialType.System_Boolean => !isTargetTypeOfUserDefinedOp,// User-defined implicit conversion with target type as bool type is not valid.
+                _ => false,
+            };
         }
 
         internal static bool IsSpan(this TypeSymbol type)
@@ -1428,15 +1398,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             // See Dev10 C# compiler, "type.cpp", bool Type::isSpecialByRefType() const
             RoslynDebug.Assert(type is not null);
-            switch (type.SpecialType)
+            return type.SpecialType switch
             {
-                case SpecialType.System_TypedReference:
-                case SpecialType.System_ArgIterator:
-                case SpecialType.System_RuntimeArgumentHandle:
-                    return true;
-            }
-
-            return ignoreSpanLikeTypes ? false : type.IsRefLikeOrAllowsRefLikeType();
+                SpecialType.System_TypedReference or SpecialType.System_ArgIterator or SpecialType.System_RuntimeArgumentHandle => true,
+                _ => ignoreSpanLikeTypes ? false : type.IsRefLikeOrAllowsRefLikeType(),
+            };
         }
 
         public static bool IsIntrinsicType(this TypeSymbol type)
@@ -1499,32 +1465,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         // check that its type is allowed for Volatile
         internal static bool IsValidVolatileFieldType(this TypeSymbol type)
         {
-            switch (type.TypeKind)
+            return type.TypeKind switch
             {
-                case TypeKind.Struct:
-                    return type.SpecialType.IsValidVolatileFieldType();
-
-                case TypeKind.Array:
-                case TypeKind.Class:
-                case TypeKind.Delegate:
-                case TypeKind.Dynamic:
-                case TypeKind.Error:
-                case TypeKind.Interface:
-                case TypeKind.Pointer:
-                case TypeKind.FunctionPointer:
-                    return true;
-
-                case TypeKind.Enum:
-                    return ((NamedTypeSymbol)type).EnumUnderlyingType.SpecialType.IsValidVolatileFieldType();
-
-                case TypeKind.TypeParameter:
-                    return type.IsReferenceType;
-
-                case TypeKind.Submission:
-                    throw ExceptionUtilities.UnexpectedValue(type.TypeKind);
-            }
-
-            return false;
+                TypeKind.Struct => type.SpecialType.IsValidVolatileFieldType(),
+                TypeKind.Array or TypeKind.Class or TypeKind.Delegate or TypeKind.Dynamic or TypeKind.Error or TypeKind.Interface or TypeKind.Pointer or TypeKind.FunctionPointer => true,
+                TypeKind.Enum => ((NamedTypeSymbol)type).EnumUnderlyingType.SpecialType.IsValidVolatileFieldType(),
+                TypeKind.TypeParameter => type.IsReferenceType,
+                TypeKind.Submission => throw ExceptionUtilities.UnexpectedValue(type.TypeKind),
+                _ => false,
+            };
         }
 
         /// <summary>

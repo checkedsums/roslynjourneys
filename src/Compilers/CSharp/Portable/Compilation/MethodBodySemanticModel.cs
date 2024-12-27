@@ -73,35 +73,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal override BoundNode Bind(Binder binder, CSharpSyntaxNode node, BindingDiagnosticBag diagnostics)
         {
-            switch (node.Kind())
+            return node.Kind() switch
             {
-                case SyntaxKind.ArrowExpressionClause:
-                    return binder.BindExpressionBodyAsBlock((ArrowExpressionClauseSyntax)node, diagnostics);
-
-                case SyntaxKind.BaseConstructorInitializer:
-                case SyntaxKind.ThisConstructorInitializer:
-                    return binder.BindConstructorInitializer((ConstructorInitializerSyntax)node, diagnostics);
-
-                case SyntaxKind.PrimaryConstructorBaseType:
-                    return binder.BindConstructorInitializer((PrimaryConstructorBaseTypeSyntax)node, diagnostics);
-
-                case SyntaxKind.MethodDeclaration:
-                case SyntaxKind.ConversionOperatorDeclaration:
-                case SyntaxKind.OperatorDeclaration:
-                case SyntaxKind.ConstructorDeclaration:
-                case SyntaxKind.DestructorDeclaration:
-                case SyntaxKind.GetAccessorDeclaration:
-                case SyntaxKind.SetAccessorDeclaration:
-                case SyntaxKind.InitAccessorDeclaration:
-                case SyntaxKind.AddAccessorDeclaration:
-                case SyntaxKind.RemoveAccessorDeclaration:
-                case SyntaxKind.CompilationUnit:
-                case SyntaxKind.RecordDeclaration:
-                case SyntaxKind.ClassDeclaration:
-                    return binder.BindMethodBody(node, diagnostics);
-            }
-
-            return base.Bind(binder, node, diagnostics);
+                SyntaxKind.ArrowExpressionClause => binder.BindExpressionBodyAsBlock((ArrowExpressionClauseSyntax)node, diagnostics),
+                SyntaxKind.BaseConstructorInitializer or SyntaxKind.ThisConstructorInitializer => binder.BindConstructorInitializer((ConstructorInitializerSyntax)node, diagnostics),
+                SyntaxKind.PrimaryConstructorBaseType => binder.BindConstructorInitializer((PrimaryConstructorBaseTypeSyntax)node, diagnostics),
+                SyntaxKind.MethodDeclaration or SyntaxKind.ConversionOperatorDeclaration or SyntaxKind.OperatorDeclaration or SyntaxKind.ConstructorDeclaration or SyntaxKind.DestructorDeclaration or SyntaxKind.GetAccessorDeclaration or SyntaxKind.SetAccessorDeclaration or SyntaxKind.InitAccessorDeclaration or SyntaxKind.AddAccessorDeclaration or SyntaxKind.RemoveAccessorDeclaration or SyntaxKind.CompilationUnit or SyntaxKind.RecordDeclaration or SyntaxKind.ClassDeclaration => binder.BindMethodBody(node, diagnostics),
+                _ => base.Bind(binder, node, diagnostics),
+            };
         }
 
         /// <summary>

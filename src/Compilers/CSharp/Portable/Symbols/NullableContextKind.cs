@@ -68,19 +68,14 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         internal static NullableContextKind ToNullableContextFlags(this byte? value)
         {
-            switch (value)
+            return value switch
             {
-                case null:
-                    return NullableContextKind.None;
-                case NullableAnnotationExtensions.ObliviousAttributeValue:
-                    return NullableContextKind.Oblivious;
-                case NullableAnnotationExtensions.NotAnnotatedAttributeValue:
-                    return NullableContextKind.NotAnnotated;
-                case NullableAnnotationExtensions.AnnotatedAttributeValue:
-                    return NullableContextKind.Annotated;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(value);
-            }
+                null => NullableContextKind.None,
+                NullableAnnotationExtensions.ObliviousAttributeValue => NullableContextKind.Oblivious,
+                NullableAnnotationExtensions.NotAnnotatedAttributeValue => NullableContextKind.NotAnnotated,
+                NullableAnnotationExtensions.AnnotatedAttributeValue => NullableContextKind.Annotated,
+                _ => throw ExceptionUtilities.UnexpectedValue(value),
+            };
         }
     }
 }

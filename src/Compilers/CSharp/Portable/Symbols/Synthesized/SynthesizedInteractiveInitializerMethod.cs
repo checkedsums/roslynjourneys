@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
-using System.Linq;
-using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
@@ -21,7 +19,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         private readonly SourceMemberContainerTypeSymbol _containingType;
         private readonly TypeSymbol _resultType;
         private readonly TypeSymbol _returnType;
-        private ThreeState _lazyIsNullableAnalysisEnabled;
 
         internal SynthesizedInteractiveInitializerMethod(SourceMemberContainerTypeSymbol containingType, BindingDiagnosticBag diagnostics)
         {
@@ -63,7 +60,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ImmutableArray<MethodSymbol> ExplicitInterfaceImplementations
         {
-            get { return ImmutableArray<MethodSymbol>.Empty; }
+            get { return []; }
         }
 
         public override bool HidesBaseMethodsByName
@@ -133,7 +130,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ImmutableArray<ParameterSymbol> Parameters
         {
-            get { return ImmutableArray<ParameterSymbol>.Empty; }
+            get { return []; }
         }
 
         public override bool ReturnsVoid

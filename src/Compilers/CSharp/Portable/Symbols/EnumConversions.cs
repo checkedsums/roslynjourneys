@@ -12,33 +12,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         internal static TypeKind ToTypeKind(this DeclarationKind kind)
         {
-            switch (kind)
+            return kind switch
             {
-                case DeclarationKind.Class:
-                case DeclarationKind.Script:
-                case DeclarationKind.ImplicitClass:
-                case DeclarationKind.Record:
-                    return TypeKind.Class;
-
-                case DeclarationKind.Submission:
-                    return TypeKind.Submission;
-
-                case DeclarationKind.Delegate:
-                    return TypeKind.Delegate;
-
-                case DeclarationKind.Enum:
-                    return TypeKind.Enum;
-
-                case DeclarationKind.Interface:
-                    return TypeKind.Interface;
-
-                case DeclarationKind.Struct:
-                case DeclarationKind.RecordStruct:
-                    return TypeKind.Struct;
-
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
+                DeclarationKind.Class or DeclarationKind.Script or DeclarationKind.ImplicitClass or DeclarationKind.Record => TypeKind.Class,
+                DeclarationKind.Submission => TypeKind.Submission,
+                DeclarationKind.Delegate => TypeKind.Delegate,
+                DeclarationKind.Enum => TypeKind.Enum,
+                DeclarationKind.Interface => TypeKind.Interface,
+                DeclarationKind.Struct or DeclarationKind.RecordStruct => TypeKind.Struct,
+                _ => throw ExceptionUtilities.UnexpectedValue(kind),
+            };
         }
     }
 }

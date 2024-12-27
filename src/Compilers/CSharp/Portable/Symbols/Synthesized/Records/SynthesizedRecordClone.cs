@@ -61,21 +61,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 modifiers &= ~DeclarationModifiers.AccessibilityMask;
 
-                switch (modifiers)
+                return modifiers switch
                 {
-                    case DeclarationModifiers.None:
-                        return true;
-                    case DeclarationModifiers.Abstract:
-                        return true;
-                    case DeclarationModifiers.Override:
-                        return true;
-                    case DeclarationModifiers.Abstract | DeclarationModifiers.Override:
-                        return true;
-                    case DeclarationModifiers.Virtual:
-                        return true;
-                    default:
-                        return false;
-                }
+                    DeclarationModifiers.None => true,
+                    DeclarationModifiers.Abstract => true,
+                    DeclarationModifiers.Override => true,
+                    DeclarationModifiers.Abstract | DeclarationModifiers.Override => true,
+                    DeclarationModifiers.Virtual => true,
+                    _ => false,
+                };
             }
 #endif 
         }
@@ -105,24 +99,24 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(!IsAbstract);
 
-            var F = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
+            var f = new SyntheticBoundNodeFactory(this, ContainingType.GetNonNullSyntaxNode(), compilationState, diagnostics);
 
             try
             {
                 if (ReturnType.IsErrorType())
                 {
-                    F.CloseMethod(F.ThrowNull());
+                    f.CloseMethod(f.ThrowNull());
                     return;
                 }
 
                 var members = ContainingType.InstanceConstructors;
                 foreach (var member in members)
                 {
-                    var ctor = (MethodSymbol)member;
+                    var ctor = member;
                     if (ctor.ParameterCount == 1 && ctor.Parameters[0].RefKind == RefKind.None &&
                         ctor.Parameters[0].Type.Equals(ContainingType, TypeCompareKind.AllIgnoreOptions))
                     {
-                        F.CloseMethod(F.Return(F.New(ctor, F.This())));
+                        f.CloseMethod(f.Return(f.New(ctor, f.This())));
                         return;
                     }
                 }
@@ -132,7 +126,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             catch (SyntheticBoundNodeFactory.MissingPredefinedMember ex)
             {
                 diagnostics.Add(ex.Diagnostic);
-                F.CloseMethod(F.ThrowNull());
+                f.CloseMethod(f.ThrowNull());
             }
         }
 

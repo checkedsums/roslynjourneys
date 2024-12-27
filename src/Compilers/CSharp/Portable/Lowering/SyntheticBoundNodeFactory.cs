@@ -769,17 +769,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public BoundExpression MakeIsNotANumberTest(BoundExpression input)
         {
-            switch (input.Type)
+            return input.Type switch
             {
-                case { SpecialType: CodeAnalysis.SpecialType.System_Double }:
-                    // produce double.IsNaN(input)
-                    return StaticCall(CodeAnalysis.SpecialMember.System_Double__IsNaN, input);
-                case { SpecialType: CodeAnalysis.SpecialType.System_Single }:
-                    // produce float.IsNaN(input)
-                    return StaticCall(CodeAnalysis.SpecialMember.System_Single__IsNaN, input);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(input.Type);
-            }
+                { SpecialType: CodeAnalysis.SpecialType.System_Double } => StaticCall(CodeAnalysis.SpecialMember.System_Double__IsNaN, input),// produce double.IsNaN(input)
+                { SpecialType: CodeAnalysis.SpecialType.System_Single } => StaticCall(CodeAnalysis.SpecialMember.System_Single__IsNaN, input),// produce float.IsNaN(input)
+                _ => throw ExceptionUtilities.UnexpectedValue(input.Type),
+            };
         }
 
         public BoundExpression StaticCall(TypeSymbol receiver, MethodSymbol method, params BoundExpression[] args)

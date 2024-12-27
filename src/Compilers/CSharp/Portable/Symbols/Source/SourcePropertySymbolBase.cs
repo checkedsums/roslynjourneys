@@ -850,9 +850,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal override void AfterAddingTypeMembersChecks(ConversionsBase conversions, BindingDiagnosticBag diagnostics)
         {
 #nullable enable
-            bool isExplicitInterfaceImplementation = IsExplicitInterfaceImplementation;
-            this.CheckAccessibility(Location, diagnostics, isExplicitInterfaceImplementation);
-            this.CheckModifiers(isExplicitInterfaceImplementation, Location, IsIndexer, diagnostics);
+            this.CheckAccessibility(Location, diagnostics);
+            this.CheckModifiers(IsExplicitInterfaceImplementation, Location, IsIndexer, diagnostics);
 
             CheckInitializerIfNeeded(diagnostics);
             CheckFieldKeywordUsage((SourcePropertySymbolBase?)PartialImplementationPart ?? this, diagnostics);
@@ -1042,9 +1041,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             ParameterHelpers.EnsureNullableAttributeExists(compilation, this, Parameters, diagnostics, modifyCompilation: true);
         }
 
-        private void CheckAccessibility(Location location, BindingDiagnosticBag diagnostics, bool isExplicitInterfaceImplementation)
+        private void CheckAccessibility(Location location, BindingDiagnosticBag diagnostics)
         {
-            ModifierUtils.CheckAccessibility(_modifiers, this, isExplicitInterfaceImplementation, diagnostics, location);
+            ModifierUtils.CheckAccessibility(_modifiers, this, diagnostics, location);
         }
 
         private void CheckModifiers(bool isExplicitInterfaceImplementation, Location location, bool isIndexer, BindingDiagnosticBag diagnostics)

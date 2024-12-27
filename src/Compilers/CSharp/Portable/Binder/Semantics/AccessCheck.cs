@@ -639,23 +639,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return;
                 }
 
-                ImmutableArray<NamedTypeSymbol> declaredInterfaces;
-
-                switch (derived)
+                var declaredInterfaces = derived switch
                 {
-                    case TypeParameterSymbol typeParameter:
-                        declaredInterfaces = typeParameter.AllEffectiveInterfacesNoUseSiteDiagnostics;
-                        break;
-
-                    case NamedTypeSymbol namedType:
-                        declaredInterfaces = namedType.GetDeclaredInterfaces(basesBeingResolved);
-                        break;
-
-                    default:
-                        declaredInterfaces = derived.InterfacesNoUseSiteDiagnostics(basesBeingResolved);
-                        break;
-                }
-
+                    TypeParameterSymbol typeParameter => typeParameter.AllEffectiveInterfacesNoUseSiteDiagnostics,
+                    NamedTypeSymbol namedType => namedType.GetDeclaredInterfaces(basesBeingResolved),
+                    _ => derived.InterfacesNoUseSiteDiagnostics(basesBeingResolved),
+                };
                 foreach (var @interface in declaredInterfaces)
                 {
                     NamedTypeSymbol definition = @interface.OriginalDefinition;

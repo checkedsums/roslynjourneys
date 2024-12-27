@@ -1139,29 +1139,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit
         {
             Debug.Assert(diagnostics != null);
 
-            switch (typeSymbol.Kind)
+            return typeSymbol.Kind switch
             {
-                case SymbolKind.DynamicType:
-                    return Translate(syntaxNodeOpt, diagnostics);
-
-                case SymbolKind.ArrayType:
-                    return Translate((ArrayTypeSymbol)typeSymbol);
-
-                case SymbolKind.ErrorType:
-                case SymbolKind.NamedType:
-                    return Translate((NamedTypeSymbol)typeSymbol, syntaxNodeOpt, diagnostics);
-
-                case SymbolKind.PointerType:
-                    return Translate((PointerTypeSymbol)typeSymbol);
-
-                case SymbolKind.TypeParameter:
-                    return Translate((TypeParameterSymbol)typeSymbol);
-
-                case SymbolKind.FunctionPointerType:
-                    return Translate((FunctionPointerTypeSymbol)typeSymbol);
-            }
-
-            throw ExceptionUtilities.UnexpectedValue(typeSymbol.Kind);
+                SymbolKind.DynamicType => Translate(syntaxNodeOpt, diagnostics),
+                SymbolKind.ArrayType => Translate((ArrayTypeSymbol)typeSymbol),
+                SymbolKind.ErrorType or SymbolKind.NamedType => Translate((NamedTypeSymbol)typeSymbol, syntaxNodeOpt, diagnostics),
+                SymbolKind.PointerType => Translate((PointerTypeSymbol)typeSymbol),
+                SymbolKind.TypeParameter => Translate((TypeParameterSymbol)typeSymbol),
+                SymbolKind.FunctionPointerType => Translate((FunctionPointerTypeSymbol)typeSymbol),
+                _ => throw ExceptionUtilities.UnexpectedValue(typeSymbol.Kind),
+            };
         }
 
         internal Cci.IFieldReference Translate(

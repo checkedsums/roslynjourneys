@@ -129,16 +129,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             var containingMemberOrLambda = this.ContainingMemberOrLambda;
 
-            switch (containingMemberOrLambda?.Kind)
+            return (containingMemberOrLambda?.Kind) switch
             {
-                case null:
-                case SymbolKind.NamedType:
-                case SymbolKind.Namespace:
-                    return true;
-                default:
-                    return containingMemberOrLambda.ContainingSymbol?.Kind == SymbolKind.NamedType &&
-                           this.Next?.ContainingMemberOrLambda != containingMemberOrLambda;
-            }
+                null or SymbolKind.NamedType or SymbolKind.Namespace => true,
+                _ => containingMemberOrLambda.ContainingSymbol?.Kind == SymbolKind.NamedType &&
+                                           this.Next?.ContainingMemberOrLambda != containingMemberOrLambda,
+            };
         }
     }
 }

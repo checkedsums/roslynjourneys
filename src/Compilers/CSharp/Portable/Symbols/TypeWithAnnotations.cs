@@ -150,18 +150,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             get
             {
-                switch (NullableAnnotation)
+                return NullableAnnotation switch
                 {
-                    case NullableAnnotation.Oblivious:
-                    case NullableAnnotation.Annotated:
-                        return true;
-
-                    case NullableAnnotation.NotAnnotated:
-                        return Type.IsNullableTypeOrTypeParameter();
-
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(NullableAnnotation);
-                }
+                    NullableAnnotation.Oblivious or NullableAnnotation.Annotated => true,
+                    NullableAnnotation.NotAnnotated => Type.IsNullableTypeOrTypeParameter(),
+                    _ => throw ExceptionUtilities.UnexpectedValue(NullableAnnotation),
+                };
             }
         }
 

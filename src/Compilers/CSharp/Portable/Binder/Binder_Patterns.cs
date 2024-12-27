@@ -2,7 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
+#pragma warning disable format
+
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -65,31 +66,22 @@ namespace Microsoft.CodeAnalysis.CSharp
                     hasErrors = true;
                 }
                 else
-                {
                     switch (pattern)
                     {
-                        case BoundConstantPattern _:
-                        case BoundITuplePattern _:
+                        case BoundConstantPattern: case BoundITuplePattern: throw ExceptionUtilities.Unreachable();
                             // these patterns can fail in practice
-                            throw ExceptionUtilities.Unreachable();
-                        case BoundRelationalPattern _:
-                        case BoundTypePattern _:
-                        case BoundNegatedPattern _:
-                        case BoundBinaryPattern _:
-                        case BoundListPattern:
+                        case BoundRelationalPattern: case BoundTypePattern: case BoundNegatedPattern: case BoundBinaryPattern: case BoundListPattern:
+                        {
                             Debug.Assert(expression.Type is not null);
                             diagnostics.Add(ErrorCode.WRN_IsPatternAlways, node.Location, expression.Type);
                             break;
-                        case BoundDiscardPattern _:
+                        }
+                        case BoundDiscardPattern: break;
                             // we do not give a warning on this because it is an existing scenario, and it should
                             // have been obvious in source that it would always match.
-                            break;
-                        case BoundDeclarationPattern _:
-                        case BoundRecursivePattern _:
+                        case BoundDeclarationPattern: case BoundRecursivePattern: break;
                             // We do not give a warning on these because people do this to give a name to a value
-                            break;
                     }
-                }
             }
             else if (expression.ConstantValueOpt != null)
             {
@@ -97,25 +89,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (!hasErrors && getConstantResult(decisionDag, negated, whenTrueLabel, whenFalseLabel) is { } simplifiedResult)
                 {
                     if (!simplifiedResult)
-                    {
                         diagnostics.Add(ErrorCode.WRN_GivenExpressionNeverMatchesPattern, node.Location);
-                    }
-                    else
-                    {
-                        switch (pattern)
-                        {
-                            case BoundConstantPattern _:
-                                diagnostics.Add(ErrorCode.WRN_GivenExpressionAlwaysMatchesConstant, node.Location);
-                                break;
-                            case BoundRelationalPattern _:
-                            case BoundTypePattern _:
-                            case BoundNegatedPattern _:
-                            case BoundBinaryPattern _:
-                            case BoundDiscardPattern _:
-                                diagnostics.Add(ErrorCode.WRN_GivenExpressionAlwaysMatchesPattern, node.Location);
-                                break;
-                        }
-                    }
+                    else if (pattern is BoundRelationalPattern or BoundTypePattern or BoundNegatedPattern or BoundBinaryPattern or BoundDiscardPattern)
+                        diagnostics.Add(ErrorCode.WRN_GivenExpressionAlwaysMatchesPattern, node.Location);
+                    else if (pattern is BoundConstantPattern)
+                        diagnostics.Add(ErrorCode.WRN_GivenExpressionAlwaysMatchesConstant, node.Location);
                 }
             }
 
@@ -127,14 +105,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             static bool? getConstantResult(BoundDecisionDag decisionDag, bool negated, LabelSymbol whenTrueLabel, LabelSymbol whenFalseLabel)
             {
                 if (!decisionDag.ReachableLabels.Contains(whenTrueLabel))
-                {
                     return negated;
-                }
                 else if (!decisionDag.ReachableLabels.Contains(whenFalseLabel))
-                {
                     return !negated;
-                }
-                return null;
+                else return null;
             }
         }
 
@@ -157,14 +131,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         internal BoundPattern BindPattern(
-            PatternSyntax node,
-            TypeSymbol inputType,
-            bool permitDesignations,
-            bool hasErrors,
+            PatternSyntax node, TypeSymbol inputType,
+            bool permitDesignations, bool hasErrors,
             BindingDiagnosticBag diagnostics,
-            bool underIsPattern = false)
-        {
-            return node switch
+            bool underIsPattern = false) => node switch
             {
                 DiscardPatternSyntax p => BindDiscardPattern(p, inputType, diagnostics),
                 DeclarationPatternSyntax p => BindDeclarationPattern(p, inputType, permitDesignations, hasErrors, diagnostics),
@@ -180,26 +150,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 SlicePatternSyntax p => BindSlicePattern(p, inputType, permitDesignations, ref hasErrors, misplaced: true, diagnostics),
                 _ => throw ExceptionUtilities.UnexpectedValue(node.Kind()),
             };
-        }
 
-        private BoundPattern BindParenthesizedPattern(
-            ParenthesizedPatternSyntax node,
-            TypeSymbol inputType,
-            bool permitDesignations,
-            bool hasErrors,
-            BindingDiagnosticBag diagnostics,
-            bool underIsPattern)
-        {
-            return BindPattern(node.Pattern, inputType, permitDesignations, hasErrors, diagnostics, underIsPattern);
-        }
+        private BoundPattern BindParenthesizedPattern(ParenthesizedPatternSyntax node, TypeSymbol inputType, bool permitDesignations, bool hasErrors, BindingDiagnosticBag diagnostics, bool underIsPattern) 
+            => BindPattern(node.Pattern, inputType, permitDesignations, hasErrors, diagnostics, underIsPattern);
 
-        private BoundPattern BindSlicePattern(
-            SlicePatternSyntax node,
-            TypeSymbol inputType,
-            bool permitDesignations,
-            ref bool hasErrors,
-            bool misplaced,
-            BindingDiagnosticBag diagnostics)
+        private BoundPattern BindSlicePattern(SlicePatternSyntax node, TypeSymbol inputType, bool permitDesignations, ref bool hasErrors, bool misplaced, BindingDiagnosticBag diagnostics)
         {
             if (misplaced && !hasErrors)
             {

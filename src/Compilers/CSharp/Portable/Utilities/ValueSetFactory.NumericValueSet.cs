@@ -71,20 +71,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             public bool Any(BinaryOperatorKind relation, T value)
             {
-                switch (relation)
+                return relation switch
                 {
-                    case LessThan:
-                    case LessThanOrEqual:
-                        return _intervals.Length > 0 && _tc.Related(relation, _intervals[0].first, value);
-                    case GreaterThan:
-                    case GreaterThanOrEqual:
-                        return _intervals.Length > 0 && _tc.Related(relation, _intervals[_intervals.Length - 1].last, value);
-                    case Equal:
-                        return anyIntervalContains(0, _intervals.Length - 1, value);
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(relation);
-                }
-
+                    LessThan or LessThanOrEqual => _intervals.Length > 0 && _tc.Related(relation, _intervals[0].first, value),
+                    GreaterThan or GreaterThanOrEqual => _intervals.Length > 0 && _tc.Related(relation, _intervals[_intervals.Length - 1].last, value),
+                    Equal => anyIntervalContains(0, _intervals.Length - 1, value),
+                    _ => throw ExceptionUtilities.UnexpectedValue(relation),
+                };
                 bool anyIntervalContains(int firstIntervalIndex, int lastIntervalIndex, T value)
                 {
                     while (true)
@@ -111,19 +104,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (_intervals.Length == 0)
                     return true;
 
-                switch (relation)
+                return relation switch
                 {
-                    case LessThan:
-                    case LessThanOrEqual:
-                        return _tc.Related(relation, _intervals[_intervals.Length - 1].last, value);
-                    case GreaterThan:
-                    case GreaterThanOrEqual:
-                        return _tc.Related(relation, _intervals[0].first, value);
-                    case Equal:
-                        return _intervals.Length == 1 && _tc.Related(Equal, _intervals[0].first, value) && _tc.Related(Equal, _intervals[0].last, value);
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(relation);
-                }
+                    LessThan or LessThanOrEqual => _tc.Related(relation, _intervals[_intervals.Length - 1].last, value),
+                    GreaterThan or GreaterThanOrEqual => _tc.Related(relation, _intervals[0].first, value),
+                    Equal => _intervals.Length == 1 && _tc.Related(Equal, _intervals[0].first, value) && _tc.Related(Equal, _intervals[0].last, value),
+                    _ => throw ExceptionUtilities.UnexpectedValue(relation),
+                };
             }
 
             bool IValueSet.All(BinaryOperatorKind relation, ConstantValue value) => !value.IsBad && All(relation, _tc.FromConstantValue(value));

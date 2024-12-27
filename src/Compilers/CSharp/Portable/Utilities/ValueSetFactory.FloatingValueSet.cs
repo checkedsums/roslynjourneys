@@ -71,22 +71,16 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 if (tc.Related(Equal, tc.NaN, value))
                 {
-                    switch (relation)
+                    return relation switch
                     {
-                        case BinaryOperatorKind.Equal:
-                        case BinaryOperatorKind.LessThanOrEqual:
-                        case BinaryOperatorKind.GreaterThanOrEqual:
-                            return new FloatingValueSet<TFloating>(
-                                hasNaN: true,
-                                numbers: NumericValueSet<TFloating>.NoValues(tc),
-                                tc: tc
-                                );
-                        case BinaryOperatorKind.LessThan:
-                        case BinaryOperatorKind.GreaterThan:
-                            return NoValues(tc);
-                        default:
-                            throw ExceptionUtilities.UnexpectedValue(relation);
-                    }
+                        BinaryOperatorKind.Equal or BinaryOperatorKind.LessThanOrEqual or BinaryOperatorKind.GreaterThanOrEqual => new FloatingValueSet<TFloating>(
+                                                        hasNaN: true,
+                                                        numbers: NumericValueSet<TFloating>.NoValues(tc),
+                                                        tc: tc
+                                                        ),
+                        BinaryOperatorKind.LessThan or BinaryOperatorKind.GreaterThan => NoValues(tc),
+                        _ => throw ExceptionUtilities.UnexpectedValue(relation),
+                    };
                 }
                 return new FloatingValueSet<TFloating>(
                     numbers: new NumericValueSetFactory<TFloating>(tc).Related(relation, value),

@@ -67,21 +67,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             bool INumericTC<float>.Related(BinaryOperatorKind relation, float left, float right)
             {
-                switch (relation)
+                return relation switch
                 {
-                    case Equal:
-                        return left == right || float.IsNaN(left) && float.IsNaN(right); // for our purposes, NaNs are equal
-                    case GreaterThanOrEqual:
-                        return left >= right;
-                    case GreaterThan:
-                        return left > right;
-                    case LessThanOrEqual:
-                        return left <= right;
-                    case LessThan:
-                        return left < right;
-                    default:
-                        throw new ArgumentException("relation");
-                }
+                    Equal => left == right || float.IsNaN(left) && float.IsNaN(right),// for our purposes, NaNs are equal
+                    GreaterThanOrEqual => left >= right,
+                    GreaterThan => left > right,
+                    LessThanOrEqual => left <= right,
+                    LessThan => left < right,
+                    _ => throw new ArgumentException("relation"),
+                };
             }
 
             float INumericTC<float>.FromConstantValue(ConstantValue constantValue) => constantValue.IsBad ? 0.0F : constantValue.SingleValue;

@@ -121,19 +121,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static BoundDecisionDagNode TrivialReplacement(BoundDecisionDagNode dag, IReadOnlyDictionary<BoundDecisionDagNode, BoundDecisionDagNode> replacement)
         {
-            switch (dag)
+            return dag switch
             {
-                case BoundEvaluationDecisionDagNode p:
-                    return p.Update(p.Evaluation, replacement[p.Next]);
-                case BoundTestDecisionDagNode p:
-                    return p.Update(p.Test, replacement[p.WhenTrue], replacement[p.WhenFalse]);
-                case BoundWhenDecisionDagNode p:
-                    return p.Update(p.Bindings, p.WhenExpression, replacement[p.WhenTrue], (p.WhenFalse != null) ? replacement[p.WhenFalse] : null);
-                case BoundLeafDecisionDagNode p:
-                    return p;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(dag);
-            }
+                BoundEvaluationDecisionDagNode p => p.Update(p.Evaluation, replacement[p.Next]),
+                BoundTestDecisionDagNode p => p.Update(p.Test, replacement[p.WhenTrue], replacement[p.WhenFalse]),
+                BoundWhenDecisionDagNode p => p.Update(p.Bindings, p.WhenExpression, replacement[p.WhenTrue], (p.WhenFalse != null) ? replacement[p.WhenFalse] : null),
+                BoundLeafDecisionDagNode p => p,
+                _ => throw ExceptionUtilities.UnexpectedValue(dag),
+            };
         }
 
         /// <summary>

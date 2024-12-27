@@ -41,8 +41,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             Debug.Assert((leftType.IsDynamic() || rightType.IsDynamic()) == returnType.IsDynamic());
             Debug.Assert(_containingType.IsDynamic() == returnType.IsDynamic());
 
-            _parameters = ImmutableArray.Create<ParameterSymbol>(new SynthesizedOperatorParameterSymbol(this, leftType, 0, "left"),
-                                                      new SynthesizedOperatorParameterSymbol(this, rightType, 1, "right"));
+            _parameters =
+            [
+                new SynthesizedOperatorParameterSymbol(this, leftType, 0, "left"),
+                new SynthesizedOperatorParameterSymbol(this, rightType, 1, "right"),
+            ];
         }
 
         public SynthesizedIntrinsicOperatorSymbol(TypeSymbol container, string name, TypeSymbol returnType)
@@ -50,7 +53,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _containingType = container;
             _name = name;
             _returnType = returnType;
-            _parameters = ImmutableArray.Create<ParameterSymbol>(new SynthesizedOperatorParameterSymbol(this, container, 0, "value"));
+            _parameters = [new SynthesizedOperatorParameterSymbol(this, container, 0, "value")];
         }
 
         public override bool IsCheckedBuiltin => SyntaxFacts.IsCheckedOperator(this.Name);

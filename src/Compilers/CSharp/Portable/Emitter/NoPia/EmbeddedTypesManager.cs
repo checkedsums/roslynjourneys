@@ -129,28 +129,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Emit.NoPia
                 return null;
             }
 
-            switch (constructor)
+            return constructor switch
             {
-                case WellKnownMember.System_Runtime_InteropServices_ComEventInterfaceAttribute__ctor:
-                    // When emitting a com event interface, we have to tweak the parameters: the spec requires that we use
-                    // the original source interface as both source interface and event provider. Otherwise, we'd have to embed
-                    // the event provider class too.
-                    return SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor,
-                        ImmutableArray.Create<TypedConstant>(constructorArguments[0], constructorArguments[0]),
-                        ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty);
-
-                case WellKnownMember.System_Runtime_InteropServices_CoClassAttribute__ctor:
-                    // The interface needs to have a coclass attribute so that we can tell at runtime that it should be
-                    // instantiatable. The attribute cannot refer directly to the coclass, however, because we can't embed
-                    // classes, and we can't emit a reference to the PIA. We don't actually need
-                    // the class name at runtime: we will instead emit a reference to System.Object, as a placeholder.
-                    return SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor,
-                        ImmutableArray.Create(new TypedConstant(ctor.Parameters[0].Type, TypedConstantKind.Type, ctor.ContainingAssembly.GetSpecialType(SpecialType.System_Object))),
-                        ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty);
-
-                default:
-                    return SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor, constructorArguments, namedArguments);
-            }
+                WellKnownMember.System_Runtime_InteropServices_ComEventInterfaceAttribute__ctor => SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor,
+                                        ImmutableArray.Create<TypedConstant>(constructorArguments[0], constructorArguments[0]),
+                                        ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty),// When emitting a com event interface, we have to tweak the parameters: the spec requires that we use
+                                                                                                   // the original source interface as both source interface and event provider. Otherwise, we'd have to embed
+                                                                                                   // the event provider class too.
+                WellKnownMember.System_Runtime_InteropServices_CoClassAttribute__ctor => SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor,
+                                        ImmutableArray.Create(new TypedConstant(ctor.Parameters[0].Type, TypedConstantKind.Type, ctor.ContainingAssembly.GetSpecialType(SpecialType.System_Object))),
+                                        ImmutableArray<KeyValuePair<string, TypedConstant>>.Empty),// The interface needs to have a coclass attribute so that we can tell at runtime that it should be
+                                                                                                   // instantiatable. The attribute cannot refer directly to the coclass, however, because we can't embed
+                                                                                                   // classes, and we can't emit a reference to the PIA. We don't actually need
+                                                                                                   // the class name at runtime: we will instead emit a reference to System.Object, as a placeholder.
+                _ => SynthesizedAttributeData.Create(ModuleBeingBuilt.Compilation, ctor, constructorArguments, namedArguments),
+            };
         }
 
         internal override bool TryGetAttributeArguments(CSharpAttributeData attrData, out ImmutableArray<TypedConstant> constructorArguments, out ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments, SyntaxNode syntaxNodeOpt, DiagnosticBag diagnostics)

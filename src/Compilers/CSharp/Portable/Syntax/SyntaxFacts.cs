@@ -245,21 +245,15 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var parent = node.Parent;
                 if (parent != null)
                 {
-                    switch (parent.Kind())
+                    return parent.Kind() switch
                     {
-                        case UsingDirective:
-                            return ((UsingDirectiveSyntax)parent).NamespaceOrType == node;
-
-                        case QualifiedName:
-                            // left of QN is namespace or type.  Note: when you have "a.b.c()", then
-                            // "a.b" is not a qualified name, it is a member access expression.
-                            // Qualified names are only parsed when the parser knows it's a type only
-                            // context.
-                            return ((QualifiedNameSyntax)parent).Left == node;
-
-                        default:
-                            return IsInTypeOnlyContext(node);
-                    }
+                        UsingDirective => ((UsingDirectiveSyntax)parent).NamespaceOrType == node,
+                        QualifiedName => ((QualifiedNameSyntax)parent).Left == node,// left of QN is namespace or type.  Note: when you have "a.b.c()", then
+                                                                                    // "a.b" is not a qualified name, it is a member access expression.
+                                                                                    // Qualified names are only parsed when the parser knows it's a type only
+                                                                                    // context.
+                        _ => IsInTypeOnlyContext(node),
+                    };
                 }
             }
 
@@ -319,22 +313,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return false;
             }
 
-            switch (parent4.Kind())
+            return parent4.Kind() switch
             {
-                case InvocationExpression:
-                case TupleExpression:
-                case ObjectCreationExpression:
-                case ImplicitObjectCreationExpression:
-                case ObjectInitializerExpression:
-                case ElementAccessExpression:
-                case Attribute:
-                case BaseConstructorInitializer:
-                case ThisConstructorInitializer:
-                case PrimaryConstructorBaseType:
-                    return true;
-                default:
-                    return false;
-            }
+                InvocationExpression or TupleExpression or ObjectCreationExpression or ImplicitObjectCreationExpression or ObjectInitializerExpression or ElementAccessExpression or Attribute or BaseConstructorInitializer or ThisConstructorInitializer or PrimaryConstructorBaseType => true,
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -357,25 +340,17 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public static string GetText(Accessibility accessibility)
         {
-            switch (accessibility)
+            return accessibility switch
             {
-                case Accessibility.NotApplicable:
-                    return string.Empty;
-                case Accessibility.Private:
-                    return SyntaxFacts.GetText(PrivateKeyword);
-                case Accessibility.ProtectedAndInternal:
-                    return SyntaxFacts.GetText(PrivateKeyword) + " " + SyntaxFacts.GetText(ProtectedKeyword);
-                case Accessibility.Internal:
-                    return SyntaxFacts.GetText(InternalKeyword);
-                case Accessibility.Protected:
-                    return SyntaxFacts.GetText(ProtectedKeyword);
-                case Accessibility.ProtectedOrInternal:
-                    return SyntaxFacts.GetText(ProtectedKeyword) + " " + SyntaxFacts.GetText(InternalKeyword);
-                case Accessibility.Public:
-                    return SyntaxFacts.GetText(PublicKeyword);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(accessibility);
-            }
+                Accessibility.NotApplicable => string.Empty,
+                Accessibility.Private => SyntaxFacts.GetText(PrivateKeyword),
+                Accessibility.ProtectedAndInternal => SyntaxFacts.GetText(PrivateKeyword) + " " + SyntaxFacts.GetText(ProtectedKeyword),
+                Accessibility.Internal => SyntaxFacts.GetText(InternalKeyword),
+                Accessibility.Protected => SyntaxFacts.GetText(ProtectedKeyword),
+                Accessibility.ProtectedOrInternal => SyntaxFacts.GetText(ProtectedKeyword) + " " + SyntaxFacts.GetText(InternalKeyword),
+                Accessibility.Public => SyntaxFacts.GetText(PublicKeyword),
+                _ => throw ExceptionUtilities.UnexpectedValue(accessibility),
+            };
         }
 
         internal static bool IsStatementExpression(SyntaxNode syntax)

@@ -809,15 +809,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE
 
             if (AccessCheck.IsEffectivelyPublicOrInternal(symbol, out bool isInternal))
             {
-                switch (nullableMemberMetadata)
+                return nullableMemberMetadata switch
                 {
-                    case NullableMemberMetadata.Public:
-                        return !isInternal;
-                    case NullableMemberMetadata.Internal:
-                        return true;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(nullableMemberMetadata);
-                }
+                    NullableMemberMetadata.Public => !isInternal,
+                    NullableMemberMetadata.Internal => true,
+                    _ => throw ExceptionUtilities.UnexpectedValue(nullableMemberMetadata),
+                };
             }
 
             return false;

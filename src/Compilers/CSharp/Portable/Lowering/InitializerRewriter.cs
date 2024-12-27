@@ -115,15 +115,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static BoundStatement RewriteInitializersAsStatements(BoundInitializer initializer)
         {
-            switch (initializer.Kind)
+            return initializer.Kind switch
             {
-                case BoundKind.FieldEqualsValue:
-                    return RewriteFieldInitializer((BoundFieldEqualsValue)initializer);
-                case BoundKind.GlobalStatementInitializer:
-                    return ((BoundGlobalStatementInitializer)initializer).Statement;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(initializer.Kind);
-            }
+                BoundKind.FieldEqualsValue => RewriteFieldInitializer((BoundFieldEqualsValue)initializer),
+                BoundKind.GlobalStatementInitializer => ((BoundGlobalStatementInitializer)initializer).Statement,
+                _ => throw ExceptionUtilities.UnexpectedValue(initializer.Kind),
+            };
         }
     }
 }

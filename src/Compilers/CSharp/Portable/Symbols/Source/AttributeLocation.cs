@@ -130,31 +130,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static AttributeLocation ToAttributeLocation(string text)
         {
-            switch (text)
+            return text switch
             {
-                case "assembly":
-                    return AttributeLocation.Assembly;
-                case "module":
-                    return AttributeLocation.Module;
-                case "type":
-                    return AttributeLocation.Type;
-                case "return":
-                    return AttributeLocation.Return;
-                case "method":
-                    return AttributeLocation.Method;
-                case "field":
-                    return AttributeLocation.Field;
-                case "event":
-                    return AttributeLocation.Event;
-                case "param":
-                    return AttributeLocation.Parameter;
-                case "property":
-                    return AttributeLocation.Property;
-                case "typevar":
-                    return AttributeLocation.TypeParameter;
-                default:
-                    return AttributeLocation.None;
-            }
+                "assembly" => AttributeLocation.Assembly,
+                "module" => AttributeLocation.Module,
+                "type" => AttributeLocation.Type,
+                "return" => AttributeLocation.Return,
+                "method" => AttributeLocation.Method,
+                "field" => AttributeLocation.Field,
+                "event" => AttributeLocation.Event,
+                "param" => AttributeLocation.Parameter,
+                "property" => AttributeLocation.Property,
+                "typevar" => AttributeLocation.TypeParameter,
+                _ => AttributeLocation.None,
+            };
         }
     }
 }

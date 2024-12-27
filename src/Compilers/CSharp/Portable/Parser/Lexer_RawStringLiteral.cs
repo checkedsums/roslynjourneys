@@ -105,19 +105,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             if (!inDirective && ScanUtf8Suffix())
             {
-                switch (info.Kind)
+                info.Kind = info.Kind switch
                 {
-                    case SyntaxKind.SingleLineRawStringLiteralToken:
-                        info.Kind = SyntaxKind.Utf8SingleLineRawStringLiteralToken;
-                        break;
-
-                    case SyntaxKind.MultiLineRawStringLiteralToken:
-                        info.Kind = SyntaxKind.Utf8MultiLineRawStringLiteralToken;
-                        break;
-
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(info.Kind);
+                    SyntaxKind.SingleLineRawStringLiteralToken => SyntaxKind.Utf8SingleLineRawStringLiteralToken,
+                    SyntaxKind.MultiLineRawStringLiteralToken => SyntaxKind.Utf8MultiLineRawStringLiteralToken,
+                    _ => throw ExceptionUtilities.UnexpectedValue(info.Kind),
                 };
+                ;
             }
 
             info.Text = TextWindow.GetText(intern: true);

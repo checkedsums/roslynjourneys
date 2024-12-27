@@ -593,29 +593,18 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static SymbolDisplayPartKind GetPartKind(INamedTypeSymbol symbol)
         {
-            switch (symbol.TypeKind)
+            return symbol.TypeKind switch
             {
-                case TypeKind.Class when symbol.IsRecord:
-                    return SymbolDisplayPartKind.RecordClassName;
-                case TypeKind.Struct when symbol.IsRecord:
-                    return SymbolDisplayPartKind.RecordStructName;
-                case TypeKind.Submission:
-                case TypeKind.Module:
-                case TypeKind.Class:
-                    return SymbolDisplayPartKind.ClassName;
-                case TypeKind.Delegate:
-                    return SymbolDisplayPartKind.DelegateName;
-                case TypeKind.Enum:
-                    return SymbolDisplayPartKind.EnumName;
-                case TypeKind.Error:
-                    return SymbolDisplayPartKind.ErrorTypeName;
-                case TypeKind.Interface:
-                    return SymbolDisplayPartKind.InterfaceName;
-                case TypeKind.Struct:
-                    return SymbolDisplayPartKind.StructName;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(symbol.TypeKind);
-            }
+                TypeKind.Class when symbol.IsRecord => SymbolDisplayPartKind.RecordClassName,
+                TypeKind.Struct when symbol.IsRecord => SymbolDisplayPartKind.RecordStructName,
+                TypeKind.Submission or TypeKind.Module or TypeKind.Class => SymbolDisplayPartKind.ClassName,
+                TypeKind.Delegate => SymbolDisplayPartKind.DelegateName,
+                TypeKind.Enum => SymbolDisplayPartKind.EnumName,
+                TypeKind.Error => SymbolDisplayPartKind.ErrorTypeName,
+                TypeKind.Interface => SymbolDisplayPartKind.InterfaceName,
+                TypeKind.Struct => SymbolDisplayPartKind.StructName,
+                _ => throw ExceptionUtilities.UnexpectedValue(symbol.TypeKind),
+            };
         }
 
         private bool AddSpecialTypeKeyword(INamedTypeSymbol symbol)
@@ -634,47 +623,28 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static string? GetSpecialTypeName(INamedTypeSymbol symbol)
         {
-            switch (symbol.SpecialType)
+            return symbol.SpecialType switch
             {
-                case SpecialType.System_Void:
-                    return "void";
-                case SpecialType.System_SByte:
-                    return "sbyte";
-                case SpecialType.System_Int16:
-                    return "short";
-                case SpecialType.System_Int32:
-                    return "int";
-                case SpecialType.System_Int64:
-                    return "long";
-                case SpecialType.System_IntPtr when symbol.IsNativeIntegerType:
-                    return "nint";
-                case SpecialType.System_UIntPtr when symbol.IsNativeIntegerType:
-                    return "nuint";
-                case SpecialType.System_Byte:
-                    return "byte";
-                case SpecialType.System_UInt16:
-                    return "ushort";
-                case SpecialType.System_UInt32:
-                    return "uint";
-                case SpecialType.System_UInt64:
-                    return "ulong";
-                case SpecialType.System_Single:
-                    return "float";
-                case SpecialType.System_Double:
-                    return "double";
-                case SpecialType.System_Decimal:
-                    return "decimal";
-                case SpecialType.System_Char:
-                    return "char";
-                case SpecialType.System_Boolean:
-                    return "bool";
-                case SpecialType.System_String:
-                    return "string";
-                case SpecialType.System_Object:
-                    return "object";
-                default:
-                    return null;
-            }
+                SpecialType.System_Void => "void",
+                SpecialType.System_SByte => "sbyte",
+                SpecialType.System_Int16 => "short",
+                SpecialType.System_Int32 => "int",
+                SpecialType.System_Int64 => "long",
+                SpecialType.System_IntPtr when symbol.IsNativeIntegerType => "nint",
+                SpecialType.System_UIntPtr when symbol.IsNativeIntegerType => "nuint",
+                SpecialType.System_Byte => "byte",
+                SpecialType.System_UInt16 => "ushort",
+                SpecialType.System_UInt32 => "uint",
+                SpecialType.System_UInt64 => "ulong",
+                SpecialType.System_Single => "float",
+                SpecialType.System_Double => "double",
+                SpecialType.System_Decimal => "decimal",
+                SpecialType.System_Char => "char",
+                SpecialType.System_Boolean => "bool",
+                SpecialType.System_String => "string",
+                SpecialType.System_Object => "object",
+                _ => null,
+            };
         }
 
         private void AddTypeKind(INamedTypeSymbol symbol)

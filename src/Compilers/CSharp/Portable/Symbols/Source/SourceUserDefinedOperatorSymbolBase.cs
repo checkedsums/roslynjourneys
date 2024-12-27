@@ -118,7 +118,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             // SPEC: It is an error for the same modifier to appear multiple times in an
             // SPEC: operator declaration.
-            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, isExplicitInterfaceImplementation: false, diagnostics, location);
+            ModifierUtils.CheckAccessibility(this.DeclarationModifiers, this, diagnostics, location);
         }
 
         protected static DeclarationModifiers MakeDeclarationModifiers(MethodKind methodKind, bool inInterface, BaseMethodDeclarationSyntax syntax, Location location, BindingDiagnosticBag diagnostics)
@@ -374,26 +374,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static bool DoesOperatorHaveCorrectArity(string name, int parameterCount)
         {
-            switch (name)
+            return name switch
             {
-                case WellKnownMemberNames.CheckedIncrementOperatorName:
-                case WellKnownMemberNames.IncrementOperatorName:
-                case WellKnownMemberNames.CheckedDecrementOperatorName:
-                case WellKnownMemberNames.DecrementOperatorName:
-                case WellKnownMemberNames.CheckedUnaryNegationOperatorName:
-                case WellKnownMemberNames.UnaryNegationOperatorName:
-                case WellKnownMemberNames.UnaryPlusOperatorName:
-                case WellKnownMemberNames.LogicalNotOperatorName:
-                case WellKnownMemberNames.OnesComplementOperatorName:
-                case WellKnownMemberNames.TrueOperatorName:
-                case WellKnownMemberNames.FalseOperatorName:
-                case WellKnownMemberNames.ImplicitConversionName:
-                case WellKnownMemberNames.ExplicitConversionName:
-                case WellKnownMemberNames.CheckedExplicitConversionName:
-                    return parameterCount == 1;
-                default:
-                    return parameterCount == 2;
-            }
+                WellKnownMemberNames.CheckedIncrementOperatorName or WellKnownMemberNames.IncrementOperatorName or WellKnownMemberNames.CheckedDecrementOperatorName or WellKnownMemberNames.DecrementOperatorName or WellKnownMemberNames.CheckedUnaryNegationOperatorName or WellKnownMemberNames.UnaryNegationOperatorName or WellKnownMemberNames.UnaryPlusOperatorName or WellKnownMemberNames.LogicalNotOperatorName or WellKnownMemberNames.OnesComplementOperatorName or WellKnownMemberNames.TrueOperatorName or WellKnownMemberNames.FalseOperatorName or WellKnownMemberNames.ImplicitConversionName or WellKnownMemberNames.ExplicitConversionName or WellKnownMemberNames.CheckedExplicitConversionName => parameterCount == 1,
+                _ => parameterCount == 2,
+            };
         }
 
         private void CheckUserDefinedConversionSignature(BindingDiagnosticBag diagnostics)

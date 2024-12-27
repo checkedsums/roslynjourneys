@@ -980,33 +980,18 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private bool IsCompliantType(TypeSymbol type, NamedTypeSymbol context)
         {
-            switch (type.TypeKind)
+            return type.TypeKind switch
             {
-                case TypeKind.Array:
-                    return IsCompliantType(((ArrayTypeSymbol)type).ElementType, context);
-                case TypeKind.Dynamic:
-                    // NOTE: It would probably be most correct to return 
-                    // IsCompliantType(this.compilation.GetSpecialType(SpecialType.System_Object), context)
-                    // but that's way too much work in the 99.9% case.
-                    return true;
-                case TypeKind.Pointer:
-                case TypeKind.FunctionPointer:
-                    return false;
-                case TypeKind.Error:
-                case TypeKind.TypeParameter:
-                    // Possibly not the most accurate answer, but the gist is that we
-                    // don't want to report problems with these types.
-                    return true;
-                case TypeKind.Class:
-                case TypeKind.Struct:
-                case TypeKind.Interface:
-                case TypeKind.Delegate:
-                case TypeKind.Enum:
-                case TypeKind.Submission:
-                    return IsCompliantType((NamedTypeSymbol)type, context);
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(type.TypeKind);
-            }
+                TypeKind.Array => IsCompliantType(((ArrayTypeSymbol)type).ElementType, context),
+                TypeKind.Dynamic => true,// NOTE: It would probably be most correct to return 
+                                         // IsCompliantType(this.compilation.GetSpecialType(SpecialType.System_Object), context)
+                                         // but that's way too much work in the 99.9% case.
+                TypeKind.Pointer or TypeKind.FunctionPointer => false,
+                TypeKind.Error or TypeKind.TypeParameter => true,// Possibly not the most accurate answer, but the gist is that we
+                                                                 // don't want to report problems with these types.
+                TypeKind.Class or TypeKind.Struct or TypeKind.Interface or TypeKind.Delegate or TypeKind.Enum or TypeKind.Submission => IsCompliantType((NamedTypeSymbol)type, context),
+                _ => throw ExceptionUtilities.UnexpectedValue(type.TypeKind),
+            };
         }
 
         private bool IsCompliantType(NamedTypeSymbol type, NamedTypeSymbol context)
@@ -1271,34 +1256,22 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsTrue(Compliance compliance)
         {
-            switch (compliance)
+            return compliance switch
             {
-                case Compliance.DeclaredTrue:
-                case Compliance.InheritedTrue:
-                    return true;
-                case Compliance.DeclaredFalse:
-                case Compliance.InheritedFalse:
-                case Compliance.ImpliedFalse:
-                    return false;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(compliance);
-            }
+                Compliance.DeclaredTrue or Compliance.InheritedTrue => true,
+                Compliance.DeclaredFalse or Compliance.InheritedFalse or Compliance.ImpliedFalse => false,
+                _ => throw ExceptionUtilities.UnexpectedValue(compliance),
+            };
         }
 
         private static bool IsDeclared(Compliance compliance)
         {
-            switch (compliance)
+            return compliance switch
             {
-                case Compliance.DeclaredTrue:
-                case Compliance.DeclaredFalse:
-                    return true;
-                case Compliance.InheritedTrue:
-                case Compliance.InheritedFalse:
-                case Compliance.ImpliedFalse:
-                    return false;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(compliance);
-            }
+                Compliance.DeclaredTrue or Compliance.DeclaredFalse => true,
+                Compliance.InheritedTrue or Compliance.InheritedFalse or Compliance.ImpliedFalse => false,
+                _ => throw ExceptionUtilities.UnexpectedValue(compliance),
+            };
         }
 
         private enum Compliance

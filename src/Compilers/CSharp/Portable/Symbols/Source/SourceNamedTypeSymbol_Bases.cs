@@ -631,17 +631,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         private static bool IsRestrictedBaseType(SpecialType specialType)
         {
-            switch (specialType)
+            return specialType switch
             {
-                case SpecialType.System_Array:
-                case SpecialType.System_Enum:
-                case SpecialType.System_Delegate:
-                case SpecialType.System_MulticastDelegate:
-                case SpecialType.System_ValueType:
-                    return true;
-            }
-
-            return false;
+                SpecialType.System_Array or SpecialType.System_Enum or SpecialType.System_Delegate or SpecialType.System_MulticastDelegate or SpecialType.System_ValueType => true,
+                _ => false,
+            };
         }
 
         private ImmutableArray<NamedTypeSymbol> MakeAcyclicInterfaces(ConsList<TypeSymbol> basesBeingResolved, BindingDiagnosticBag diagnostics)

@@ -617,48 +617,25 @@ namespace Microsoft.CodeAnalysis.CSharp
                 rightType = rightType.StrippedType();
             }
 
-            bool useIdentityConversion;
-            switch (kind)
-            {
-                case BinaryOperatorKind.And:
-                case BinaryOperatorKind.Or:
-                case BinaryOperatorKind.Xor:
+            var
                     // These operations are ambiguous on non-equal identity-convertible types - 
                     // it's not clear what the resulting type of the operation should be:
                     //   C<?>.E operator +(C<dynamic>.E x, C<object>.E y)
-                    useIdentityConversion = false;
-                    break;
-
-                case BinaryOperatorKind.Addition:
-                    // Addition only accepts a single enum type, so operations on non-equal identity-convertible types are not ambiguous. 
-                    //   E operator +(E x, U y)
-                    //   E operator +(U x, E y)
-                    useIdentityConversion = true;
-                    break;
-
-                case BinaryOperatorKind.Subtraction:
-                    // Subtraction either returns underlying type or only accept a single enum type, so operations on non-equal identity-convertible types are not ambiguous. 
-                    //   U operator –(E x, E y)
-                    //   E operator –(E x, U y)
-                    useIdentityConversion = true;
-                    break;
-
-                case BinaryOperatorKind.Equal:
-                case BinaryOperatorKind.NotEqual:
-                case BinaryOperatorKind.GreaterThan:
-                case BinaryOperatorKind.LessThan:
-                case BinaryOperatorKind.GreaterThanOrEqual:
-                case BinaryOperatorKind.LessThanOrEqual:
-                    // Relational operations return Boolean, so operations on non-equal identity-convertible types are not ambiguous. 
-                    //   Boolean operator op(C<dynamic>.E, C<object>.E)
-                    useIdentityConversion = true;
-                    break;
-
-                default:
-                    // Unhandled bin op kind in get enum operations
-                    throw ExceptionUtilities.UnexpectedValue(kind);
-            }
-
+                    useIdentityConversion = kind switch
+                    {
+                        BinaryOperatorKind.And or BinaryOperatorKind.Or or BinaryOperatorKind.Xor => false,// These operations are ambiguous on non-equal identity-convertible types - 
+                                                                                                           // it's not clear what the resulting type of the operation should be:
+                                                                                                           //   C<?>.E operator +(C<dynamic>.E x, C<object>.E y)
+                        BinaryOperatorKind.Addition => true,// Addition only accepts a single enum type, so operations on non-equal identity-convertible types are not ambiguous. 
+                                                            //   E operator +(E x, U y)
+                                                            //   E operator +(U x, E y)
+                        BinaryOperatorKind.Subtraction => true,// Subtraction either returns underlying type or only accept a single enum type, so operations on non-equal identity-convertible types are not ambiguous. 
+                                                               //   U operator –(E x, E y)
+                                                               //   E operator –(E x, U y)
+                        BinaryOperatorKind.Equal or BinaryOperatorKind.NotEqual or BinaryOperatorKind.GreaterThan or BinaryOperatorKind.LessThan or BinaryOperatorKind.GreaterThanOrEqual or BinaryOperatorKind.LessThanOrEqual => true,// Relational operations return Boolean, so operations on non-equal identity-convertible types are not ambiguous. 
+                                                                                                                                                                                                                                        //   Boolean operator op(C<dynamic>.E, C<object>.E)
+                        _ => throw ExceptionUtilities.UnexpectedValue(kind),// Unhandled bin op kind in get enum operations
+                    };
             if (leftType is not null)
             {
                 GetEnumOperation(kind, leftType, right, results);

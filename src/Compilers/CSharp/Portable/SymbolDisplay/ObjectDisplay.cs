@@ -191,17 +191,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool NeedsEscaping(UnicodeCategory category)
         {
-            switch (category)
+            return category switch
             {
-                case UnicodeCategory.Control:
-                case UnicodeCategory.OtherNotAssigned:
-                case UnicodeCategory.ParagraphSeparator:
-                case UnicodeCategory.LineSeparator:
-                case UnicodeCategory.Surrogate:
-                    return true;
-                default:
-                    return false;
-            }
+                UnicodeCategory.Control or UnicodeCategory.OtherNotAssigned or UnicodeCategory.ParagraphSeparator or UnicodeCategory.LineSeparator or UnicodeCategory.Surrogate => true,
+                _ => false,
+            };
         }
 
         /// <summary>

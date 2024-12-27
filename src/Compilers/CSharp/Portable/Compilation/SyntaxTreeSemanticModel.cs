@@ -168,27 +168,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         internal override IOperation GetOperationWorker(CSharpSyntaxNode node, CancellationToken cancellationToken)
         {
-            MemberSemanticModel model;
-
-            switch (node)
+            MemberSemanticModel model = node switch
             {
-                case ConstructorDeclarationSyntax constructor:
-                    model = (constructor.HasAnyBody() || constructor.Initializer != null) ? GetOrAddModel(node) : null;
-                    break;
-                case BaseMethodDeclarationSyntax method:
-                    model = method.HasAnyBody() ? GetOrAddModel(node) : null;
-                    break;
-                case AccessorDeclarationSyntax accessor:
-                    model = (accessor.Body != null || accessor.ExpressionBody != null) ? GetOrAddModel(node) : null;
-                    break;
-                case TypeDeclarationSyntax { ParameterList: { }, PrimaryConstructorBaseTypeIfClass: { } } typeDeclaration when TryGetSynthesizedPrimaryConstructor(typeDeclaration) is not null:
-                    model = GetOrAddModel(typeDeclaration);
-                    break;
-                default:
-                    model = this.GetMemberModel(node);
-                    break;
-            }
-
+                ConstructorDeclarationSyntax constructor => (constructor.HasAnyBody() || constructor.Initializer != null) ? GetOrAddModel(node) : null,
+                BaseMethodDeclarationSyntax method => method.HasAnyBody() ? GetOrAddModel(node) : null,
+                AccessorDeclarationSyntax accessor => (accessor.Body != null || accessor.ExpressionBody != null) ? GetOrAddModel(node) : null,
+                TypeDeclarationSyntax { ParameterList: { }, PrimaryConstructorBaseTypeIfClass: { } } typeDeclaration when TryGetSynthesizedPrimaryConstructor(typeDeclaration) is not null => GetOrAddModel(typeDeclaration),
+                _ => this.GetMemberModel(node),
+            };
             if (model != null)
             {
                 return model.GetOperationWorker(node, cancellationToken);
@@ -258,18 +245,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     // can only be parameters or type parameters.
                     Debug.Assert(symbols.All(s => s.Kind == SymbolKind.TypeParameter || s.Kind == SymbolKind.Parameter));
 
-                    switch (symbols.Length)
+                    result = symbols.Length switch
                     {
-                        case 0:
-                            result = SymbolInfo.None;
-                            break;
-                        case 1:
-                            result = SymbolInfoFactory.Create(symbols, LookupResultKind.Viable, isDynamic: false);
-                            break;
-                        default:
-                            result = SymbolInfoFactory.Create(symbols, LookupResultKind.Ambiguous, isDynamic: false);
-                            break;
-                    }
+                        0 => SymbolInfo.None,
+                        1 => SymbolInfoFactory.Create(symbols, LookupResultKind.Viable, isDynamic: false),
+                        _ => SymbolInfoFactory.Create(symbols, LookupResultKind.Ambiguous, isDynamic: false),
+                    };
                 }
             }
             else if ((crefSyntax = node as CrefSyntax) != null)
@@ -1429,26 +1410,14 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             CheckSyntaxNode(declarationSyntax);
 
-            switch (declarationSyntax.Kind())
+            return declarationSyntax.Kind() switch
             {
                 // Few subtypes of MemberDeclarationSyntax don't declare any symbols or declare multiple symbols, return null for these cases.
-
-                case SyntaxKind.GlobalStatement:
-                    // Global statements don't declare anything, even though they inherit from MemberDeclarationSyntax.
-                    return null;
-
-                case SyntaxKind.IncompleteMember:
-                    // Incomplete members don't declare any symbols.
-                    return null;
-
-                case SyntaxKind.EventFieldDeclaration:
-                case SyntaxKind.FieldDeclaration:
-                    // these declarations can contain multiple variable declarators. GetDeclaredSymbol should be called on them directly.
-                    return null;
-
-                default:
-                    return (GetDeclaredNamespaceOrType(declarationSyntax) ?? GetDeclaredMemberSymbol(declarationSyntax)).GetPublicSymbol();
-            }
+                SyntaxKind.GlobalStatement => null,// Global statements don't declare anything, even though they inherit from MemberDeclarationSyntax.
+                SyntaxKind.IncompleteMember => null,// Incomplete members don't declare any symbols.
+                SyntaxKind.EventFieldDeclaration or SyntaxKind.FieldDeclaration => null,// these declarations can contain multiple variable declarators. GetDeclaredSymbol should be called on them directly.
+                _ => (GetDeclaredNamespaceOrType(declarationSyntax) ?? GetDeclaredMemberSymbol(declarationSyntax)).GetPublicSymbol(),
+            };
         }
 
         public override IMethodSymbol GetDeclaredSymbol(CompilationUnitSyntax declarationSyntax, CancellationToken cancellationToken = default)
@@ -2134,18 +2103,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (typeParameter.Parent is TypeParameterListSyntax typeParamList)
             {
                 ISymbol parameterizedSymbol = null;
-                switch (typeParamList.Parent)
+                parameterizedSymbol = typeParamList.Parent switch
                 {
-                    case MemberDeclarationSyntax memberDecl:
-                        parameterizedSymbol = GetDeclaredSymbol(memberDecl, cancellationToken);
-                        break;
-                    case LocalFunctionStatementSyntax localDecl:
-                        parameterizedSymbol = GetDeclaredSymbol(localDecl, cancellationToken);
-                        break;
-                    default:
-                        throw ExceptionUtilities.UnexpectedValue(typeParameter.Parent.Kind());
-                }
-
+                    MemberDeclarationSyntax memberDecl => GetDeclaredSymbol(memberDecl, cancellationToken),
+                    LocalFunctionStatementSyntax localDecl => GetDeclaredSymbol(localDecl, cancellationToken),
+                    _ => throw ExceptionUtilities.UnexpectedValue(typeParameter.Parent.Kind()),
+                };
                 switch (parameterizedSymbol.GetSymbol())
                 {
                     case NamedTypeSymbol typeSymbol:

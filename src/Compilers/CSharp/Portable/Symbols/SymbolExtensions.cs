@@ -198,31 +198,22 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static Symbol ConstructedFrom(this Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.NamedType:
-                case SymbolKind.ErrorType:
-                    return ((NamedTypeSymbol)symbol).ConstructedFrom;
-
-                case SymbolKind.Method:
-                    return ((MethodSymbol)symbol).ConstructedFrom;
-
-                default:
-                    return symbol;
-            }
+                SymbolKind.NamedType or SymbolKind.ErrorType => ((NamedTypeSymbol)symbol).ConstructedFrom,
+                SymbolKind.Method => ((MethodSymbol)symbol).ConstructedFrom,
+                _ => symbol,
+            };
         }
 
         public static bool IsSourceParameterWithEnumeratorCancellationAttribute(this ParameterSymbol parameter)
         {
-            switch (parameter)
+            return parameter switch
             {
-                case SourceComplexParameterSymbolBase source:
-                    return source.HasEnumeratorCancellationAttribute;
-                case SynthesizedComplexParameterSymbol synthesized:
-                    return synthesized.HasEnumeratorCancellationAttribute;
-                default:
-                    return false;
-            }
+                SourceComplexParameterSymbolBase source => source.HasEnumeratorCancellationAttribute,
+                SynthesizedComplexParameterSymbol synthesized => synthesized.HasEnumeratorCancellationAttribute,
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -329,15 +320,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public static bool MustCallMethodsDirectly(this Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.Property:
-                    return ((PropertySymbol)symbol).MustCallMethodsDirectly;
-                case SymbolKind.Event:
-                    return ((EventSymbol)symbol).MustCallMethodsDirectly;
-                default:
-                    return false;
-            }
+                SymbolKind.Property => ((PropertySymbol)symbol).MustCallMethodsDirectly,
+                SymbolKind.Event => ((EventSymbol)symbol).MustCallMethodsDirectly,
+                _ => false,
+            };
         }
 
         public static int GetArity(this Symbol? symbol)

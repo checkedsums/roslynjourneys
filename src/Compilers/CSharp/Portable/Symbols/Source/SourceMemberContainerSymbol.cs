@@ -410,7 +410,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     // It is an error for the same modifier to appear multiple times.
                     if (!modifierErrors)
                     {
-                        modifierErrors = ModifierUtils.CheckAccessibility(mods, this, isExplicitInterfaceImplementation: false, diagnostics, this.GetFirstLocation());
+                        modifierErrors = ModifierUtils.CheckAccessibility(mods, this, diagnostics, this.GetFirstLocation());
                     }
                 }
 

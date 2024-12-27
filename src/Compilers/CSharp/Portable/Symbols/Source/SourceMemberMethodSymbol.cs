@@ -16,7 +16,12 @@ using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
-    internal abstract class SourceMemberMethodSymbol : LocalFunctionOrSourceMemberMethodSymbol, IAttributeTargetSymbol
+    internal abstract class SourceMemberMethodSymbol(
+        NamedTypeSymbol containingType,
+        SyntaxReference syntaxReferenceOpt,
+        Location location,
+        bool isIterator,
+        (DeclarationModifiers declarationModifiers, SourceMemberMethodSymbol.Flags flags) modifiersAndFlags) : LocalFunctionOrSourceMemberMethodSymbol(syntaxReferenceOpt, isIterator), IAttributeTargetSymbol
     {
         // The flags type is used to compact many different bits of information.
         protected struct Flags
@@ -72,7 +77,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             private const int IsVarargSize = 1;
 
             private const int HasThisInitializerOffset = IsVarargOffset + IsVarargSize;
-            private const int HasThisInitializerSize = 1;
 
             private const int HasAnyBodyBit = 1 << HasAnyBodyOffset;
             private const int IsExpressionBodiedBit = 1 << IsExpressionBodiedOffset;
@@ -86,7 +90,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             private const int ReturnsVoidBit = 1 << ReturnsVoidOffset;
             private const int ReturnsVoidIsSetBit = 1 << ReturnsVoidOffset + 1;
 
-            public bool ReturnsVoid
+            public readonly bool ReturnsVoid
             {
                 get
                 {
@@ -105,52 +109,40 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 ThreadSafeFlagOperations.Set(ref _flags, ReturnsVoidIsSetBit | (value ? ReturnsVoidBit : 0));
             }
 
-            public MethodKind MethodKind
+            public readonly MethodKind MethodKind
             {
                 get { return (MethodKind)((_flags >> MethodKindOffset) & MethodKindMask); }
             }
 
-            public RefKind RefKind
+            public readonly RefKind RefKind
             {
                 get { return (RefKind)((_flags >> RefKindOffset) & RefKindMask); }
             }
 
-            public bool HasAnyBody
+            public readonly bool HasAnyBody
             {
                 get { return (_flags & HasAnyBodyBit) != 0; }
             }
 
-            public bool IsExpressionBodied
+            public readonly bool IsExpressionBodied
             {
                 get { return (_flags & IsExpressionBodiedBit) != 0; }
             }
 
-            public bool IsExtensionMethod
+            public readonly bool IsExtensionMethod
             {
                 get { return (_flags & IsExtensionMethodBit) != 0; }
             }
 
-            public bool IsMetadataVirtualLocked
+            public readonly bool IsMetadataVirtualLocked
             {
                 get { return (_flags & IsMetadataVirtualLockedBit) != 0; }
             }
 
-            public bool IsVararg
+            public readonly bool IsVararg
             {
                 get { return (_flags & IsVarargBit) != 0; }
             }
-
-            public readonly bool HasThisInitializer
-                => (_flags & HasThisInitializerBit) != 0;
-
-#if DEBUG
-            static Flags()
-            {
-                // Verify masks are sufficient for values.
-                Debug.Assert(EnumUtilities.ContainsAllValues<MethodKind>(MethodKindMask));
-                Debug.Assert(EnumUtilities.ContainsAllValues<RefKind>(RefKindMask));
-            }
-#endif
 
             private static bool ModifiersRequireMetadataVirtual(DeclarationModifiers modifiers)
             {
@@ -252,23 +244,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
         }
-
         protected SymbolCompletionState state;
-
-        protected readonly DeclarationModifiers DeclarationModifiers;
-
-        protected Flags flags;
-
-        private readonly NamedTypeSymbol _containingType;
-
+        protected readonly DeclarationModifiers DeclarationModifiers = modifiersAndFlags.declarationModifiers;
+        protected Flags flags = modifiersAndFlags.flags;
+        private readonly NamedTypeSymbol _containingType = containingType;
+        protected readonly Location _location = location;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         private ParameterSymbol _lazyThisParameter;
-
         private OverriddenOrHiddenMembersResult _lazyOverriddenOrHiddenMembers;
-
-        protected readonly Location _location;
         protected string lazyDocComment;
         protected string lazyExpandedDocComment;
-
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         //null if has never been computed. Initial binding diagnostics
         //are stashed here in service of API usage patterns
         //where method body diagnostics are requested multiple times.
@@ -283,24 +269,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             //return the diagnostics that were actually saved in the event that there were two threads racing. 
             diagsWritten = ImmutableInterlocked.InterlockedInitialize(ref _cachedDiagnostics, newSet);
             return _cachedDiagnostics;
-        }
-
-        protected SourceMemberMethodSymbol(
-            NamedTypeSymbol containingType,
-            SyntaxReference syntaxReferenceOpt,
-            Location location,
-            bool isIterator,
-            (DeclarationModifiers declarationModifiers, Flags flags) modifiersAndFlags)
-            : base(syntaxReferenceOpt, isIterator)
-        {
-            Debug.Assert(containingType is not null);
-            Debug.Assert(location is not null);
-            Debug.Assert(containingType.DeclaringCompilation is not null);
-
-            _containingType = containingType;
-            _location = location;
-            DeclarationModifiers = modifiersAndFlags.declarationModifiers;
-            flags = modifiersAndFlags.flags;
         }
 
         protected void CheckEffectiveAccessibility(TypeWithAnnotations returnType, ImmutableArray<ParameterSymbol> parameters, BindingDiagnosticBag diagnostics)
@@ -745,7 +713,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public override Location TryGetFirstLocation()
             => _location;
 
-        public override string GetDocumentationCommentXml(CultureInfo preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
+        public override string GetDocumentationCommentXml(CultureInfo? preferredCulture = null, bool expandIncludes = false, CancellationToken cancellationToken = default)
         {
             ref var lazyDocComment = ref expandIncludes ? ref this.lazyExpandedDocComment : ref this.lazyDocComment;
             return SourceDocumentationCommentUtils.GetAndCacheDocumentationComment(this, expandIncludes, ref lazyDocComment);

@@ -311,16 +311,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         private static int GetArity(Symbol symbol)
         {
-            switch (symbol.Kind)
+            return symbol.Kind switch
             {
-                case SymbolKind.NamedType:
-                case SymbolKind.ErrorType:
-                    return ((NamedTypeSymbol)symbol).Arity;
-                case SymbolKind.Method:
-                    return ((MethodSymbol)symbol).Arity;
-                default:
-                    return 0;
-            }
+                SymbolKind.NamedType or SymbolKind.ErrorType => ((NamedTypeSymbol)symbol).Arity,
+                SymbolKind.Method => ((MethodSymbol)symbol).Arity,
+                _ => 0,
+            };
         }
     }
 }

@@ -535,17 +535,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             static ImmutableArray<Symbol> getHiddenMembers(Symbol member)
             {
-                switch (member)
+                return member switch
                 {
-                    case MethodSymbol method:
-                        return method.OverriddenOrHiddenMembers.HiddenMembers;
-                    case PropertySymbol property:
-                        return property.OverriddenOrHiddenMembers.HiddenMembers;
-                    case EventSymbol @event:
-                        return @event.OverriddenOrHiddenMembers.HiddenMembers;
-                    default:
-                        return ImmutableArray<Symbol>.Empty;
-                }
+                    MethodSymbol method => method.OverriddenOrHiddenMembers.HiddenMembers,
+                    PropertySymbol property => property.OverriddenOrHiddenMembers.HiddenMembers,
+                    EventSymbol @event => @event.OverriddenOrHiddenMembers.HiddenMembers,
+                    _ => ImmutableArray<Symbol>.Empty,
+                };
             }
         }
 
@@ -1442,15 +1438,12 @@ outerDefault:
         /// </remarks>
         private static bool HidesByName(Symbol member)
         {
-            switch (member.Kind)
+            return member.Kind switch
             {
-                case SymbolKind.Method:
-                    return ((MethodSymbol)member).HidesBaseMethodsByName;
-                case SymbolKind.Property:
-                    return ((PropertySymbol)member).HidesBasePropertiesByName;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(member.Kind);
-            }
+                SymbolKind.Method => ((MethodSymbol)member).HidesBaseMethodsByName,
+                SymbolKind.Property => ((PropertySymbol)member).HidesBasePropertiesByName,
+                _ => throw ExceptionUtilities.UnexpectedValue(member.Kind),
+            };
         }
 
         private void RemoveInaccessibleTypeArguments<TMember>(ArrayBuilder<MemberResolutionResult<TMember>> results, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
@@ -4576,15 +4569,12 @@ outerDefault:
 
         private static TMember GetConstructedFrom<TMember>(TMember member) where TMember : Symbol
         {
-            switch (member.Kind)
+            return member.Kind switch
             {
-                case SymbolKind.Property:
-                    return member;
-                case SymbolKind.Method:
-                    return (TMember)(Symbol)(member as MethodSymbol).ConstructedFrom;
-                default:
-                    throw ExceptionUtilities.UnexpectedValue(member.Kind);
-            }
+                SymbolKind.Property => member,
+                SymbolKind.Method => (TMember)(Symbol)(member as MethodSymbol).ConstructedFrom,
+                _ => throw ExceptionUtilities.UnexpectedValue(member.Kind),
+            };
         }
     }
 }

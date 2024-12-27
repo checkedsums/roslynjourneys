@@ -13,34 +13,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     /// <summary>
     /// Represents a simple compiler generated parameter of a given type.
     /// </summary>
-    internal abstract class SynthesizedParameterSymbolBase : ParameterSymbol
+    internal abstract class SynthesizedParameterSymbolBase(
+        Symbol? container,
+        TypeWithAnnotations type,
+        int ordinal,
+        RefKind refKind,
+        ScopedKind scope,
+        string name) : ParameterSymbol
     {
-        private readonly Symbol? _container;
-        private readonly TypeWithAnnotations _type;
-        private readonly int _ordinal;
-        private readonly string _name;
-        private readonly RefKind _refKind;
-        private readonly ScopedKind _scope;
-
-        public SynthesizedParameterSymbolBase(
-            Symbol? container,
-            TypeWithAnnotations type,
-            int ordinal,
-            RefKind refKind,
-            ScopedKind scope,
-            string name)
-        {
-            Debug.Assert(type.HasType);
-            Debug.Assert(name != null);
-            Debug.Assert(ordinal >= 0);
-
-            _container = container;
-            _type = type;
-            _ordinal = ordinal;
-            _refKind = refKind;
-            _scope = scope;
-            _name = name;
-        }
+        private readonly Symbol? _container = container;
+        private readonly TypeWithAnnotations _type = type;
+        private readonly int _ordinal = ordinal;
+        private readonly string _name = name;
+        private readonly RefKind _refKind = refKind;
+        private readonly ScopedKind _scope = scope;
 
         public override TypeWithAnnotations TypeWithAnnotations => _type;
 

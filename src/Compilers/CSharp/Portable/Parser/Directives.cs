@@ -52,18 +52,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 return false;
             }
 
-            switch (this.Kind)
+            return this.Kind switch
             {
-                case SyntaxKind.DefineDirectiveTrivia:
-                case SyntaxKind.UndefDirectiveTrivia:
-                    return this.GetIdentifier() == other.GetIdentifier();
-                case SyntaxKind.IfDirectiveTrivia:
-                case SyntaxKind.ElifDirectiveTrivia:
-                case SyntaxKind.ElseDirectiveTrivia:
-                    return this.BranchTaken == other.BranchTaken;
-                default:
-                    return true;
-            }
+                SyntaxKind.DefineDirectiveTrivia or SyntaxKind.UndefDirectiveTrivia => this.GetIdentifier() == other.GetIdentifier(),
+                SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia => this.BranchTaken == other.BranchTaken,
+                _ => true,
+            };
         }
 
         // Can't be private as it's called by DirectiveStack in its GetDebuggerDisplay()
@@ -76,15 +70,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         internal string? GetIdentifier()
         {
-            switch (_node.Kind)
+            return _node.Kind switch
             {
-                case SyntaxKind.DefineDirectiveTrivia:
-                    return ((DefineDirectiveTriviaSyntax)_node).Name.ValueText;
-                case SyntaxKind.UndefDirectiveTrivia:
-                    return ((UndefDirectiveTriviaSyntax)_node).Name.ValueText;
-                default:
-                    return null;
-            }
+                SyntaxKind.DefineDirectiveTrivia => ((DefineDirectiveTriviaSyntax)_node).Name.ValueText,
+                SyntaxKind.UndefDirectiveTrivia => ((UndefDirectiveTriviaSyntax)_node).Name.ValueText,
+                _ => null,
+            };
         }
 
         internal bool IsActive
