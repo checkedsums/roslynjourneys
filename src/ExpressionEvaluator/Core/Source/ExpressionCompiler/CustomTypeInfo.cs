@@ -13,7 +13,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 {
     internal static class CustomTypeInfo
     {
-        internal static readonly Guid PayloadTypeId = new Guid("108766CE-DF68-46EE-B761-0DCB7AC805F1");
+        internal static readonly Guid PayloadTypeId = new("108766CE-DF68-46EE-B761-0DCB7AC805F1");
 
         internal static DkmClrCustomTypeInfo? Create(
             ReadOnlyCollection<byte>? dynamicFlags,
@@ -34,13 +34,12 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             }
 
             var payload = typeInfo.Payload;
-            int length = payload[0] + 1;
-            if (length == payload.Count)
+            if (payload[0] + 1 == payload.Count)
             {
                 return typeInfo;
             }
 
-            return DkmClrCustomTypeInfo.Create(PayloadTypeId, new ReadOnlyCollection<byte>(CopyBytes(payload, 0, length)));
+            return DkmClrCustomTypeInfo.Create(PayloadTypeId, new ReadOnlyCollection<byte>(CopyBytes(payload, 0, payload[0] + 1)));
         }
 
         /// <summary>
@@ -95,14 +94,13 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             }
             else
             {
-                int length = dynamicFlags.Count;
-                if (length > byte.MaxValue)
+                if (dynamicFlags.Count > byte.MaxValue)
                 {
                     // Length exceeds capacity of byte.
                     builder.Free();
                     return null;
                 }
-                builder.Add((byte)length);
+                builder.Add((byte)dynamicFlags.Count);
                 builder.AddRange(dynamicFlags);
             }
 
@@ -135,7 +133,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
                 dynamicFlags = new ReadOnlyCollection<byte>(CopyBytes(payload, 1, length));
             }
 
-            int start = length + 1;
+            var start = length + 1;
             if (start < payload.Count)
             {
                 tupleElementNames = DecodeNames(payload, start);
@@ -152,7 +150,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
 
         private static ReadOnlyCollection<string?> DecodeNames(ReadOnlyCollection<byte> bytes, int start)
         {
-            int length = bytes.Count - start;
+            var length = bytes.Count - start;
             var array = CopyBytes(bytes, start, length);
             var str = Encoding.UTF8.GetString(array, 0, length);
             return SplitNames(str);
@@ -179,10 +177,10 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
             Debug.Assert(str[0] == NameSeparator);
 
             var builder = ArrayBuilder<string?>.GetInstance();
-            int offset = 1;
+            var offset = 1;
             while (true)
             {
-                int next = str.IndexOf(NameSeparator, offset);
+                var next = str.IndexOf(NameSeparator, offset);
                 var name = (next < 0) ? str.Substring(offset) : str.Substring(offset, next - offset);
                 builder.Add((name.Length == 0) ? null : name);
                 if (next < 0)
@@ -199,7 +197,7 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         private static byte[] CopyBytes(ReadOnlyCollection<byte> bytes, int start, int length)
         {
             var array = new byte[length];
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 array[i] = bytes[start + i];
             }
