@@ -138,11 +138,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         public override ImmutableArray<TypeParameterSymbol> TypeParameters => [];
 
-        public override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes()
-            => [];
+        public override ImmutableArray<ImmutableArray<TypeWithAnnotations>> GetTypeParameterConstraintTypes() => [];
 
-        public override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds()
-            => [];
+        public override ImmutableArray<TypeParameterConstraintKind> GetTypeParameterConstraintKinds() => [];
 
         public sealed override TypeWithAnnotations ReturnTypeWithAnnotations => _returnType;
 

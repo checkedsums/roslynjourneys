@@ -1359,7 +1359,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return arguments.HasDecodedData ? arguments.DecodedData : null;
         }
 
-        private void LoadAndValidateNetModuleAttributes(ref CustomAttributesBag<CSharpAttributeData> lazyNetModuleAttributesBag)
+        private CustomAttributesBag<CSharpAttributeData> NullableLoadAndValidateNetModuleAttributes(ref CustomAttributesBag<CSharpAttributeData> lazyNetModuleAttributesBag)
+            => lazyNetModuleAttributesBag ?? LoadAndValidateNetModuleAttributes(ref lazyNetModuleAttributesBag);
+
+        private CustomAttributesBag<CSharpAttributeData> LoadAndValidateNetModuleAttributes(ref CustomAttributesBag<CSharpAttributeData> lazyNetModuleAttributesBag)
         {
             if (_compilation.Options.OutputKind.IsNetModule())
             {
@@ -1453,96 +1456,61 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 Debug.Assert(lazyNetModuleAttributesBag.IsSealed);
             }
+
+            return lazyNetModuleAttributesBag;
         }
 
-        private CommonAssemblyWellKnownAttributeData GetLimitedNetModuleDecodedWellKnownAttributeData(QuickAttributes attributeMatches)
+        private CommonAssemblyWellKnownAttributeData<NamedTypeSymbol> GetLimitedNetModuleDecodedWellKnownAttributeData(QuickAttributes attributeMatches)
         {
-            Debug.Assert(attributeMatches is QuickAttributes.AssemblyKeyFile
-                or QuickAttributes.AssemblyKeyName
-                or QuickAttributes.AssemblySignatureKey);
+#if DEBUG
+            Debug.Assert(attributeMatches is QuickAttributes.AssemblyKeyFile or QuickAttributes.AssemblyKeyName or QuickAttributes.AssemblySignatureKey);
+#endif
+            if (_compilation.Options.OutputKind.IsNetModule()) return null;
 
-            if (_compilation.Options.OutputKind.IsNetModule())
+            ImmutableArray<CSharpAttributeData> attributesFromNetModules = GetNetModuleAttributes(out ImmutableArray<string> netModuleNames);
+
+            if (!attributesFromNetModules.Any()) return null;
+
+#if DEBUG // Similar to ValidateAttributeUsageAndDecodeWellKnownAttributes, but doesn't load assembly-level attributes from source and only decodes 3 specific attributes.
+            Debug.Assert(attributesFromNetModules.Any() && netModuleNames.Any() && attributesFromNetModules.Length == netModuleNames.Length);
+#endif
+            int netModuleAttributesCount = attributesFromNetModules.Length;
+
+            HashSet<CSharpAttributeData> uniqueAttributes = null;
+            CommonAssemblyWellKnownAttributeData result = null;
+
+            // Attributes from the second added module should override attributes from the first added module, etc.
+            // We don't reach here when the attribute was found in source already.
+            for (int i = netModuleAttributesCount - 1; i >= 0; i--)
             {
-                return null;
-            }
-
-            ImmutableArray<string> netModuleNames;
-            ImmutableArray<CSharpAttributeData> attributesFromNetModules = GetNetModuleAttributes(out netModuleNames);
-
-            WellKnownAttributeData wellKnownData = null;
-
-            if (attributesFromNetModules.Any())
-            {
-                wellKnownData = limitedDecodeWellKnownAttributes(attributesFromNetModules, netModuleNames, attributeMatches);
-            }
-
-            return (CommonAssemblyWellKnownAttributeData)wellKnownData;
-
-            // Similar to ValidateAttributeUsageAndDecodeWellKnownAttributes, but doesn't load assembly-level attributes from source
-            // and only decodes 3 specific attributes.
-            WellKnownAttributeData limitedDecodeWellKnownAttributes(ImmutableArray<CSharpAttributeData> attributesFromNetModules,
-                ImmutableArray<string> netModuleNames, QuickAttributes attributeMatches)
-            {
-                Debug.Assert(attributesFromNetModules.Any());
-                Debug.Assert(netModuleNames.Any());
-                Debug.Assert(attributesFromNetModules.Length == netModuleNames.Length);
-
-                int netModuleAttributesCount = attributesFromNetModules.Length;
-
-                HashSet<CSharpAttributeData> uniqueAttributes = null;
-                CommonAssemblyWellKnownAttributeData result = null;
-
-                // Attributes from the second added module should override attributes from the first added module, etc.
-                // We don't reach here when the attribute was found in source already.
-                for (int i = netModuleAttributesCount - 1; i >= 0; i--)
+                CSharpAttributeData attribute = attributesFromNetModules[i];
+                if (!attribute.HasErrors && ValidateAttributeUsageForNetModuleAttribute(attribute, netModuleNames[i], BindingDiagnosticBag.Discarded, ref uniqueAttributes))
                 {
-                    CSharpAttributeData attribute = attributesFromNetModules[i];
-                    if (!attribute.HasErrors && ValidateAttributeUsageForNetModuleAttribute(attribute, netModuleNames[i], BindingDiagnosticBag.Discarded, ref uniqueAttributes))
+                    var resulte = result ?? new();
+                    var valu = (string)attribute.CommonConstructorArguments[0].ValueInternal;
+                    if (attributeMatches switch
                     {
-                        limitedDecodeWellKnownAttribute(attribute, attributeMatches, ref result);
-                    }
-                }
-
-                WellKnownAttributeData.Seal(result);
-                return result;
-            }
-
-            // Similar to DecodeWellKnownAttribute but only handles 3 specific attributes and ignores diagnostics.
-            void limitedDecodeWellKnownAttribute(CSharpAttributeData attribute, QuickAttributes attributeMatches, ref CommonAssemblyWellKnownAttributeData result)
-            {
-                if (attributeMatches is QuickAttributes.AssemblySignatureKey &&
-                    attribute.IsTargetAttribute(AttributeDescription.AssemblySignatureKeyAttribute))
-                {
-                    result ??= new CommonAssemblyWellKnownAttributeData();
-                    result.AssemblySignatureKeyAttributeSetting = (string)attribute.CommonConstructorArguments[0].ValueInternal;
-                }
-                else if (attributeMatches is QuickAttributes.AssemblyKeyFile &&
-                    attribute.IsTargetAttribute(AttributeDescription.AssemblyKeyFileAttribute))
-                {
-                    result ??= new CommonAssemblyWellKnownAttributeData();
-                    result.AssemblyKeyFileAttributeSetting = (string)attribute.CommonConstructorArguments[0].ValueInternal;
-                }
-                else if (attributeMatches is QuickAttributes.AssemblyKeyName &&
-                    attribute.IsTargetAttribute(AttributeDescription.AssemblyKeyNameAttribute))
-                {
-                    result ??= new CommonAssemblyWellKnownAttributeData();
-                    result.AssemblyKeyContainerAttributeSetting = (string)attribute.CommonConstructorArguments[0].ValueInternal;
+                        QuickAttributes.AssemblyKeyFile when attribute.IsTargetAttribute(AttributeDescription.AssemblyKeyFileAttribute)
+                            => resulte.AssemblyKeyFileAttributeSetting = valu,
+                        QuickAttributes.AssemblyKeyName when attribute.IsTargetAttribute(AttributeDescription.AssemblyKeyNameAttribute)
+                            => resulte.AssemblyKeyContainerAttributeSetting = valu,
+                        QuickAttributes.AssemblySignatureKey when attribute.IsTargetAttribute(AttributeDescription.AssemblySignatureKeyAttribute)
+                            => resulte.AssemblySignatureKeyAttributeSetting = valu,
+                        _ => null,
+                    } is not null)
+                        result ??= resulte;
                 }
             }
+
+            WellKnownAttributeData.Seal(result);
+            return result;
         }
-
-        private CustomAttributesBag<CSharpAttributeData> GetNetModuleAttributesBag()
-        {
-            if (_lazyNetModuleAttributesBag == null)
-            {
-                LoadAndValidateNetModuleAttributes(ref _lazyNetModuleAttributesBag);
-            }
-            return _lazyNetModuleAttributesBag;
-        }
+        private CustomAttributesBag<CSharpAttributeData> NetModuleAttributesBag
+            => NullableLoadAndValidateNetModuleAttributes(ref _lazyNetModuleAttributesBag);
 
         internal CommonAssemblyWellKnownAttributeData GetNetModuleDecodedWellKnownAttributeData()
         {
-            var attributesBag = this.GetNetModuleAttributesBag();
+            var attributesBag = this.NetModuleAttributesBag;
             Debug.Assert(attributesBag.IsSealed);
             return (CommonAssemblyWellKnownAttributeData)attributesBag.DecodedWellKnownAttributeData;
         }
@@ -1550,16 +1518,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal ImmutableArray<SyntaxList<AttributeListSyntax>> GetAttributeDeclarations()
         {
             var builder = ArrayBuilder<SyntaxList<AttributeListSyntax>>.GetInstance();
-            var declarations = DeclaringCompilation.MergedRootDeclaration.Declarations;
-            foreach (RootSingleNamespaceDeclaration rootNs in declarations)
-            {
+            var lists = DeclaringCompilation.MergedRootDeclaration.Declarations.Cast<RootSingleNamespaceDeclaration>();
+            foreach (RootSingleNamespaceDeclaration rootNs in lists)
                 if (rootNs.HasAssemblyAttributes)
-                {
-                    var tree = rootNs.Location.SourceTree;
-                    var root = (CompilationUnitSyntax)tree.GetRoot();
-                    builder.Add(root.AttributeLists);
-                }
-            }
+                    builder.Add((rootNs.Location.SourceTree.GetRoot() as CompilationUnitSyntax).AttributeLists);
+
             return builder.ToImmutableAndFree();
         }
 
@@ -1595,7 +1558,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         public sealed override ImmutableArray<CSharpAttributeData> GetAttributes()
         {
             var attributes = this.GetSourceAttributesBag().Attributes;
-            var netmoduleAttributes = this.GetNetModuleAttributesBag().Attributes;
+            var netmoduleAttributes = this.NetModuleAttributesBag.Attributes;
             Debug.Assert(!attributes.IsDefault);
             Debug.Assert(!netmoduleAttributes.IsDefault);
 
@@ -1805,7 +1768,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             // Net module assembly security attributes:
 
-            foreach (var securityAttribute in GetSecurityAttributes(this.GetNetModuleAttributesBag()))
+            foreach (var securityAttribute in GetSecurityAttributes(this.NetModuleAttributesBag))
             {
                 yield return securityAttribute;
             }

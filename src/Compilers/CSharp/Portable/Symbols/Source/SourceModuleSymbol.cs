@@ -619,7 +619,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (compilation.Options.AllowUnsafe)
             {
                 // NOTE: GlobalAttrBind::EmitCompilerGeneratedAttrs skips attribute if the well-known type isn't available.
-                if (!(compilation.GetWellKnownType(WellKnownType.System_Security_UnverifiableCodeAttribute) is MissingMetadataTypeSymbol))
+                if (compilation.GetWellKnownType(WellKnownType.System_Security_UnverifiableCodeAttribute) is not MissingMetadataTypeSymbol)
                 {
                     AddSynthesizedAttribute(ref attributes, compilation.TrySynthesizeAttribute(
                         WellKnownMember.System_Security_UnverifiableCodeAttribute__ctor));
@@ -678,24 +678,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// This property returns <see cref="ObsoleteAttributeData.Uninitialized"/> if attribute arguments haven't been decoded yet.
         /// </summary>
         internal sealed override ObsoleteAttributeData? ObsoleteAttributeData
-        {
-            get
-            {
-                var attributesBag = _lazyCustomAttributesBag;
-                if (attributesBag != null && attributesBag.IsDecodedWellKnownAttributeDataComputed)
-                {
-                    var decodedData = (ModuleWellKnownAttributeData)attributesBag.DecodedWellKnownAttributeData;
-                    return decodedData?.ExperimentalAttributeData;
-                }
-
-                var attributesDeclarations = ((SourceAssemblySymbol)ContainingAssembly).GetAttributeDeclarations();
-                if (attributesDeclarations.IsEmpty)
-                {
-                    return null;
-                }
-
-                return ObsoleteAttributeData.Uninitialized;
-            }
-        }
+            => _lazyCustomAttributesBag!.IsDecodedWellKnownAttributeDataComputed
+                ? (_lazyCustomAttributesBag.DecodedWellKnownAttributeData as ModuleWellKnownAttributeData)?.ExperimentalAttributeData
+                : (ContainingAssembly as SourceAssemblySymbol)!.GetAttributeDeclarations().IsEmpty ? null : ObsoleteAttributeData.Uninitialized;
     }
 }

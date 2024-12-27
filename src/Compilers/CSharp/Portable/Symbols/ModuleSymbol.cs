@@ -36,47 +36,20 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// Returns the containing assembly. Modules are always directly contained by an assembly,
         /// so this property always returns the same as ContainingSymbol.
         /// </summary>
-        public override AssemblySymbol ContainingAssembly
-        {
-            get
-            {
-                return (AssemblySymbol)ContainingSymbol;
-            }
-        }
+        public override AssemblySymbol ContainingAssembly => (AssemblySymbol)ContainingSymbol;
 
-        internal sealed override ModuleSymbol ContainingModule
-        {
-            get
-            {
-                return null;
-            }
-        }
+        internal sealed override ModuleSymbol ContainingModule => null;
 
         /// <summary>
         /// Returns value 'NetModule' of the <see cref="SymbolKind"/>
         /// </summary>
-        public sealed override SymbolKind Kind
-        {
-            get
-            {
-                return SymbolKind.NetModule;
-            }
-        }
+        public sealed override SymbolKind Kind => SymbolKind.NetModule;
 
-        internal override TResult Accept<TArgument, TResult>(CSharpSymbolVisitor<TArgument, TResult> visitor, TArgument argument)
-        {
-            return visitor.VisitModule(this, argument);
-        }
+        internal override TResult Accept<TArgument, TResult>(CSharpSymbolVisitor<TArgument, TResult> visitor, TArgument argument) => visitor.VisitModule(this, argument);
 
-        public override void Accept(CSharpSymbolVisitor visitor)
-        {
-            visitor.VisitModule(this);
-        }
+        public override void Accept(CSharpSymbolVisitor visitor) => visitor.VisitModule(this);
 
-        public override TResult Accept<TResult>(CSharpSymbolVisitor<TResult> visitor)
-        {
-            return visitor.VisitModule(this);
-        }
+        public override TResult Accept<TResult>(CSharpSymbolVisitor<TResult> visitor) => visitor.VisitModule(this);
 
         // Only the compiler can create ModuleSymbols.
         internal ModuleSymbol()
@@ -111,100 +84,46 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// <summary>
         /// Returns 'NotApplicable'
         /// </summary>
-        public sealed override Accessibility DeclaredAccessibility
-        {
-            get
-            {
-                return Accessibility.NotApplicable;
-            }
-        }
+        public sealed override Accessibility DeclaredAccessibility => Accessibility.NotApplicable;
 
         /// <summary>
         /// Returns false because module can't be declared as 'static'.
         /// </summary>
-        public sealed override bool IsStatic
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsStatic => false;
 
         /// <summary>
         /// Returns false because module can't be virtual.
         /// </summary>
-        public sealed override bool IsVirtual
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsVirtual => false;
 
         /// <summary>
         /// Returns false because module can't be overridden.
         /// </summary>
-        public sealed override bool IsOverride
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsOverride => false;
 
         /// <summary>
         /// Returns false because module can't be abstract.
         /// </summary>
-        public sealed override bool IsAbstract
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsAbstract => false;
 
         /// <summary>
         /// Returns false because module can't be sealed.
         /// </summary>
-        public sealed override bool IsSealed
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsSealed => false;
 
         /// <summary>
         /// Returns false because module can't be defined externally.
         /// </summary>
-        public sealed override bool IsExtern
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public sealed override bool IsExtern => false;
 
-        public override ImmutableArray<SyntaxReference> DeclaringSyntaxReferences
-        {
-            get
-            {
-                return ImmutableArray<SyntaxReference>.Empty;
-            }
-        }
+        public override ImmutableArray<SyntaxReference> DeclaringSyntaxReferences => ImmutableArray<SyntaxReference>.Empty;
 
         /// <summary>
         /// Returns an array of assembly identities for assemblies referenced by this module.
         /// Items at the same position from ReferencedAssemblies and from ReferencedAssemblySymbols 
         /// correspond to each other.
         /// </summary>
-        public ImmutableArray<AssemblyIdentity> ReferencedAssemblies
-        {
-            get
-            {
-                return GetReferencedAssemblies();
-            }
-        }
+        public ImmutableArray<AssemblyIdentity> ReferencedAssemblies => GetReferencedAssemblies();
 
         /// <summary>
         /// Returns an array of assembly identities for assemblies referenced by this module.
@@ -221,13 +140,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// by this module. Items at the same position from ReferencedAssemblies and 
         /// from ReferencedAssemblySymbols correspond to each other.
         /// </summary>
-        public ImmutableArray<AssemblySymbol> ReferencedAssemblySymbols
-        {
-            get
-            {
-                return GetReferencedAssemblySymbols();
-            }
-        }
+        public ImmutableArray<AssemblySymbol> ReferencedAssemblySymbols => GetReferencedAssemblySymbols();
 
         /// <summary>
         /// Returns an array of AssemblySymbol objects corresponding to assemblies referenced 
@@ -324,10 +237,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         internal abstract CharSet? DefaultMarshallingCharSet { get; }
 
-        internal virtual ImmutableArray<byte> GetHash(AssemblyHashAlgorithm algorithmId)
-        {
-            throw ExceptionUtilities.Unreachable();
-        }
+        internal virtual ImmutableArray<byte> GetHash(AssemblyHashAlgorithm algorithmId) => throw ExceptionUtilities.Unreachable();
 
         /// <summary>
         /// Given a namespace symbol, returns the corresponding module specific namespace symbol
@@ -404,9 +314,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// </summary>
         public abstract ModuleMetadata GetMetadata();
 
-        protected override ISymbol CreateISymbol()
-        {
-            return new PublicModel.ModuleSymbol(this);
-        }
+        protected override ISymbol CreateISymbol() => new PublicModel.ModuleSymbol(this);
     }
 }

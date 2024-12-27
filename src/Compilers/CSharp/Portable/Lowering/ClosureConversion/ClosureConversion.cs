@@ -310,20 +310,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             return body;
         }
 
-        protected override TypeMap TypeMap
-        {
-            get { return _currentLambdaBodyTypeMap; }
-        }
+        protected override TypeMap TypeMap => _currentLambdaBodyTypeMap;
 
-        protected override MethodSymbol CurrentMethod
-        {
-            get { return _currentMethod; }
-        }
+        protected override MethodSymbol CurrentMethod => _currentMethod;
 
-        protected override NamedTypeSymbol ContainingType
-        {
-            get { return _topLevelMethod.ContainingType; }
-        }
+        protected override NamedTypeSymbol ContainingType => _topLevelMethod.ContainingType;
 
         /// <summary>
         /// Check that the top-level node is well-defined, in the sense that all
