@@ -658,11 +658,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 diagnostics.Add(ErrorCode.WRN_GlobalAliasDefn, location);
                             }
 
-                            if (usingDirective.StaticKeyword != default)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NoAliasHere, location);
-                            }
-
                             SourceMemberContainerTypeSymbol.ReportReservedTypeName(identifier.Text, diagnostics, location);
 
                             string identifierValueText = identifier.ValueText;
@@ -740,11 +735,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             {
                                 Debug.Assert(directiveDiagnostics.DependenciesBag.IsEmpty());
 
-                                if (usingDirective.StaticKeyword != default)
-                                {
-                                    diagnostics.Add(ErrorCode.ERR_BadUsingType, usingDirective.NamespaceOrType.Location, imported);
-                                }
-                                else if (!getOrCreateUniqueUsings(ref uniqueUsings, globalUsingNamespacesOrTypes).Add(imported))
+                                if (!getOrCreateUniqueUsings(ref uniqueUsings, globalUsingNamespacesOrTypes).Add(imported))
                                 {
                                     diagnostics.Add(!globalUsingNamespacesOrTypes.IsEmpty && getOrCreateUniqueGlobalUsingsNotInTree(ref uniqueGlobalUsings, globalUsingNamespacesOrTypes, declarationSyntax.SyntaxTree).Contains(imported) ?
                                                             ErrorCode.HDN_DuplicateWithGlobalUsing :
@@ -758,31 +749,24 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             }
                             else if (imported.Kind == SymbolKind.NamedType)
                             {
-                                if (usingDirective.StaticKeyword == default)
+                                var importedType = (NamedTypeSymbol)imported;
+                                if (usingDirective.GlobalKeyword != default && importedType.HasFileLocalTypes())
                                 {
-                                    diagnostics.Add(ErrorCode.ERR_BadUsingNamespace, usingDirective.NamespaceOrType.Location, imported);
+                                    diagnostics.Add(ErrorCode.ERR_GlobalUsingStaticFileType, usingDirective.NamespaceOrType.Location, imported);
+                                }
+
+                                if (!getOrCreateUniqueUsings(ref uniqueUsings, globalUsingNamespacesOrTypes).Add(importedType))
+                                {
+                                    diagnostics.Add(!globalUsingNamespacesOrTypes.IsEmpty && getOrCreateUniqueGlobalUsingsNotInTree(ref uniqueGlobalUsings, globalUsingNamespacesOrTypes, declarationSyntax.SyntaxTree).Contains(imported) ?
+                                                        ErrorCode.HDN_DuplicateWithGlobalUsing :
+                                                        ErrorCode.WRN_DuplicateUsing,
+                                                    usingDirective.NamespaceOrType.Location, importedType);
                                 }
                                 else
                                 {
-                                    var importedType = (NamedTypeSymbol)imported;
-                                    if (usingDirective.GlobalKeyword != default && importedType.HasFileLocalTypes())
-                                    {
-                                        diagnostics.Add(ErrorCode.ERR_GlobalUsingStaticFileType, usingDirective.NamespaceOrType.Location, imported);
-                                    }
+                                    declarationBinder.ReportDiagnosticsIfObsolete(diagnostics, importedType, usingDirective.NamespaceOrType, hasBaseReceiver: false);
 
-                                    if (!getOrCreateUniqueUsings(ref uniqueUsings, globalUsingNamespacesOrTypes).Add(importedType))
-                                    {
-                                        diagnostics.Add(!globalUsingNamespacesOrTypes.IsEmpty && getOrCreateUniqueGlobalUsingsNotInTree(ref uniqueGlobalUsings, globalUsingNamespacesOrTypes, declarationSyntax.SyntaxTree).Contains(imported) ?
-                                                            ErrorCode.HDN_DuplicateWithGlobalUsing :
-                                                            ErrorCode.WRN_DuplicateUsing,
-                                                        usingDirective.NamespaceOrType.Location, importedType);
-                                    }
-                                    else
-                                    {
-                                        declarationBinder.ReportDiagnosticsIfObsolete(diagnostics, importedType, usingDirective.NamespaceOrType, hasBaseReceiver: false);
-
-                                        getOrCreateUsingsBuilder(ref usings, globalUsingNamespacesOrTypes).Add(new NamespaceOrTypeAndUsingDirective(importedType, usingDirective, directiveDiagnostics.DependenciesBag.ToImmutableArray()));
-                                    }
+                                    getOrCreateUsingsBuilder(ref usings, globalUsingNamespacesOrTypes).Add(new NamespaceOrTypeAndUsingDirective(importedType, usingDirective, directiveDiagnostics.DependenciesBag.ToImmutableArray()));
                                 }
                             }
                             else if (imported.Kind is SymbolKind.ArrayType or SymbolKind.PointerType or SymbolKind.FunctionPointerType or SymbolKind.DynamicType)

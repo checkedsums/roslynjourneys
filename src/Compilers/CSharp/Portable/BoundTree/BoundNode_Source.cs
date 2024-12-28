@@ -313,7 +313,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                     case BoundUnaryOperator unary:
                         {
-                            append($" {unary.OperatorKind.ToString()} ");
+                            append($" {unary.OperatorKind} ");
                             appendSource(unary.Operand);
                             break;
                         }

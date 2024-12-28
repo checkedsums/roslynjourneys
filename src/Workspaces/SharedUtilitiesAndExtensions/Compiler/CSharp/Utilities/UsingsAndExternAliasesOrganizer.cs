@@ -67,21 +67,13 @@ internal static partial class UsingsAndExternAliasesOrganizer
         UsingDirectiveSyntax using1,
         UsingDirectiveSyntax using2)
     {
-        var directive1IsUsingStatic = using1.StaticKeyword.IsKind(SyntaxKind.StaticKeyword);
-        var directive2IsUsingStatic = using2.StaticKeyword.IsKind(SyntaxKind.StaticKeyword);
-
         var directive1IsAlias = using1.Alias != null;
         var directive2IsAlias = using2.Alias != null;
 
-        var directive1IsNamespace = !directive1IsUsingStatic && !directive1IsAlias;
-        var directive2IsNamespace = !directive2IsUsingStatic && !directive2IsAlias;
+        var directive1IsNamespace = !directive1IsAlias;
+        var directive2IsNamespace = !directive2IsAlias;
 
         if (directive1IsAlias && directive2IsAlias)
-        {
-            return false;
-        }
-
-        if (directive1IsUsingStatic && directive2IsUsingStatic)
         {
             return false;
         }

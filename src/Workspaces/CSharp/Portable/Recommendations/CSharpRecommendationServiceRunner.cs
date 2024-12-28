@@ -564,11 +564,7 @@ internal partial class CSharpRecommendationService
             //    using A = B.| -- Show namespace and types
             var usingDirective = name.GetAncestorOrThis<UsingDirectiveSyntax>();
             if (usingDirective != null && usingDirective.Alias == null)
-            {
-                return new RecommendedSymbols(usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword)
-                    ? symbols.WhereAsArray(s => !s.IsDelegateType())
-                    : symbols.WhereAsArray(s => s.IsNamespace()));
-            }
+                return new RecommendedSymbols(symbols.WhereAsArray(s => !s.IsDelegateType()));
 
             return new RecommendedSymbols(symbols);
         }

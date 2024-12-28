@@ -486,10 +486,6 @@ internal sealed class CSharpAddImportFeatureService() : AbstractAddImportFeature
         var usingDirective = UsingDirective(nameSyntax)
                                           .WithAdditionalAnnotations(Formatter.Annotation);
 
-        usingDirective = namespaceOrTypeSymbol.IsKind(SymbolKind.Namespace)
-            ? usingDirective
-            : usingDirective.WithStaticKeyword(StaticKeyword);
-
         return (usingDirective, addImportService.HasExistingImport(semanticModel.Compilation, root, contextNode, usingDirective, generator));
     }
 

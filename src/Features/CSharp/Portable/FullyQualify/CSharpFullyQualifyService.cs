@@ -14,8 +14,6 @@ using Microsoft.CodeAnalysis.Host.Mef;
 
 namespace Microsoft.CodeAnalysis.CSharp.CodeFixes.FullyQualify;
 
-using static CSharpSyntaxTokens;
-
 [ExportLanguageService(typeof(IFullyQualifyService), LanguageNames.CSharp), Shared]
 internal sealed class CSharpFullyQualifyService : AbstractFullyQualifyService<SimpleNameSyntax>
 {
@@ -45,22 +43,18 @@ internal sealed class CSharpFullyQualifyService : AbstractFullyQualifyService<Si
         var leadingTrivia = simpleName.GetLeadingTrivia();
         var newName = simpleName.WithLeadingTrivia(SyntaxTriviaList.Empty);
 
-        var qualifiedName = SyntaxFactory.QualifiedName(SyntaxFactory.ParseName(containerName), newName)
-            .WithLeadingTrivia(leadingTrivia);
+        var qualifiedName = SyntaxFactory.QualifiedName(SyntaxFactory.ParseName(containerName), newName).WithLeadingTrivia(leadingTrivia);
 
         var syntaxTree = simpleName.SyntaxTree;
         var root = await syntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 
         // If the name is a type that is part of a using directive, eg. "using Math" then we can go further and
         // instead of just changing to "using System.Math", we can make it "using static System.Math" and avoid the
-        // CS0138 that would result from the former.  Don't do this for using aliases though as `static` and using
+        // CS0138 that would result from the former. Don't do this for using aliases though as `static` and using
         // aliases cannot be combined.
-        if (resultingSymbolIsType &&
-            simpleName.Parent is UsingDirectiveSyntax { Alias: null, StaticKeyword.RawKind: 0 } usingDirective)
+        if (resultingSymbolIsType && simpleName.Parent is UsingDirectiveSyntax { Alias: null } usingDirective)
         {
-            var newUsingDirective = usingDirective
-                .WithStaticKeyword(StaticKeyword)
-                .WithName(qualifiedName);
+            var newUsingDirective = usingDirective.WithName(qualifiedName);
 
             return root.ReplaceNode(usingDirective, newUsingDirective);
         }

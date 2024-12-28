@@ -127,14 +127,6 @@ internal sealed class CSharpGenerateTypeService() :
         if (SyntaxFacts.IsAliasQualifier(simpleName))
             return false;
 
-        // Never offer if we're in a using directive, unless its a static using.  The feeling here is that it's highly
-        // unlikely that this would be a location where a user would be wanting to generate
-        // something.  They're really just trying to reference something that exists but
-        // isn't available for some reason (i.e. a missing reference).
-        var usingDirectiveSyntax = simpleName.GetAncestorOrThis<UsingDirectiveSyntax>();
-        if (usingDirectiveSyntax != null && usingDirectiveSyntax.StaticKeyword.Kind() != SyntaxKind.StaticKeyword)
-            return false;
-
         ExpressionSyntax nameOrMemberAccessExpression = null;
         if (simpleName.IsRightSideOfDot())
         {

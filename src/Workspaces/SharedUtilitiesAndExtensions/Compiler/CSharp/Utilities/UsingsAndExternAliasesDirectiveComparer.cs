@@ -32,18 +32,20 @@ internal class UsingsAndExternAliasesDirectiveComparer : IComparer<SyntaxNode?>
         _tokenComparer = tokenComparer;
     }
 
-    private enum UsingKind
+    private struct UsingData
+    {
+        internal bool isGlobal;
+        internal UsingKind kind;
+        public static implicit operator UsingData(UsingKind kind) => new() { kind = kind };
+    }
+    internal enum UsingKind : byte
     {
         Extern,
-        GlobalNamespace,
-        GlobalUsingStatic,
-        GlobalAlias,
         Namespace,
-        UsingStatic,
         Alias
     }
 
-    private static UsingKind GetUsingKind(UsingDirectiveSyntax? usingDirective, ExternAliasDirectiveSyntax? externDirective)
+    private static UsingData GetUsingKind(UsingDirectiveSyntax? usingDirective, ExternAliasDirectiveSyntax? externDirective)
     {
         if (externDirective != null)
         {
@@ -54,26 +56,11 @@ internal class UsingsAndExternAliasesDirectiveComparer : IComparer<SyntaxNode?>
             RoslynDebug.AssertNotNull(usingDirective);
         }
 
-        if (usingDirective.GlobalKeyword != default)
+        return new UsingData
         {
-            if (usingDirective.Alias != null)
-                return UsingKind.GlobalAlias;
-
-            if (usingDirective.StaticKeyword != default)
-                return UsingKind.GlobalUsingStatic;
-
-            return UsingKind.GlobalNamespace;
-        }
-        else
-        {
-            if (usingDirective.Alias != null)
-                return UsingKind.Alias;
-
-            if (usingDirective.StaticKeyword != default)
-                return UsingKind.UsingStatic;
-
-            return UsingKind.Namespace;
-        }
+            kind = usingDirective.Alias is not null ? UsingKind.Alias : UsingKind.Namespace,
+            isGlobal = usingDirective.GlobalKeyword != default,
+        };
     }
 
     public int Compare(SyntaxNode? directive1, SyntaxNode? directive2)
@@ -101,26 +88,22 @@ internal class UsingsAndExternAliasesDirectiveComparer : IComparer<SyntaxNode?>
         //  * using statics
         //  * aliases
 
-        var directiveKindDifference = directive1Kind - directive2Kind;
+        var directiveKindDifference = directive1Kind.kind - directive2Kind.kind;
         if (directiveKindDifference != 0)
             return directiveKindDifference;
 
-        var directive1IsGlobal = IsGlobal(directive1Kind);
-        var directive2IsGlobal = IsGlobal(directive2Kind);
-
         // Place global directives first.
-        if (directive1IsGlobal != directive2IsGlobal)
-            return directive1IsGlobal ? -1 : 1;
+        if (directive1Kind.isGlobal != directive2Kind.isGlobal)
+            return directive1Kind.isGlobal ? -1 : 1;
 
         // ok, it's the same type of using now.
-        switch (directive1Kind)
+        switch (directive1Kind.kind)
         {
             case UsingKind.Extern:
                 // they're externs, sort by the alias
                 return _tokenComparer.Compare(extern1!.Identifier, extern2!.Identifier);
 
             case UsingKind.Alias:
-            case UsingKind.GlobalAlias:
                 var aliasComparisonResult = _tokenComparer.Compare(using1!.Alias!.Name.Identifier, using2!.Alias!.Name.Identifier);
 
                 if (aliasComparisonResult == 0 && using1.Name != null && using2.Name != null)
@@ -136,8 +119,5 @@ internal class UsingsAndExternAliasesDirectiveComparer : IComparer<SyntaxNode?>
                 Contract.ThrowIfNull(using2!.Name);
                 return _nameComparer.Compare(using1!.Name, using2!.Name);
         }
-
-        static bool IsGlobal(UsingKind kind)
-            => kind is UsingKind.GlobalAlias or UsingKind.GlobalNamespace or UsingKind.GlobalUsingStatic;
     }
 }

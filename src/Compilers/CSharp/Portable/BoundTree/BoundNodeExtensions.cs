@@ -58,10 +58,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(call != null);
             MethodSymbol method = call!.Method;
-            BoundExpression? receiverOpt = call!.ReceiverOpt;
+            BoundExpression? receiver = call!.ReceiverOpt;
             return method.MethodKind == MethodKind.Constructor &&
-                receiverOpt != null &&
-                (receiverOpt.Kind == BoundKind.ThisReference || receiverOpt.Kind == BoundKind.BaseReference);
+                receiver != null &&
+                (receiver.Kind == BoundKind.ThisReference || receiver.Kind == BoundKind.BaseReference);
         }
 
         public static T MakeCompilerGenerated<T>(this T node) where T : BoundNode
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             foreach (var expression in expressions)
             {
                 visitor.Visit(expression);
-                if (visitor.ContainsAwait)
+                if (visitor._containsAwait)
                 {
                     return true;
                 }
@@ -87,13 +87,13 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private class ContainsAwaitVisitor : BoundTreeWalkerWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator
         {
-            public bool ContainsAwait = false;
+            public bool _containsAwait = false;
 
-            public override BoundNode? Visit(BoundNode? node) => ContainsAwait ? null : base.Visit(node);
+            public override BoundNode? Visit(BoundNode? node) => _containsAwait ? null : base.Visit(node);
 
             public override BoundNode? VisitAwaitExpression(BoundAwaitExpression node)
             {
-                ContainsAwait = true;
+                _containsAwait = true;
                 return null;
             }
         }

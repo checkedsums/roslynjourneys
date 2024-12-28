@@ -2,15 +2,10 @@
 #nullable enable
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using Microsoft.CodeAnalysis.Collections;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -8024,83 +8019,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         public TypeSymbol NarrowedType { get; }
     }
 
-    internal sealed partial class BoundConstantPattern : BoundPattern
-    {
-        public BoundConstantPattern(SyntaxNode syntax, BoundExpression value, ConstantValue constantValue, TypeSymbol inputType, TypeSymbol narrowedType, bool hasErrors = false)
-            : base(BoundKind.ConstantPattern, syntax, inputType, narrowedType, hasErrors || value.HasErrors())
-        {
-
-            RoslynDebug.Assert(value is object, "Field 'value' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-            RoslynDebug.Assert(constantValue is object, "Field 'constantValue' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-            RoslynDebug.Assert(inputType is object, "Field 'inputType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-            RoslynDebug.Assert(narrowedType is object, "Field 'narrowedType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-
-            this.Value = value;
-            this.ConstantValue = constantValue;
-            Validate();
-        }
-
-        [Conditional("DEBUG")]
-        private partial void Validate();
-
-        public BoundExpression Value { get; }
-        public ConstantValue ConstantValue { get; }
-
-        [DebuggerStepThrough]
-        public override BoundNode? Accept(BoundTreeVisitor visitor) => visitor.VisitConstantPattern(this);
-
-        public BoundConstantPattern Update(BoundExpression value, ConstantValue constantValue, TypeSymbol inputType, TypeSymbol narrowedType)
-        {
-            if (value != this.Value || constantValue != this.ConstantValue || !TypeSymbol.Equals(inputType, this.InputType, TypeCompareKind.ConsiderEverything) || !TypeSymbol.Equals(narrowedType, this.NarrowedType, TypeCompareKind.ConsiderEverything))
-            {
-                var result = new BoundConstantPattern(this.Syntax, value, constantValue, inputType, narrowedType, this.HasErrors);
-                result.CopyAttributes(this);
-                return result;
-            }
-            return this;
-        }
-    }
-
-    internal sealed partial class BoundDiscardPattern : BoundPattern
-    {
-        public BoundDiscardPattern(SyntaxNode syntax, TypeSymbol inputType, TypeSymbol narrowedType, bool hasErrors)
-            : base(BoundKind.DiscardPattern, syntax, inputType, narrowedType, hasErrors)
-        {
-
-            RoslynDebug.Assert(inputType is object, "Field 'inputType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-            RoslynDebug.Assert(narrowedType is object, "Field 'narrowedType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-
-            Validate();
-        }
-
-        [Conditional("DEBUG")]
-        private partial void Validate();
-
-        public BoundDiscardPattern(SyntaxNode syntax, TypeSymbol inputType, TypeSymbol narrowedType)
-            : base(BoundKind.DiscardPattern, syntax, inputType, narrowedType)
-        {
-
-            RoslynDebug.Assert(inputType is object, "Field 'inputType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-            RoslynDebug.Assert(narrowedType is object, "Field 'narrowedType' cannot be null (make the type nullable in BoundNodes.xml to remove this check)");
-
-        }
-
-
-        [DebuggerStepThrough]
-        public override BoundNode? Accept(BoundTreeVisitor visitor) => visitor.VisitDiscardPattern(this);
-
-        public BoundDiscardPattern Update(TypeSymbol inputType, TypeSymbol narrowedType)
-        {
-            if (!TypeSymbol.Equals(inputType, this.InputType, TypeCompareKind.ConsiderEverything) || !TypeSymbol.Equals(narrowedType, this.NarrowedType, TypeCompareKind.ConsiderEverything))
-            {
-                var result = new BoundDiscardPattern(this.Syntax, inputType, narrowedType, this.HasErrors);
-                result.CopyAttributes(this);
-                return result;
-            }
-            return this;
-        }
-    }
-
     internal abstract partial class BoundObjectPattern : BoundPattern
     {
         protected BoundObjectPattern(BoundKind kind, SyntaxNode syntax, Symbol? variable, BoundExpression? variableAccess, TypeSymbol inputType, TypeSymbol narrowedType, bool hasErrors = false)
@@ -8617,7 +8535,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         public BoundExpression Expression { get; }
-
+        
         [DebuggerStepThrough]
         public override BoundNode? Accept(BoundTreeVisitor visitor) => visitor.VisitThrowExpression(this);
 

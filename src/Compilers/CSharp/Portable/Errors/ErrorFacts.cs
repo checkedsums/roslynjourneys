@@ -1136,7 +1136,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_UnexpectedGenericName
                 or ErrorCode.ERR_UnexpectedUnboundGenericName
                 or ErrorCode.ERR_GlobalStatement
-                or ErrorCode.ERR_BadUsingType
                 or ErrorCode.ERR_ReservedAssemblyName
                 or ErrorCode.ERR_PPReferenceFollowsToken
                 or ErrorCode.ERR_ExpectedPPFile
@@ -1259,7 +1258,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_SubexpressionNotInNameof
                 or ErrorCode.ERR_AliasQualifiedNameNotAnExpression
                 or ErrorCode.ERR_NameofMethodGroupWithTypeParameters
-                or ErrorCode.ERR_NoAliasHere
                 or ErrorCode.ERR_UnescapedCurly
                 or ErrorCode.ERR_EscapedCurly
                 or ErrorCode.ERR_TrailingWhitespaceInFormatSpecifier
@@ -1866,7 +1864,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_AddressOfInAsync
                 or ErrorCode.ERR_BadRefInUsingAlias
                 or ErrorCode.ERR_BadNullableReferenceTypeInUsingAlias
-                or ErrorCode.ERR_BadStaticAfterUnsafe
                 or ErrorCode.ERR_BadCaseInSwitchArm
                 or ErrorCode.ERR_InterceptorsFeatureNotEnabled
                 or ErrorCode.ERR_InterceptorContainingTypeCannotBeGeneric

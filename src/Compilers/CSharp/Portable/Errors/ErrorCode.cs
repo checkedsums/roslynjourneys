@@ -1141,7 +1141,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_UnexpectedGenericName = 7002,
         ERR_UnexpectedUnboundGenericName = 7003,
         ERR_GlobalStatement = 7006,
-        ERR_BadUsingType = 7007,
+
         ERR_ReservedAssemblyName = 7008,
         ERR_PPReferenceFollowsToken = 7009,
         ERR_ExpectedPPFile = 7010,
@@ -1302,7 +1302,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_SubexpressionNotInNameof = 8082,
         ERR_AliasQualifiedNameNotAnExpression = 8083,
         ERR_NameofMethodGroupWithTypeParameters = 8084,
-        ERR_NoAliasHere = 8085,
+
         ERR_UnescapedCurly = 8086,
         ERR_EscapedCurly = 8087,
         ERR_TrailingWhitespaceInFormatSpecifier = 8088,
@@ -2151,7 +2151,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_BadRefInUsingAlias = 9130,
 
         ERR_BadNullableReferenceTypeInUsingAlias = 9132,
-        ERR_BadStaticAfterUnsafe = 9133,
 
         ERR_BadCaseInSwitchArm = 9134,
         ERR_ConstantValueOfTypeExpected = 9135,

@@ -3,11 +3,6 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.CodeAnalysis.Syntax.InternalSyntax;
-using Roslyn.Utilities;
-using CoreSyntax = Microsoft.CodeAnalysis.Syntax.InternalSyntax;
 
 namespace Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -9365,97 +9360,6 @@ public sealed partial class ExternAliasDirectiveSyntax : CSharpSyntaxNode
     public ExternAliasDirectiveSyntax WithAliasKeyword(SyntaxToken aliasKeyword) => Update(this.ExternKeyword, aliasKeyword, this.Identifier, this.SemicolonToken);
     public ExternAliasDirectiveSyntax WithIdentifier(SyntaxToken identifier) => Update(this.ExternKeyword, this.AliasKeyword, identifier, this.SemicolonToken);
     public ExternAliasDirectiveSyntax WithSemicolonToken(SyntaxToken semicolonToken) => Update(this.ExternKeyword, this.AliasKeyword, this.Identifier, semicolonToken);
-}
-
-/// <remarks>
-/// <para>This node is associated with the following syntax kinds:</para>
-/// <list type="bullet">
-/// <item><description><see cref="SyntaxKind.UsingDirective"/></description></item>
-/// </list>
-/// </remarks>
-public sealed partial class UsingDirectiveSyntax : CSharpSyntaxNode
-{
-    private NameEqualsSyntax? alias;
-    private TypeSyntax? namespaceOrType;
-
-    internal UsingDirectiveSyntax(InternalSyntax.CSharpSyntaxNode green, SyntaxNode? parent, int position)
-      : base(green, parent, position)
-    {
-    }
-
-    public SyntaxToken GlobalKeyword
-    {
-        get
-        {
-            var slot = ((Syntax.InternalSyntax.UsingDirectiveSyntax)this.Green).globalKeyword;
-            return slot != null ? new SyntaxToken(this, slot, Position, 0) : default;
-        }
-    }
-
-    public SyntaxToken UsingKeyword => new SyntaxToken(this, ((InternalSyntax.UsingDirectiveSyntax)this.Green).usingKeyword, GetChildPosition(1), GetChildIndex(1));
-
-    public SyntaxToken StaticKeyword
-    {
-        get
-        {
-            var slot = ((Syntax.InternalSyntax.UsingDirectiveSyntax)this.Green).staticKeyword;
-            return slot != null ? new SyntaxToken(this, slot, GetChildPosition(2), GetChildIndex(2)) : default;
-        }
-    }
-
-    public SyntaxToken UnsafeKeyword
-    {
-        get
-        {
-            var slot = ((Syntax.InternalSyntax.UsingDirectiveSyntax)this.Green).unsafeKeyword;
-            return slot != null ? new SyntaxToken(this, slot, GetChildPosition(3), GetChildIndex(3)) : default;
-        }
-    }
-
-    public NameEqualsSyntax? Alias => GetRed(ref this.alias, 4);
-
-    public TypeSyntax NamespaceOrType => GetRed(ref this.namespaceOrType, 5)!;
-
-    public SyntaxToken SemicolonToken => new SyntaxToken(this, ((InternalSyntax.UsingDirectiveSyntax)this.Green).semicolonToken, GetChildPosition(6), GetChildIndex(6));
-
-    internal override SyntaxNode? GetNodeSlot(int index)
-        => index switch
-        {
-            4 => GetRed(ref this.alias, 4),
-            5 => GetRed(ref this.namespaceOrType, 5)!,
-            _ => null,
-        };
-
-    internal override SyntaxNode? GetCachedSlot(int index)
-        => index switch
-        {
-            4 => this.alias,
-            5 => this.namespaceOrType,
-            _ => null,
-        };
-
-    public override void Accept(CSharpSyntaxVisitor visitor) => visitor.VisitUsingDirective(this);
-    public override TResult? Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor) where TResult : default => visitor.VisitUsingDirective(this);
-
-    public UsingDirectiveSyntax Update(SyntaxToken globalKeyword, SyntaxToken usingKeyword, SyntaxToken staticKeyword, SyntaxToken unsafeKeyword, NameEqualsSyntax? alias, TypeSyntax namespaceOrType, SyntaxToken semicolonToken)
-    {
-        if (globalKeyword != this.GlobalKeyword || usingKeyword != this.UsingKeyword || staticKeyword != this.StaticKeyword || unsafeKeyword != this.UnsafeKeyword || alias != this.Alias || namespaceOrType != this.NamespaceOrType || semicolonToken != this.SemicolonToken)
-        {
-            var newNode = SyntaxFactory.UsingDirective(globalKeyword, usingKeyword, staticKeyword, unsafeKeyword, alias, namespaceOrType, semicolonToken);
-            var annotations = GetAnnotations();
-            return annotations?.Length > 0 ? newNode.WithAnnotations(annotations) : newNode;
-        }
-
-        return this;
-    }
-
-    public UsingDirectiveSyntax WithGlobalKeyword(SyntaxToken globalKeyword) => Update(globalKeyword, this.UsingKeyword, this.StaticKeyword, this.UnsafeKeyword, this.Alias, this.NamespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithUsingKeyword(SyntaxToken usingKeyword) => Update(this.GlobalKeyword, usingKeyword, this.StaticKeyword, this.UnsafeKeyword, this.Alias, this.NamespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithStaticKeyword(SyntaxToken staticKeyword) => Update(this.GlobalKeyword, this.UsingKeyword, staticKeyword, this.UnsafeKeyword, this.Alias, this.NamespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithUnsafeKeyword(SyntaxToken unsafeKeyword) => Update(this.GlobalKeyword, this.UsingKeyword, this.StaticKeyword, unsafeKeyword, this.Alias, this.NamespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithAlias(NameEqualsSyntax? alias) => Update(this.GlobalKeyword, this.UsingKeyword, this.StaticKeyword, this.UnsafeKeyword, alias, this.NamespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithNamespaceOrType(TypeSyntax namespaceOrType) => Update(this.GlobalKeyword, this.UsingKeyword, this.StaticKeyword, this.UnsafeKeyword, this.Alias, namespaceOrType, this.SemicolonToken);
-    public UsingDirectiveSyntax WithSemicolonToken(SyntaxToken semicolonToken) => Update(this.GlobalKeyword, this.UsingKeyword, this.StaticKeyword, this.UnsafeKeyword, this.Alias, this.NamespaceOrType, semicolonToken);
 }
 
 /// <summary>Member declaration syntax.</summary>

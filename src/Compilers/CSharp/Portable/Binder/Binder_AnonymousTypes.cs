@@ -88,7 +88,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 // build anonymous type field descriptor
                 fieldSyntaxNodes[i] = (nameToken.Kind() == SyntaxKind.IdentifierToken) ? (CSharpSyntaxNode)nameToken.Parent! : fieldInitializer;
                 fields[i] = new AnonymousTypeField(
-                    fieldName == null ? "$" + i.ToString() : fieldName,
+                    fieldName ?? "$" + i.ToString(),
                     fieldSyntaxNodes[i].Location,
                     TypeWithAnnotations.Create(fieldType),
                     RefKind.None,
@@ -158,10 +158,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SyntaxKind.ConditionalAccessExpression:
                         expr = ((ConditionalAccessExpressionSyntax)expr).WhenNotNull;
                         if (expr.Kind() == SyntaxKind.MemberBindingExpression)
-                        {
                             return true;
-                        }
-
                         continue;
                     case SyntaxKind.IdentifierName:
                     case SyntaxKind.SimpleMemberAccessExpression:

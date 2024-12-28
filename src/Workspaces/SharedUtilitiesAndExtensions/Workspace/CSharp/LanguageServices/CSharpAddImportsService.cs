@@ -39,25 +39,20 @@ internal sealed class CSharpAddImportsService() : AbstractAddImportsService<
     protected override SyntaxNode? GetAlias(UsingDirectiveSyntax usingOrAlias)
         => usingOrAlias.Alias;
 
-    protected override bool IsStaticUsing(UsingDirectiveSyntax usingOrAlias)
-        => usingOrAlias.StaticKeyword != default;
-
     protected override SyntaxNode Rewrite(
         ExternAliasDirectiveSyntax[] externAliases,
         UsingDirectiveSyntax[] usingDirectives,
-        UsingDirectiveSyntax[] staticUsingDirectives,
         UsingDirectiveSyntax[] aliasDirectives,
         SyntaxNode externContainer,
         SyntaxNode usingContainer,
-        SyntaxNode staticUsingContainer,
         SyntaxNode aliasContainer,
         AddImportPlacementOptions options,
         SyntaxNode root,
         CancellationToken cancellationToken)
     {
         var rewriter = new Rewriter(
-            externAliases, usingDirectives, staticUsingDirectives, aliasDirectives,
-            externContainer, usingContainer, staticUsingContainer, aliasContainer,
+            externAliases, usingDirectives, aliasDirectives,
+            externContainer, usingContainer, aliasContainer,
             options, cancellationToken);
 
         var newRoot = rewriter.Visit(root);
@@ -89,32 +84,26 @@ internal sealed class CSharpAddImportsService() : AbstractAddImportsService<
         private readonly SyntaxNode _externContainer;
         private readonly SyntaxNode _usingContainer;
         private readonly SyntaxNode _aliasContainer;
-        private readonly SyntaxNode _staticUsingContainer;
         private readonly UsingDirectiveSyntax[] _aliasDirectives;
         private readonly ExternAliasDirectiveSyntax[] _externAliases;
         private readonly UsingDirectiveSyntax[] _usingDirectives;
-        private readonly UsingDirectiveSyntax[] _staticUsingDirectives;
 
         public Rewriter(
             ExternAliasDirectiveSyntax[] externAliases,
             UsingDirectiveSyntax[] usingDirectives,
-            UsingDirectiveSyntax[] staticUsingDirectives,
             UsingDirectiveSyntax[] aliasDirectives,
             SyntaxNode externContainer,
             SyntaxNode usingContainer,
             SyntaxNode aliasContainer,
-            SyntaxNode staticUsingContainer,
             AddImportPlacementOptions options,
             CancellationToken cancellationToken)
         {
             _externAliases = externAliases;
             _usingDirectives = usingDirectives;
-            _staticUsingDirectives = staticUsingDirectives;
             _aliasDirectives = aliasDirectives;
             _externContainer = externContainer;
             _usingContainer = usingContainer;
             _aliasContainer = aliasContainer;
-            _staticUsingContainer = staticUsingContainer;
             _options = options;
             _cancellationToken = cancellationToken;
         }
@@ -150,11 +139,6 @@ internal sealed class CSharpAddImportsService() : AbstractAddImportsService<
                 rewritten = rewritten.AddUsingDirectives(_usingDirectives, _options.PlaceSystemNamespaceFirst);
             }
 
-            if (node == _staticUsingContainer)
-            {
-                rewritten = rewritten.AddUsingDirectives(_staticUsingDirectives, _options.PlaceSystemNamespaceFirst);
-            }
-
             if (node == _externContainer)
             {
                 rewritten = rewritten.AddExterns(_externAliases);
@@ -181,11 +165,6 @@ internal sealed class CSharpAddImportsService() : AbstractAddImportsService<
             if (node == _usingContainer)
             {
                 rewritten = rewritten.AddUsingDirectives(_usingDirectives, _options.PlaceSystemNamespaceFirst);
-            }
-
-            if (node == _staticUsingContainer)
-            {
-                rewritten = rewritten.AddUsingDirectives(_staticUsingDirectives, _options.PlaceSystemNamespaceFirst);
             }
 
             if (node == _externContainer)

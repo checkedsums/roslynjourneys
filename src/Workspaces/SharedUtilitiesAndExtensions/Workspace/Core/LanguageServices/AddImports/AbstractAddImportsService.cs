@@ -31,7 +31,6 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
     protected abstract ImmutableArray<SyntaxNode> GetGlobalImports(Compilation compilation, SyntaxGenerator generator);
     protected abstract SyntaxList<TUsingOrAliasSyntax> GetUsingsAndAliases(SyntaxNode node);
     protected abstract SyntaxList<TExternSyntax> GetExterns(SyntaxNode node);
-    protected abstract bool IsStaticUsing(TUsingOrAliasSyntax usingOrAlias);
 
     public AddImportPlacementOptions GetAddImportOptions(IOptionsReader configOptions, bool allowInHiddenRegions)
         => new()
@@ -43,11 +42,10 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
 
     public abstract CodeStyleOption2<AddImportPlacement> GetUsingDirectivePlacementCodeStyleOption(IOptionsReader configOptions);
 
-    private bool IsSimpleUsing(TUsingOrAliasSyntax usingOrAlias) => !IsAlias(usingOrAlias) && !IsStaticUsing(usingOrAlias);
-    private bool IsAlias(TUsingOrAliasSyntax usingOrAlias) => GetAlias(usingOrAlias) != null;
+    private bool NotAlias(TUsingOrAliasSyntax usingOrAlias) => GetAlias(usingOrAlias) is null;
+    private bool IsAlias(TUsingOrAliasSyntax usingOrAlias) => GetAlias(usingOrAlias) is not null;
     private bool HasAliases(SyntaxNode node) => GetUsingsAndAliases(node).Any(IsAlias);
-    private bool HasUsings(SyntaxNode node) => GetUsingsAndAliases(node).Any(IsSimpleUsing);
-    private bool HasStaticUsings(SyntaxNode node) => GetUsingsAndAliases(node).Any(IsStaticUsing);
+    private bool HasUsings(SyntaxNode node) => GetUsingsAndAliases(node).Any(NotAlias);
     private bool HasExterns(SyntaxNode node) => GetExterns(node).Any();
     private bool HasAnyImports(SyntaxNode node) => GetUsingsAndAliases(node).Any() || GetExterns(node).Any();
 
@@ -103,8 +101,7 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
     public SyntaxNode GetImportContainer(SyntaxNode root, SyntaxNode? contextLocation, SyntaxNode import, AddImportPlacementOptions options)
     {
         contextLocation ??= root;
-        GetContainers(root, contextLocation, options,
-            out var externContainer, out var usingContainer, out var staticUsingContainer, out var aliasContainer);
+        GetContainers(root, contextLocation, options, out var externContainer, out var usingContainer, out var aliasContainer);
 
         switch (import)
         {
@@ -114,11 +111,6 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
                 if (IsAlias(u))
                 {
                     return aliasContainer;
-                }
-
-                if (IsStaticUsing(u))
-                {
-                    return staticUsingContainer;
                 }
 
                 return usingContainer;
@@ -143,27 +135,26 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
         var filteredImports = newImports.Where(i => !HasExistingImport(i, containers, globalImports)).ToArray();
 
         var externAliases = filteredImports.OfType<TExternSyntax>().ToArray();
-        var usingDirectives = filteredImports.OfType<TUsingOrAliasSyntax>().Where(IsSimpleUsing).ToArray();
-        var staticUsingDirectives = filteredImports.OfType<TUsingOrAliasSyntax>().Where(IsStaticUsing).ToArray();
+        var usingDirectives = filteredImports.OfType<TUsingOrAliasSyntax>().Where(NotAlias).ToArray();
         var aliasDirectives = filteredImports.OfType<TUsingOrAliasSyntax>().Where(IsAlias).ToArray();
 
         GetContainers(root, contextLocation, options,
-            out var externContainer, out var usingContainer, out var aliasContainer, out var staticUsingContainer);
+            out var externContainer, out var usingContainer, out var aliasContainer);
 
         var newRoot = Rewrite(
-            externAliases, usingDirectives, staticUsingDirectives, aliasDirectives,
-            externContainer, usingContainer, staticUsingContainer, aliasContainer,
+            externAliases, usingDirectives, aliasDirectives,
+            externContainer, usingContainer, aliasContainer,
             options, root, cancellationToken);
 
         return newRoot;
     }
 
     protected abstract SyntaxNode Rewrite(
-        TExternSyntax[] externAliases, TUsingOrAliasSyntax[] usingDirectives, TUsingOrAliasSyntax[] staticUsingDirectives, TUsingOrAliasSyntax[] aliasDirectives,
-        SyntaxNode externContainer, SyntaxNode usingContainer, SyntaxNode staticUsingContainer, SyntaxNode aliasContainer,
+        TExternSyntax[] externAliases, TUsingOrAliasSyntax[] usingDirectives, TUsingOrAliasSyntax[] aliasDirectives,
+        SyntaxNode externContainer, SyntaxNode usingContainer, SyntaxNode aliasContainer,
         AddImportPlacementOptions options, SyntaxNode root, CancellationToken cancellationToken);
 
-    private void GetContainers(SyntaxNode root, SyntaxNode contextLocation, AddImportPlacementOptions options, out SyntaxNode externContainer, out SyntaxNode usingContainer, out SyntaxNode staticUsingContainer, out SyntaxNode aliasContainer)
+    private void GetContainers(SyntaxNode root, SyntaxNode contextLocation, AddImportPlacementOptions options, out SyntaxNode externContainer, out SyntaxNode usingContainer, out SyntaxNode aliasContainer)
     {
         var applicableContainer = GetFirstApplicableContainer(contextLocation);
         var contextSpine = applicableContainer.GetAncestorsOrThis<SyntaxNode>().ToImmutableArray();
@@ -187,7 +178,6 @@ internal abstract class AbstractAddImportsService<TCompilationUnitSyntax, TNames
         // innermost node with any imports.
         externContainer = contextSpine.FirstOrDefault(HasExterns) ?? fallbackNode;
         usingContainer = contextSpine.FirstOrDefault(HasUsings) ?? fallbackNode;
-        staticUsingContainer = contextSpine.FirstOrDefault(HasStaticUsings) ?? fallbackNode;
         aliasContainer = contextSpine.FirstOrDefault(HasAliases) ?? fallbackNode;
     }
 
