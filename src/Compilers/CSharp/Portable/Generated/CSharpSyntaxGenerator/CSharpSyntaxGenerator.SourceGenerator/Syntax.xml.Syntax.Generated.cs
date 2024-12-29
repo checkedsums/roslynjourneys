@@ -9319,7 +9319,6 @@ public sealed partial class CompilationUnitSyntax : CSharpSyntaxNode
 /// </remarks>
 public sealed partial class ExternAliasDirectiveSyntax : CSharpSyntaxNode
 {
-
     internal ExternAliasDirectiveSyntax(InternalSyntax.CSharpSyntaxNode green, SyntaxNode? parent, int position)
       : base(green, parent, position)
     {

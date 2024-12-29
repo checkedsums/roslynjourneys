@@ -113,11 +113,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             => UsingDirective(default, Token(SyntaxKind.UsingKeyword), default, null, namespaceOrType, Token(SyntaxKind.SemicolonToken));
 
         /// <summary>Creates a new UsingDirectiveSyntax instance.</summary>
-        public static UsingDirectiveSyntax UsingDirective(NameEqualsSyntax? alias, TypeSyntax namespaceOrType)
-            => UsingDirective(default, Token(SyntaxKind.UsingKeyword), default, alias, namespaceOrType, Token(SyntaxKind.SemicolonToken));
-
-
-        /// <summary>Creates a new UsingDirectiveSyntax instance.</summary>
         public static UsingDirectiveSyntax UsingDirective(NameEqualsSyntax alias, NameSyntax name)
         {
             return UsingDirective(
@@ -137,10 +132,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 namespaceOrType: name,
                 semicolonToken);
         }
-
-        /// <summary>Creates a new UsingDirectiveSyntax instance.</summary>
-        public static UsingDirectiveSyntax UsingDirective(SyntaxToken globalKeyword, SyntaxToken usingKeyword, NameEqualsSyntax? alias, NameSyntax name, SyntaxToken semicolonToken)
-            => UsingDirective(globalKeyword, usingKeyword, unsafeKeyword: default, alias, namespaceOrType: name, semicolonToken);
 
         /// <summary>Creates a new UsingDirectiveSyntax instance.</summary>
         public static UsingDirectiveSyntax UsingDirective(NameSyntax name)
