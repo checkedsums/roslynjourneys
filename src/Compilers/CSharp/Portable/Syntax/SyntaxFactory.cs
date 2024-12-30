@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#pragma warning disable format
+
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -31,24 +31,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxTrivia CarriageReturnLineFeed { get; } = InternalSyntax.SyntaxFactory.CarriageReturnLineFeed;
 
         /// <summary>
-        /// A trivia with kind EndOfLineTrivia containing a single line feed character.
-        /// </summary>
-        public static SyntaxTrivia LineFeed { get; } = InternalSyntax.SyntaxFactory.LineFeed;
-
-        /// <summary>
-        /// A trivia with kind EndOfLineTrivia containing a single carriage return character.
-        /// </summary>
-        public static SyntaxTrivia CarriageReturn { get; } = InternalSyntax.SyntaxFactory.CarriageReturn;
-
-        /// <summary>
         ///  A trivia with kind WhitespaceTrivia containing a single space character.
         /// </summary>
         public static SyntaxTrivia Space { get; } = InternalSyntax.SyntaxFactory.Space;
-
-        /// <summary>
-        /// A trivia with kind WhitespaceTrivia containing a single tab character.
-        /// </summary>
-        public static SyntaxTrivia Tab { get; } = InternalSyntax.SyntaxFactory.Tab;
 
         /// <summary>
         /// An elastic trivia with kind EndOfLineTrivia containing both the carriage return and line feed characters.
@@ -58,30 +43,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxTrivia ElasticCarriageReturnLineFeed { get; } = InternalSyntax.SyntaxFactory.ElasticCarriageReturnLineFeed;
 
         /// <summary>
-        /// An elastic trivia with kind EndOfLineTrivia containing a single line feed character. Elastic trivia are used
-        /// to denote trivia that was not produced by parsing source text, and are usually not preserved during
-        /// formatting.
-        /// </summary>
-        public static SyntaxTrivia ElasticLineFeed { get; } = InternalSyntax.SyntaxFactory.ElasticLineFeed;
-
-        /// <summary>
-        /// An elastic trivia with kind EndOfLineTrivia containing a single carriage return character. Elastic trivia
-        /// are used to denote trivia that was not produced by parsing source text, and are usually not preserved during
-        /// formatting.
-        /// </summary>
-        public static SyntaxTrivia ElasticCarriageReturn { get; } = InternalSyntax.SyntaxFactory.ElasticCarriageReturn;
-
-        /// <summary>
         /// An elastic trivia with kind WhitespaceTrivia containing a single space character. Elastic trivia are used to
         /// denote trivia that was not produced by parsing source text, and are usually not preserved during formatting.
         /// </summary>
         public static SyntaxTrivia ElasticSpace { get; } = InternalSyntax.SyntaxFactory.ElasticSpace;
-
-        /// <summary>
-        /// An elastic trivia with kind WhitespaceTrivia containing a single tab character. Elastic trivia are used to
-        /// denote trivia that was not produced by parsing source text, and are usually not preserved during formatting.
-        /// </summary>
-        public static SyntaxTrivia ElasticTab { get; } = InternalSyntax.SyntaxFactory.ElasticTab;
 
         /// <summary>
         /// An elastic trivia with kind WhitespaceTrivia containing no characters. Elastic marker trivia are included
@@ -105,10 +70,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// line feed characters are recognized by the parser as end of line.</param>
         public static SyntaxTrivia ElasticEndOfLine(string text) => InternalSyntax.SyntaxFactory.EndOfLine(text, elastic: true);
 
-        [Obsolete("Use SyntaxFactory.EndOfLine or SyntaxFactory.ElasticEndOfLine")]
-        [System.ComponentModel.EditorBrowsable(EditorBrowsableState.Never)]
-        public static SyntaxTrivia EndOfLine(string text, bool elastic) => InternalSyntax.SyntaxFactory.EndOfLine(text, elastic);
-
         /// <summary>
         /// Creates a trivia with kind WhitespaceTrivia containing the specified text.
         /// </summary>
@@ -124,10 +85,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// whitespace characters are recognized by the parser.</param>
         public static SyntaxTrivia ElasticWhitespace(string text) => InternalSyntax.SyntaxFactory.Whitespace(text, elastic: false);
 
-        [Obsolete("Use SyntaxFactory.Whitespace or SyntaxFactory.ElasticWhitespace")]
-        [System.ComponentModel.EditorBrowsable(EditorBrowsableState.Never)]
-        public static SyntaxTrivia Whitespace(string text, bool elastic) => InternalSyntax.SyntaxFactory.Whitespace(text, elastic);
-
         /// <summary>
         /// Creates a trivia with kind either SingleLineCommentTrivia or MultiLineCommentTrivia containing the specified
         /// text.
@@ -135,12 +92,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="text">The entire text of the comment including the leading '//' token for single line comments
         /// or stop or start tokens for multiline comments.</param>
         public static SyntaxTrivia Comment(string text) => InternalSyntax.SyntaxFactory.Comment(text);
-
-        /// <summary>
-        /// Creates a trivia with kind DisabledTextTrivia. Disabled text corresponds to any text between directives that
-        /// is not considered active.
-        /// </summary>
-        public static SyntaxTrivia DisabledText(string text) => InternalSyntax.SyntaxFactory.DisabledText(text);
 
         /// <summary>
         /// Creates a trivia with kind PreprocessingMessageTrivia.
@@ -161,19 +112,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="text">
         /// The actual text of this token.
         /// </param>
-        public static SyntaxTrivia SyntaxTrivia(SyntaxKind kind, string text)
-        {
-            if (text == null)
-            {
-                throw new ArgumentNullException(nameof(text));
-            }
-
-            return kind switch
-            {
-                SyntaxKind.DisabledTextTrivia or SyntaxKind.DocumentationCommentExteriorTrivia or SyntaxKind.EndOfLineTrivia or SyntaxKind.MultiLineCommentTrivia or SyntaxKind.SingleLineCommentTrivia or SyntaxKind.WhitespaceTrivia => new SyntaxTrivia(default, new Syntax.InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0),
-                _ => throw new ArgumentException("kind"),
-            };
-        }
+        public static SyntaxTrivia SyntaxTrivia(SyntaxKind kind, string text) => text is null ? throw new ArgumentNullException(nameof(text)) 
+            : kind switch {    SyntaxKind.DisabledTextTrivia or SyntaxKind.DocumentationCommentExteriorTrivia or SyntaxKind.EndOfLineTrivia or SyntaxKind.MultiLineCommentTrivia or SyntaxKind.SingleLineCommentTrivia or SyntaxKind.WhitespaceTrivia 
+                    => new SyntaxTrivia(default, new InternalSyntax.SyntaxTrivia(kind, text, null, null), 0, 0), _ => throw new ArgumentException(null, nameof(kind)),
+                };
 
         /// <summary>
         /// Creates a token corresponding to a syntax kind. This method can be used for token syntax kinds whose text
@@ -204,28 +146,15 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="text">The text from which this token was created (e.g. lexed).</param>
         /// <param name="valueText">How C# should interpret the text of this token.</param>
         /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Token(SyntaxTriviaList leading, SyntaxKind kind, string text, string valueText, SyntaxTriviaList trailing)
-        {
-            switch (kind)
-            {
-                case SyntaxKind.IdentifierToken:
-                    // Have a different representation.
-                    throw new ArgumentException(CSharpResources.UseVerbatimIdentifier, nameof(kind));
-                case SyntaxKind.CharacterLiteralToken:
-                    // Value should not have type string.
-                    throw new ArgumentException(CSharpResources.UseLiteralForTokens, nameof(kind));
-                case SyntaxKind.NumericLiteralToken:
-                    // Value should not have type string.
-                    throw new ArgumentException(CSharpResources.UseLiteralForNumeric, nameof(kind));
-            }
-
-            if (!SyntaxFacts.IsAnyToken(kind))
-            {
-                throw new ArgumentException(string.Format(CSharpResources.ThisMethodCanOnlyBeUsedToCreateTokens, kind), nameof(kind));
-            }
-
-            return new SyntaxToken(InternalSyntax.SyntaxFactory.Token(leading.Node, kind, text, valueText, trailing.Node));
-        }
+        public static SyntaxToken Token(SyntaxTriviaList leading, SyntaxKind kind, string text, string valueText, SyntaxTriviaList trailing) 
+            => kind switch {
+            SyntaxKind.IdentifierToken => throw new ArgumentException(CSharpResources.UseVerbatimIdentifier, nameof(kind)),// Have a different representation.
+            SyntaxKind.CharacterLiteralToken => throw new ArgumentException(CSharpResources.UseLiteralForTokens, nameof(kind)),// Value should not have type string.
+            SyntaxKind.NumericLiteralToken => throw new ArgumentException(CSharpResources.UseLiteralForNumeric, nameof(kind)),// Value should not have type string.
+            _ => !SyntaxFacts.IsAnyToken(kind)
+                            ? throw new ArgumentException(string.Format(CSharpResources.ThisMethodCanOnlyBeUsedToCreateTokens, kind), nameof(kind))
+                            : new SyntaxToken(InternalSyntax.SyntaxFactory.Token(leading.Node, kind, text, valueText, trailing.Node)),
+        };
 
         /// <summary>
         /// Creates a missing token corresponding to syntax kind. A missing token is produced by the parser when an
@@ -233,15 +162,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         /// <param name="kind">A syntax kind value for a token. These have the suffix Token or Keyword.</param>
         public static SyntaxToken MissingToken(SyntaxKind kind) => new SyntaxToken(InternalSyntax.SyntaxFactory.MissingToken(ElasticMarker.UnderlyingNode, kind, ElasticMarker.UnderlyingNode));
-
-        /// <summary>
-        /// Creates a missing token corresponding to syntax kind. A missing token is produced by the parser when an
-        /// expected token is not found. A missing token has no text and normally has associated diagnostics.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="kind">A syntax kind value for a token. These have the suffix Token or Keyword.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken MissingToken(SyntaxTriviaList leading, SyntaxKind kind, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.MissingToken(leading.Node, kind, trailing.Node));
 
         /// <summary>
         /// Creates a token with kind IdentifierToken containing the specified text.
@@ -266,15 +186,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// character.</param>
         /// <param name="valueText">The canonical value of the token's text.</param>
         /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken VerbatimIdentifier(SyntaxTriviaList leading, string text, string valueText, SyntaxTriviaList trailing)
-        {
-            if (text.StartsWith("@", StringComparison.Ordinal))
-            {
-                throw new ArgumentException("text should not start with an @ character.");
-            }
-
-            return new SyntaxToken(InternalSyntax.SyntaxFactory.Identifier(SyntaxKind.IdentifierName, leading.Node, "@" + text, valueText, trailing.Node));
-        }
+        public static SyntaxToken VerbatimIdentifier(SyntaxTriviaList leading, string text, string valueText, SyntaxTriviaList trailing) => text.StartsWith("@", StringComparison.Ordinal) ? throw new ArgumentException("text should not start with an @ character.")
+                : new SyntaxToken(InternalSyntax.SyntaxFactory.Identifier(SyntaxKind.IdentifierName, leading.Node, "@" + text, valueText, trailing.Node));
 
         /// <summary>
         /// Creates a token with kind IdentifierToken containing the specified text.
@@ -303,41 +216,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxToken Literal(string text, int value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
 
         /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 4-byte signed integer value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 4-byte signed integer value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, int value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from a 4-byte unsigned integer value.
-        /// </summary>
-        /// <param name="value">The 4-byte unsigned integer value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(uint value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.IncludeTypeSuffix), value);
-
-        /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding 4-byte unsigned integer value.
         /// </summary>
         /// <param name="text">The raw text of the literal.</param>
         /// <param name="value">The 4-byte unsigned integer value to be represented by the returned token.</param>
         public static SyntaxToken Literal(string text, uint value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 4-byte unsigned integer value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 4-byte unsigned integer value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, uint value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from an 8-byte signed integer value.
-        /// </summary>
-        /// <param name="value">The 8-byte signed integer value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(long value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.IncludeTypeSuffix), value);
 
         /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte signed integer value.
@@ -347,41 +230,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxToken Literal(string text, long value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
 
         /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte signed integer value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 8-byte signed integer value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, long value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from an 8-byte unsigned integer value.
-        /// </summary>
-        /// <param name="value">The 8-byte unsigned integer value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(ulong value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.IncludeTypeSuffix), value);
-
-        /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte unsigned integer value.
         /// </summary>
         /// <param name="text">The raw text of the literal.</param>
         /// <param name="value">The 8-byte unsigned integer value to be represented by the returned token.</param>
         public static SyntaxToken Literal(string text, ulong value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte unsigned integer value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 8-byte unsigned integer value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, ulong value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from a 4-byte floating point value.
-        /// </summary>
-        /// <param name="value">The 4-byte floating point value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(float value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.IncludeTypeSuffix), value);
 
         /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding 4-byte floating point value.
@@ -391,21 +244,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxToken Literal(string text, float value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
 
         /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 4-byte floating point value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 4-byte floating point value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, float value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from an 8-byte floating point value.
-        /// </summary>
-        /// <param name="value">The 8-byte floating point value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(double value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.None), value);
-
-        /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte floating point value.
         /// </summary>
         /// <param name="text">The raw text of the literal.</param>
@@ -413,35 +251,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxToken Literal(string text, double value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
 
         /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding 8-byte floating point value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The 8-byte floating point value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, double value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from a decimal value.
-        /// </summary>
-        /// <param name="value">The decimal value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(decimal value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.IncludeTypeSuffix), value);
-
-        /// <summary>
         /// Creates a token with kind NumericLiteralToken from the text and corresponding decimal value.
         /// </summary>
         /// <param name="text">The raw text of the literal.</param>
         /// <param name="value">The decimal value to be represented by the returned token.</param>
         public static SyntaxToken Literal(string text, decimal value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
-
-        /// <summary>
-        /// Creates a token with kind NumericLiteralToken from the text and corresponding decimal value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The decimal value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, decimal value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
 
         /// <summary>
         /// Creates a token with kind StringLiteralToken from a string value.
@@ -466,34 +280,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxToken Literal(SyntaxTriviaList leading, string text, string value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
 
         /// <summary>
-        /// Creates a token with kind CharacterLiteralToken from a character value.
-        /// </summary>
-        /// <param name="value">The character value to be represented by the returned token.</param>
-        public static SyntaxToken Literal(char value) => Literal(ObjectDisplay.FormatLiteral(value, ObjectDisplayOptions.UseQuotes | ObjectDisplayOptions.EscapeNonPrintableCharacters), value);
-
-        /// <summary>
         /// Creates a token with kind CharacterLiteralToken from the text and corresponding character value.
         /// </summary>
         /// <param name="text">The raw text of the literal, including quotes and escape sequences.</param>
         /// <param name="value">The character value to be represented by the returned token.</param>
         public static SyntaxToken Literal(string text, char value) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
-
-        /// <summary>
-        /// Creates a token with kind CharacterLiteralToken from the text and corresponding character value.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal, including quotes and escape sequences.</param>
-        /// <param name="value">The character value to be represented by the returned token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken Literal(SyntaxTriviaList leading, string text, char value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.Literal(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind BadToken.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the bad token.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken BadToken(SyntaxTriviaList leading, string text, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.BadToken(leading.Node, text, trailing.Node));
 
         /// <summary>
         /// Creates a token with kind XmlTextLiteralToken.
@@ -503,15 +294,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="value">The xml text value.</param>
         /// <param name="trailing">A list of trivia immediately following the token.</param>
         public static SyntaxToken XmlTextLiteral(SyntaxTriviaList leading, string text, string value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.XmlTextLiteral(leading.Node, text, value, trailing.Node));
-
-        /// <summary>
-        /// Creates a token with kind XmlEntityLiteralToken.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The xml entity value.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken XmlEntity(SyntaxTriviaList leading, string text, string value, SyntaxTriviaList trailing) => new SyntaxToken(InternalSyntax.SyntaxFactory.XmlEntity(leading.Node, text, value, trailing.Node));
 
         /// <summary>
         /// Creates an xml documentation comment that abstracts xml syntax creation.
@@ -525,55 +307,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 .WithTrailingTrivia(EndOfLine(""));
 
         /// <summary>
-        /// Creates a summary element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the summary element.</param>
-        public static XmlElementSyntax XmlSummaryElement(params XmlNodeSyntax[] content) => XmlSummaryElement(List(content));
-
-        /// <summary>
-        /// Creates a summary element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the summary element.</param>
-        public static XmlElementSyntax XmlSummaryElement(SyntaxList<XmlNodeSyntax> content) => XmlMultiLineElement(DocumentationCommentXmlNames.SummaryElementName, content);
-
-        /// <summary>
-        /// Creates a see element within an xml documentation comment.
-        /// </summary>
-        /// <param name="cref">A cref syntax node that points to the referenced item (e.g. a class, struct).</param>
-        public static XmlEmptyElementSyntax XmlSeeElement(CrefSyntax cref) => XmlEmptyElement(DocumentationCommentXmlNames.SeeElementName).AddAttributes(XmlCrefAttribute(cref));
-
-        /// <summary>
-        /// Creates a seealso element within an xml documentation comment.
-        /// </summary>
-        /// <param name="cref">A cref syntax node that points to the referenced item (e.g. a class, struct).</param>
-        public static XmlEmptyElementSyntax XmlSeeAlsoElement(CrefSyntax cref) => XmlEmptyElement(DocumentationCommentXmlNames.SeeAlsoElementName).AddAttributes(XmlCrefAttribute(cref));
-
-        /// <summary>
-        /// Creates a seealso element within an xml documentation comment.
-        /// </summary>
-        /// <param name="linkAddress">The uri of the referenced item.</param>
-        /// <param name="linkText">A list of xml node syntax that will be used as the link text for the referenced item.</param>
-        public static XmlElementSyntax XmlSeeAlsoElement(Uri linkAddress, SyntaxList<XmlNodeSyntax> linkText)
-        {
-            XmlElementSyntax element = XmlElement(DocumentationCommentXmlNames.SeeAlsoElementName, linkText);
-            return element.WithStartTag(element.StartTag.AddAttributes(XmlTextAttribute(DocumentationCommentXmlNames.HrefAttributeName, linkAddress.ToString())));
-        }
-
-        /// <summary>
-        /// Creates a threadsafety element within an xml documentation comment.
-        /// </summary>
-        public static XmlEmptyElementSyntax XmlThreadSafetyElement() => XmlThreadSafetyElement(true, false);
-
-        /// <summary>
-        /// Creates a threadsafety element within an xml documentation comment.
-        /// </summary>
-        /// <param name="isStatic">Indicates whether static member of this type are safe for multi-threaded operations.</param>
-        /// <param name="isInstance">Indicates whether instance members of this type are safe for multi-threaded operations.</param>
-        public static XmlEmptyElementSyntax XmlThreadSafetyElement(bool isStatic, bool isInstance) => XmlEmptyElement(DocumentationCommentXmlNames.ThreadSafetyElementName).AddAttributes(
-                XmlTextAttribute(DocumentationCommentXmlNames.StaticAttributeName, isStatic.ToString().ToLowerInvariant()),
-                XmlTextAttribute(DocumentationCommentXmlNames.InstanceAttributeName, isInstance.ToString().ToLowerInvariant()));
-
-        /// <summary>
         /// Creates a syntax node for a name attribute in a xml element within a xml documentation comment.
         /// </summary>
         /// <param name="parameterName">The value of the name attribute.</param>
@@ -583,11 +316,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 parameterName,
                 Token(SyntaxKind.DoubleQuoteToken))
                 .WithLeadingTrivia(Whitespace(" "));
-
-        /// <summary>
-        /// Creates a syntax node for a preliminary element within a xml documentation comment.
-        /// </summary>
-        public static XmlEmptyElementSyntax XmlPreliminaryElement() => XmlEmptyElement(DocumentationCommentXmlNames.PreliminaryElementName);
 
         /// <summary>
         /// Creates a syntax node for a cref attribute within a xml documentation comment.
@@ -603,113 +331,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static XmlCrefAttributeSyntax XmlCrefAttribute(CrefSyntax cref, SyntaxKind quoteKind)
         {
             cref = cref.ReplaceTokens(cref.DescendantTokens(), XmlReplaceBracketTokens);
-            return XmlCrefAttribute(
-                XmlName(DocumentationCommentXmlNames.CrefAttributeName),
-                Token(quoteKind),
-                cref,
-                Token(quoteKind))
-                .WithLeadingTrivia(Whitespace(" "));
+            return XmlCrefAttribute(XmlName(DocumentationCommentXmlNames.CrefAttributeName),
+                Token(quoteKind),  cref,
+                Token(quoteKind)).WithLeadingTrivia(Whitespace(" "));
         }
-
-        /// <summary>
-        /// Creates a remarks element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the remarks element.</param>
-        public static XmlElementSyntax XmlRemarksElement(params XmlNodeSyntax[] content) => XmlRemarksElement(List(content));
-
-        /// <summary>
-        /// Creates a remarks element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the remarks element.</param>
-        public static XmlElementSyntax XmlRemarksElement(SyntaxList<XmlNodeSyntax> content) => XmlMultiLineElement(DocumentationCommentXmlNames.RemarksElementName, content);
-
-        /// <summary>
-        /// Creates a returns element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the returns element.</param>
-        public static XmlElementSyntax XmlReturnsElement(params XmlNodeSyntax[] content) => XmlReturnsElement(List(content));
-
-        /// <summary>
-        /// Creates a returns element within an xml documentation comment.
-        /// </summary>
-        /// <param name="content">A list of xml node syntax that will be the content within the returns element.</param>
-        public static XmlElementSyntax XmlReturnsElement(SyntaxList<XmlNodeSyntax> content) => XmlMultiLineElement(DocumentationCommentXmlNames.ReturnsElementName, content);
-
-        /// <summary>
-        /// Creates the syntax representation of an xml value element (e.g. for xml documentation comments).
-        /// </summary>
-        /// <param name="content">A list of xml syntax nodes that represents the content of the value element.</param>
-        public static XmlElementSyntax XmlValueElement(params XmlNodeSyntax[] content) => XmlValueElement(List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml value element (e.g. for xml documentation comments).
-        /// </summary>
-        /// <param name="content">A list of xml syntax nodes that represents the content of the value element.</param>
-        public static XmlElementSyntax XmlValueElement(SyntaxList<XmlNodeSyntax> content) => XmlMultiLineElement(DocumentationCommentXmlNames.ValueElementName, content);
-
-        /// <summary>
-        /// Creates the syntax representation of an exception element within xml documentation comments.
-        /// </summary>
-        /// <param name="cref">Syntax representation of the reference to the exception type.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the exception element.</param>
-        public static XmlElementSyntax XmlExceptionElement(CrefSyntax cref, params XmlNodeSyntax[] content) => XmlExceptionElement(cref, List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of an exception element within xml documentation comments.
-        /// </summary>
-        /// <param name="cref">Syntax representation of the reference to the exception type.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the exception element.</param>
-        public static XmlElementSyntax XmlExceptionElement(CrefSyntax cref, SyntaxList<XmlNodeSyntax> content)
-        {
-            XmlElementSyntax element = XmlElement(DocumentationCommentXmlNames.ExceptionElementName, content);
-            return element.WithStartTag(element.StartTag.AddAttributes(XmlCrefAttribute(cref)));
-        }
-
-        /// <summary>
-        /// Creates the syntax representation of a permission element within xml documentation comments.
-        /// </summary>
-        /// <param name="cref">Syntax representation of the reference to the permission type.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the permission element.</param>
-        public static XmlElementSyntax XmlPermissionElement(CrefSyntax cref, params XmlNodeSyntax[] content) => XmlPermissionElement(cref, List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of a permission element within xml documentation comments.
-        /// </summary>
-        /// <param name="cref">Syntax representation of the reference to the permission type.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the permission element.</param>
-        public static XmlElementSyntax XmlPermissionElement(CrefSyntax cref, SyntaxList<XmlNodeSyntax> content)
-        {
-            XmlElementSyntax element = XmlElement(DocumentationCommentXmlNames.PermissionElementName, content);
-            return element.WithStartTag(element.StartTag.AddAttributes(XmlCrefAttribute(cref)));
-        }
-
-        /// <summary>
-        /// Creates the syntax representation of an example element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the example element.</param>
-        public static XmlElementSyntax XmlExampleElement(params XmlNodeSyntax[] content) => XmlExampleElement(List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of an example element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the example element.</param>
-        public static XmlElementSyntax XmlExampleElement(SyntaxList<XmlNodeSyntax> content)
-        {
-            XmlElementSyntax element = XmlElement(DocumentationCommentXmlNames.ExampleElementName, content);
-            return element.WithStartTag(element.StartTag);
-        }
-
-        /// <summary>
-        /// Creates the syntax representation of a para element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the para element.</param>
-        public static XmlElementSyntax XmlParaElement(params XmlNodeSyntax[] content) => XmlParaElement(List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of a para element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the para element.</param>
-        public static XmlElementSyntax XmlParaElement(SyntaxList<XmlNodeSyntax> content) => XmlElement(DocumentationCommentXmlNames.ParaElementName, content);
 
         /// <summary>
         /// Creates the syntax representation of a param element within xml documentation comments (e.g. for
@@ -734,45 +359,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         /// <summary>
-        /// Creates the syntax representation of a paramref element within xml documentation comments (e.g. for
-        /// referencing particular parameters of a method).
-        /// </summary>
-        /// <param name="parameterName">The name of the referenced parameter.</param>
-        public static XmlEmptyElementSyntax XmlParamRefElement(string parameterName) => XmlEmptyElement(DocumentationCommentXmlNames.ParameterReferenceElementName).AddAttributes(XmlNameAttribute(parameterName));
-
-        /// <summary>
-        /// Creates the syntax representation of a see element within xml documentation comments,
-        /// that points to the 'null' language keyword.
-        /// </summary>
-        public static XmlEmptyElementSyntax XmlNullKeywordElement() => XmlKeywordElement("null");
-
-        /// <summary>
-        /// Creates the syntax representation of a see element within xml documentation comments,
-        /// that points to a language keyword.
-        /// </summary>
-        /// <param name="keyword">The language keyword to which the see element points to.</param>
-        private static XmlEmptyElementSyntax XmlKeywordElement(string keyword) => XmlEmptyElement(DocumentationCommentXmlNames.SeeElementName).AddAttributes(
-                XmlTextAttribute(DocumentationCommentXmlNames.LangwordAttributeName, keyword));
-
-        /// <summary>
-        /// Creates the syntax representation of a placeholder element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the placeholder element.</param>
-        public static XmlElementSyntax XmlPlaceholderElement(params XmlNodeSyntax[] content) => XmlPlaceholderElement(List(content));
-
-        /// <summary>
-        /// Creates the syntax representation of a placeholder element within xml documentation comments.
-        /// </summary>
-        /// <param name="content">A list of syntax nodes that represents the content of the placeholder element.</param>
-        public static XmlElementSyntax XmlPlaceholderElement(SyntaxList<XmlNodeSyntax> content) => XmlElement(DocumentationCommentXmlNames.PlaceholderElementName, content);
-
-        /// <summary>
-        /// Creates the syntax representation of a named empty xml element within xml documentation comments.
-        /// </summary>
-        /// <param name="localName">The name of the empty xml element.</param>
-        public static XmlEmptyElementSyntax XmlEmptyElement(string localName) => XmlEmptyElement(XmlName(localName));
-
-        /// <summary>
         /// Creates the syntax representation of a named xml element within xml documentation comments.
         /// </summary>
         /// <param name="localName">The name of the empty xml element.</param>
@@ -784,86 +370,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         /// <param name="name">The name of the empty xml element.</param>
         /// <param name="content">A list of syntax nodes that represents the content of the xml element.</param>
-        public static XmlElementSyntax XmlElement(XmlNameSyntax name, SyntaxList<XmlNodeSyntax> content) => XmlElement(
-                XmlElementStartTag(name),
-                content,
-                XmlElementEndTag(name));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml text attribute.
-        /// </summary>
-        /// <param name="name">The name of the xml text attribute.</param>
-        /// <param name="value">The value of the xml text attribute.</param>
-        public static XmlTextAttributeSyntax XmlTextAttribute(string name, string value) => XmlTextAttribute(name, XmlTextLiteral(value));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml text attribute.
-        /// </summary>
-        /// <param name="name">The name of the xml text attribute.</param>
-        /// <param name="textTokens">A list of tokens used for the value of the xml text attribute.</param>
-        public static XmlTextAttributeSyntax XmlTextAttribute(string name, params SyntaxToken[] textTokens) => XmlTextAttribute(XmlName(name), SyntaxKind.DoubleQuoteToken, TokenList(textTokens));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml text attribute.
-        /// </summary>
-        /// <param name="name">The name of the xml text attribute.</param>
-        /// <param name="quoteKind">The kind of the quote token to be used to quote the value (e.g. " or ').</param>
-        /// <param name="textTokens">A list of tokens used for the value of the xml text attribute.</param>
-        public static XmlTextAttributeSyntax XmlTextAttribute(string name, SyntaxKind quoteKind, SyntaxTokenList textTokens) => XmlTextAttribute(XmlName(name), quoteKind, textTokens);
-
-        /// <summary>
-        /// Creates the syntax representation of an xml text attribute.
-        /// </summary>
-        /// <param name="name">The name of the xml text attribute.</param>
-        /// <param name="quoteKind">The kind of the quote token to be used to quote the value (e.g. " or ').</param>
-        /// <param name="textTokens">A list of tokens used for the value of the xml text attribute.</param>
-        public static XmlTextAttributeSyntax XmlTextAttribute(XmlNameSyntax name, SyntaxKind quoteKind, SyntaxTokenList textTokens) => XmlTextAttribute(name, Token(quoteKind), textTokens, Token(quoteKind))
-                .WithLeadingTrivia(Whitespace(" "));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml element that spans multiple text lines.
-        /// </summary>
-        /// <param name="localName">The name of the xml element.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the xml multi line element.</param>
-        public static XmlElementSyntax XmlMultiLineElement(string localName, SyntaxList<XmlNodeSyntax> content) => XmlMultiLineElement(XmlName(localName), content);
-
-        /// <summary>
-        /// Creates the syntax representation of an xml element that spans multiple text lines.
-        /// </summary>
-        /// <param name="name">The name of the xml element.</param>
-        /// <param name="content">A list of syntax nodes that represents the content of the xml multi line element.</param>
-        public static XmlElementSyntax XmlMultiLineElement(XmlNameSyntax name, SyntaxList<XmlNodeSyntax> content) => XmlElement(
-                XmlElementStartTag(name),
-                content,
-                XmlElementEndTag(name));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml text that contains a newline token with a documentation comment 
-        /// exterior trivia at the end (continued documentation comment).
-        /// </summary>
-        /// <param name="text">The raw text within the new line.</param>
-        public static XmlTextSyntax XmlNewLine(string text) => XmlText(XmlTextNewLine(text));
-
-        /// <summary>
-        /// Creates the syntax representation of an xml newline token with a documentation comment exterior trivia at 
-        /// the end (continued documentation comment).
-        /// </summary>
-        /// <param name="text">The raw text within the new line.</param>
-        public static SyntaxToken XmlTextNewLine(string text) => XmlTextNewLine(text, true);
-
-        /// <summary>
-        /// Creates a token with kind XmlTextLiteralNewLineToken.
-        /// </summary>
-        /// <param name="leading">A list of trivia immediately preceding the token.</param>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The xml text new line value.</param>
-        /// <param name="trailing">A list of trivia immediately following the token.</param>
-        public static SyntaxToken XmlTextNewLine(SyntaxTriviaList leading, string text, string value, SyntaxTriviaList trailing) => new SyntaxToken(
-                InternalSyntax.SyntaxFactory.XmlTextNewLine(
-                    leading.Node,
-                    text,
-                    value,
-                    trailing.Node));
+        public static XmlElementSyntax XmlElement(XmlNameSyntax name, SyntaxList<XmlNodeSyntax> content) => XmlElement(XmlElementStartTag(name), content, XmlElementEndTag(name));
 
         /// <summary>
         /// Creates the syntax representation of an xml newline token for xml documentation comments.
@@ -890,12 +397,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>
         /// Generates the syntax representation of a xml text node (e.g. for xml documentation comments).
         /// </summary>
-        /// <param name="value">The string literal used as the text of the xml text node.</param>
-        public static XmlTextSyntax XmlText(string value) => XmlText(XmlTextLiteral(value));
-
-        /// <summary>
-        /// Generates the syntax representation of a xml text node (e.g. for xml documentation comments).
-        /// </summary>
         /// <param name="textTokens">A list of text tokens used as the text of the xml text node.</param>
         public static XmlTextSyntax XmlText(params SyntaxToken[] textTokens) => XmlText(TokenList(textTokens));
 
@@ -903,26 +404,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Generates the syntax representation of an xml text literal.
         /// </summary>
         /// <param name="value">The text used within the xml text literal.</param>
-        public static SyntaxToken XmlTextLiteral(string value)
-        {
-            // TODO: [RobinSedlaczek] It is no compiler hot path here I think. But the contribution guide
-            //       states to avoid LINQ (https://github.com/dotnet/roslyn/wiki/Contributing-Code). With
-            //       XText we have a reference to System.Xml.Linq. Isn't this rule valid here? 
-            string encoded = new XText(value).ToString();
-
-            return XmlTextLiteral(
-                TriviaList(),
-                encoded,
-                value,
-                TriviaList());
-        }
-
-        /// <summary>
-        /// Generates the syntax representation of an xml text literal.
-        /// </summary>
-        /// <param name="text">The raw text of the literal.</param>
-        /// <param name="value">The text used within the xml text literal.</param>
-        public static SyntaxToken XmlTextLiteral(string text, string value) => new SyntaxToken(InternalSyntax.SyntaxFactory.XmlTextLiteral(ElasticMarker.UnderlyingNode, text, value, ElasticMarker.UnderlyingNode));
+        public static SyntaxToken XmlTextLiteral(string value) => XmlTextLiteral(default, new XText(value).ToString(), value, default);
+        // TODO: [RobinSedlaczek] It is no compiler hot path here I think. But the contribution guide
+        //       states to avoid LINQ (https://github.com/dotnet/roslyn/wiki/Contributing-Code). With
+        //       XText we have a reference to System.Xml.Linq. Isn't this rule valid here?
 
         /// <summary>
         /// Helper method that replaces less-than and greater-than characters with brackets. 
@@ -935,10 +420,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             if (rewrittenToken.IsKind(SyntaxKind.LessThanToken) && string.Equals("<", rewrittenToken.Text, StringComparison.Ordinal))
                 return Token(rewrittenToken.LeadingTrivia, SyntaxKind.LessThanToken, "{", rewrittenToken.ValueText, rewrittenToken.TrailingTrivia);
 
-            if (rewrittenToken.IsKind(SyntaxKind.GreaterThanToken) && string.Equals(">", rewrittenToken.Text, StringComparison.Ordinal))
-                return Token(rewrittenToken.LeadingTrivia, SyntaxKind.GreaterThanToken, "}", rewrittenToken.ValueText, rewrittenToken.TrailingTrivia);
-
-            return rewrittenToken;
+            return rewrittenToken.IsKind(SyntaxKind.GreaterThanToken) && string.Equals(">", rewrittenToken.Text, StringComparison.Ordinal)
+                ? Token(rewrittenToken.LeadingTrivia, SyntaxKind.GreaterThanToken, "}", rewrittenToken.ValueText, rewrittenToken.TrailingTrivia)
+                : rewrittenToken;
         }
 
         /// <summary>
@@ -946,12 +430,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         /// <param name="text">The raw text of the literal.</param>
         public static SyntaxTrivia DocumentationCommentExterior(string text) => InternalSyntax.SyntaxFactory.DocumentationCommentExteriorTrivia(text);
-
-        /// <summary>
-        /// Creates an empty list of syntax nodes.
-        /// </summary>
-        /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
-        public static SyntaxList<TNode> List<TNode>() where TNode : SyntaxNode => default;
 
         /// <summary>
         /// Creates a singleton list of syntax nodes.
@@ -967,11 +445,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
         /// <param name="nodes">A sequence of element nodes.</param>
         public static SyntaxList<TNode> List<TNode>(IEnumerable<TNode> nodes) where TNode : SyntaxNode => new SyntaxList<TNode>(nodes);
-
-        /// <summary>
-        /// Creates an empty list of tokens.
-        /// </summary>
-        public static SyntaxTokenList TokenList() => default;
 
         /// <summary>
         /// Creates a singleton list of tokens.
@@ -998,11 +471,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static SyntaxTrivia Trivia(StructuredTriviaSyntax node) => new SyntaxTrivia(default, node.Green, position: 0, index: 0);
 
         /// <summary>
-        /// Creates an empty list of trivia.
-        /// </summary>
-        public static SyntaxTriviaList TriviaList() => default;
-
-        /// <summary>
         /// Creates a singleton list of trivia.
         /// </summary>
         /// <param name="trivia">A single trivia.</param>
@@ -1012,21 +480,13 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Creates a list of trivia.
         /// </summary>
         /// <param name="trivias">An array of trivia.</param>
-        public static SyntaxTriviaList TriviaList(params SyntaxTrivia[] trivias)
-            => new SyntaxTriviaList(trivias);
+        public static SyntaxTriviaList TriviaList(params SyntaxTrivia[] trivias) => new SyntaxTriviaList(trivias);
 
         /// <summary>
         /// Creates a list of trivia.
         /// </summary>
         /// <param name="trivias">A sequence of trivia.</param>
-        public static SyntaxTriviaList TriviaList(IEnumerable<SyntaxTrivia> trivias)
-            => new SyntaxTriviaList(trivias);
-
-        /// <summary>
-        /// Creates an empty separated list.
-        /// </summary>
-        /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
-        public static SeparatedSyntaxList<TNode> SeparatedList<TNode>() where TNode : SyntaxNode => default;
+        public static SyntaxTriviaList TriviaList(IEnumerable<SyntaxTrivia> trivias) => new SyntaxTriviaList(trivias);
 
         /// <summary>
         /// Creates a singleton separated list.
@@ -1054,35 +514,34 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return default;
             }
 
-            using (var enumerator = nodes.GetEnumerator())
+            using var enumerator = nodes.GetEnumerator();
+
+            if (!enumerator.MoveNext())
             {
-                if (!enumerator.MoveNext())
-                {
-                    return default;
-                }
-
-                var firstNode = enumerator.Current;
-
-                if (!enumerator.MoveNext())
-                {
-                    return SingletonSeparatedList<TNode>(firstNode);
-                }
-
-                var builder = new SeparatedSyntaxListBuilder<TNode>(collection != null ? collection.Count : 3);
-
-                builder.Add(firstNode);
-
-                var commaToken = Token(SyntaxKind.CommaToken);
-
-                do
-                {
-                    builder.AddSeparator(commaToken);
-                    builder.Add(enumerator.Current);
-                }
-                while (enumerator.MoveNext());
-
-                return builder.ToList();
+                return default;
             }
+
+            var firstNode = enumerator.Current;
+
+            if (!enumerator.MoveNext())
+            {
+                return SingletonSeparatedList(firstNode);
+            }
+
+            var builder = new SeparatedSyntaxListBuilder<TNode>(collection != null ? collection.Count : 3);
+
+            builder.Add(firstNode);
+
+            var commaToken = Token(SyntaxKind.CommaToken);
+
+            do
+            {
+                builder.AddSeparator(commaToken);
+                builder.Add(enumerator.Current);
+            }
+            while (enumerator.MoveNext());
+
+            return builder.ToList();
         }
 
         /// <summary>
@@ -1101,14 +560,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 IEnumerator<TNode> enumerator = nodes.GetEnumerator();
                 SeparatedSyntaxListBuilder<TNode> builder = SeparatedSyntaxListBuilder<TNode>.Create();
+
                 if (separators != null)
                 {
                     foreach (SyntaxToken token in separators)
                     {
                         if (!enumerator.MoveNext())
-                        {
                             throw new ArgumentException($"{nameof(nodes)} must not be empty.", nameof(nodes));
-                        }
 
                         builder.Add(enumerator.Current);
                         builder.AddSeparator(token);
@@ -1127,12 +585,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return builder.ToList();
             }
 
-            if (separators != null)
-            {
-                throw new ArgumentException($"When {nameof(nodes)} is null, {nameof(separators)} must also be null.", nameof(separators));
-            }
-
-            return default;
+            return separators is null ? default : throw new ArgumentException($"When {nameof(nodes)} is null, {nameof(separators)} must also be null.", nameof(separators));
         }
 
         /// <summary>
@@ -1149,29 +602,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <typeparam name="TNode">The specific type of the element nodes.</typeparam>
         /// <param name="nodesAndTokens">The list of nodes and tokens.</param>
         public static SeparatedSyntaxList<TNode> SeparatedList<TNode>(SyntaxNodeOrTokenList nodesAndTokens) where TNode : SyntaxNode
-        {
-            if (!HasSeparatedNodeTokenPattern(nodesAndTokens))
-            {
-                throw new ArgumentException(CodeAnalysisResources.NodeOrTokenOutOfSequence);
-            }
-
-            if (!NodesAreCorrectType<TNode>(nodesAndTokens))
-            {
-                throw new ArgumentException(CodeAnalysisResources.UnexpectedTypeOfNodeInList);
-            }
-
-            return new SeparatedSyntaxList<TNode>(nodesAndTokens);
-        }
+            => !HasSeparatedNodeTokenPattern(nodesAndTokens) ? throw new ArgumentException(CodeAnalysisResources.NodeOrTokenOutOfSequence)
+             : !NodesAreCorrectType<TNode>(nodesAndTokens) ? throw new ArgumentException(CodeAnalysisResources.UnexpectedTypeOfNodeInList)
+             : new SeparatedSyntaxList<TNode>(nodesAndTokens);
 
         private static bool NodesAreCorrectType<TNode>(SyntaxNodeOrTokenList list)
         {
             for (int i = 0, n = list.Count; i < n; i++)
             {
                 var element = list[i];
-                if (element.IsNode && !(element.AsNode() is TNode))
-                {
+                if (element.IsNode && element.AsNode() is not TNode)
                     return false;
-                }
             }
 
             return true;
@@ -1183,30 +624,17 @@ namespace Microsoft.CodeAnalysis.CSharp
             {
                 var element = list[i];
                 if (element.IsToken == ((i & 1) == 0))
-                {
                     return false;
-                }
             }
 
             return true;
         }
 
         /// <summary>
-        /// Creates an empty <see cref="SyntaxNodeOrTokenList"/>.
-        /// </summary>
-        public static SyntaxNodeOrTokenList NodeOrTokenList() => default;
-
-        /// <summary>
         /// Create a <see cref="SyntaxNodeOrTokenList"/> from a sequence of <see cref="SyntaxNodeOrToken"/>.
         /// </summary>
         /// <param name="nodesAndTokens">The sequence of nodes and tokens</param>
         public static SyntaxNodeOrTokenList NodeOrTokenList(IEnumerable<SyntaxNodeOrToken> nodesAndTokens) => new SyntaxNodeOrTokenList(nodesAndTokens);
-
-        /// <summary>
-        /// Create a <see cref="SyntaxNodeOrTokenList"/> from one or more <see cref="SyntaxNodeOrToken"/>.
-        /// </summary>
-        /// <param name="nodesAndTokens">The nodes and tokens</param>
-        public static SyntaxNodeOrTokenList NodeOrTokenList(params SyntaxNodeOrToken[] nodesAndTokens) => new SyntaxNodeOrTokenList(nodesAndTokens);
 
         /// <summary>
         /// Creates an IdentifierNameSyntax node.
@@ -1216,34 +644,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         // direct access to parsing for common grammar areas
 
-        /// <summary>
-        /// Create a new syntax tree from a syntax node.
-        /// </summary>
-        public static SyntaxTree SyntaxTree(SyntaxNode root, ParseOptions? options = null, string path = "", Encoding? encoding = null)
-            => CSharpSyntaxTree.Create((CSharpSyntaxNode)root, (CSharpParseOptions?)options ?? CSharpParseOptions.Default, path, encoding, SourceHashAlgorithm.Sha1);
-
-#pragma warning disable RS0026 // Do not add multiple public overloads with optional parameters
-#pragma warning disable RS0027 // Public API with optional parameter(s) should have the most parameters amongst its public overloads.
-#pragma warning disable RS0030 // Do not used banned APIs
-#pragma warning disable CS0618 // Type or member is obsolete
-        /// <inheritdoc cref="CSharpSyntaxTree.ParseText(string, CSharpParseOptions?, string, Encoding?, CancellationToken)"/>
-        public static SyntaxTree ParseSyntaxTree(
-            string text,
-            ParseOptions? options = null,
-            string path = "",
-            Encoding? encoding = null,
-            CancellationToken cancellationToken = default) => CSharpSyntaxTree.ParseText(SourceText.From(text, encoding, SourceHashAlgorithm.Sha1), (CSharpParseOptions?)options, path, diagnosticOptions: null, isGeneratedCode: null, cancellationToken);
-#pragma warning restore
-
         /// <inheritdoc cref="CSharpSyntaxTree.ParseText(SourceText, CSharpParseOptions?, string, CancellationToken)"/>
-        public static SyntaxTree ParseSyntaxTree(
-            SourceText text,
-            ParseOptions? options = null,
-            string path = "",
-            CancellationToken cancellationToken = default) => CSharpSyntaxTree.ParseText(text, (CSharpParseOptions?)options, path, cancellationToken);
-
-#pragma warning restore RS0027 // Public API with optional parameter(s) should have the most parameters amongst its public overloads.
-#pragma warning restore RS0026 // Do not add multiple public overloads with optional parameters
+        public static SyntaxTree ParseSyntaxTree(SourceText text, ParseOptions? options = null, string path = "", CancellationToken cancellationToken = default)
+            => CSharpSyntaxTree.ParseText(text, (CSharpParseOptions?)options, path, cancellationToken);
 
         /// <summary>
         /// Parse a list of trivia rules for leading trivia.
@@ -1255,10 +658,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         internal static SyntaxTriviaList ParseLeadingTrivia(string text, CSharpParseOptions options, int offset = 0)
         {
-            using (var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), options))
-            {
-                return lexer.LexSyntaxLeadingTrivia();
-            }
+            using var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), options);
+            return lexer.LexSyntaxLeadingTrivia();
         }
 
         /// <summary>
@@ -1266,10 +667,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static SyntaxTriviaList ParseTrailingTrivia(string text, int offset = 0)
         {
-            using (var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), CSharpParseOptions.Default))
-            {
-                return lexer.LexSyntaxTrailingTrivia();
-            }
+            using var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), CSharpParseOptions.Default);
+            return lexer.LexSyntaxTrailingTrivia();
         }
 
         // TODO: If this becomes a real API, we'll need to add an offset parameter to
@@ -1292,7 +691,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(structure.Content.Count == 2);
             XmlEmptyElementSyntax elementSyntax = (XmlEmptyElementSyntax)structure.Content[1];
             Debug.Assert(elementSyntax.Attributes.Count == 1);
-            XmlAttributeSyntax attributeSyntax = (XmlAttributeSyntax)elementSyntax.Attributes[0];
+            XmlAttributeSyntax attributeSyntax = elementSyntax.Attributes[0];
             return attributeSyntax.Kind() == SyntaxKind.XmlCrefAttribute ? ((XmlCrefAttributeSyntax)attributeSyntax).Cref : null;
         }
 
@@ -1303,10 +702,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="offset">Optional offset into text.</param>
         public static SyntaxToken ParseToken(string text, int offset = 0)
         {
-            using (var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), CSharpParseOptions.Default))
-            {
-                return new SyntaxToken(lexer.Lex(InternalSyntax.LexerMode.Syntax));
-            }
+            using var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), CSharpParseOptions.Default);
+            return new SyntaxToken(lexer.Lex(InternalSyntax.LexerMode.Syntax));
         }
 
         /// <summary>
@@ -1321,44 +718,30 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="options">Parse options.</param>
         public static IEnumerable<SyntaxToken> ParseTokens(string text, int offset = 0, int initialTokenPosition = 0, CSharpParseOptions? options = null)
         {
-            using (var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), options ?? CSharpParseOptions.Default))
+            using var lexer = new InternalSyntax.Lexer(MakeSourceText(text, offset), options ?? CSharpParseOptions.Default);
+            var position = initialTokenPosition;
+            while (true)
             {
-                var position = initialTokenPosition;
-                while (true)
-                {
-                    var token = lexer.Lex(InternalSyntax.LexerMode.Syntax);
-                    yield return new SyntaxToken(parent: null, token: token, position: position, index: 0);
+                var token = lexer.Lex(InternalSyntax.LexerMode.Syntax);
+                yield return new SyntaxToken(parent: null, token: token, position: position, index: 0);
 
-                    position += token.FullWidth;
+                position += token.FullWidth;
 
-                    if (token.Kind == SyntaxKind.EndOfFileToken)
-                    {
-                        break;
-                    }
-                }
+                if (token.Kind == SyntaxKind.EndOfFileToken)
+                    break;
             }
         }
-
-        /// <summary>
-        /// Creates a token parser that can be used to parse tokens from a given source text.
-        /// </summary>
-        /// <param name="sourceText">The source to parse tokens from.</param>
-        /// <param name="options">Parse options for the source.</param>
-        [Experimental(RoslynExperiments.SyntaxTokenParser, UrlFormat = RoslynExperiments.SyntaxTokenParser_Url)]
-        public static SyntaxTokenParser CreateTokenParser(SourceText sourceText, CSharpParseOptions? options = null) => new SyntaxTokenParser(new InternalSyntax.Lexer(sourceText, options ?? CSharpParseOptions.Default));
 
         /// <summary>
         /// Parse a NameSyntax node using the grammar rule for names.
         /// </summary>
         public static NameSyntax ParseName(string text, int offset = 0, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseName();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (NameSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseName();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (NameSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1373,13 +756,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static TypeSyntax ParseTypeName(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseTypeName();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (TypeSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseTypeName();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (TypeSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1392,13 +773,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
         public static ExpressionSyntax ParseExpression(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseExpression();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (ExpressionSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseExpression();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (ExpressionSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1411,13 +790,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
         public static StatementSyntax ParseStatement(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseStatement();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (StatementSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseStatement();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (StatementSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1431,17 +808,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="consumeFullText">True if extra tokens in the input following a declaration should be treated as an error</param>
         public static MemberDeclarationSyntax? ParseMemberDeclaration(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseMemberDeclaration();
-                if (node == null)
-                {
-                    return null;
-                }
-
-                return (MemberDeclarationSyntax)(consumeFullText ? parser.ConsumeUnexpectedTokens(node) : node).CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseMemberDeclaration();
+            return node == null ? null : (MemberDeclarationSyntax)(consumeFullText ? parser.ConsumeUnexpectedTokens(node) : node).CreateRed();
         }
 
         /// <summary>
@@ -1456,12 +826,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             // note that we do not need a "consumeFullText" parameter, because parsing a compilation unit always must
             // consume input until the end-of-file
-            using (var lexer = MakeLexer(text, offset, options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseCompilationUnit();
-                return (CompilationUnitSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseCompilationUnit();
+            return (CompilationUnitSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1474,13 +842,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
         public static ParameterListSyntax ParseParameterList(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseParameterList<InternalSyntax.ParameterListSyntax>();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (ParameterListSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseParameterList<InternalSyntax.ParameterListSyntax>();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (ParameterListSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1493,13 +859,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <param name="consumeFullText">True if extra tokens in the input should be treated as an error</param>
         public static BracketedArgumentListSyntax ParseBracketedArgumentList(string text, int offset = 0, ParseOptions? options = null, bool consumeFullText = true)
         {
-            using (var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options))
-            using (var parser = MakeParser(lexer))
-            {
-                var node = parser.ParseBracketedArgumentList();
-                if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
-                return (BracketedArgumentListSyntax)node.CreateRed();
-            }
+            using var lexer = MakeLexer(text, offset, (CSharpParseOptions?)options);
+            using var parser = MakeParser(lexer);
+            var node = parser.ParseBracketedArgumentList();
+            if (consumeFullText) node = parser.ConsumeUnexpectedTokens(node);
+            return (BracketedArgumentListSyntax)node.CreateRed();
         }
 
         /// <summary>
@@ -1532,47 +896,25 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private static SourceText MakeSourceText(string text, int offset) => SourceText.From(text, Encoding.UTF8).GetSubText(offset);
 
-        private static InternalSyntax.Lexer MakeLexer(string text, int offset, CSharpParseOptions? options = null) => new InternalSyntax.Lexer(
-                text: MakeSourceText(text, offset),
-                options: options ?? CSharpParseOptions.Default);
+        private static InternalSyntax.Lexer MakeLexer(string text, int offset, CSharpParseOptions? options = null)
+            => new InternalSyntax.Lexer(MakeSourceText(text, offset), options ?? CSharpParseOptions.Default);
 
         private static InternalSyntax.LanguageParser MakeParser(InternalSyntax.Lexer lexer) => new InternalSyntax.LanguageParser(lexer, oldTree: null, changes: null);
 
-        /// <summary>
-        /// Determines if two trees are the same, disregarding trivia differences.
-        /// </summary>
-        /// <param name="oldTree">The original tree.</param>
-        /// <param name="newTree">The new tree.</param>
-        /// <param name="topLevel"> 
-        /// If true then the trees are equivalent if the contained nodes and tokens declaring
+        /// <summary> Determines if two trees are the same, disregarding trivia differences. </summary>
+        /// <param name="oldTree">The original tree. </param> <param name="newTree">The new tree. </param>
+        /// <param name="topLevel"> If true then the trees are equivalent if the contained nodes and tokens declaring
         /// metadata visible symbolic information are equivalent, ignoring any differences of nodes inside method bodies
-        /// or initializer expressions, otherwise all nodes and tokens must be equivalent. 
-        /// </param>
+        /// or initializer expressions, otherwise all nodes and tokens must be equivalent.  </param>
         public static bool AreEquivalent(SyntaxTree? oldTree, SyntaxTree? newTree, bool topLevel)
-        {
-            if (oldTree == null && newTree == null)
-            {
-                return true;
-            }
+            => (oldTree == null && newTree == null) || oldTree != null && newTree != null &&
+            SyntaxEquivalence.AreEquivalent(oldTree, newTree, ignoreChildNode: null, topLevel: topLevel);
 
-            if (oldTree == null || newTree == null)
-            {
-                return false;
-            }
-
-            return SyntaxEquivalence.AreEquivalent(oldTree, newTree, ignoreChildNode: null, topLevel: topLevel);
-        }
-
-        /// <summary>
-        /// Determines if two syntax nodes are the same, disregarding trivia differences.
-        /// </summary>
-        /// <param name="oldNode">The old node.</param>
-        /// <param name="newNode">The new node.</param>
-        /// <param name="topLevel"> 
-        /// If true then the nodes are equivalent if the contained nodes and tokens declaring
-        /// metadata visible symbolic information are equivalent, ignoring any differences of nodes inside method bodies
-        /// or initializer expressions, otherwise all nodes and tokens must be equivalent. 
-        /// </param>
+        /// <summary> Determines if two syntax nodes are the same, disregarding trivia differences.  </summary>
+        /// <param name="oldNode">The old node.  </param> <param name="newNode">The new node.  </param> <param name="topLevel"> 
+        /// If true then the nodes are equivalent if the contained nodes and tokens declaring metadata visible symbolic
+        /// information are equivalent, ignoring any differences of nodes inside method bodies or initializer expressions, 
+        /// otherwise all nodes and tokens must be equivalent.  </param>
         public static bool AreEquivalent(SyntaxNode? oldNode, SyntaxNode? newNode, bool topLevel) => SyntaxEquivalence.AreEquivalent(oldNode, newNode, ignoreChildNode: null, topLevel: topLevel);
 
         /// <summary>
@@ -1605,82 +947,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         /// <param name="oldList">The old list.</param>
         /// <param name="newList">The new list.</param>
-        /// <param name="topLevel"> 
-        /// If true then the nodes are equivalent if the contained nodes and tokens declaring
-        /// metadata visible symbolic information are equivalent, ignoring any differences of nodes inside method bodies
-        /// or initializer expressions, otherwise all nodes and tokens must be equivalent. 
-        /// </param>
-        public static bool AreEquivalent<TNode>(SyntaxList<TNode> oldList, SyntaxList<TNode> newList, bool topLevel)
-            where TNode : CSharpSyntaxNode => SyntaxEquivalence.AreEquivalent(oldList.Node, newList.Node, null, topLevel);
-
-        /// <summary>
-        /// Determines if two lists of syntax nodes are the same, disregarding trivia differences.
-        /// </summary>
-        /// <param name="oldList">The old list.</param>
-        /// <param name="newList">The new list.</param>
         /// <param name="ignoreChildNode">
         /// If specified called for every child syntax node (not token) that is visited during the comparison. 
         /// If it returns true the child is recursively visited, otherwise the child and its subtree is disregarded.
         /// </param>
         public static bool AreEquivalent<TNode>(SyntaxList<TNode> oldList, SyntaxList<TNode> newList, Func<SyntaxKind, bool>? ignoreChildNode = null)
             where TNode : SyntaxNode => SyntaxEquivalence.AreEquivalent(oldList.Node, newList.Node, ignoreChildNode, topLevel: false);
-
-        /// <summary>
-        /// Determines if two lists of syntax nodes are the same, disregarding trivia differences.
-        /// </summary>
-        /// <param name="oldList">The old list.</param>
-        /// <param name="newList">The new list.</param>
-        /// <param name="topLevel"> 
-        /// If true then the nodes are equivalent if the contained nodes and tokens declaring
-        /// metadata visible symbolic information are equivalent, ignoring any differences of nodes inside method bodies
-        /// or initializer expressions, otherwise all nodes and tokens must be equivalent. 
-        /// </param>
-        public static bool AreEquivalent<TNode>(SeparatedSyntaxList<TNode> oldList, SeparatedSyntaxList<TNode> newList, bool topLevel)
-            where TNode : SyntaxNode => SyntaxEquivalence.AreEquivalent(oldList.Node, newList.Node, null, topLevel);
-
-        /// <summary>
-        /// Determines if two lists of syntax nodes are the same, disregarding trivia differences.
-        /// </summary>
-        /// <param name="oldList">The old list.</param>
-        /// <param name="newList">The new list.</param>
-        /// <param name="ignoreChildNode">
-        /// If specified called for every child syntax node (not token) that is visited during the comparison. 
-        /// If it returns true the child is recursively visited, otherwise the child and its subtree is disregarded.
-        /// </param>
-        public static bool AreEquivalent<TNode>(SeparatedSyntaxList<TNode> oldList, SeparatedSyntaxList<TNode> newList, Func<SyntaxKind, bool>? ignoreChildNode = null)
-            where TNode : SyntaxNode => SyntaxEquivalence.AreEquivalent(oldList.Node, newList.Node, ignoreChildNode, topLevel: false);
-
-        internal static TypeSyntax? GetStandaloneType(TypeSyntax? node)
-        {
-            if (node != null)
-            {
-                var parent = node.Parent as ExpressionSyntax;
-                if (parent != null && (node.Kind() == SyntaxKind.IdentifierName || node.Kind() == SyntaxKind.GenericName))
-                {
-                    switch (parent.Kind())
-                    {
-                        case SyntaxKind.QualifiedName:
-                            var qualifiedName = (QualifiedNameSyntax)parent;
-                            if (qualifiedName.Right == node)
-                            {
-                                return qualifiedName;
-                            }
-
-                            break;
-                        case SyntaxKind.AliasQualifiedName:
-                            var aliasQualifiedName = (AliasQualifiedNameSyntax)parent;
-                            if (aliasQualifiedName.Name == node)
-                            {
-                                return aliasQualifiedName;
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-            return node;
-        }
 
         /// <summary>
         /// Gets the containing expression that is actually a language expression and not just typed
@@ -1702,126 +974,26 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// SubpatternSyntax.
         /// </summary>
         internal static CSharpSyntaxNode? GetStandaloneNode(CSharpSyntaxNode? node)
-        {
-            if (node == null || !(node is ExpressionSyntax || node is CrefSyntax))
-            {
-                return node;
-            }
-
-            switch (node.Kind())
-            {
-                case SyntaxKind.IdentifierName:
-                case SyntaxKind.GenericName:
-                case SyntaxKind.NameMemberCref:
-                case SyntaxKind.IndexerMemberCref:
-                case SyntaxKind.OperatorMemberCref:
-                case SyntaxKind.ConversionOperatorMemberCref:
-                case SyntaxKind.ArrayType:
-                case SyntaxKind.NullableType:
-                    // Adjustment may be required.
-                    break;
-                default:
-                    return node;
-            }
-
-            CSharpSyntaxNode? parent = node.Parent;
-
-            if (parent == null)
-            {
-                return node;
-            }
-
-            switch (parent.Kind())
-            {
-                case SyntaxKind.QualifiedName:
-                    if (((QualifiedNameSyntax)parent).Right == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-                case SyntaxKind.AliasQualifiedName:
-                    if (((AliasQualifiedNameSyntax)parent).Name == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-                case SyntaxKind.SimpleMemberAccessExpression:
-                case SyntaxKind.PointerMemberAccessExpression:
-                    if (((MemberAccessExpressionSyntax)parent).Name == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.MemberBindingExpression:
-                    {
-                        if (((MemberBindingExpressionSyntax)parent).Name == node)
-                        {
-                            return parent;
-                        }
-
-                        break;
-                    }
-
-                // Only care about name member crefs because the other cref members
-                // are identifier by keywords, not syntax nodes.
-                case SyntaxKind.NameMemberCref:
-                    if (((NameMemberCrefSyntax)parent).Name == node)
-                    {
-                        CSharpSyntaxNode? grandparent = parent.Parent;
-                        return grandparent != null && grandparent.Kind() == SyntaxKind.QualifiedCref
-                            ? grandparent
-                            : parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.QualifiedCref:
-                    if (((QualifiedCrefSyntax)parent).Member == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.ArrayCreationExpression:
-                    if (((ArrayCreationExpressionSyntax)parent).Type == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.ObjectCreationExpression:
-                    if (node.Kind() == SyntaxKind.NullableType && ((ObjectCreationExpressionSyntax)parent).Type == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.StackAllocArrayCreationExpression:
-                    if (((StackAllocArrayCreationExpressionSyntax)parent).Type == node)
-                    {
-                        return parent;
-                    }
-
-                    break;
-
-                case SyntaxKind.NameColon:
-                    if (parent.Parent.IsKind(SyntaxKind.Subpattern))
-                    {
-                        return parent.Parent;
-                    }
-
-                    break;
-            }
-
-            return node;
-        }
+            => !((node is ExpressionSyntax or CrefSyntax) && node.Kind()
+                is SyntaxKind.IdentifierName
+                or SyntaxKind.GenericName
+                or SyntaxKind.NameMemberCref
+                or SyntaxKind.IndexerMemberCref
+                or SyntaxKind.OperatorMemberCref
+                or SyntaxKind.ConversionOperatorMemberCref
+                or SyntaxKind.ArrayType
+                or SyntaxKind.NullableType) || !(node.Parent?.Kind() switch
+                {
+                    SyntaxKind.SimpleMemberAccessExpression or SyntaxKind.PointerMemberAccessExpression => ((MemberAccessExpressionSyntax)node.Parent).Name == node,
+                    SyntaxKind.QualifiedName => ((QualifiedNameSyntax)node.Parent).Right == node,
+                    SyntaxKind.QualifiedCref => ((QualifiedCrefSyntax)node.Parent).Member == node,
+                    SyntaxKind.AliasQualifiedName => ((AliasQualifiedNameSyntax)node.Parent).Name == node,
+                    SyntaxKind.ObjectCreationExpression => node.IsKind(SyntaxKind.NullableType) && ((ObjectCreationExpressionSyntax)node.Parent).Type == node,
+                    SyntaxKind.StackAllocArrayCreationExpression => ((StackAllocArrayCreationExpressionSyntax)node.Parent).Type == node,
+                    SyntaxKind.MemberBindingExpression => ((MemberBindingExpressionSyntax)node.Parent).Name == node,
+                    SyntaxKind.ArrayCreationExpression => ((ArrayCreationExpressionSyntax)node.Parent).Type == node,
+                    null or _ => false,
+                }) ? node : node.Parent;
 
         /// <summary>
         /// Given a conditional binding expression, find corresponding conditional access node.
@@ -1844,54 +1016,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     var condAccess = (ConditionalAccessExpressionSyntax)currentNode;
                     if (condAccess.OperatorToken.EndPosition == node.Position)
-                    {
                         return condAccess;
-                    }
                 }
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Converts a generic name expression into one without the generic arguments.
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        public static ExpressionSyntax? GetNonGenericExpression(ExpressionSyntax expression)
-        {
-            if (expression != null)
-            {
-                switch (expression.Kind())
-                {
-                    case SyntaxKind.SimpleMemberAccessExpression:
-                    case SyntaxKind.PointerMemberAccessExpression:
-                        var max = (MemberAccessExpressionSyntax)expression;
-                        if (max.Name.Kind() == SyntaxKind.GenericName)
-                        {
-                            var gn = (GenericNameSyntax)max.Name;
-                            return BinaryExpression(expression.Kind(), max.Expression, max.OperatorToken, IdentifierName(gn.Identifier));
-                        }
-                        break;
-                    case SyntaxKind.QualifiedName:
-                        var qn = (QualifiedNameSyntax)expression;
-                        if (qn.Right.Kind() == SyntaxKind.GenericName)
-                        {
-                            var gn = (GenericNameSyntax)qn.Right;
-                            return QualifiedName(qn.Left, qn.DotToken, IdentifierName(gn.Identifier));
-                        }
-                        break;
-                    case SyntaxKind.AliasQualifiedName:
-                        var an = (AliasQualifiedNameSyntax)expression;
-                        if (an.Name.Kind() == SyntaxKind.GenericName)
-                        {
-                            var gn = (GenericNameSyntax)an.Name;
-                            return AliasQualifiedName(an.Alias, an.ColonColonToken, IdentifierName(gn.Identifier));
-                        }
-                        break;
-                }
-            }
-            return expression;
         }
 
         /// <summary>
@@ -1910,84 +1039,42 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             var compilation = (CompilationUnitSyntax)tree.GetRoot();
             if (!compilation.HasErrors)
-            {
                 return true;
-            }
 
             foreach (var error in compilation.EndOfFileToken.GetDiagnostics())
-            {
-                switch ((ErrorCode)error.Code)
-                {
-                    case ErrorCode.ERR_OpenEndedComment:
-                    case ErrorCode.ERR_EndifDirectiveExpected:
-                    case ErrorCode.ERR_EndRegionDirectiveExpected:
-                        return false;
-                }
-            }
+                if ((ErrorCode)error.Code is ErrorCode.ERR_OpenEndedComment or ErrorCode.ERR_EndifDirectiveExpected or ErrorCode.ERR_EndRegionDirectiveExpected)
+                    return false;
 
             var lastNode = compilation.ChildNodes().LastOrDefault();
-            if (lastNode == null)
-            {
+            if (lastNode is null)
                 return true;
-            }
 
             // unterminated multi-line comment:
-            if (lastNode.HasTrailingTrivia && lastNode.ContainsDiagnostics && HasUnterminatedMultiLineComment(lastNode.GetTrailingTrivia()))
+            if (!(lastNode.HasTrailingTrivia && lastNode.ContainsDiagnostics && HasUnterminatedMultiLineComment(lastNode.GetTrailingTrivia())) && !lastNode.IsKind(SyntaxKind.IncompleteMember))
             {
-                return false;
-            }
+                // All top-level constructs but global statement (i.e. extern alias, using directive, global attribute, and declarations)
+                // should have a closing token (semicolon, closing brace or bracket) to be complete.
+                if (!lastNode.IsKind(SyntaxKind.GlobalStatement))
+                    return !lastNode.GetLastToken(includeZeroWidth: true, includeSkipped: true, includeDirectives: true, includeDocumentationComments: true).IsMissing;
 
-            if (lastNode.IsKind(SyntaxKind.IncompleteMember))
-            {
-                return false;
-            }
+                var token = lastNode.GetLastToken(includeZeroWidth: true, includeSkipped: true, includeDirectives: true, includeDocumentationComments: true);
 
-            // All top-level constructs but global statement (i.e. extern alias, using directive, global attribute, and declarations)
-            // should have a closing token (semicolon, closing brace or bracket) to be complete.
-            if (!lastNode.IsKind(SyntaxKind.GlobalStatement))
-            {
-                var closingToken = lastNode.GetLastToken(includeZeroWidth: true, includeSkipped: true, includeDirectives: true, includeDocumentationComments: true);
-                return !closingToken.IsMissing;
-            }
-
-            var globalStatement = (GlobalStatementSyntax)lastNode;
-            var token = lastNode.GetLastToken(includeZeroWidth: true, includeSkipped: true, includeDirectives: true, includeDocumentationComments: true);
-
-            if (token.IsMissing)
-            {
                 // expression statement terminating semicolon might be missing in script code:
-                if (tree.Options.Kind == SourceCodeKind.Regular ||
-                    !globalStatement.Statement.IsKind(SyntaxKind.ExpressionStatement) ||
-                    !token.IsKind(SyntaxKind.SemicolonToken))
-                {
+                if (token.IsMissing && (tree.Options.Kind == SourceCodeKind.Regular 
+                || !((GlobalStatementSyntax)lastNode).Statement.IsKind(SyntaxKind.ExpressionStatement) || !token.IsKind(SyntaxKind.SemicolonToken) 
+                || (token = token.GetPreviousToken(predicate: SyntaxToken.Any, stepInto: CodeAnalysis.SyntaxTrivia.Any)).IsMissing))
                     return false;
-                }
 
-                token = token.GetPreviousToken(predicate: SyntaxToken.Any, stepInto: CodeAnalysis.SyntaxTrivia.Any);
-                if (token.IsMissing)
-                {
-                    return false;
-                }
-            }
-
-            foreach (var error in token.GetDiagnostics())
-            {
-                switch ((ErrorCode)error.Code)
-                {
-                    // unterminated character or string literal:
-                    case ErrorCode.ERR_NewlineInConst:
-
-                    // unterminated verbatim string literal:
-                    case ErrorCode.ERR_UnterminatedStringLit:
-
-                    // unexpected token following a global statement:
-                    case ErrorCode.ERR_GlobalDefinitionOrStatementExpected:
-                    case ErrorCode.ERR_EOFExpected:
+                foreach (var error in token.GetDiagnostics())
+                    if ((ErrorCode)error.Code is ErrorCode.ERR_NewlineInConst or ErrorCode.ERR_UnterminatedStringLit or ErrorCode.ERR_EOFExpected or ErrorCode.ERR_GlobalDefinitionOrStatementExpected)
                         return false;
-                }
-            }
 
-            return true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private static bool HasUnterminatedMultiLineComment(SyntaxTriviaList triviaList)
@@ -2031,383 +1118,38 @@ namespace Microsoft.CodeAnalysis.CSharp
                 expressionBody: null,
                 initializer: null);
 
-        public static ConversionOperatorDeclarationSyntax ConversionOperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            SyntaxToken implicitOrExplicitKeyword,
-            SyntaxToken operatorKeyword,
-            TypeSyntax type,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            SyntaxToken semicolonToken) => ConversionOperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                implicitOrExplicitKeyword: implicitOrExplicitKeyword,
-                operatorKeyword: operatorKeyword,
-                type: type,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: null,
-                semicolonToken: semicolonToken);
+        public static EnumMemberDeclarationSyntax EnumMemberDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxToken identifier, EqualsValueClauseSyntax? equalsValue) =>
+            EnumMemberDeclaration(attributeLists, modifiers: default, identifier, equalsValue);
 
-        public static ConversionOperatorDeclarationSyntax ConversionOperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers,
-            SyntaxToken implicitOrExplicitKeyword,
-            SyntaxToken operatorKeyword,
-            TypeSyntax type,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody,
-            SyntaxToken semicolonToken) => ConversionOperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                implicitOrExplicitKeyword: implicitOrExplicitKeyword,
-                explicitInterfaceSpecifier: null,
-                operatorKeyword: operatorKeyword,
-                type: type,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody,
-                semicolonToken: semicolonToken);
+        public static NamespaceDeclarationSyntax NamespaceDeclaration(NameSyntax name, SyntaxList<ExternAliasDirectiveSyntax> externs, SyntaxList<UsingDirectiveSyntax> usings, SyntaxList<MemberDeclarationSyntax> members) =>
+            NamespaceDeclaration(attributeLists: default, modifiers: default, name, externs, usings, members);
 
-        public static ConversionOperatorDeclarationSyntax ConversionOperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            SyntaxToken implicitOrExplicitKeyword,
-            TypeSyntax type,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody) => ConversionOperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                implicitOrExplicitKeyword: implicitOrExplicitKeyword,
-                explicitInterfaceSpecifier: null,
-                type: type,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody);
+        public static SimpleLambdaExpressionSyntax SimpleLambdaExpression(ParameterSyntax parameter, CSharpSyntaxNode body) => body is BlockSyntax block
+                        ? SimpleLambdaExpression(parameter, block, null)
+                        : SimpleLambdaExpression(parameter, null, (ExpressionSyntax)body);
 
-        /// <summary>Creates a new <see cref="ConversionOperatorDeclarationSyntax"/> instance.</summary>
-        public static ConversionOperatorDeclarationSyntax ConversionOperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            SyntaxToken implicitOrExplicitKeyword,
-            ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier,
-            SyntaxToken operatorKeyword,
-            TypeSyntax type,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody,
-            SyntaxToken semicolonToken) => ConversionOperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                implicitOrExplicitKeyword: implicitOrExplicitKeyword,
-                explicitInterfaceSpecifier: explicitInterfaceSpecifier,
-                operatorKeyword: operatorKeyword,
-                checkedKeyword: default,
-                type: type,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody,
-                semicolonToken: semicolonToken);
+        public static SimpleLambdaExpressionSyntax SimpleLambdaExpression(SyntaxToken asyncKeyword, ParameterSyntax parameter, SyntaxToken arrowToken, CSharpSyntaxNode body) => body is BlockSyntax block
+                        ? SimpleLambdaExpression(asyncKeyword, parameter, arrowToken, block, null)
+                        : SimpleLambdaExpression(asyncKeyword, parameter, arrowToken, null, (ExpressionSyntax)body);
 
-        /// <summary>Creates a new OperatorDeclarationSyntax instance.</summary>
-        public static OperatorDeclarationSyntax OperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            TypeSyntax returnType,
-            SyntaxToken operatorKeyword,
-            SyntaxToken operatorToken,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            SyntaxToken semicolonToken) => OperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                returnType: returnType,
-                operatorKeyword: operatorKeyword,
-                operatorToken: operatorToken,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: null,
-                semicolonToken: semicolonToken);
+        public static ParenthesizedLambdaExpressionSyntax ParenthesizedLambdaExpression(ParameterListSyntax parameterList, CSharpSyntaxNode body) => body is BlockSyntax block
+                        ? ParenthesizedLambdaExpression(parameterList, block, null)
+                        : ParenthesizedLambdaExpression(parameterList, null, (ExpressionSyntax)body);
 
-        /// <summary>Creates a new OperatorDeclarationSyntax instance.</summary>
-        public static OperatorDeclarationSyntax OperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            TypeSyntax returnType,
-            SyntaxToken operatorKeyword,
-            SyntaxToken operatorToken,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody,
-            SyntaxToken semicolonToken) => OperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                returnType: returnType,
-                explicitInterfaceSpecifier: null,
-                operatorKeyword: operatorKeyword,
-                operatorToken: operatorToken,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody,
-                semicolonToken: semicolonToken);
-
-        /// <summary>Creates a new OperatorDeclarationSyntax instance.</summary>
-        public static OperatorDeclarationSyntax OperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            TypeSyntax returnType,
-            SyntaxToken operatorToken,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody) => OperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                returnType: returnType,
-                explicitInterfaceSpecifier: null,
-                operatorToken: operatorToken,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody);
-
-        /// <summary>Creates a new <see cref="OperatorDeclarationSyntax"/> instance.</summary>
-        public static OperatorDeclarationSyntax OperatorDeclaration(
-            SyntaxList<AttributeListSyntax> attributeLists,
-            SyntaxTokenList modifiers,
-            TypeSyntax returnType,
-            ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier,
-            SyntaxToken operatorKeyword,
-            SyntaxToken operatorToken,
-            ParameterListSyntax parameterList,
-            BlockSyntax? body,
-            ArrowExpressionClauseSyntax? expressionBody,
-            SyntaxToken semicolonToken) => OperatorDeclaration(
-                attributeLists: attributeLists,
-                modifiers: modifiers,
-                returnType: returnType,
-                explicitInterfaceSpecifier: explicitInterfaceSpecifier,
-                operatorKeyword: operatorKeyword,
-                checkedKeyword: default,
-                operatorToken: operatorToken,
-                parameterList: parameterList,
-                body: body,
-                expressionBody: expressionBody,
-                semicolonToken: semicolonToken);
-
-        /// <summary>Creates a new ClassOrStructConstraintSyntax instance.</summary>
-        public static ClassOrStructConstraintSyntax ClassOrStructConstraint(SyntaxKind kind, SyntaxToken classOrStructKeyword) => ClassOrStructConstraint(kind, classOrStructKeyword, questionToken: default);
-
-        // backwards compatibility for extended API
-        public static AccessorDeclarationSyntax AccessorDeclaration(SyntaxKind kind, SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, BlockSyntax body)
-                => AccessorDeclaration(kind, attributeLists, modifiers, body, expressionBody: null);
-        public static AccessorDeclarationSyntax AccessorDeclaration(SyntaxKind kind, SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, BlockSyntax body, SyntaxToken semicolonToken)
-                => AccessorDeclaration(kind, attributeLists, modifiers, keyword, body, expressionBody: null, semicolonToken);
-        public static AccessorDeclarationSyntax AccessorDeclaration(SyntaxKind kind, SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, ArrowExpressionClauseSyntax expressionBody)
-                => AccessorDeclaration(kind, attributeLists, modifiers, body: null, expressionBody);
-        public static AccessorDeclarationSyntax AccessorDeclaration(SyntaxKind kind, SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, ArrowExpressionClauseSyntax expressionBody, SyntaxToken semicolonToken)
-                => AccessorDeclaration(kind, attributeLists, modifiers, keyword, body: null, expressionBody, semicolonToken);
-
-        public static EnumMemberDeclarationSyntax EnumMemberDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxToken identifier, EqualsValueClauseSyntax? equalsValue)
-            => EnumMemberDeclaration(attributeLists, modifiers: default,
-                identifier, equalsValue);
-
-        public static NamespaceDeclarationSyntax NamespaceDeclaration(NameSyntax name, SyntaxList<ExternAliasDirectiveSyntax> externs, SyntaxList<UsingDirectiveSyntax> usings, SyntaxList<MemberDeclarationSyntax> members)
-            => NamespaceDeclaration(attributeLists: default, modifiers: default,
-                name, externs, usings, members);
-
-        public static NamespaceDeclarationSyntax NamespaceDeclaration(SyntaxToken namespaceKeyword, NameSyntax name, SyntaxToken openBraceToken, SyntaxList<ExternAliasDirectiveSyntax> externs, SyntaxList<UsingDirectiveSyntax> usings, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken)
-            => NamespaceDeclaration(attributeLists: default, modifiers: default,
-                namespaceKeyword, name, openBraceToken, externs, usings, members, closeBraceToken, semicolonToken);
-
-        /// <summary>Creates a new EventDeclarationSyntax instance.</summary>
-        public static EventDeclarationSyntax EventDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken eventKeyword, TypeSyntax type, ExplicitInterfaceSpecifierSyntax explicitInterfaceSpecifier, SyntaxToken identifier, AccessorListSyntax accessorList) => EventDeclaration(attributeLists, modifiers, eventKeyword, type, explicitInterfaceSpecifier, identifier, accessorList, semicolonToken: default);
-
-        /// <summary>Creates a new EventDeclarationSyntax instance.</summary>
-        public static EventDeclarationSyntax EventDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken eventKeyword, TypeSyntax type, ExplicitInterfaceSpecifierSyntax explicitInterfaceSpecifier, SyntaxToken identifier, SyntaxToken semicolonToken) => EventDeclaration(attributeLists, modifiers, eventKeyword, type, explicitInterfaceSpecifier, identifier, accessorList: null, semicolonToken);
-
-        /// <summary>Creates a new SwitchStatementSyntax instance.</summary>
-        public static SwitchStatementSyntax SwitchStatement(ExpressionSyntax expression, SyntaxList<SwitchSectionSyntax> sections)
-        {
-            bool needsParens = !(expression is TupleExpressionSyntax);
-            var openParen = needsParens ? Token(SyntaxKind.OpenParenToken) : default;
-            var closeParen = needsParens ? Token(SyntaxKind.CloseParenToken) : default;
-            return SwitchStatement(
-                attributeLists: default,
-                Token(SyntaxKind.SwitchKeyword),
-                openParen,
-                expression,
-                closeParen,
-                Token(SyntaxKind.OpenBraceToken),
-                sections,
-                Token(SyntaxKind.CloseBraceToken));
-        }
-
-        /// <summary>Creates a new SwitchStatementSyntax instance.</summary>
-        public static SwitchStatementSyntax SwitchStatement(ExpressionSyntax expression) => SwitchStatement(expression, default);
-
-        public static SimpleLambdaExpressionSyntax SimpleLambdaExpression(ParameterSyntax parameter, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? SimpleLambdaExpression(parameter, block, null)
-                : SimpleLambdaExpression(parameter, null, (ExpressionSyntax)body);
-
-        public static SimpleLambdaExpressionSyntax SimpleLambdaExpression(SyntaxToken asyncKeyword, ParameterSyntax parameter, SyntaxToken arrowToken, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? SimpleLambdaExpression(asyncKeyword, parameter, arrowToken, block, null)
-                : SimpleLambdaExpression(asyncKeyword, parameter, arrowToken, null, (ExpressionSyntax)body);
-
-        public static ParenthesizedLambdaExpressionSyntax ParenthesizedLambdaExpression(CSharpSyntaxNode body)
-            => ParenthesizedLambdaExpression(ParameterList(), body);
-
-        public static ParenthesizedLambdaExpressionSyntax ParenthesizedLambdaExpression(ParameterListSyntax parameterList, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? ParenthesizedLambdaExpression(parameterList, block, null)
-                : ParenthesizedLambdaExpression(parameterList, null, (ExpressionSyntax)body);
-
-        public static ParenthesizedLambdaExpressionSyntax ParenthesizedLambdaExpression(SyntaxToken asyncKeyword, ParameterListSyntax parameterList, SyntaxToken arrowToken, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? ParenthesizedLambdaExpression(asyncKeyword, parameterList, arrowToken, block, null)
-                : ParenthesizedLambdaExpression(asyncKeyword, parameterList, arrowToken, null, (ExpressionSyntax)body);
-
-        public static AnonymousMethodExpressionSyntax AnonymousMethodExpression(CSharpSyntaxNode body)
-            => AnonymousMethodExpression(parameterList: null, body);
-
-        public static AnonymousMethodExpressionSyntax AnonymousMethodExpression(ParameterListSyntax? parameterList, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? AnonymousMethodExpression(default(SyntaxTokenList), Token(SyntaxKind.DelegateKeyword), parameterList, block, null)
-                : throw new ArgumentException(nameof(body));
-
-        public static AnonymousMethodExpressionSyntax AnonymousMethodExpression(SyntaxToken asyncKeyword, SyntaxToken delegateKeyword, ParameterListSyntax parameterList, CSharpSyntaxNode body)
-            => body is BlockSyntax block
-                ? AnonymousMethodExpression(asyncKeyword, delegateKeyword, parameterList, block, null)
-                : throw new ArgumentException(nameof(body));
-
-        // BACK COMPAT OVERLOAD DO NOT MODIFY
-        [Obsolete("The diagnosticOptions parameter is obsolete due to performance problems, if you are passing non-null use CompilationOptions.SyntaxTreeOptionsProvider instead", error: false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static SyntaxTree ParseSyntaxTree(
-            string text,
-            ParseOptions? options,
-            string path,
-            Encoding? encoding,
-            ImmutableDictionary<string, ReportDiagnostic>? diagnosticOptions,
-            CancellationToken cancellationToken) => ParseSyntaxTree(SourceText.From(text, encoding), options, path, diagnosticOptions, isGeneratedCode: null, cancellationToken);
-
-        // BACK COMPAT OVERLOAD DO NOT MODIFY
-        [Obsolete("The diagnosticOptions parameter is obsolete due to performance problems, if you are passing non-null use CompilationOptions.SyntaxTreeOptionsProvider instead", error: false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static SyntaxTree ParseSyntaxTree(
-            SourceText text,
-            ParseOptions? options,
-            string path,
-            ImmutableDictionary<string, ReportDiagnostic>? diagnosticOptions,
-            CancellationToken cancellationToken) => CSharpSyntaxTree.ParseText(text, (CSharpParseOptions?)options, path, diagnosticOptions, isGeneratedCode: null, cancellationToken);
-
-        // BACK COMPAT OVERLOAD DO NOT MODIFY
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("The diagnosticOptions and isGeneratedCode parameters are obsolete due to performance problems, if you are using them use CompilationOptions.SyntaxTreeOptionsProvider instead", error: false)]
-        public static SyntaxTree ParseSyntaxTree(
-            string text,
-            ParseOptions? options,
-            string path,
-            Encoding? encoding,
-            ImmutableDictionary<string, ReportDiagnostic>? diagnosticOptions,
-            bool? isGeneratedCode,
-            CancellationToken cancellationToken) => ParseSyntaxTree(SourceText.From(text, encoding), options, path, diagnosticOptions, isGeneratedCode, cancellationToken);
-
-        // BACK COMPAT OVERLOAD DO NOT MODIFY
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("The diagnosticOptions and isGeneratedCode parameters are obsolete due to performance problems, if you are using them use CompilationOptions.SyntaxTreeOptionsProvider instead", error: false)]
-        public static SyntaxTree ParseSyntaxTree(
-            SourceText text,
-            ParseOptions? options,
-            string path,
-            ImmutableDictionary<string, ReportDiagnostic>? diagnosticOptions,
-            bool? isGeneratedCode,
-            CancellationToken cancellationToken) => CSharpSyntaxTree.ParseText(text, (CSharpParseOptions?)options, path, diagnosticOptions, isGeneratedCode, cancellationToken);
-
-        /// <summary>Creates a new <see cref="OperatorMemberCrefSyntax"/> instance.</summary>
-        public static OperatorMemberCrefSyntax OperatorMemberCref(SyntaxToken operatorKeyword, SyntaxToken operatorToken, CrefParameterListSyntax? parameters) => OperatorMemberCref(
-                operatorKeyword: operatorKeyword,
-                operatorToken: operatorToken,
-                checkedKeyword: default,
-                parameters: parameters);
-
-        /// <summary>Creates a new <see cref="ConversionOperatorMemberCrefSyntax"/> instance.</summary>
-        public static ConversionOperatorMemberCrefSyntax ConversionOperatorMemberCref(SyntaxToken implicitOrExplicitKeyword, SyntaxToken operatorKeyword, TypeSyntax type, CrefParameterListSyntax? parameters) => ConversionOperatorMemberCref(
-                implicitOrExplicitKeyword: implicitOrExplicitKeyword,
-                operatorKeyword: operatorKeyword,
-                checkedKeyword: default,
-                type: type,
-                parameters: parameters);
+        public static ParenthesizedLambdaExpressionSyntax ParenthesizedLambdaExpression(SyntaxToken asyncKeyword, ParameterListSyntax parameterList, SyntaxToken arrowToken, CSharpSyntaxNode body) => body is BlockSyntax block
+                        ? ParenthesizedLambdaExpression(asyncKeyword, parameterList, arrowToken, block, null)
+                        : ParenthesizedLambdaExpression(asyncKeyword, parameterList, arrowToken, null, (ExpressionSyntax)body);
 
         /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
-        public static ClassDeclarationSyntax ClassDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxToken openBraceToken, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken) => ClassDeclaration(
-                attributeLists, modifiers, keyword, identifier, typeParameterList,
-                parameterList: null, baseList, constraintClauses, openBraceToken,
-                members, closeBraceToken, semicolonToken);
-
-        /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
-        public static ClassDeclarationSyntax ClassDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members) => ClassDeclaration(attributeLists, modifiers, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, members);
-
-        /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
-        public static ClassDeclarationSyntax ClassDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax? parameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members)
-            => ClassDeclaration(attributeLists, modifiers, Token(SyntaxKind.ClassKeyword), identifier, typeParameterList, parameterList, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
-        public static ClassDeclarationSyntax ClassDeclaration(SyntaxToken identifier)
-            => ClassDeclaration(default, default, Token(SyntaxKind.ClassKeyword), identifier, null, null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new ClassDeclarationSyntax instance.</summary>
-        public static ClassDeclarationSyntax ClassDeclaration(string identifier)
-            => ClassDeclaration(default, default, Token(SyntaxKind.ClassKeyword), Identifier(identifier), null, null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
+        public static ClassDeclarationSyntax ClassDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax? parameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members) => ClassDeclaration(attributeLists, modifiers, Token(SyntaxKind.ClassKeyword), identifier, typeParameterList, parameterList, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
-        public static StructDeclarationSyntax StructDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxToken openBraceToken, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken) => StructDeclaration(
-                attributeLists, modifiers, keyword, identifier, typeParameterList,
-                parameterList: null, baseList, constraintClauses, openBraceToken,
-                members, closeBraceToken, semicolonToken);
-
-        /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
-        public static StructDeclarationSyntax StructDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members) => StructDeclaration(attributeLists, modifiers, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, members);
-
-        /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
-        public static StructDeclarationSyntax StructDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax? parameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members)
-            => StructDeclaration(attributeLists, modifiers, Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
-        public static StructDeclarationSyntax StructDeclaration(SyntaxToken identifier)
-            => StructDeclaration(default, default, Token(SyntaxKind.StructKeyword), identifier, null, null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new StructDeclarationSyntax instance.</summary>
-        public static StructDeclarationSyntax StructDeclaration(string identifier)
-            => StructDeclaration(default, default, Token(SyntaxKind.StructKeyword), Identifier(identifier), null, null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
+        public static StructDeclarationSyntax StructDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, ParameterListSyntax? parameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members) => StructDeclaration(attributeLists, modifiers, Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
-        public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken keyword, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxToken openBraceToken, SyntaxList<MemberDeclarationSyntax> members, SyntaxToken closeBraceToken, SyntaxToken semicolonToken) => InterfaceDeclaration(attributeLists, modifiers, keyword, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken);
-
-        /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
-        public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members)
-            => InterfaceDeclaration(attributeLists, modifiers, Token(SyntaxKind.InterfaceKeyword), identifier, typeParameterList, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
-        public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxToken identifier)
-            => InterfaceDeclaration(default, default, Token(SyntaxKind.InterfaceKeyword), identifier, null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new InterfaceDeclarationSyntax instance.</summary>
-        public static InterfaceDeclarationSyntax InterfaceDeclaration(string identifier)
-            => InterfaceDeclaration(default, default, Token(SyntaxKind.InterfaceKeyword), Identifier(identifier), null, null, default, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
+        public static InterfaceDeclarationSyntax InterfaceDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, TypeParameterListSyntax? typeParameterList, BaseListSyntax? baseList, SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses, SyntaxList<MemberDeclarationSyntax> members) => InterfaceDeclaration(attributeLists, modifiers, Token(SyntaxKind.InterfaceKeyword), identifier, typeParameterList, null, baseList, constraintClauses, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
 
         /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
-        public static EnumDeclarationSyntax EnumDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, BaseListSyntax? baseList, SeparatedSyntaxList<EnumMemberDeclarationSyntax> members)
-            => EnumDeclaration(attributeLists, modifiers, Token(SyntaxKind.EnumKeyword), identifier, baseList, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
-        public static EnumDeclarationSyntax EnumDeclaration(SyntaxToken identifier)
-            => EnumDeclaration(default, default, Token(SyntaxKind.EnumKeyword), identifier, null, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
-
-        /// <summary>Creates a new EnumDeclarationSyntax instance.</summary>
-        public static EnumDeclarationSyntax EnumDeclaration(string identifier)
-            => EnumDeclaration(default, default, Token(SyntaxKind.EnumKeyword), Identifier(identifier), null, Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
+        public static EnumDeclarationSyntax EnumDeclaration(SyntaxList<AttributeListSyntax> attributeLists, SyntaxTokenList modifiers, SyntaxToken identifier, BaseListSyntax? baseList, SeparatedSyntaxList<EnumMemberDeclarationSyntax> members) => EnumDeclaration(attributeLists, modifiers, Token(SyntaxKind.EnumKeyword), identifier, baseList, Token(SyntaxKind.OpenBraceToken), members, Token(SyntaxKind.CloseBraceToken), default);
     }
 }

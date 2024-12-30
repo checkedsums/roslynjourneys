@@ -718,7 +718,7 @@ internal sealed class CSharpSyntaxGenerator : SyntaxGenerator
 
         return isRecord
             ? SyntaxFactory.RecordDeclaration(default, modifierList, RecordKeyword, nameToken, typeParameterList, null, baseTypeList, default, typeMembers)
-            : SyntaxFactory.ClassDeclaration(default, modifierList, nameToken, typeParameterList, baseTypeList, default, typeMembers);
+            : SyntaxFactory.ClassDeclaration(default, modifierList, nameToken, typeParameterList, null, baseTypeList, default, typeMembers);
     }
 
     private SyntaxList<MemberDeclarationSyntax> AsClassMembers(string className, IEnumerable<SyntaxNode>? members)
@@ -765,7 +765,7 @@ internal sealed class CSharpSyntaxGenerator : SyntaxGenerator
 
         return isRecord
             ? SyntaxFactory.RecordDeclaration(default, modifierList, RecordKeyword, nameToken, typeParameterList, null, baseTypeList, default, structMembers).WithClassOrStructKeyword(StructKeyword)
-            : SyntaxFactory.StructDeclaration(default, modifierList, nameToken, typeParameterList, baseTypeList, default, structMembers);
+            : SyntaxFactory.StructDeclaration(default, modifierList, nameToken, typeParameterList, null, baseTypeList, default, structMembers);
     }
 
     private protected override SyntaxNode InterfaceDeclaration(

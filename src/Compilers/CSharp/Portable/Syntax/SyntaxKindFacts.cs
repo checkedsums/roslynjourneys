@@ -10,64 +10,40 @@ namespace Microsoft.CodeAnalysis.CSharp
 {
     public static partial class SyntaxFacts
     {
-        public static bool IsKeywordKind(SyntaxKind kind)
-        {
-            return IsReservedKeyword(kind) || IsContextualKeyword(kind);
-        }
+        public static bool IsKeywordKind(SyntaxKind kind) => IsReservedKeyword(kind) || IsContextualKeyword(kind);
 
-        public static IEnumerable<SyntaxKind> GetReservedKeywordKinds()
+        public static IEnumerable<SyntaxKind> ReservedKeywordKinds
         {
-            for (int i = (int)SyntaxKind.BoolKeyword; i <= (int)SyntaxKind.ImplicitKeyword; i++)
+            get
             {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
+                for (int i = (int)SyntaxKind.BoolKeyword; i <= (int)SyntaxKind.ImplicitKeyword; i++)
+                {
+                    Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
+                    yield return (SyntaxKind)i;
+                }
             }
         }
 
         public static IEnumerable<SyntaxKind> GetKeywordKinds()
         {
-            foreach (var reserved in GetReservedKeywordKinds())
-            {
+            foreach (var reserved in ReservedKeywordKinds)
                 yield return reserved;
-            }
 
             foreach (var contextual in GetContextualKeywordKinds())
-            {
                 yield return contextual;
-            }
         }
 
         public static bool IsReservedKeyword(SyntaxKind kind)
-        {
-            return kind >= SyntaxKind.BoolKeyword && kind <= SyntaxKind.ImplicitKeyword;
-        }
+            => kind is >= SyntaxKind.BoolKeyword and <= SyntaxKind.ImplicitKeyword;
 
         public static bool IsAttributeTargetSpecifier(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.AssemblyKeyword or SyntaxKind.ModuleKeyword or SyntaxKind.EventKeyword or SyntaxKind.FieldKeyword or SyntaxKind.MethodKeyword or SyntaxKind.ParamKeyword or SyntaxKind.PropertyKeyword or SyntaxKind.ReturnKeyword or SyntaxKind.TypeKeyword or SyntaxKind.TypeVarKeyword => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.AssemblyKeyword or SyntaxKind.ModuleKeyword or SyntaxKind.EventKeyword or SyntaxKind.FieldKeyword or SyntaxKind.MethodKeyword or SyntaxKind.ParamKeyword or SyntaxKind.PropertyKeyword or SyntaxKind.ReturnKeyword or SyntaxKind.TypeKeyword or SyntaxKind.TypeVarKeyword;
 
         public static bool IsAccessibilityModifier(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.PrivateKeyword or SyntaxKind.ProtectedKeyword or SyntaxKind.InternalKeyword or SyntaxKind.PublicKeyword => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.PrivateKeyword or SyntaxKind.ProtectedKeyword or SyntaxKind.InternalKeyword or SyntaxKind.PublicKeyword;
 
         public static bool IsPreprocessorKeyword(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword or SyntaxKind.DefaultKeyword or SyntaxKind.IfKeyword or SyntaxKind.ElseKeyword or SyntaxKind.ElifKeyword or SyntaxKind.EndIfKeyword or SyntaxKind.RegionKeyword or SyntaxKind.EndRegionKeyword or SyntaxKind.DefineKeyword or SyntaxKind.UndefKeyword or SyntaxKind.WarningKeyword or SyntaxKind.ErrorKeyword or SyntaxKind.LineKeyword or SyntaxKind.PragmaKeyword or SyntaxKind.HiddenKeyword or SyntaxKind.ChecksumKeyword or SyntaxKind.DisableKeyword or SyntaxKind.RestoreKeyword or SyntaxKind.ReferenceKeyword or SyntaxKind.LoadKeyword or SyntaxKind.ContextKeyword or SyntaxKind.EnableKeyword or SyntaxKind.WarningsKeyword or SyntaxKind.AnnotationsKeyword => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword or SyntaxKind.DefaultKeyword or SyntaxKind.IfKeyword or SyntaxKind.ElseKeyword or SyntaxKind.ElifKeyword or SyntaxKind.EndIfKeyword or SyntaxKind.RegionKeyword or SyntaxKind.EndRegionKeyword or SyntaxKind.DefineKeyword or SyntaxKind.UndefKeyword or SyntaxKind.WarningKeyword or SyntaxKind.ErrorKeyword or SyntaxKind.LineKeyword or SyntaxKind.PragmaKeyword or SyntaxKind.HiddenKeyword or SyntaxKind.ChecksumKeyword or SyntaxKind.DisableKeyword or SyntaxKind.RestoreKeyword or SyntaxKind.ReferenceKeyword or SyntaxKind.LoadKeyword or SyntaxKind.ContextKeyword or SyntaxKind.EnableKeyword or SyntaxKind.WarningsKeyword or SyntaxKind.AnnotationsKeyword;
 
         /// <summary>
         /// Some preprocessor keywords are only keywords when they appear after a
@@ -79,228 +55,81 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// This wrinkle is specifically not publicly exposed.
         /// </remarks>
         internal static bool IsPreprocessorContextualKeyword(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword or SyntaxKind.DefaultKeyword or SyntaxKind.HiddenKeyword or SyntaxKind.ChecksumKeyword or SyntaxKind.DisableKeyword or SyntaxKind.RestoreKeyword or SyntaxKind.EnableKeyword or SyntaxKind.WarningsKeyword or SyntaxKind.AnnotationsKeyword => false,
-                _ => IsPreprocessorKeyword(kind),
-            };
-        }
-
-        public static IEnumerable<SyntaxKind> GetPreprocessorKeywordKinds()
-        {
-            yield return SyntaxKind.TrueKeyword;
-            yield return SyntaxKind.FalseKeyword;
-            yield return SyntaxKind.DefaultKeyword;
-
-            for (int i = (int)SyntaxKind.ElifKeyword; i <= (int)SyntaxKind.RestoreKeyword; i++)
-            {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
-            }
-        }
+            => kind is SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword or SyntaxKind.DefaultKeyword or SyntaxKind.HiddenKeyword or SyntaxKind.ChecksumKeyword or SyntaxKind.DisableKeyword or SyntaxKind.RestoreKeyword or SyntaxKind.EnableKeyword or SyntaxKind.WarningsKeyword or SyntaxKind.AnnotationsKeyword
+            || IsPreprocessorKeyword(kind);
 
         public static bool IsPunctuation(SyntaxKind kind)
-        {
-            return kind >= SyntaxKind.TildeToken && kind <= SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken;
-        }
+            => kind is >= SyntaxKind.TildeToken and <= SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken;
 
         public static bool IsLanguagePunctuation(SyntaxKind kind)
-        {
-            return IsPunctuation(kind) && !IsPreprocessorKeyword(kind) && !IsDebuggerSpecialPunctuation(kind);
-        }
+            => IsPunctuation(kind) && !IsPreprocessorKeyword(kind) && !IsDebuggerSpecialPunctuation(kind);
 
-        public static bool IsPreprocessorPunctuation(SyntaxKind kind)
-        {
-            return kind == SyntaxKind.HashToken;
-        }
-
-        private static bool IsDebuggerSpecialPunctuation(SyntaxKind kind)
-        {
-            // TODO: What about "<>f_AnonymousMethod"? Or "123#"? What's this used for?
-            return kind == SyntaxKind.DollarToken;
-        }
-
-        public static IEnumerable<SyntaxKind> GetPunctuationKinds()
-        {
-            for (int i = (int)SyntaxKind.TildeToken; i <= (int)SyntaxKind.DotDotToken; i++)
-            {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
-            }
-
-            for (int i = (int)SyntaxKind.SlashGreaterThanToken; i <= (int)SyntaxKind.XmlProcessingInstructionEndToken; i++)
-            {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
-            }
-
-            for (int i = (int)SyntaxKind.BarBarToken; i <= (int)SyntaxKind.QuestionQuestionEqualsToken; i++)
-            {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
-            }
-
-            yield return SyntaxKind.GreaterThanGreaterThanGreaterThanToken;
-            yield return SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken;
-        }
+        private static bool IsDebuggerSpecialPunctuation(SyntaxKind kind) // TODO: What about "<>f_AnonymousMethod"? Or "123#"? What's this used for?
+            => kind == SyntaxKind.DollarToken;
 
         public static bool IsPunctuationOrKeyword(SyntaxKind kind)
-        {
-            return kind >= SyntaxKind.TildeToken && kind <= SyntaxKind.EndOfFileToken;
-        }
+            => kind is >= SyntaxKind.TildeToken and <= SyntaxKind.EndOfFileToken;
 
         internal static bool IsLiteral(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.IdentifierToken or SyntaxKind.StringLiteralToken or SyntaxKind.Utf8StringLiteralToken or SyntaxKind.SingleLineRawStringLiteralToken or SyntaxKind.Utf8SingleLineRawStringLiteralToken or SyntaxKind.MultiLineRawStringLiteralToken or SyntaxKind.Utf8MultiLineRawStringLiteralToken or SyntaxKind.CharacterLiteralToken or SyntaxKind.NumericLiteralToken or SyntaxKind.XmlTextLiteralToken or SyntaxKind.XmlTextLiteralNewLineToken or SyntaxKind.XmlEntityLiteralToken => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.IdentifierToken or SyntaxKind.StringLiteralToken or SyntaxKind.Utf8StringLiteralToken or SyntaxKind.SingleLineRawStringLiteralToken or SyntaxKind.Utf8SingleLineRawStringLiteralToken or SyntaxKind.MultiLineRawStringLiteralToken or SyntaxKind.Utf8MultiLineRawStringLiteralToken or SyntaxKind.CharacterLiteralToken or SyntaxKind.NumericLiteralToken or SyntaxKind.XmlTextLiteralToken or SyntaxKind.XmlTextLiteralNewLineToken or SyntaxKind.XmlEntityLiteralToken;
 
         public static bool IsAnyToken(SyntaxKind kind)
-        {
-            if (kind >= SyntaxKind.TildeToken && kind < SyntaxKind.EndOfLineTrivia) return true;
-            return kind switch
-            {
-                SyntaxKind.InterpolatedStringToken or SyntaxKind.InterpolatedStringStartToken or SyntaxKind.InterpolatedVerbatimStringStartToken or SyntaxKind.InterpolatedMultiLineRawStringStartToken or SyntaxKind.InterpolatedSingleLineRawStringStartToken or SyntaxKind.InterpolatedStringTextToken or SyntaxKind.InterpolatedStringEndToken or SyntaxKind.InterpolatedRawStringEndToken or SyntaxKind.LoadKeyword or SyntaxKind.ContextKeyword or SyntaxKind.EnableKeyword or SyntaxKind.UnderscoreToken or SyntaxKind.MultiLineRawStringLiteralToken or SyntaxKind.SingleLineRawStringLiteralToken => true,
-                _ => false,
-            };
-        }
-
-        public static bool IsTrivia(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.EndOfLineTrivia or SyntaxKind.WhitespaceTrivia or SyntaxKind.SingleLineCommentTrivia or SyntaxKind.MultiLineCommentTrivia or SyntaxKind.SingleLineDocumentationCommentTrivia or SyntaxKind.MultiLineDocumentationCommentTrivia or SyntaxKind.DisabledTextTrivia or SyntaxKind.DocumentationCommentExteriorTrivia or SyntaxKind.ConflictMarkerTrivia => true,
-                _ => IsPreprocessorDirective(kind),
-            };
-        }
+            => kind is >= SyntaxKind.TildeToken and < SyntaxKind.EndOfLineTrivia
+            || kind is SyntaxKind.InterpolatedStringToken or SyntaxKind.InterpolatedStringStartToken or SyntaxKind.InterpolatedVerbatimStringStartToken or SyntaxKind.InterpolatedMultiLineRawStringStartToken or SyntaxKind.InterpolatedSingleLineRawStringStartToken or SyntaxKind.InterpolatedStringTextToken or SyntaxKind.InterpolatedStringEndToken or SyntaxKind.InterpolatedRawStringEndToken or SyntaxKind.LoadKeyword or SyntaxKind.ContextKeyword or SyntaxKind.EnableKeyword or SyntaxKind.UnderscoreToken or SyntaxKind.MultiLineRawStringLiteralToken or SyntaxKind.SingleLineRawStringLiteralToken;
 
         public static bool IsPreprocessorDirective(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia or SyntaxKind.EndIfDirectiveTrivia or SyntaxKind.RegionDirectiveTrivia or SyntaxKind.EndRegionDirectiveTrivia or SyntaxKind.DefineDirectiveTrivia or SyntaxKind.UndefDirectiveTrivia or SyntaxKind.ErrorDirectiveTrivia or SyntaxKind.WarningDirectiveTrivia or SyntaxKind.LineDirectiveTrivia or SyntaxKind.LineSpanDirectiveTrivia or SyntaxKind.PragmaWarningDirectiveTrivia or SyntaxKind.PragmaChecksumDirectiveTrivia or SyntaxKind.ReferenceDirectiveTrivia or SyntaxKind.LoadDirectiveTrivia or SyntaxKind.BadDirectiveTrivia or SyntaxKind.ShebangDirectiveTrivia => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia or SyntaxKind.EndIfDirectiveTrivia or SyntaxKind.RegionDirectiveTrivia or SyntaxKind.EndRegionDirectiveTrivia or SyntaxKind.DefineDirectiveTrivia or SyntaxKind.UndefDirectiveTrivia or SyntaxKind.ErrorDirectiveTrivia or SyntaxKind.WarningDirectiveTrivia or SyntaxKind.LineDirectiveTrivia or SyntaxKind.LineSpanDirectiveTrivia or SyntaxKind.PragmaWarningDirectiveTrivia or SyntaxKind.PragmaChecksumDirectiveTrivia or SyntaxKind.ReferenceDirectiveTrivia or SyntaxKind.LoadDirectiveTrivia or SyntaxKind.BadDirectiveTrivia or SyntaxKind.ShebangDirectiveTrivia;
 
         public static bool IsName(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.IdentifierName or SyntaxKind.GenericName or SyntaxKind.QualifiedName or SyntaxKind.AliasQualifiedName => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.IdentifierName or SyntaxKind.GenericName or SyntaxKind.QualifiedName or SyntaxKind.AliasQualifiedName;
 
         public static bool IsPredefinedType(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.BoolKeyword or SyntaxKind.ByteKeyword or SyntaxKind.SByteKeyword or SyntaxKind.IntKeyword or SyntaxKind.UIntKeyword or SyntaxKind.ShortKeyword or SyntaxKind.UShortKeyword or SyntaxKind.LongKeyword or SyntaxKind.ULongKeyword or SyntaxKind.FloatKeyword or SyntaxKind.DoubleKeyword or SyntaxKind.DecimalKeyword or SyntaxKind.StringKeyword or SyntaxKind.CharKeyword or SyntaxKind.ObjectKeyword or SyntaxKind.VoidKeyword => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.BoolKeyword or SyntaxKind.ByteKeyword or SyntaxKind.SByteKeyword or SyntaxKind.IntKeyword or SyntaxKind.UIntKeyword or SyntaxKind.ShortKeyword or SyntaxKind.UShortKeyword or SyntaxKind.LongKeyword or SyntaxKind.ULongKeyword or SyntaxKind.FloatKeyword or SyntaxKind.DoubleKeyword or SyntaxKind.DecimalKeyword or SyntaxKind.StringKeyword or SyntaxKind.CharKeyword or SyntaxKind.ObjectKeyword or SyntaxKind.VoidKeyword;
 
         public static bool IsTypeSyntax(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.ArrayType or SyntaxKind.PointerType or SyntaxKind.NullableType or SyntaxKind.PredefinedType or SyntaxKind.TupleType or SyntaxKind.FunctionPointerType => true,
-                _ => IsName(kind),
-            };
-        }
+            => kind is SyntaxKind.ArrayType or SyntaxKind.PointerType or SyntaxKind.NullableType or SyntaxKind.PredefinedType or SyntaxKind.TupleType or SyntaxKind.FunctionPointerType;
 
         /// <summary>
         /// Member declarations that can appear in global code (other than type declarations).
         /// </summary>
         public static bool IsGlobalMemberDeclaration(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.GlobalStatement or SyntaxKind.FieldDeclaration or SyntaxKind.MethodDeclaration or SyntaxKind.PropertyDeclaration or SyntaxKind.EventDeclaration or SyntaxKind.EventFieldDeclaration => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.GlobalStatement or SyntaxKind.FieldDeclaration or SyntaxKind.MethodDeclaration or SyntaxKind.PropertyDeclaration or SyntaxKind.EventDeclaration or SyntaxKind.EventFieldDeclaration;
 
         public static bool IsTypeDeclaration(SyntaxKind kind)
-        {
-            return kind switch
-            {
-                SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.InterfaceDeclaration or SyntaxKind.DelegateDeclaration or SyntaxKind.EnumDeclaration or SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration => true,
-                _ => false,
-            };
-        }
+            => kind is SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.InterfaceDeclaration or SyntaxKind.DelegateDeclaration or SyntaxKind.EnumDeclaration or SyntaxKind.RecordDeclaration or SyntaxKind.RecordStructDeclaration;
 
         public static bool IsNamespaceMemberDeclaration(SyntaxKind kind)
-            => IsTypeDeclaration(kind) ||
-               kind == SyntaxKind.NamespaceDeclaration ||
-               kind == SyntaxKind.FileScopedNamespaceDeclaration;
+            => IsTypeDeclaration(kind) || kind is SyntaxKind.NamespaceDeclaration or SyntaxKind.FileScopedNamespaceDeclaration;
 
-        public static bool IsAnyUnaryExpression(SyntaxKind token)
-        {
-            return IsPrefixUnaryExpression(token) || IsPostfixUnaryExpression(token);
-        }
+        public static bool IsAnyUnaryExpression(SyntaxKind token) => IsPrefixUnaryExpression(token) || IsPostfixUnaryExpression(token);
 
-        public static bool IsPrefixUnaryExpression(SyntaxKind token)
-        {
-            return GetPrefixUnaryExpression(token) != SyntaxKind.None;
-        }
+        public static bool IsPrefixUnaryExpression(SyntaxKind token) => GetPrefixUnaryExpression(token) != SyntaxKind.None;
 
-        public static bool IsPrefixUnaryExpressionOperatorToken(SyntaxKind token)
-        {
-            return GetPrefixUnaryExpression(token) != SyntaxKind.None;
-        }
+        public static bool IsPrefixUnaryExpressionOperatorToken(SyntaxKind token) => GetPrefixUnaryExpression(token) != SyntaxKind.None;
 
-        public static SyntaxKind GetPrefixUnaryExpression(SyntaxKind token)
+        public static SyntaxKind GetPrefixUnaryExpression(SyntaxKind token) => token switch
         {
-            return token switch
-            {
-                SyntaxKind.PlusToken => SyntaxKind.UnaryPlusExpression,
-                SyntaxKind.MinusToken => SyntaxKind.UnaryMinusExpression,
-                SyntaxKind.TildeToken => SyntaxKind.BitwiseNotExpression,
-                SyntaxKind.ExclamationToken => SyntaxKind.LogicalNotExpression,
-                SyntaxKind.PlusPlusToken => SyntaxKind.PreIncrementExpression,
-                SyntaxKind.MinusMinusToken => SyntaxKind.PreDecrementExpression,
-                SyntaxKind.AmpersandToken => SyntaxKind.AddressOfExpression,
-                SyntaxKind.AsteriskToken => SyntaxKind.PointerIndirectionExpression,
-                SyntaxKind.CaretToken => SyntaxKind.IndexExpression,
-                _ => SyntaxKind.None,
-            };
-        }
+            SyntaxKind.PlusToken => SyntaxKind.UnaryPlusExpression,
+            SyntaxKind.MinusToken => SyntaxKind.UnaryMinusExpression,
+            SyntaxKind.TildeToken => SyntaxKind.BitwiseNotExpression,
+            SyntaxKind.ExclamationToken => SyntaxKind.LogicalNotExpression,
+            SyntaxKind.PlusPlusToken => SyntaxKind.PreIncrementExpression,
+            SyntaxKind.MinusMinusToken => SyntaxKind.PreDecrementExpression,
+            SyntaxKind.AmpersandToken => SyntaxKind.AddressOfExpression,
+            SyntaxKind.AsteriskToken => SyntaxKind.PointerIndirectionExpression,
+            SyntaxKind.CaretToken => SyntaxKind.IndexExpression,
+            _ => SyntaxKind.None,
+        };
 
-        public static bool IsPostfixUnaryExpression(SyntaxKind token)
-        {
-            return GetPostfixUnaryExpression(token) != SyntaxKind.None;
-        }
+        public static bool IsPostfixUnaryExpression(SyntaxKind token) => GetPostfixUnaryExpression(token) != SyntaxKind.None;
 
-        public static bool IsPostfixUnaryExpressionToken(SyntaxKind token)
+        public static SyntaxKind GetPostfixUnaryExpression(SyntaxKind token) => token switch
         {
-            return GetPostfixUnaryExpression(token) != SyntaxKind.None;
-        }
-
-        public static SyntaxKind GetPostfixUnaryExpression(SyntaxKind token)
-        {
-            return token switch
-            {
-                SyntaxKind.PlusPlusToken => SyntaxKind.PostIncrementExpression,
-                SyntaxKind.MinusMinusToken => SyntaxKind.PostDecrementExpression,
-                SyntaxKind.ExclamationToken => SyntaxKind.SuppressNullableWarningExpression,
-                _ => SyntaxKind.None,
-            };
-        }
-
-        internal static bool IsIncrementOrDecrementOperator(SyntaxKind token)
-        {
-            return token switch
-            {
-                SyntaxKind.PlusPlusToken or SyntaxKind.MinusMinusToken => true,
-                _ => false,
-            };
-        }
+            SyntaxKind.PlusPlusToken => SyntaxKind.PostIncrementExpression,
+            SyntaxKind.MinusMinusToken => SyntaxKind.PostDecrementExpression,
+            SyntaxKind.ExclamationToken => SyntaxKind.SuppressNullableWarningExpression,
+            _ => SyntaxKind.None,
+        };
 
         public static bool IsUnaryOperatorDeclarationToken(SyntaxKind token)
         {

@@ -4547,6 +4547,14 @@ public static partial class SyntaxFactory
         return (SwitchStatementSyntax)Syntax.InternalSyntax.SyntaxFactory.SwitchStatement(attributeLists.Node.ToGreenList<Syntax.InternalSyntax.AttributeListSyntax>(), (Syntax.InternalSyntax.SyntaxToken)switchKeyword.Node!, (Syntax.InternalSyntax.SyntaxToken?)openParenToken.Node, (Syntax.InternalSyntax.ExpressionSyntax)expression.Green, (Syntax.InternalSyntax.SyntaxToken?)closeParenToken.Node, (Syntax.InternalSyntax.SyntaxToken)openBraceToken.Node!, sections.Node.ToGreenList<Syntax.InternalSyntax.SwitchSectionSyntax>(), (Syntax.InternalSyntax.SyntaxToken)closeBraceToken.Node!).CreateRed();
     }
 
+    /// <summary>Creates a new SwitchStatementSyntax instance.</summary>
+    public static SwitchStatementSyntax SwitchStatement(ExpressionSyntax expression, SyntaxList<SwitchSectionSyntax> sections)
+    {
+        bool needsParens = expression is not TupleExpressionSyntax;
+        var parens = needsParens ? (Token(SyntaxKind.OpenParenToken), Token(SyntaxKind.CloseParenToken)) : default;
+        return SwitchStatement(default, Token(SyntaxKind.SwitchKeyword), parens.Item1, expression, parens.Item2, Token(SyntaxKind.OpenBraceToken), sections, Token(SyntaxKind.CloseBraceToken));
+    }
+
     /// <summary>Creates a new SwitchSectionSyntax instance.</summary>
     public static SwitchSectionSyntax SwitchSection(SyntaxList<SwitchLabelSyntax> labels, SyntaxList<StatementSyntax> statements)
     {

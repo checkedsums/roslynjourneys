@@ -110,11 +110,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return kind switch
             {
-                SyntaxKind.ClassDeclaration => SyntaxFactory.ClassDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
-                SyntaxKind.StructDeclaration => SyntaxFactory.StructDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
-                SyntaxKind.InterfaceDeclaration => SyntaxFactory.InterfaceDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
-                SyntaxKind.RecordDeclaration => SyntaxFactory.RecordDeclaration(SyntaxKind.RecordDeclaration, attributes, modifiers, keyword, classOrStructKeyword: default, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
-                SyntaxKind.RecordStructDeclaration => SyntaxFactory.RecordDeclaration(SyntaxKind.RecordStructDeclaration, attributes, modifiers, keyword, classOrStructKeyword: SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.ClassDeclaration => SyntaxFactory.ClassDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.StructDeclaration => SyntaxFactory.StructDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.InterfaceDeclaration => SyntaxFactory.InterfaceDeclaration(attributes, modifiers, keyword, identifier, typeParameterList, null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.RecordDeclaration => RecordDeclaration(SyntaxKind.RecordDeclaration, attributes, modifiers, keyword, classOrStructKeyword: default, identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
+                SyntaxKind.RecordStructDeclaration => RecordDeclaration(SyntaxKind.RecordStructDeclaration, attributes, modifiers, keyword, classOrStructKeyword: SyntaxFactory.Token(SyntaxKind.StructKeyword), identifier, typeParameterList, parameterList: null, baseList, constraintClauses, openBraceToken, members, closeBraceToken, semicolonToken),
                 _ => throw ExceptionUtilities.UnexpectedValue(kind),
             };
         }

@@ -4325,7 +4325,7 @@ parse_member_name:;
             SyntaxKind openKind)
         {
             open = this.EatToken(openKind);
-            var closeKind = open.Kind.getCongener();
+            var closeKind = open.Kind.GetCongener();
 
             var saveTerm = _termState;
             _termState |= TerminatorState.IsEndOfParameterList;

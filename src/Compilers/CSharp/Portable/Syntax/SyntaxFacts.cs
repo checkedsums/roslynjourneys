@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#pragma warning disable format, IDE1006
+
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -20,42 +22,23 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Returns true if the node is the alias of an AliasQualifiedNameSyntax
         /// </summary>
         public static bool IsAliasQualifier(SyntaxNode node)
-        {
-            var p = node.Parent as AliasQualifiedNameSyntax;
-            return p != null && p.Alias == node;
-        }
+            => node.Parent is AliasQualifiedNameSyntax p && p.Alias == node;
 
         public static bool IsAttributeName(SyntaxNode node)
-        {
-            var parent = node.Parent;
-            if (parent == null || !IsName(node.Kind()))
+            => (node.Parent is null || !IsName(node.Kind())) && node.Parent.Kind() switch
             {
-                return false;
-            }
-
-            switch (parent.Kind())
-            {
-                case QualifiedName:
-                    var qn = (QualifiedNameSyntax)parent;
-                    return qn.Right == node ? IsAttributeName(parent) : false;
-
-                case AliasQualifiedName:
-                    var an = (AliasQualifiedNameSyntax)parent;
-                    return an.Name == node ? IsAttributeName(parent) : false;
-            }
-
-            var p = node.Parent as AttributeSyntax;
-            return p != null && p.Name == node;
-        }
+                QualifiedName => ((QualifiedNameSyntax)node.Parent).Right == node && IsAttributeName(node.Parent),
+                AliasQualifiedName => ((AliasQualifiedNameSyntax)node.Parent).Name == node && IsAttributeName(node.Parent),
+                _ => node.Parent is AttributeSyntax p && p.Name == node,
+            };
 
         /// <summary>
         /// Returns true if the node is the object of an invocation expression.
         /// </summary>
         public static bool IsInvoked(ExpressionSyntax node)
         {
-            node = (ExpressionSyntax)SyntaxFactory.GetStandaloneExpression(node);
-            var inv = node.Parent as InvocationExpressionSyntax;
-            return inv != null && inv.Expression == node;
+            node = SyntaxFactory.GetStandaloneExpression(node);
+            return node.Parent is InvocationExpressionSyntax inv && inv.Expression == node;
         }
 
         /// <summary>
@@ -63,16 +46,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public static bool IsIndexed(ExpressionSyntax node)
         {
-            node = (ExpressionSyntax)SyntaxFactory.GetStandaloneExpression(node);
-            var indexer = node.Parent as ElementAccessExpressionSyntax;
-            return indexer != null && indexer.Expression == node;
+            node = SyntaxFactory.GetStandaloneExpression(node);
+            return node.Parent is ElementAccessExpressionSyntax indexer && indexer.Expression == node;
         }
 
         public static bool IsNamespaceAliasQualifier(ExpressionSyntax node)
-        {
-            var parent = node.Parent as AliasQualifiedNameSyntax;
-            return parent != null && parent.Alias == node;
-        }
+            => node.Parent is AliasQualifiedNameSyntax parent && parent.Alias == node;
 
         /// <summary>
         /// Returns true if the node is in a tree location that is expected to be a type
@@ -83,153 +62,50 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             node = SyntaxFactory.GetStandaloneExpression(node);
             var parent = node.Parent;
-            if (parent != null)
+            return parent is not null && (parent.IsKind(FunctionPointerType) ? throw ExceptionUtilities.Unreachable() : parent.Kind() switch
             {
-                switch (parent.Kind())
-                {
-                    case Attribute:
-                        return ((AttributeSyntax)parent).Name == node;
-
-                    case ArrayType:
-                        return ((ArrayTypeSyntax)parent).ElementType == node;
-
-                    case PointerType:
-                        return ((PointerTypeSyntax)parent).ElementType == node;
-
-                    case FunctionPointerType:
-                        // FunctionPointerTypeSyntax has no direct children that are ExpressionSyntaxes
-                        throw ExceptionUtilities.Unreachable();
-
-                    case PredefinedType:
-                        return true;
-
-                    case NullableType:
-                        return ((NullableTypeSyntax)parent).ElementType == node;
-
-                    case TypeArgumentList:
-                        // all children of GenericNames are type arguments
-                        return true;
-
-                    case CastExpression:
-                        return ((CastExpressionSyntax)parent).Type == node;
-
-                    case ObjectCreationExpression:
-                        return ((ObjectCreationExpressionSyntax)parent).Type == node;
-
-                    case StackAllocArrayCreationExpression:
-                        return ((StackAllocArrayCreationExpressionSyntax)parent).Type == node;
-
-                    case FromClause:
-                        return ((FromClauseSyntax)parent).Type == node;
-
-                    case JoinClause:
-                        return ((JoinClauseSyntax)parent).Type == node;
-
-                    case VariableDeclaration:
-                        return ((VariableDeclarationSyntax)parent).Type == node;
-
-                    case ForEachStatement:
-                        return ((ForEachStatementSyntax)parent).Type == node;
-
-                    case CatchDeclaration:
-                        return ((CatchDeclarationSyntax)parent).Type == node;
-
-                    case AsExpression:
-                    case IsExpression:
-                        return ((BinaryExpressionSyntax)parent).Right == node;
-
-                    case TypeOfExpression:
-                        return ((TypeOfExpressionSyntax)parent).Type == node;
-
-                    case SizeOfExpression:
-                        return ((SizeOfExpressionSyntax)parent).Type == node;
-
-                    case DefaultExpression:
-                        return ((DefaultExpressionSyntax)parent).Type == node;
-
-                    case RefValueExpression:
-                        return ((RefValueExpressionSyntax)parent).Type == node;
-
-                    case RefType:
-                        return ((RefTypeSyntax)parent).Type == node;
-
-                    case ScopedType:
-                        return ((ScopedTypeSyntax)parent).Type == node;
-
-                    case Parameter:
-                    case FunctionPointerParameter:
-                        return ((BaseParameterSyntax)parent).Type == node;
-
-                    case TypeConstraint:
-                        return ((TypeConstraintSyntax)parent).Type == node;
-
-                    case MethodDeclaration:
-                        return ((MethodDeclarationSyntax)parent).ReturnType == node;
-
-                    case IndexerDeclaration:
-                        return ((IndexerDeclarationSyntax)parent).Type == node;
-
-                    case OperatorDeclaration:
-                        return ((OperatorDeclarationSyntax)parent).ReturnType == node;
-
-                    case ConversionOperatorDeclaration:
-                        return ((ConversionOperatorDeclarationSyntax)parent).Type == node;
-
-                    case PropertyDeclaration:
-                        return ((PropertyDeclarationSyntax)parent).Type == node;
-
-                    case DelegateDeclaration:
-                        return ((DelegateDeclarationSyntax)parent).ReturnType == node;
-
-                    case EventDeclaration:
-                        return ((EventDeclarationSyntax)parent).Type == node;
-
-                    case LocalFunctionStatement:
-                        return ((LocalFunctionStatementSyntax)parent).ReturnType == node;
-
-                    case ParenthesizedLambdaExpression:
-                        return ((ParenthesizedLambdaExpressionSyntax)parent).ReturnType == node;
-
-                    case SimpleBaseType:
-                        return true;
-
-                    case PrimaryConstructorBaseType:
-                        return ((PrimaryConstructorBaseTypeSyntax)parent).Type == node;
-
-                    case CrefParameter:
-                        return true;
-
-                    case ConversionOperatorMemberCref:
-                        return ((ConversionOperatorMemberCrefSyntax)parent).Type == node;
-
-                    case ExplicitInterfaceSpecifier:
-                        // #13.4.1 An explicit member implementation is a method, property, event or indexer
-                        // declaration that references a fully qualified interface member name.
-                        // A ExplicitInterfaceSpecifier represents the left part (QN) of the member name, so it
-                        // should be treated like a QualifiedName.
-                        return ((ExplicitInterfaceSpecifierSyntax)parent).Name == node;
-
-                    case DeclarationPattern:
-                        return ((DeclarationPatternSyntax)parent).Type == node;
-
-                    case RecursivePattern:
-                        return ((RecursivePatternSyntax)parent).Type == node;
-
-                    case TupleElement:
-                        return ((TupleElementSyntax)parent).Type == node;
-
-                    case DeclarationExpression:
-                        return ((DeclarationExpressionSyntax)parent).Type == node;
-
-                    case IncompleteMember:
-                        return ((IncompleteMemberSyntax)parent).Type == node;
-
-                    case TypePattern:
-                        return ((TypePatternSyntax)parent).Type == node;
-                }
-            }
-
-            return false;
+                Attribute => ((AttributeSyntax)parent).Name == node,
+                ArrayType => ((ArrayTypeSyntax)parent).ElementType == node,
+                PointerType => ((PointerTypeSyntax)parent).ElementType == node,
+                SimpleBaseType or CrefParameter or PredefinedType or TypeArgumentList => true, // all children of GenericNames are type arguments
+                NullableType => ((NullableTypeSyntax)parent).ElementType == node,
+                CastExpression => ((CastExpressionSyntax)parent).Type == node,
+                ObjectCreationExpression => ((ObjectCreationExpressionSyntax)parent).Type == node,
+                StackAllocArrayCreationExpression => ((StackAllocArrayCreationExpressionSyntax)parent).Type == node,
+                FromClause => ((FromClauseSyntax)parent).Type == node,
+                JoinClause => ((JoinClauseSyntax)parent).Type == node,
+                VariableDeclaration => ((VariableDeclarationSyntax)parent).Type == node,
+                ForEachStatement => ((ForEachStatementSyntax)parent).Type == node,
+                CatchDeclaration => ((CatchDeclarationSyntax)parent).Type == node,
+                AsExpression or IsExpression => ((BinaryExpressionSyntax)parent).Right == node,
+                TypeOfExpression => ((TypeOfExpressionSyntax)parent).Type == node,
+                SizeOfExpression => ((SizeOfExpressionSyntax)parent).Type == node,
+                DefaultExpression => ((DefaultExpressionSyntax)parent).Type == node,
+                RefValueExpression => ((RefValueExpressionSyntax)parent).Type == node,
+                RefType => ((RefTypeSyntax)parent).Type == node,
+                ScopedType => ((ScopedTypeSyntax)parent).Type == node,
+                Parameter or FunctionPointerParameter => ((BaseParameterSyntax)parent).Type == node,
+                TypeConstraint => ((TypeConstraintSyntax)parent).Type == node,
+                MethodDeclaration => ((MethodDeclarationSyntax)parent).ReturnType == node,
+                IndexerDeclaration => ((IndexerDeclarationSyntax)parent).Type == node,
+                OperatorDeclaration => ((OperatorDeclarationSyntax)parent).ReturnType == node,
+                ConversionOperatorDeclaration => ((ConversionOperatorDeclarationSyntax)parent).Type == node,
+                PropertyDeclaration => ((PropertyDeclarationSyntax)parent).Type == node,
+                DelegateDeclaration => ((DelegateDeclarationSyntax)parent).ReturnType == node,
+                EventDeclaration => ((EventDeclarationSyntax)parent).Type == node,
+                LocalFunctionStatement => ((LocalFunctionStatementSyntax)parent).ReturnType == node,
+                ParenthesizedLambdaExpression => ((ParenthesizedLambdaExpressionSyntax)parent).ReturnType == node,
+                PrimaryConstructorBaseType => ((PrimaryConstructorBaseTypeSyntax)parent).Type == node,
+                ConversionOperatorMemberCref => ((ConversionOperatorMemberCrefSyntax)parent).Type == node,
+                ExplicitInterfaceSpecifier => ((ExplicitInterfaceSpecifierSyntax)parent).Name == node,// #13.4.1 An explicit member implementation is a method, property, event or indexer declaration that references a fully qualified interface member name.
+                DeclarationPattern => ((DeclarationPatternSyntax)parent).Type == node,                // A ExplicitInterfaceSpecifier represents the left part (QN) of the member name, so it should be treated like a QualifiedName.
+                RecursivePattern => ((RecursivePatternSyntax)parent).Type == node,
+                TupleElement => ((TupleElementSyntax)parent).Type == node,
+                DeclarationExpression => ((DeclarationExpressionSyntax)parent).Type == node,
+                IncompleteMember => ((IncompleteMemberSyntax)parent).Type == node,
+                TypePattern => ((TypePatternSyntax)parent).Type == node,
+                _ => false,
+            });
         }
 
         /// <summary>
@@ -239,22 +115,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <returns></returns>
         public static bool IsInNamespaceOrTypeContext(ExpressionSyntax? node)
         {
-            if (node != null)
+            if (node is not null)
             {
                 node = SyntaxFactory.GetStandaloneExpression(node);
                 var parent = node.Parent;
-                if (parent != null)
+
+                return (parent is not null) && parent.Kind() switch
                 {
-                    return parent.Kind() switch
-                    {
-                        UsingDirective => ((UsingDirectiveSyntax)parent).NamespaceOrType == node,
-                        QualifiedName => ((QualifiedNameSyntax)parent).Left == node,// left of QN is namespace or type.  Note: when you have "a.b.c()", then
-                                                                                    // "a.b" is not a qualified name, it is a member access expression.
-                                                                                    // Qualified names are only parsed when the parser knows it's a type only
-                                                                                    // context.
-                        _ => IsInTypeOnlyContext(node),
-                    };
-                }
+                    UsingDirective => ((UsingDirectiveSyntax)parent).NamespaceOrType == node,
+                    QualifiedName => ((QualifiedNameSyntax)parent).Left == node,// left of QN is namespace or type.  Note: when you have "a.b.c()", then "a.b" is not a qualified name,
+                    _ => IsInTypeOnlyContext(node),                             // it is a member access expression. Qualified names are only parsed when the parser knows it's a type only context.
+                };
             }
 
             return false;
@@ -269,55 +140,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             // An argument name is an IdentifierName inside a NameColon, inside an Argument, inside an ArgumentList, inside an
             // Invocation, ObjectCreation, ObjectInitializer, ElementAccess or Subpattern.
 
-            if (!node.IsKind(IdentifierName))
-            {
-                return false;
-            }
-
-            var parent1 = node.Parent;
-            if (parent1 == null || !parent1.IsKind(NameColon))
-            {
-                return false;
-            }
-
-            var parent2 = parent1.Parent;
-            if (parent2.IsKind(SyntaxKind.Subpattern))
-            {
-                return true;
-            }
-
-            if (parent2 == null || !(parent2.IsKind(Argument) || parent2.IsKind(AttributeArgument)))
-            {
-                return false;
-            }
-
-            var parent3 = parent2.Parent;
-            if (parent3 == null)
-            {
-                return false;
-            }
-
-            if (parent3.IsKind(SyntaxKind.TupleExpression))
-            {
-                return true;
-            }
-
-            if (!(parent3 is BaseArgumentListSyntax || parent3.IsKind(AttributeArgumentList)))
-            {
-                return false;
-            }
-
-            var parent4 = parent3.Parent;
-            if (parent4 == null)
-            {
-                return false;
-            }
-
-            return parent4.Kind() switch
-            {
-                InvocationExpression or TupleExpression or ObjectCreationExpression or ImplicitObjectCreationExpression or ObjectInitializerExpression or ElementAccessExpression or Attribute or BaseConstructorInitializer or ThisConstructorInitializer or PrimaryConstructorBaseType => true,
-                _ => false,
-            };
+            return node.IsKind(IdentifierName) && node.Parent is not null && node.Parent.IsKind(NameColon) && node.Parent.Parent.IsKind(Subpattern) && node.Parent.Parent.Kind() is Argument or AttributeArgument && node.Parent.Parent.Parent is not null
+                && node.Parent.Parent.Parent.IsKind(TupleExpression) && (node.Parent.Parent.Parent is BaseArgumentListSyntax || node.Parent.Parent.Parent.IsKind(AttributeArgumentList)) && node.Parent.Parent.Parent.Parent?.Kind() switch
+                {
+                    InvocationExpression or TupleExpression or ObjectCreationExpression or ImplicitObjectCreationExpression or
+                    ObjectInitializerExpression or ElementAccessExpression or Attribute or BaseConstructorInitializer or ThisConstructorInitializer or PrimaryConstructorBaseType => true,
+                    _ or null => false,
+                };
         }
 
         /// <summary>
@@ -328,108 +157,60 @@ namespace Microsoft.CodeAnalysis.CSharp
             var current = node.Parent;
             // Dig through parens because dev10 does (even though the spec doesn't say so)
             // Dig through casts because there's a special error code (CS0254) for such casts.
-            while (current != null && (current.IsKind(ParenthesizedExpression) || current.IsKind(CastExpression))) current = current.Parent;
-            if (current == null || !current.IsKind(EqualsValueClause)) return false;
-            current = current.Parent;
-            if (current == null || !current.IsKind(VariableDeclarator)) return false;
-            current = current.Parent;
-            if (current == null || !current.IsKind(VariableDeclaration)) return false;
-            current = current.Parent;
-            return current != null && current.IsKind(FixedStatement);
+            while (current is not null && current.Kind() is ParenthesizedExpression or CastExpression) current = current.Parent;
+            if (current is null || current.Kind() is not EqualsValueClause) return false; current = current.Parent;
+            if (current is null || current.Kind() is not VariableDeclarator) return false; current = current.Parent;
+            if (current is null || current.Kind() is not VariableDeclaration) return false; current = current.Parent;
+            return current is not null && current.IsKind(FixedStatement);
         }
 
         public static string GetText(Accessibility accessibility)
-        {
-            return accessibility switch
-            {
+            => accessibility switch {
+                Accessibility.ProtectedAndInternal => GetText(PrivateKeyword) + " " + GetText(ProtectedKeyword),
+                Accessibility.ProtectedOrInternal => GetText(ProtectedKeyword) + " " + GetText(InternalKeyword),
                 Accessibility.NotApplicable => string.Empty,
-                Accessibility.Private => SyntaxFacts.GetText(PrivateKeyword),
-                Accessibility.ProtectedAndInternal => SyntaxFacts.GetText(PrivateKeyword) + " " + SyntaxFacts.GetText(ProtectedKeyword),
-                Accessibility.Internal => SyntaxFacts.GetText(InternalKeyword),
-                Accessibility.Protected => SyntaxFacts.GetText(ProtectedKeyword),
-                Accessibility.ProtectedOrInternal => SyntaxFacts.GetText(ProtectedKeyword) + " " + SyntaxFacts.GetText(InternalKeyword),
-                Accessibility.Public => SyntaxFacts.GetText(PublicKeyword),
-                _ => throw ExceptionUtilities.UnexpectedValue(accessibility),
+                _ => GetText(accessibility switch
+                {
+                    Accessibility.Private => PrivateKeyword,
+                    Accessibility.Internal => InternalKeyword,
+                    Accessibility.Protected => ProtectedKeyword,
+                    Accessibility.Public => PublicKeyword,
+                    _ => throw ExceptionUtilities.UnexpectedValue(accessibility),
+                }),
             };
-        }
 
-        internal static bool IsStatementExpression(SyntaxNode syntax)
-        {
-            // The grammar gives:
-            //
-            // expression-statement:
-            //     statement-expression ;
-            //
-            // statement-expression:
-            //     invocation-expression
-            //     object-creation-expression
-            //     assignment
-            //     post-increment-expression
-            //     post-decrement-expression
-            //     pre-increment-expression
-            //     pre-decrement-expression
-            //     await-expression
-
-            switch (syntax.Kind())
+        /* 
+        // The grammar gives:
+        //
+        // expression-statement:
+        //     statement-expression ;
+        //
+        // statement-expression:
+        //     invocation-expression
+        //     object-creation-expression
+        //     assignment
+        //     post-increment-expression
+        //     post-decrement-expression
+        //     pre-increment-expression
+        //     pre-decrement-expression
+        //     await-expression
+        */
+        internal static bool IsStatementExpression(SyntaxNode syntax) =>
+            syntax.Kind() switch
             {
-                case InvocationExpression:
-                case ObjectCreationExpression:
-                case SimpleAssignmentExpression:
-                case AddAssignmentExpression:
-                case SubtractAssignmentExpression:
-                case MultiplyAssignmentExpression:
-                case DivideAssignmentExpression:
-                case ModuloAssignmentExpression:
-                case AndAssignmentExpression:
-                case OrAssignmentExpression:
-                case ExclusiveOrAssignmentExpression:
-                case LeftShiftAssignmentExpression:
-                case RightShiftAssignmentExpression:
-                case UnsignedRightShiftAssignmentExpression:
-                case CoalesceAssignmentExpression:
-                case PostIncrementExpression:
-                case PostDecrementExpression:
-                case PreIncrementExpression:
-                case PreDecrementExpression:
-                case AwaitExpression:
-                    return true;
-
-                case ConditionalAccessExpression:
-                    var access = (ConditionalAccessExpressionSyntax)syntax;
-                    return IsStatementExpression(access.WhenNotNull);
-
+                InvocationExpression or ObjectCreationExpression or SimpleAssignmentExpression or AddAssignmentExpression or SubtractAssignmentExpression or MultiplyAssignmentExpression or DivideAssignmentExpression or ModuloAssignmentExpression or AndAssignmentExpression or OrAssignmentExpression or ExclusiveOrAssignmentExpression or LeftShiftAssignmentExpression or RightShiftAssignmentExpression or UnsignedRightShiftAssignmentExpression or CoalesceAssignmentExpression or PostIncrementExpression or PostDecrementExpression or PreIncrementExpression or PreDecrementExpression or AwaitExpression => true,
+                ConditionalAccessExpression => IsStatementExpression(((ConditionalAccessExpressionSyntax)syntax).WhenNotNull),
                 // Allow missing IdentifierNames; they will show up in error cases
                 // where there is no statement whatsoever.
+                IdentifierName => syntax.IsMissing,
+                _ => false,
+            };
 
-                case IdentifierName:
-                    return syntax.IsMissing;
+        internal static bool IsIdentifierVar(this Syntax.InternalSyntax.SyntaxToken node) 
+            => node.ContextualKind == VarKeyword;
 
-                default:
-                    return false;
-            }
-        }
-
-        [System.Obsolete("IsLambdaBody API is obsolete", true)]
-        public static bool IsLambdaBody(SyntaxNode node)
-        {
-            return LambdaUtilities.IsLambdaBody(node);
-        }
-
-        internal static bool IsIdentifierVar(this Syntax.InternalSyntax.SyntaxToken node)
-        {
-            return node.ContextualKind == SyntaxKind.VarKeyword;
-        }
-
-        internal static bool IsIdentifierVarOrPredefinedType(this Syntax.InternalSyntax.SyntaxToken node)
-        {
-            return node.IsIdentifierVar() || IsPredefinedType(node.Kind);
-        }
-
-        internal static bool IsDeclarationExpressionType(SyntaxNode node, [NotNullWhen(true)] out DeclarationExpressionSyntax? parent)
-        {
-            parent = node.ModifyingScopedOrRefTypeOrSelf().Parent as DeclarationExpressionSyntax;
-            return node == parent?.Type.SkipScoped(out _).SkipRef();
-        }
+        internal static bool IsDeclarationExpressionType(SyntaxNode node, [NotNullWhen(true)] out DeclarationExpressionSyntax? parent) 
+            => node == (parent = node.ModifyingScopedOrRefTypeOrSelf().Parent as DeclarationExpressionSyntax)?.Type.SkipScoped(out _).SkipRef();
 
         /// <summary>
         /// Given an initializer expression infer the name of anonymous property or tuple element.
@@ -440,15 +221,15 @@ namespace Microsoft.CodeAnalysis.CSharp
             SyntaxToken nameToken;
             switch (syntax.Kind())
             {
-                case SyntaxKind.SingleVariableDesignation:
+                case SingleVariableDesignation:
                     nameToken = ((SingleVariableDesignationSyntax)syntax).Identifier;
                     break;
 
-                case SyntaxKind.DeclarationExpression:
+                case DeclarationExpression:
                     var declaration = (DeclarationExpressionSyntax)syntax;
                     var designationKind = declaration.Designation.Kind();
-                    if (designationKind == SyntaxKind.ParenthesizedVariableDesignation ||
-                        designationKind == SyntaxKind.DiscardDesignation)
+                    if (designationKind == ParenthesizedVariableDesignation ||
+                        designationKind == DiscardDesignation)
                     {
                         return null;
                     }
@@ -456,8 +237,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     nameToken = ((SingleVariableDesignationSyntax)declaration.Designation).Identifier;
                     break;
 
-                case SyntaxKind.ParenthesizedVariableDesignation:
-                case SyntaxKind.DiscardDesignation:
+                case ParenthesizedVariableDesignation:
+                case DiscardDesignation:
                     return null;
 
                 default:
@@ -481,67 +262,35 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Names that are not reserved return false.
         /// </summary>
         public static bool IsReservedTupleElementName(string elementName)
-        {
-            return NamedTypeSymbol.IsTupleElementNameReserved(elementName) != -1;
-        }
+            => NamedTypeSymbol.IsTupleElementNameReserved(elementName) != -1;
 
-        internal static bool HasAnyBody(this BaseMethodDeclarationSyntax declaration)
-        {
-            return (declaration.Body ?? (SyntaxNode?)declaration.ExpressionBody) != null;
-        }
+        internal static bool HasAnyBody(this BaseMethodDeclarationSyntax declaration) 
+            => (declaration.Body ?? (SyntaxNode?)declaration.ExpressionBody) is not null;
 
         internal static bool IsExpressionBodied(this BaseMethodDeclarationSyntax declaration)
-        {
-            return declaration.Body == null && declaration.ExpressionBody != null;
-        }
+            => declaration.Body == null && declaration.ExpressionBody != null;
 
-        internal static bool IsVarArg(this BaseMethodDeclarationSyntax declaration)
-        {
-            return IsVarArg(declaration.ParameterList);
-        }
-
-        internal static bool IsVarArg(this ParameterListSyntax parameterList)
-        {
-            return parameterList.Parameters.Any(static p => p.IsArgList);
-        }
+        internal static bool IsVarArg(this BaseMethodDeclarationSyntax declaration) => IsVarArg(declaration.ParameterList);
+        internal static bool IsVarArg(this ParameterListSyntax parameterList) => parameterList.Parameters.Any(static p => p.IsArgList);
 
         internal static bool IsTopLevelStatement([NotNullWhen(true)] GlobalStatementSyntax? syntax)
-        {
-            return syntax?.Parent?.IsKind(SyntaxKind.CompilationUnit) == true;
-        }
+            => syntax?.Parent is not null && syntax.Parent.IsKind(CompilationUnit);
 
-        internal static bool IsSimpleProgramTopLevelStatement(GlobalStatementSyntax? syntax)
-        {
-            return IsTopLevelStatement(syntax) && syntax.SyntaxTree.Options.Kind == SourceCodeKind.Regular;
-        }
+        internal static bool IsSimpleProgramTopLevelStatement(GlobalStatementSyntax? syntax) 
+            => IsTopLevelStatement(syntax) && syntax.SyntaxTree.Options.Kind is SourceCodeKind.Regular;
 
-        internal static bool HasAwaitOperations(SyntaxNode node)
-        {
-            // Do not descend into functions
-            return node.DescendantNodesAndSelf(child => !IsNestedFunction(child)).Any(
-                            node =>
-                            {
-                                switch (node)
-                                {
-                                    case AwaitExpressionSyntax _:
-                                    case LocalDeclarationStatementSyntax local when local.AwaitKeyword.IsKind(SyntaxKind.AwaitKeyword):
-                                    case CommonForEachStatementSyntax @foreach when @foreach.AwaitKeyword.IsKind(SyntaxKind.AwaitKeyword):
-                                    case UsingStatementSyntax @using when @using.AwaitKeyword.IsKind(SyntaxKind.AwaitKeyword):
-                                        return true;
-                                    default:
-                                        return false;
-                                }
-                            });
-        }
+        internal static bool HasAwaitOperations(SyntaxNode node) // Do not descend into functions
+            => node.DescendantNodesAndSelf(child => !IsNestedFunction(child)).Any(
+                static _node => _node switch
+                {
+                    LocalDeclarationStatementSyntax local => local.AwaitKeyword.IsKind(AwaitKeyword),
+                    CommonForEachStatementSyntax @foreach => @foreach.AwaitKeyword.IsKind(AwaitKeyword),
+                    UsingStatementSyntax @using => @using.AwaitKeyword.IsKind(AwaitKeyword),
+                    _ or null => _node is AwaitExpressionSyntax,
+                });
 
-        private static bool IsNestedFunction(SyntaxNode child)
-            => IsNestedFunction(child.Kind());
-
-        private static bool IsNestedFunction(SyntaxKind kind)
-            => kind is SyntaxKind.LocalFunctionStatement
-                or SyntaxKind.AnonymousMethodExpression
-                or SyntaxKind.SimpleLambdaExpression
-                or SyntaxKind.ParenthesizedLambdaExpression;
+        private static bool IsNestedFunction(SyntaxNode child) => IsNestedFunction(child.Kind());
+        private static bool IsNestedFunction(SyntaxKind kind) => kind is LocalFunctionStatement or AnonymousMethodExpression or SimpleLambdaExpression or ParenthesizedLambdaExpression;
 
         [PerformanceSensitive("https://github.com/dotnet/roslyn/pull/66970", Constraint = "Use Green nodes for walking to avoid heavy allocations.")]
         internal static bool HasYieldOperations(SyntaxNode? node)
