@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.CodeAnalysis.CSharp
@@ -26,14 +25,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         public static bool IsQuery(this SyntaxNode syntax)
-        {
-            Debug.Assert(syntax != null);
-            return syntax.Kind() switch
-            {
-                SyntaxKind.FromClause or SyntaxKind.GroupClause or SyntaxKind.JoinClause or SyntaxKind.JoinIntoClause or SyntaxKind.LetClause or SyntaxKind.OrderByClause or SyntaxKind.QueryContinuation or SyntaxKind.QueryExpression or SyntaxKind.SelectClause or SyntaxKind.WhereClause => true,
-                _ => false,
-            };
-        }
+            => syntax.Kind() is SyntaxKind.FromClause or SyntaxKind.GroupClause or SyntaxKind.JoinClause or SyntaxKind.JoinIntoClause or SyntaxKind.LetClause or SyntaxKind.OrderByClause or SyntaxKind.QueryContinuation or SyntaxKind.QueryExpression or SyntaxKind.SelectClause or SyntaxKind.WhereClause;
 
         internal static bool MayBeNameofOperator(this InvocationExpressionSyntax node)
         {
@@ -60,94 +52,24 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// "Local binder" is a term that refers to binders that are
         /// created by LocalBinderFactory.
         /// </summary>
-        internal static bool CanHaveAssociatedLocalBinder(this SyntaxNode syntax)
+        internal static bool CanHaveAssociatedLocalBinder(this SyntaxNode syntax) => syntax.Kind() switch
         {
-            SyntaxKind kind = syntax.Kind();
-            return kind switch
-            {
-                SyntaxKind.InvocationExpression when ((InvocationExpressionSyntax)syntax).MayBeNameofOperator() => true,
-                SyntaxKind.CatchClause or SyntaxKind.ParenthesizedLambdaExpression or SyntaxKind.SimpleLambdaExpression or SyntaxKind.AnonymousMethodExpression or SyntaxKind.CatchFilterClause or SyntaxKind.SwitchSection or SyntaxKind.EqualsValueClause or SyntaxKind.Attribute or SyntaxKind.ArgumentList or SyntaxKind.ArrowExpressionClause or SyntaxKind.SwitchExpression or SyntaxKind.SwitchExpressionArm or SyntaxKind.BaseConstructorInitializer or SyntaxKind.ThisConstructorInitializer or SyntaxKind.ConstructorDeclaration or SyntaxKind.PrimaryConstructorBaseType or SyntaxKind.CheckedExpression or SyntaxKind.UncheckedExpression => true,
-                SyntaxKind.RecordStructDeclaration => false,
-                _ => syntax is StatementSyntax || IsValidScopeDesignator(syntax as ExpressionSyntax),
-            };
-        }
+            SyntaxKind.InvocationExpression when ((InvocationExpressionSyntax)syntax).MayBeNameofOperator() => true,
+            SyntaxKind.CatchClause or SyntaxKind.ParenthesizedLambdaExpression or SyntaxKind.SimpleLambdaExpression or SyntaxKind.AnonymousMethodExpression or SyntaxKind.CatchFilterClause or SyntaxKind.SwitchSection or SyntaxKind.EqualsValueClause or SyntaxKind.Attribute or SyntaxKind.ArgumentList or SyntaxKind.ArrowExpressionClause or SyntaxKind.SwitchExpression or SyntaxKind.SwitchExpressionArm or SyntaxKind.BaseConstructorInitializer or SyntaxKind.ThisConstructorInitializer or SyntaxKind.ConstructorDeclaration or SyntaxKind.PrimaryConstructorBaseType or SyntaxKind.CheckedExpression or SyntaxKind.UncheckedExpression => true,
+            SyntaxKind.RecordStructDeclaration => false,
+            _ => syntax is StatementSyntax || IsValidScopeDesignator(syntax as ExpressionSyntax),
+        };
 
-        internal static bool IsValidScopeDesignator(this ExpressionSyntax? expression)
+        internal static bool IsValidScopeDesignator(this ExpressionSyntax? expression) => expression?.Parent?.Kind() switch // All these nodes are valid scope designators due to the pattern matching and out vars features.
         {
-            // All these nodes are valid scope designators due to the pattern matching and out vars features.
-            CSharpSyntaxNode? parent = expression?.Parent;
-            switch (parent?.Kind())
-            {
-                case SyntaxKind.SimpleLambdaExpression:
-                case SyntaxKind.ParenthesizedLambdaExpression:
-                    return ((LambdaExpressionSyntax)parent).Body == expression;
+            SyntaxKind.SimpleLambdaExpression or SyntaxKind.ParenthesizedLambdaExpression => ((LambdaExpressionSyntax)expression?.Parent!).Body == expression,
+            SyntaxKind.SwitchStatement => ((SwitchStatementSyntax)expression?.Parent!).Expression == expression,
+            SyntaxKind.ForStatement => ((ForStatementSyntax)expression?.Parent!).Condition == expression || ((ForStatementSyntax)expression?.Parent!).Incrementors.FirstOrDefault() == expression,
+            SyntaxKind.ForEachStatement or SyntaxKind.ForEachVariableStatement => ((CommonForEachStatementSyntax)expression?.Parent!).Expression == expression,
+            _ or null => false,
+        };
 
-                case SyntaxKind.SwitchStatement:
-                    return ((SwitchStatementSyntax)parent).Expression == expression;
-
-                case SyntaxKind.ForStatement:
-                    var forStmt = (ForStatementSyntax)parent;
-                    return forStmt.Condition == expression || forStmt.Incrementors.FirstOrDefault() == expression;
-
-                case SyntaxKind.ForEachStatement:
-                case SyntaxKind.ForEachVariableStatement:
-                    return ((CommonForEachStatementSyntax)parent).Expression == expression;
-
-                default:
-                    return false;
-            }
-        }
-
-        /// <summary>
-        /// Because the instruction cannot have any values on the stack before CLR execution
-        /// we limited it to assignments and conditional expressions in C# 7.
-        /// See https://github.com/dotnet/roslyn/issues/22046.
-        /// In C# 8 we relaxed
-        /// that by rewriting the code to move it to the statement level where the stack is empty.
-        /// </summary>
-        internal static bool IsLegalCSharp73SpanStackAllocPosition(this SyntaxNode node)
-        {
-            Debug.Assert(node != null);
-
-            if (node.Parent.IsKind(SyntaxKind.CastExpression))
-            {
-                node = node.Parent;
-            }
-
-            while (node.Parent.IsKind(SyntaxKind.ConditionalExpression))
-            {
-                node = node.Parent;
-            }
-
-            SyntaxNode? parentNode = node.Parent;
-
-            if (parentNode is null)
-            {
-                return false;
-            }
-
-            switch (parentNode.Kind())
-            {
-                // In case of a declaration of a Span<T> variable
-                case SyntaxKind.EqualsValueClause:
-                    {
-                        SyntaxNode? variableDeclarator = parentNode.Parent;
-
-                        return variableDeclarator.IsKind(SyntaxKind.VariableDeclarator) &&
-                            variableDeclarator.Parent.IsKind(SyntaxKind.VariableDeclaration);
-                    }
-                // In case of reassignment to a Span<T> variable
-                case SyntaxKind.SimpleAssignmentExpression:
-                    {
-                        return parentNode.Parent.IsKind(SyntaxKind.ExpressionStatement);
-                    }
-            }
-
-            return false;
-        }
-
-        internal static CSharpSyntaxNode AnonymousFunctionBody(this SyntaxNode lambda)
-            => ((AnonymousFunctionExpressionSyntax)lambda).Body;
+        internal static CSharpSyntaxNode AnonymousFunctionBody(this SyntaxNode lambda) => ((AnonymousFunctionExpressionSyntax)lambda).Body;
 
         /// <summary>
         /// Given an initializer expression infer the name of anonymous property or tuple element.
@@ -168,10 +90,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     case SyntaxKind.ConditionalAccessExpression:
                         input = ((ConditionalAccessExpressionSyntax)input).WhenNotNull;
-                        if (input.Kind() == SyntaxKind.MemberBindingExpression)
-                        {
+                        if (input.IsKind(SyntaxKind.MemberBindingExpression))
                             return ((MemberBindingExpressionSyntax)input).Name.Identifier;
-                        }
 
                         continue;
 
@@ -194,18 +114,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// cref="SkipRefInLocalOrReturn"/> or <see cref="SkipRefInField"/> depending on which language feature they are
         /// asking for.
         /// </summary>
-        internal static TypeSyntax SkipRef(this TypeSyntax syntax)
-            => SkipRefWorker(syntax, diagnostics: null, out _);
+        internal static TypeSyntax SkipRef(this TypeSyntax syntax) => SkipRefWorker(syntax, diagnostics: null, out _);
+        // Intentionally pass no diagnostics here.  This is for ref-fields which handles all its diagnostics itself in the field symbol.
+        internal static TypeSyntax SkipRefInField(this TypeSyntax syntax, out RefKind refKind) => SkipRefWorker(syntax, diagnostics: null, out refKind);
 
-        internal static TypeSyntax SkipRefInField(this TypeSyntax syntax, out RefKind refKind)
-        {
-            // Intentionally pass no diagnostics here.  This is for ref-fields which handles all its diagnostics itself
-            // in the field symbol.
-            return SkipRefWorker(syntax, diagnostics: null, out refKind);
-        }
-
-        internal static TypeSyntax SkipRefInLocalOrReturn(this TypeSyntax syntax, BindingDiagnosticBag? diagnostics, out RefKind refKind)
-            => SkipRefWorker(syntax, diagnostics, out refKind);
+        internal static TypeSyntax SkipRefInLocalOrReturn(this TypeSyntax syntax, BindingDiagnosticBag? diagnostics, out RefKind refKind) => SkipRefWorker(syntax, diagnostics, out refKind);
 
         private static TypeSyntax SkipRefWorker(TypeSyntax syntax, BindingDiagnosticBag? diagnostics, out RefKind refKind)
         {
@@ -263,12 +176,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 parentNode = parentNode.Parent;
             }
 
-            if (parentNode is ScopedTypeSyntax scopedType && scopedType.Type == syntax)
-            {
-                return scopedType;
-            }
-
-            return syntax;
+            return parentNode is not ScopedTypeSyntax scopedType || scopedType.Type != syntax ? syntax : scopedType;
         }
 
         internal static ExpressionSyntax? UnwrapRefExpression(

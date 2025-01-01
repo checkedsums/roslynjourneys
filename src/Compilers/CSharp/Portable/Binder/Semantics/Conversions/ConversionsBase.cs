@@ -254,7 +254,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             // If exactly one of source or destination is of type 'void' then no conversion may exist.
-            if (sourceIsVoid || destIsVoid)
+            if (destIsVoid)
             {
                 conversion = Conversion.NoConversion;
                 return true;

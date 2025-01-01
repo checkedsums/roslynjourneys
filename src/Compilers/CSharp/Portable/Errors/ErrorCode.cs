@@ -367,9 +367,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_NewVirtualInSealed = 549,
         ERR_ExplicitPropertyAddingAccessor = 550,
         ERR_ExplicitPropertyMissingAccessor = 551,
-        ERR_ConversionWithInterface = 552,
-        ERR_ConversionWithBase = 553,
-        ERR_ConversionWithDerived = 554,
+
         ERR_IdentityConversion = 555,
         ERR_ConversionNotInvolvingContainedType = 556,
         ERR_DuplicateConversionInClass = 557,
@@ -492,7 +490,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_InstantiatingStaticClass = 712,
         ERR_StaticDerivedFromNonObject = 713,
         ERR_StaticClassInterfaceImpl = 714,
-        ERR_OperatorInStaticClass = 715,
+
         ERR_ConvertToStaticClass = 716,
         ERR_ConstraintIsStaticClass = 717,
         ERR_GenericArgIsStaticClass = 718,

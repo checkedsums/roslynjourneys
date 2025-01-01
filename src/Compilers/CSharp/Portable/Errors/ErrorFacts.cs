@@ -530,9 +530,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_NewVirtualInSealed
                 or ErrorCode.ERR_ExplicitPropertyAddingAccessor
                 or ErrorCode.ERR_ExplicitPropertyMissingAccessor
-                or ErrorCode.ERR_ConversionWithInterface
-                or ErrorCode.ERR_ConversionWithBase
-                or ErrorCode.ERR_ConversionWithDerived
                 or ErrorCode.ERR_IdentityConversion
                 or ErrorCode.ERR_ConversionNotInvolvingContainedType
                 or ErrorCode.ERR_DuplicateConversionInClass
@@ -631,7 +628,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_InstantiatingStaticClass
                 or ErrorCode.ERR_StaticDerivedFromNonObject
                 or ErrorCode.ERR_StaticClassInterfaceImpl
-                or ErrorCode.ERR_OperatorInStaticClass
                 or ErrorCode.ERR_ConvertToStaticClass
                 or ErrorCode.ERR_ConstraintIsStaticClass
                 or ErrorCode.ERR_GenericArgIsStaticClass

@@ -64,7 +64,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             var normalizer = new SyntaxNormalizer(trivia.FullSpan, GetDeclarationDepth(trivia.Token), indentWhitespace, eolWhitespace, useElasticTrivia);
             var result = normalizer.RewriteTrivia(
                 trivia,
-                GetDeclarationDepth((SyntaxToken)trivia.ElementAt(0).Token),
+                GetDeclarationDepth(trivia.ElementAt(0).Token),
                 isTrailing: false,
                 indentAfterLineBreak: false,
                 mustHaveSeparator: false,

@@ -25,11 +25,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             => node.Parent is AliasQualifiedNameSyntax p && p.Alias == node;
 
         public static bool IsAttributeName(SyntaxNode node)
-            => (node.Parent is null || !IsName(node.Kind())) && node.Parent.Kind() switch
+            => (node.Parent is null || !IsName(node.Kind())) && node.Parent?.Kind() switch
             {
                 QualifiedName => ((QualifiedNameSyntax)node.Parent).Right == node && IsAttributeName(node.Parent),
                 AliasQualifiedName => ((AliasQualifiedNameSyntax)node.Parent).Name == node && IsAttributeName(node.Parent),
-                _ => node.Parent is AttributeSyntax p && p.Name == node,
+                _ or null => node?.Parent is AttributeSyntax p && p.Name == node,
             };
 
         /// <summary>

@@ -14,55 +14,30 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 {
     internal static class SyntaxNodeRemover
     {
-        internal static TRoot? RemoveNodes<TRoot>(TRoot root,
-                IEnumerable<SyntaxNode> nodes,
-                SyntaxRemoveOptions options)
-            where TRoot : SyntaxNode
+        internal static TRoot? RemoveNodes<TRoot>(TRoot root, IEnumerable<SyntaxNode> nodes, SyntaxRemoveOptions options) where TRoot : SyntaxNode
         {
-            if (nodes == null)
-            {
+            if (nodes is null || nodes.ToArray().Length == 0)
                 return root;
-            }
 
-            var nodeArray = nodes.ToArray();
-
-            if (nodeArray.Length == 0)
-            {
-                return root;
-            }
-
-            var remover = new SyntaxRemover(nodes.ToArray(), options);
+            var remover = new SyntaxRemover([.. nodes], options);
             var result = remover.Visit(root);
 
             var residualTrivia = remover.ResidualTrivia;
 
             // the result of the SyntaxRemover will be null when the root node is removed.
-            if (result != null && residualTrivia.Count > 0)
-            {
+            if (result is not null && residualTrivia.Count > 0)
                 result = result.WithTrailingTrivia(result.GetTrailingTrivia().Concat(residualTrivia));
-            }
 
             return (TRoot?)result;
         }
 
-        private sealed class SyntaxRemover : CSharpSyntaxRewriter
+        private sealed class SyntaxRemover(SyntaxNode[] nodesToRemove, SyntaxRemoveOptions options) : CSharpSyntaxRewriter(nodesToRemove.Any(n => n.IsPartOfStructuredTrivia()))
         {
-            private readonly HashSet<SyntaxNode> _nodesToRemove;
-            private readonly SyntaxRemoveOptions _options;
-            private readonly TextSpan _searchSpan;
-            private readonly SyntaxTriviaListBuilder _residualTrivia;
+            private readonly HashSet<SyntaxNode> _nodesToRemove = [.. nodesToRemove];
+            private readonly SyntaxRemoveOptions _options = options;
+            private readonly TextSpan _searchSpan = ComputeTotalSpan(nodesToRemove);
+            private readonly SyntaxTriviaListBuilder _residualTrivia = SyntaxTriviaListBuilder.Create();
             private HashSet<SyntaxNode>? _directivesToKeep;
-
-            public SyntaxRemover(
-                SyntaxNode[] nodesToRemove,
-                SyntaxRemoveOptions options)
-                : base(nodesToRemove.Any(n => n.IsPartOfStructuredTrivia()))
-            {
-                _nodesToRemove = new HashSet<SyntaxNode>(nodesToRemove);
-                _options = options;
-                _searchSpan = ComputeTotalSpan(nodesToRemove);
-                _residualTrivia = SyntaxTriviaListBuilder.Create();
-            }
 
             private static TextSpan ComputeTotalSpan(SyntaxNode[] nodes)
             {
@@ -80,27 +55,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 return new TextSpan(start, end - start);
             }
 
-            internal SyntaxTriviaList ResidualTrivia
-            {
-                get
-                {
-                    if (_residualTrivia != null)
-                    {
-                        return _residualTrivia.ToList();
-                    }
-                    else
-                    {
-                        return default;
-                    }
-                }
-            }
+            internal SyntaxTriviaList ResidualTrivia => _residualTrivia?.ToList() ?? default;
 
             private void AddResidualTrivia(SyntaxTriviaList trivia, bool requiresNewLine = false)
             {
                 if (requiresNewLine)
-                {
                     this.AddEndOfLine(GetEndOfLine(trivia) ?? SyntaxFactory.CarriageReturnLineFeed);
-                }
 
                 _residualTrivia.Add(trivia);
             }
@@ -108,14 +68,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             private void AddEndOfLine(SyntaxTrivia? eolTrivia)
             {
                 if (!eolTrivia.HasValue)
-                {
                     return;
-                }
 
                 if (_residualTrivia.Count == 0 || !IsEndOfLine(_residualTrivia[_residualTrivia.Count - 1]))
-                {
                     _residualTrivia.Add(eolTrivia.Value);
-                }
             }
 
             /// <summary>
@@ -125,9 +81,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             /// </summary>
             private static bool IsEndOfLine(SyntaxTrivia trivia)
             {
-                return trivia.Kind() == SyntaxKind.EndOfLineTrivia
-                    || trivia.Kind() == SyntaxKind.SingleLineCommentTrivia
-                    || trivia.IsDirective;
+                return trivia.IsKind(SyntaxKind.EndOfLineTrivia) || trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsDirective;
             }
 
             /// <summary>
@@ -137,29 +91,19 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             {
                 foreach (var trivia in list)
                 {
-                    if (trivia.Kind() == SyntaxKind.EndOfLineTrivia)
-                    {
+                    if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
                         return trivia;
-                    }
 
                     if (trivia.IsDirective && trivia.GetStructure() is DirectiveTriviaSyntax directive)
-                    {
                         return GetEndOfLine(directive.EndOfDirectiveToken.TrailingTrivia);
-                    }
                 }
 
                 return null;
             }
 
-            private bool IsForRemoval(SyntaxNode node)
-            {
-                return _nodesToRemove.Contains(node);
-            }
+            private bool IsForRemoval(SyntaxNode node) => _nodesToRemove.Contains(node);
 
-            private bool ShouldVisit(SyntaxNode node)
-            {
-                return node.FullSpan.IntersectsWith(_searchSpan) || (_residualTrivia != null && _residualTrivia.Count > 0);
-            }
+            private bool ShouldVisit(SyntaxNode node) => node.FullSpan.IntersectsWith(_searchSpan) || (_residualTrivia != null && _residualTrivia.Count > 0);
 
             [return: NotNullIfNotNull(nameof(node))]
             public override SyntaxNode? Visit(SyntaxNode? node)
@@ -223,9 +167,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                             visited = default;
                         }
                         else
-                        {
                             visited = this.VisitListSeparator(item.AsToken());
-                        }
                     }
                     else
                     {
@@ -239,15 +181,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                                 alternate.Add(withSeps, 0, i);
                             }
 
-                            CommonSyntaxNodeRemover.GetSeparatorInfo(
-                                withSeps, i, (int)SyntaxKind.EndOfLineTrivia,
-                                out bool nextTokenIsSeparator, out bool nextSeparatorBelongsToNode);
+                            CommonSyntaxNodeRemover.GetSeparatorInfo(withSeps, i, (int)SyntaxKind.EndOfLineTrivia, out bool nextTokenIsSeparator, out bool nextSeparatorBelongsToNode);
 
                             if (!nextSeparatorBelongsToNode &&
                                 alternate.Count > 0 &&
-                                alternate[alternate.Count - 1].IsToken)
+                                alternate[^1].IsToken)
                             {
-                                var separator = alternate[alternate.Count - 1].AsToken();
+                                var separator = alternate[^1].AsToken();
                                 this.AddTrivia(separator, node);
                                 alternate.RemoveLast();
                             }
@@ -258,16 +198,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                                 removeNextSeparator = true;
                             }
                             else
-                            {
                                 this.AddTrivia(node);
-                            }
 
                             visited = default;
                         }
                         else
-                        {
                             visited = this.VisitListElement(node);
-                        }
                     }
 
                     if (item != visited && alternate == null)
@@ -277,48 +213,29 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                     }
 
                     if (alternate != null && visited.Kind() != SyntaxKind.None)
-                    {
                         alternate.Add(visited);
-                    }
                 }
 
-                if (alternate != null)
-                {
-                    return alternate.ToList().AsSeparatedList<TNode>();
-                }
-
-                return list;
+                return alternate?.ToList().AsSeparatedList<TNode>() ?? list;
             }
 
             private void AddTrivia(SyntaxNode node)
             {
                 if ((_options & SyntaxRemoveOptions.KeepLeadingTrivia) != 0)
-                {
                     this.AddResidualTrivia(node.GetLeadingTrivia());
-                }
                 else if ((_options & SyntaxRemoveOptions.KeepEndOfLine) != 0)
-                {
                     this.AddEndOfLine(GetEndOfLine(node.GetLeadingTrivia()));
-                }
 
                 if ((_options & (SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.KeepUnbalancedDirectives)) != 0)
-                {
                     this.AddDirectives(node, GetRemovedSpan(node.Span, node.FullSpan));
-                }
 
                 if ((_options & SyntaxRemoveOptions.KeepTrailingTrivia) != 0)
-                {
                     this.AddResidualTrivia(node.GetTrailingTrivia());
-                }
                 else if ((_options & SyntaxRemoveOptions.KeepEndOfLine) != 0)
-                {
                     this.AddEndOfLine(GetEndOfLine(node.GetTrailingTrivia()));
-                }
 
                 if ((_options & SyntaxRemoveOptions.AddElasticMarker) != 0)
-                {
                     this.AddResidualTrivia(SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-                }
             }
 
             private void AddTrivia(SyntaxToken token, SyntaxNode node)
@@ -347,31 +264,21 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 }
 
                 if ((_options & SyntaxRemoveOptions.KeepTrailingTrivia) != 0)
-                {
                     this.AddResidualTrivia(node.GetTrailingTrivia());
-                }
                 else if ((_options & SyntaxRemoveOptions.KeepEndOfLine) != 0)
-                {
                     this.AddEndOfLine(GetEndOfLine(node.GetTrailingTrivia()));
-                }
 
                 if ((_options & SyntaxRemoveOptions.AddElasticMarker) != 0)
-                {
                     this.AddResidualTrivia(SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-                }
             }
 
             private void AddTrivia(SyntaxNode node, SyntaxToken token)
             {
                 Debug.Assert(node.Parent is not null);
                 if ((_options & SyntaxRemoveOptions.KeepLeadingTrivia) != 0)
-                {
                     this.AddResidualTrivia(node.GetLeadingTrivia());
-                }
                 else if ((_options & SyntaxRemoveOptions.KeepEndOfLine) != 0)
-                {
                     this.AddEndOfLine(GetEndOfLine(node.GetLeadingTrivia()));
-                }
 
                 if ((_options & (SyntaxRemoveOptions.KeepDirectives | SyntaxRemoveOptions.KeepUnbalancedDirectives)) != 0)
                 {
@@ -387,18 +294,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                     this.AddResidualTrivia(token.TrailingTrivia);
                 }
                 else if ((_options & SyntaxRemoveOptions.KeepEndOfLine) != 0)
-                {
                     // For retrieving an EOL we don't need to check the token leading trivia as
                     // it can be always retrieved from the node trailing trivia, if one exists.
-                    var eol = GetEndOfLine(node.GetTrailingTrivia()) ??
-                              GetEndOfLine(token.TrailingTrivia);
-                    this.AddEndOfLine(eol);
-                }
+                    this.AddEndOfLine(GetEndOfLine(node.GetTrailingTrivia()) ?? GetEndOfLine(token.TrailingTrivia));
 
                 if ((_options & SyntaxRemoveOptions.AddElasticMarker) != 0)
-                {
                     this.AddResidualTrivia(SyntaxFactory.TriviaList(SyntaxFactory.ElasticMarker));
-                }
             }
 
             private TextSpan GetRemovedSpan(TextSpan span, TextSpan fullSpan)
@@ -406,14 +307,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                 var removedSpan = fullSpan;
 
                 if ((_options & SyntaxRemoveOptions.KeepLeadingTrivia) != 0)
-                {
                     removedSpan = TextSpan.FromBounds(span.Start, removedSpan.End);
-                }
 
                 if ((_options & SyntaxRemoveOptions.KeepTrailingTrivia) != 0)
-                {
                     removedSpan = TextSpan.FromBounds(removedSpan.Start, span.End);
-                }
 
                 return removedSpan;
             }
@@ -422,14 +319,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             {
                 if (node.ContainsDirectives)
                 {
-                    if (_directivesToKeep == null)
-                    {
-                        _directivesToKeep = new HashSet<SyntaxNode>();
-                    }
-                    else
-                    {
-                        _directivesToKeep.Clear();
-                    }
+                    (_directivesToKeep ??= []).Clear();
 
                     var directivesInSpan = node.DescendantTrivia(span, n => n.ContainsDirectives, descendIntoTrivia: true)
                                                .Where(tr => tr.IsDirective)
@@ -438,29 +328,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                     foreach (var directive in directivesInSpan)
                     {
                         if ((_options & SyntaxRemoveOptions.KeepDirectives) != 0)
-                        {
                             _directivesToKeep.Add(directive);
-                        }
-                        else if (directive.Kind() == SyntaxKind.DefineDirectiveTrivia ||
-                            directive.Kind() == SyntaxKind.UndefDirectiveTrivia)
-                        {
-                            // always keep #define and #undef, even if we are only keeping unbalanced directives
+                        else if (directive.Kind() is SyntaxKind.DefineDirectiveTrivia or SyntaxKind.UndefDirectiveTrivia) // always keep #define and #undef, even if we are only keeping unbalanced directives
                             _directivesToKeep.Add(directive);
-                        }
                         else if (HasRelatedDirectives(directive))
                         {
                             // a balanced directive with respect to a given node has all related directives rooted under that node
                             var relatedDirectives = directive.GetRelatedDirectives();
                             var balanced = relatedDirectives.All(rd => rd.FullSpan.OverlapsWith(span));
 
-                            if (!balanced)
-                            {
-                                // if not fully balanced, all related directives under the node are considered unbalanced.
+                            if (!balanced) // if not fully balanced, all related directives under the node are considered unbalanced.
                                 foreach (var unbalancedDirective in relatedDirectives.Where(rd => rd.FullSpan.OverlapsWith(span)))
-                                {
                                     _directivesToKeep.Add(unbalancedDirective);
-                                }
-                            }
                         }
 
                         if (_directivesToKeep.Contains(directive))
@@ -471,13 +350,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                             // If we're keeping a directive, and it's not at the start of the line, keep the indentation
                             // whitespace that precedes it as well so that the directive stays in the right location.
                             if (directiveTriviaListIndex >= 1 && triviaList[directiveTriviaListIndex - 1] is { RawKind: (int)SyntaxKind.WhitespaceTrivia } indentationTrivia)
-                            {
                                 AddResidualTrivia(SyntaxFactory.TriviaList(indentationTrivia, parentTrivia), requiresNewLine: true);
-                            }
                             else
-                            {
                                 AddResidualTrivia(SyntaxFactory.TriviaList(parentTrivia), requiresNewLine: true);
-                            }
                         }
                     }
                 }
@@ -494,13 +369,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
             }
 
             private static bool HasRelatedDirectives(DirectiveTriviaSyntax directive)
-            {
-                return directive.Kind() switch
-                {
-                    SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.EndIfDirectiveTrivia or SyntaxKind.RegionDirectiveTrivia or SyntaxKind.EndRegionDirectiveTrivia => true,
-                    _ => false,
-                };
-            }
+                => directive.Kind() is SyntaxKind.IfDirectiveTrivia or SyntaxKind.ElseDirectiveTrivia or SyntaxKind.ElifDirectiveTrivia or SyntaxKind.EndIfDirectiveTrivia or SyntaxKind.RegionDirectiveTrivia or SyntaxKind.EndRegionDirectiveTrivia;
         }
     }
 }

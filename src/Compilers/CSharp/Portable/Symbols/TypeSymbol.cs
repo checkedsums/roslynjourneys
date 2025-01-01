@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Symbols.Metadata.PE;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Symbols;
 using Roslyn.Utilities;
@@ -22,15 +23,13 @@ using Roslyn.Utilities;
 namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
     /// <summary>
-    /// A TypeSymbol is a base class for all the symbols that represent a type
-    /// in C#.
+    /// A TypeSymbol is a base class for all the symbols that represent a type in C#.
     /// </summary>
     internal abstract partial class TypeSymbol : NamespaceOrTypeSymbol, ITypeSymbolInternal
     {
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // Changes to the public interface of this class should remain synchronized with the VB version.
-        // Do not make any changes to the public interface without making the corresponding change
-        // to the VB version.
+        // Do not make any changes to the public interface without making the corresponding change to the VB version.
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         // TODO (tomat): Consider changing this to an empty name. This name shouldn't ever leak to the user in error messages.
@@ -121,6 +120,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _lazyInterfaceInfo = info = s_noInterfaces;
             return info;
         }
+
+        //public abstract TypeSyntax TypeSyntax { get; }
 
         /// <summary>
         /// The original definition of this symbol. If this symbol is constructed from another

@@ -656,7 +656,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             get
             {
                 var data = GetDecodedWellKnownAttributeData();
-                return data != null && data.HasDefaultCharSetAttribute ? data.DefaultCharacterSet : (CharSet?)null;
+                return data != null && data.HasDefaultCharSetAttribute ? data.DefaultCharacterSet : null;
             }
         }
 
@@ -678,7 +678,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         /// This property returns <see cref="ObsoleteAttributeData.Uninitialized"/> if attribute arguments haven't been decoded yet.
         /// </summary>
         internal sealed override ObsoleteAttributeData? ObsoleteAttributeData
-            => _lazyCustomAttributesBag!.IsDecodedWellKnownAttributeDataComputed
+            => _lazyCustomAttributesBag is not null && _lazyCustomAttributesBag.IsDecodedWellKnownAttributeDataComputed
                 ? (_lazyCustomAttributesBag.DecodedWellKnownAttributeData as ModuleWellKnownAttributeData)?.ExperimentalAttributeData
                 : (ContainingAssembly as SourceAssemblySymbol)!.GetAttributeDeclarations().IsEmpty ? null : ObsoleteAttributeData.Uninitialized;
     }

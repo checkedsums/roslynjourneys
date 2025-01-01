@@ -4,7 +4,6 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,6 +19,36 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 #nullable enable
         private readonly TypeSymbol? _explicitInterfaceType;
 #nullable disable
+
+        void RegisterTypes((TypeSymbol, TypeSymbol?, TypeSymbol?) releventTypes)
+        {
+            ContainerizeType(releventTypes.Item1);
+            RegisterContainer(releventTypes.Item2);
+            RegisterContainer(releventTypes.Item3);
+
+            void RegisterContainer(TypeSymbol? type)
+            {
+                if (type is not null)
+                    ContainerizeType(type);
+            }
+
+            void ContainerizeType(TypeSymbol type)
+            {
+                if (type._sourceUserDefinedOperators is null)
+                    type._sourceUserDefinedOperators = new();
+                else
+                {
+                    foreach (var e in type._sourceUserDefinedOperators)
+                    {
+                        if (this.SyntaxNode?.IsEquivalentTo(e?.SyntaxNode) ?? e?.SyntaxNode?.IsEquivalentTo(this.SyntaxNode) ?? false)
+                            return;
+                    }
+                }
+
+
+                type._sourceUserDefinedOperators.AddLast(this);
+            }
+        }
 
         protected SourceUserDefinedOperatorSymbolBase(
             MethodKind methodKind,
@@ -56,17 +85,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 !(syntax is OperatorDeclarationSyntax { OperatorToken: var opToken } && opToken.Kind() is not (SyntaxKind.EqualsEqualsToken or SyntaxKind.ExclamationEqualsToken)))
             {
                 diagnostics.Add(ErrorCode.ERR_InterfacesCantContainConversionOrEqualityOperators, this.GetFirstLocation());
-                // No need to cascade the error further.
-                return;
-            }
-
-            if (this.ContainingType.IsStatic)
-            {
-                // Similarly if we're in a static class, though we have not reported it yet.
-
-                // CS0715: '{0}': static classes cannot contain user-defined operators
-                diagnostics.Add(ErrorCode.ERR_OperatorInStaticClass, location, this);
-                return;
+                return; // No need to cascade the error further.
             }
 
             // SPEC: An operator declaration must include both a public and a
@@ -238,6 +257,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             var (returnType, parameters) = MakeParametersAndBindReturnType(diagnostics);
 
+            if (this.ContainingType.IsStatic)
+            {
+                RegisterTypes((returnType.Type, parameters.Length > 0 ? parameters[0].Type : null, parameters.Length > 1 ? parameters[1].Type : null));
+            }
+
             MethodChecks(returnType, parameters, diagnostics);
 
             // If we have a static class then we already 
@@ -392,22 +416,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var source0 = source.StrippedType();
             var target0 = target.StrippedType();
 
-            // SPEC: A class or struct is permitted to declare a conversion from S to T
-            // SPEC: only if all the following are true:
-
-            // SPEC: Neither S0 nor T0 is an interface type.
-
-            if (source0.IsInterfaceType() || target0.IsInterfaceType())
-            {
-                // CS0552: '{0}': user-defined conversions to or from an interface are not allowed
-                diagnostics.Add(ErrorCode.ERR_ConversionWithInterface, this.GetFirstLocation(), this);
-                return;
-            }
-
             // SPEC: Either S0 or T0 is the class or struct type in which the operator
             // SPEC: declaration takes place.
 
-            if (!MatchesContainingType(source0) &&
+            if (!this.IsStatic &&
+                !MatchesContainingType(source0) &&
                 !MatchesContainingType(target0) &&
                 // allow conversion between T and Nullable<T> in declaration of Nullable<T>
                 !MatchesContainingType(source) &&
@@ -517,17 +530,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 Debug.Assert(!different.IsTypeParameter());
 
                 var useSiteInfo = new CompoundUseSiteInfo<AssemblySymbol>(diagnostics, ContainingAssembly);
-
-                if (same.IsDerivedFrom(different, ComparisonForUserDefinedOperators, useSiteInfo: ref useSiteInfo))
-                {
-                    // '{0}': user-defined conversions to or from a base type are not allowed
-                    diagnostics.Add(ErrorCode.ERR_ConversionWithBase, this.GetFirstLocation(), this);
-                }
-                else if (different.IsDerivedFrom(same, ComparisonForUserDefinedOperators, useSiteInfo: ref useSiteInfo))
-                {
-                    // '{0}': user-defined conversions to or from a derived type are not allowed
-                    diagnostics.Add(ErrorCode.ERR_ConversionWithDerived, this.GetFirstLocation(), this);
-                }
 
                 diagnostics.Add(this.GetFirstLocation(), useSiteInfo);
             }

@@ -4,6 +4,7 @@
 
 #nullable disable
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 #pragma warning disable CS0660 // Warning is reported only for Full Solution Analysis
@@ -12,6 +13,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 {
     internal partial class TypeSymbol
     {
+        public LinkedList<SourceUserDefinedOperatorSymbolBase> _sourceUserDefinedOperators;
+
         /// <summary>
         /// Represents the method by which this type implements a given interface type
         /// and/or the corresponding diagnostics.

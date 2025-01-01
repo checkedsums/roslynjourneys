@@ -8,10 +8,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
-using Microsoft.CodeAnalysis.Text;
-using System.Collections.Generic;
 
 namespace Microsoft.CodeAnalysis.CSharp
 {
@@ -34,7 +31,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // SPEC: Find the set of types D from which user-defined conversion operators
             // SPEC: will be considered...
             var d = ArrayBuilder<(NamedTypeSymbol ParticipatingType, TypeParameterSymbol ConstrainedToTypeOpt)>.GetInstance();
-            ComputeUserDefinedExplicitConversionTypeSet(source, target, d, ref useSiteInfo);
+            AddTypesParticipatingInUserDefinedConversion(d, source, target, ref useSiteInfo);
 
             // SPEC: Find the set of applicable user-defined and lifted conversion operators, U...
             var ubuild = ArrayBuilder<UserDefinedConversionAnalysis>.GetInstance();
@@ -69,17 +66,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             return UserDefinedConversionResult.Valid(u, best.Value);
-        }
-
-        private static void ComputeUserDefinedExplicitConversionTypeSet(TypeSymbol source, TypeSymbol target, ArrayBuilder<(NamedTypeSymbol ParticipatingType, TypeParameterSymbol ConstrainedToTypeOpt)> d, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
-        {
-            // Spec 6.4.5: User-defined explicit conversions
-            //   Find the set of types, D, from which user-defined conversion operators will be considered. 
-            //   This set consists of S0 (if S0 is a class or struct), the base classes of S0 (if S0 is a class),
-            //   T0 (if T0 is a class or struct), and the base classes of T0 (if T0 is a class).
-
-            AddTypesParticipatingInUserDefinedConversion(d, source, includeBaseTypes: true, useSiteInfo: ref useSiteInfo);
-            AddTypesParticipatingInUserDefinedConversion(d, target, includeBaseTypes: true, useSiteInfo: ref useSiteInfo);
         }
 
         private void ComputeApplicableUserDefinedExplicitConversionSet(

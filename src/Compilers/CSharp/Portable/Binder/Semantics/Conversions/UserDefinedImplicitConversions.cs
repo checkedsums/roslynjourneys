@@ -5,14 +5,11 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.PooledObjects;
-using Microsoft.CodeAnalysis.Text;
 using Roslyn.Utilities;
 
 namespace Microsoft.CodeAnalysis.CSharp
@@ -78,7 +75,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // SPEC: Find the set of types D from which user-defined conversion operators...
             var d = ArrayBuilder<(NamedTypeSymbol ParticipatingType, TypeParameterSymbol ConstrainedToTypeOpt)>.GetInstance();
-            ComputeUserDefinedImplicitConversionTypeSet(source, target, d, ref useSiteInfo);
+            AddTypesParticipatingInUserDefinedConversion(d, source, target, ref useSiteInfo);
 
             // SPEC: Find the set of applicable user-defined and lifted conversion operators, U...
             var ubuild = ArrayBuilder<UserDefinedConversionAnalysis>.GetInstance();
@@ -113,17 +110,6 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             return UserDefinedConversionResult.Valid(u, best.Value);
-        }
-
-        private static void ComputeUserDefinedImplicitConversionTypeSet(TypeSymbol s, TypeSymbol t, ArrayBuilder<(NamedTypeSymbol ParticipatingType, TypeParameterSymbol ConstrainedToTypeOpt)> d, ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo)
-        {
-            // Spec 6.4.4: User-defined implicit conversions
-            //   Find the set of types D from which user-defined conversion operators
-            //   will be considered. This set consists of S0 (if S0 is a class or struct),
-            //   the base classes of S0 (if S0 is a class), and T0 (if T0 is a class or struct).
-
-            AddTypesParticipatingInUserDefinedConversion(d, s, includeBaseTypes: true, useSiteInfo: ref useSiteInfo);
-            AddTypesParticipatingInUserDefinedConversion(d, t, includeBaseTypes: false, useSiteInfo: ref useSiteInfo);
         }
 
         /// <summary>
@@ -289,9 +275,38 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var operators = ArrayBuilder<MethodSymbol>.GetInstance();
                 declaringType.AddOperators(WellKnownMemberNames.ImplicitConversionName, operators);
 
+                if (source._sourceUserDefinedOperators is not null)
+                    operators.AddRange(source._sourceUserDefinedOperators);
+                if (target._sourceUserDefinedOperators is not null)
+                    operators.AddRange(target._sourceUserDefinedOperators);
+
                 foreach (MethodSymbol op in operators)
-                {
-                    // We might have a bad operator and be in an error recovery situation. Ignore it.
+                {/*
+                    bool Delg(UserDefinedConversionAnalysis t)
+                    {
+                        var b = t.Operator as SourceUserDefinedOperatorSymbolBase;
+                        var c = op as SourceUserDefinedOperatorSymbolBase;
+                        var cb = c?.SyntaxNode?.IsEquivalentTo(b?.SyntaxNode);
+                        return cb ?? b?.SyntaxNode?.IsEquivalentTo(c?.SyntaxNode) ?? false;
+                    }*/
+
+                    SourceUserDefinedOperatorSymbolBase b = op as SourceUserDefinedOperatorSymbolBase;
+
+
+                    foreach (var e in u)
+                    {
+                        var d = e.Operator as SourceUserDefinedOperatorSymbolBase;
+
+                        if (b?.SyntaxNode?.IsEquivalentTo(d?.SyntaxNode) ?? d?.SyntaxNode.IsEquivalentTo(b?.SyntaxNode) ?? false)
+                            goto Continue;
+                    }
+
+                    goto Skip; Continue:
+                    {
+                        continue;
+                    }
+
+Skip:               // We might have a bad operator and be in an error recovery situation. Ignore it.
                     if (op.ReturnsVoid || op.ParameterCount != 1)
                     {
                         continue;
@@ -325,7 +340,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                 EncompassingImplicitConversion(convertsTo, target, ref useSiteInfo);
                         }
 
-                        u.Add(UserDefinedConversionAnalysis.Normal(constrainedToTypeOpt, op, fromConversion, toConversion, convertsFrom, convertsTo));
+                        u.Add(UserDefinedConversionAnalysis.Normal(constrainedToTypeOpt, op, fromConversion, toConversion, convertsFrom, convertsTo));//, Delg);
                     }
                     else if (source is not null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() &&
                         (allowAnyTarget || target.CanBeAssignedNull()))
@@ -353,7 +368,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             Conversion.Identity;
                         if (liftedFromConversion.Exists && liftedToConversion.Exists)
                         {
-                            u.Add(UserDefinedConversionAnalysis.Lifted(constrainedToTypeOpt, op, liftedFromConversion, liftedToConversion, nullableFrom, nullableTo));
+                            u.Add(UserDefinedConversionAnalysis.Lifted(constrainedToTypeOpt, op, liftedFromConversion, liftedToConversion, nullableFrom, nullableTo));//, Delg);
                         }
                     }
                 }
@@ -896,7 +911,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // (a) Compute the set of types D from which user-defined conversion operators should be considered by considering only the source type.
             var d = ArrayBuilder<(NamedTypeSymbol ParticipatingType, TypeParameterSymbol ConstrainedToTypeOpt)>.GetInstance();
-            ComputeUserDefinedImplicitConversionTypeSet(source, t: null, d: d, useSiteInfo: ref useSiteInfo);
+            AddTypesParticipatingInUserDefinedConversion(d, source, null, useSiteInfo: ref useSiteInfo);
 
             // (b) Instead of computing applicable user defined implicit conversions U from the source type to a specific target type,
             //     we compute these from the source type to ANY target type. We will filter out those that are valid switch governing

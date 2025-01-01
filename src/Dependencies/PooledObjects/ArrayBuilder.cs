@@ -171,6 +171,13 @@ namespace Microsoft.CodeAnalysis.PooledObjects
             _builder.Add(item);
         }
 
+        public void ConditionalAdd(T item, Func<T, bool> deleg)
+        {
+            foreach (var i in _builder)
+                if (deleg(i)) return;
+            _builder.Add(item);
+        }
+
         public void Insert(int index, T item)
         {
             _builder.Insert(index, item);
