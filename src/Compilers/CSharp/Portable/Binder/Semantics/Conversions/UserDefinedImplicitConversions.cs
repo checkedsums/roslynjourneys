@@ -292,7 +292,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                     SourceUserDefinedOperatorSymbolBase b = op as SourceUserDefinedOperatorSymbolBase;
 
-
                     foreach (var e in u)
                     {
                         var d = e.Operator as SourceUserDefinedOperatorSymbolBase;
