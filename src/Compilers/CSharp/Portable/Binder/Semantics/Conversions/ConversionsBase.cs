@@ -253,8 +253,14 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return true;
             }
 
+            /*if (sourceIsVoid)
+            {
+                conversion = Conversion.NullLiteral;
+                return true;
+            }*/
+
             // If exactly one of source or destination is of type 'void' then no conversion may exist.
-            if (destIsVoid)
+            if (destIsVoid || sourceIsVoid)
             {
                 conversion = Conversion.NoConversion;
                 return true;
