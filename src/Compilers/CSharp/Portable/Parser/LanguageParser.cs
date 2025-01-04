@@ -1697,6 +1697,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         {
                             closeBrace = this.EatToken(SyntaxKind.CloseBraceToken);
                         }
+
                         /*
                         if (this.TryParseIdentifierToken() is SyntaxToken identifier)
                         {
@@ -2745,8 +2746,7 @@ parse_member_name:;
                 {
                     result = incompleteMember;
                 }
-                else if (parentKind is SyntaxKind.NamespaceDeclaration or SyntaxKind.FileScopedNamespaceDeclaration ||
-                         parentKind == SyntaxKind.CompilationUnit && !IsScript)
+                else if (parentKind == SyntaxKind.CompilationUnit && !IsScript)
                 {
                     result = this.AddErrorToLastToken(incompleteMember, ErrorCode.ERR_NamespaceUnexpected);
                 }

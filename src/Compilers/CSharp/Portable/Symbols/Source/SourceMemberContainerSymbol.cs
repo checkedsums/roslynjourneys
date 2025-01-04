@@ -4796,8 +4796,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     return;
                 }
 
-                bool reportMisplacedGlobalCode = !m.HasErrors;
-
                 switch (m.Kind())
                 {
                     case SyntaxKind.FieldDeclaration:
@@ -4806,12 +4804,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                             // Lang version check for ref-fields is done inside SourceMemberFieldSymbol;
                             _ = fieldSyntax.Declaration.Type.SkipScoped(out _).SkipRefInField(out var refKind);
-
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(fieldSyntax.Declaration.Variables.First().Identifier));
-                            }
 
                             var modifiers = SourceMemberFieldSymbol.MakeModifiers(this, fieldSyntax.Declaration.Variables[0].Identifier, fieldSyntax.Modifiers, isRefField: refKind != RefKind.None, diagnostics, out bool modifierErrors);
                             foreach (var variable in fieldSyntax.Declaration.Variables)
@@ -4847,11 +4839,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.MethodDeclaration:
                         {
                             var methodSyntax = (MethodDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(methodSyntax.Identifier));
-                            }
 
                             var method = SourceOrdinaryMethodSymbol.CreateMethodSymbol(this, bodyBinder, methodSyntax, diagnostics);
                             builder.NonTypeMembers.Add(method);
@@ -4861,11 +4848,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.ConstructorDeclaration:
                         {
                             var constructorSyntax = (ConstructorDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(constructorSyntax.Identifier));
-                            }
 
                             var constructor = SourceConstructorSymbol.CreateConstructorSymbol(this, constructorSyntax, diagnostics);
                             builder.NonTypeMembers.Add(constructor);
@@ -4875,11 +4857,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.DestructorDeclaration:
                         {
                             var destructorSyntax = (DestructorDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(destructorSyntax.Identifier));
-                            }
 
                             // CONSIDER: if this doesn't (directly or indirectly) override object.Finalize, the
                             // runtime won't consider it a finalizer and it will not be marked as a destructor
@@ -4893,12 +4870,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.PropertyDeclaration:
                         {
                             var propertySyntax = (PropertyDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(propertySyntax.Identifier));
-                            }
-
                             var property = SourcePropertySymbol.Create(this, bodyBinder, propertySyntax, diagnostics);
                             builder.NonTypeMembers.Add(property);
 
@@ -4943,12 +4914,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.EventFieldDeclaration:
                         {
                             var eventFieldSyntax = (EventFieldDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(
-                                    ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(eventFieldSyntax.Declaration.Variables.First().Identifier));
-                            }
 
                             foreach (VariableDeclaratorSyntax declarator in eventFieldSyntax.Declaration.Variables)
                             {
@@ -4995,11 +4960,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.EventDeclaration:
                         {
                             var eventSyntax = (EventDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(eventSyntax.Identifier));
-                            }
 
                             var @event = new SourceCustomEventSymbol(this, bodyBinder, eventSyntax, diagnostics);
 
@@ -5015,11 +4975,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.IndexerDeclaration:
                         {
                             var indexerSyntax = (IndexerDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(indexerSyntax.ThisKeyword));
-                            }
 
                             var indexer = SourcePropertySymbol.Create(this, bodyBinder, indexerSyntax, diagnostics);
                             builder.HaveIndexers = true;
@@ -5032,11 +4987,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.ConversionOperatorDeclaration:
                         {
                             var conversionOperatorSyntax = (ConversionOperatorDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(conversionOperatorSyntax.OperatorKeyword));
-                            }
 
                             var method = SourceUserDefinedConversionSymbol.CreateUserDefinedConversionSymbol(
                                 this, bodyBinder, conversionOperatorSyntax, diagnostics);
@@ -5047,11 +4997,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     case SyntaxKind.OperatorDeclaration:
                         {
                             var operatorSyntax = (OperatorDeclarationSyntax)m;
-                            if (IsImplicitClass && reportMisplacedGlobalCode)
-                            {
-                                diagnostics.Add(ErrorCode.ERR_NamespaceUnexpected,
-                                    new SourceLocation(operatorSyntax.OperatorKeyword));
-                            }
 
                             var method = SourceUserDefinedOperatorSymbol.CreateUserDefinedOperatorSymbol(
                                 this, bodyBinder, operatorSyntax, diagnostics);
@@ -5107,10 +5052,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                                 }
 
                                 AddInitializer(ref instanceInitializers, null, globalStatement);
-                            }
-                            else if (reportMisplacedGlobalCode && !SyntaxFacts.IsSimpleProgramTopLevelStatement((GlobalStatementSyntax)m))
-                            {
-                                diagnostics.Add(ErrorCode.ERR_GlobalStatement, new SourceLocation(globalStatement));
                             }
                         }
                         break;
