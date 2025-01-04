@@ -732,18 +732,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 {
                     case SyntaxKind.GlobalStatement:
                         if (seen < NamespaceParts.MembersAndStatements)
-                        {
                             seen = NamespaceParts.MembersAndStatements;
-                        }
                         else if (seen == NamespaceParts.TypesAndNamespaces)
-                        {
                             seen = NamespaceParts.TopLevelStatementsAfterTypesAndNamespaces;
-
-                            if (!IsScript)
-                            {
-                                memberOrStatement = this.AddError(memberOrStatement, ErrorCode.ERR_TopLevelStatementAfterNamespaceOrType);
-                            }
-                        }
 
                         break;
 
@@ -757,16 +748,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     case SyntaxKind.RecordDeclaration:
                     case SyntaxKind.RecordStructDeclaration:
                         if (seen < NamespaceParts.TypesAndNamespaces)
-                        {
                             seen = NamespaceParts.TypesAndNamespaces;
-                        }
                         break;
 
                     default:
                         if (seen < NamespaceParts.MembersAndStatements)
-                        {
                             seen = NamespaceParts.MembersAndStatements;
-                        }
                         break;
                 }
 
@@ -3103,9 +3090,7 @@ parse_member_name:;
             try
             {
                 var paramList = this.ParseParameterList<ParameterListSyntax>();
-                var initializer = this.CurrentToken.Kind == SyntaxKind.ColonToken
-                    ? this.ParseConstructorInitializer()
-                    : null;
+                var initializer = this.CurrentToken.Kind == SyntaxKind.ColonToken ? this.ParseConstructorInitializer() : null;
 
                 this.ParseBlockAndExpressionBodiesWithSemicolon(out var body, out var expressionBody, out var semicolon);
 

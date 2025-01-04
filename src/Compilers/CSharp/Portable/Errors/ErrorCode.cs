@@ -1778,7 +1778,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         ERR_SimpleProgramLocalIsReferencedOutsideOfTopLevelStatement = 8801,
         ERR_SimpleProgramMultipleUnitsWithTopLevelStatements = 8802,
-        ERR_TopLevelStatementAfterNamespaceOrType = 8803,
+
         ERR_SimpleProgramDisallowsMainType = 8804,
         ERR_SimpleProgramNotAnExecutable = 8805,
 
