@@ -9,7 +9,7 @@ namespace Microsoft.CodeAnalysis.Syntax.InternalSyntax
 {
     internal class SyntaxListBuilder
     {
-        private ArrayElement<GreenNode?>[] _nodes;
+        internal ArrayElement<GreenNode?>[] _nodes;
         public int Count { get; private set; }
 
         public SyntaxListBuilder(int size)

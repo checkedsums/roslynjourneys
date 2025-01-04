@@ -92,6 +92,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             _children = children;
             _flags = declFlags;
             QuickAttributes = quickAttributes;
+
+            if ((_modifiers & (DeclarationModifiers.Public | DeclarationModifiers.ProtectedInternal | DeclarationModifiers.PrivateProtected | DeclarationModifiers.Protected | DeclarationModifiers.Private)) > 0)
+            {
+                _modifiers |= DeclarationModifiers.Public;
+            }
         }
 
         public override DeclarationKind Kind

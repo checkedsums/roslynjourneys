@@ -1561,6 +1561,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
+        public IEnumerable<GreenNode?> GetAccessibilityModifier(SyntaxListBuilder sbuilder)
+        {
+            foreach (var token in sbuilder._nodes)
+            {
+                if (IsAccessibilityModifier((SyntaxKind)token.Value!.RawKind))
+                    yield return token;
+            }
+        }
+
         private MemberDeclarationSyntax ParseTypeDeclaration(SyntaxList<AttributeListSyntax> attributes, SyntaxListBuilder modifiers)
         {
             // "top-level" expressions and statements should never occur inside an asynchronous context
@@ -1613,7 +1622,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             var saveTerm = _termState;
             _termState |= TerminatorState.IsPossibleAggregateClauseStartOrStop;
 
-            var name = this.ParseIdentifierToken();
+            var name = this.TryParseIdentifierToken() ?? SyntaxToken.CreateMissing(SyntaxKind.IdentifierToken);
             var typeParameters = this.ParseTypeParameterList();
 
             var paramList = CurrentToken.Kind == SyntaxKind.OpenParenToken
@@ -2859,7 +2868,7 @@ parse_member_name:;
                 this.ParseModifiers(modifiers, forAccessors: false, forTopLevelStatements: false, out isPossibleTypeDeclaration);
 
                 // Check for constructor form
-                if (this.CurrentToken.Kind == SyntaxKind.IdentifierToken && this.PeekToken(1).Kind == SyntaxKind.OpenParenToken)
+                if (this.CurrentToken.Kind is SyntaxKind.IdentifierToken or SyntaxKind.NewKeyword && this.PeekToken(1).Kind == SyntaxKind.OpenParenToken)
                 {
                     return this.ParseConstructorDeclaration(attributes, modifiers);
                 }
@@ -3088,7 +3097,7 @@ parse_member_name:;
         private ConstructorDeclarationSyntax ParseConstructorDeclaration(
             SyntaxList<AttributeListSyntax> attributes, SyntaxListBuilder modifiers)
         {
-            var name = this.ParseIdentifierToken();
+            var name = this.TryEatToken(SyntaxKind.NewKeyword) ?? this.ParseIdentifierToken();
             var saveTerm = _termState;
             _termState |= TerminatorState.IsEndOfMethodSignature;
             try
@@ -5405,6 +5414,11 @@ parse_member_name:;
 
         private SyntaxToken ParseIdentifierToken(ErrorCode code = ErrorCode.ERR_IdentifierExpected)
         {
+            return TryParseIdentifierToken() ?? this.AddError(CreateMissingIdentifierToken(), code);
+        }
+
+        private SyntaxToken? TryParseIdentifierToken()
+        {
             var ctk = this.CurrentToken.Kind;
             if (ctk == SyntaxKind.IdentifierToken)
             {
@@ -5430,10 +5444,7 @@ parse_member_name:;
 
                 return identifierToken;
             }
-            else
-            {
-                return this.AddError(CreateMissingIdentifierToken(), code);
-            }
+            return null;
         }
 
         private bool IsCurrentTokenQueryKeywordInQuery() => this.IsInQuery && this.IsCurrentTokenQueryContextualKeyword;

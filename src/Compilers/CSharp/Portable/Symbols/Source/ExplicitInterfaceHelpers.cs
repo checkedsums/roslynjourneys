@@ -328,8 +328,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                     void checkAccessorIsAccessibleIfImplementable(MethodSymbol accessor)
                     {
-                        if (accessor.IsImplementable() &&
-                            !AccessCheck.IsSymbolAccessible(accessor, implementingMember.ContainingType, ref useSiteInfo, throughTypeOpt: null))
+                        if (accessor.IsImplementable() && !AccessCheck.IsSymbolAccessible(accessor, implementingMember.ContainingType, ref useSiteInfo, throughTypeOpt: null))
                         {
                             diagnostics.Add(ErrorCode.ERR_BadAccess, memberLocation, accessor);
                         }
