@@ -2109,6 +2109,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
             Debug.Assert(method1.ParameterCount == method2.ParameterCount);
 
+            if (!Equals(method1.ReturnType, method2.ReturnType, TypeCompareKind.IgnoreNullableModifiersForReferenceTypes)) return;
+
             for (int i = 0; i < method1.ParameterCount; i++)
             {
                 var refKind1 = method1.Parameters[i].RefKind;

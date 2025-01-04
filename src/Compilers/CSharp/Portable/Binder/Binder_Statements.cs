@@ -1628,7 +1628,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             if (node.Kind() != SyntaxKind.ArrayInitializerExpression)
             {
-                return BindValue(node, diagnostics, valueKind);
+                return BindValue(node, diagnostics, valueKind, destinationType);
             }
 
             BoundExpression result;

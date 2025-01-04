@@ -448,7 +448,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             RemoveConstraintViolations(results, template: new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo));
 
-            RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0, isMethodGroupConversion: (options & Options.IsMethodGroupConversion) != 0);
+            RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, options);
 
             if ((options & Options.IsFunctionPointerResolution) != 0)
             {
@@ -826,24 +826,53 @@ outerDefault:
         private void RemoveDelegateConversionsWithWrongReturnType<TMember>(
             ArrayBuilder<MemberResolutionResult<TMember>> results,
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo,
-            RefKind? returnRefKind,
-            TypeSymbol returnType,
-            bool isFunctionPointerConversion, bool isMethodGroupConversion) where TMember : Symbol
+            RefKind? returnRefKind, TypeSymbol returnType,
+            Options options) where TMember : Symbol
         {
+            bool isFunctionPointerConversion = (options & Options.IsFunctionPointerResolution) != 0;
+            bool isForTheMessCalledBusiness = (options & Options.IsMethodGroupConversion) != 0;
             // When the feature 'ImprovedOverloadCandidates' is enabled, then a delegate conversion overload resolution
             // rejects candidates that have the wrong return ref kind or return type.
 
             // Delegate conversions apply to method in a method group, not to properties in a "property group".
             Debug.Assert(typeof(TMember) == typeof(MethodSymbol));
 
-            for (int f = 0; f < results.Count; ++f)
+            int f = 0;
+
+            if (returnType is null)
+            {
+                for (f = 0; f < results.Count; ++f)
+                {
+                    var result = results[f];
+                    if (!result.Result.IsValid)
+                        continue;
+                    var method = (MethodSymbol)(Symbol)result.Member;
+
+                    if (method.ReturnsVoid)
+                        goto Sic;
+                }
+
+                goto CononTam;
+
+Sic:
+                for (f = 0; f < results.Count; ++f)
+                {
+                    var result = results[f];
+                    if (!result.Result.IsValid)
+                        continue;
+                    var method = (MethodSymbol)(Symbol)result.Member;
+                    if (method.ReturnsVoid)
+                        continue;
+                    results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
+                }
+            }
+
+CononTam:
+            for (f = 0; f < results.Count; ++f)
             {
                 var result = results[f];
                 if (!result.Result.IsValid)
-                {
                     continue;
-                }
-
                 var method = (MethodSymbol)(Symbol)result.Member;
                 bool returnsMatch;
 
@@ -878,7 +907,7 @@ outerDefault:
                     goto Skip;
                 }
 
-                if (!isMethodGroupConversion)
+                if (!isForTheMessCalledBusiness)
                 {
                     results.RemoveAt(f);
                 }

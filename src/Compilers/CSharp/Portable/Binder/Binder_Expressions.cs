@@ -233,9 +233,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// did not meet the requirements, the return value will be a <see cref="BoundBadExpression"/> that
         /// (typically) wraps the subexpression.
         /// </summary>
-        internal BoundExpression BindValue(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind)
+        internal BoundExpression BindValue(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind, TypeSymbol lefthandType = null, bool isArgumentFor = false)
         {
-            var result = this.BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false);
+            var result = this.BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false, lefthandType: lefthandType, isArgument: isArgumentFor);
             return CheckValue(result, valueKind, diagnostics);
         }
 
@@ -424,9 +424,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             return GenerateConversionForAssignment(delegateType, expr, diagnostics);
         }
 
-        internal BoundExpression BindValueAllowArgList(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind)
+        internal BoundExpression BindValueAllowArgList(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind, bool isArgumentFor = false)
         {
-            var result = this.BindExpressionAllowArgList(node, diagnostics: diagnostics);
+            var result = this.BindExpressionAllowArgList(node, diagnostics, isArgumentFor);
             return CheckValue(result, valueKind, diagnostics);
         }
 
@@ -521,14 +521,14 @@ namespace Microsoft.CodeAnalysis.CSharp
             return new BoundFieldEqualsValue(equalsValueSyntax, symbol, initializerBinder.GetDeclaredLocalsForScope(equalsValueSyntax), initializer);
         }
 
-        public BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics)
+        public BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool isForArgument = false)
         {
-            return BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false);
+            return BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false, isArgument: isForArgument);
         }
 
-        protected BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed)
+        protected BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed, TypeSymbol lefthandType = null, bool isArgument = false)
         {
-            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked, indexed);
+            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked, indexed, lefthandType, isArgument);
             CheckContextForPointerTypes(node, diagnostics, expr);
 
             if (expr.Kind == BoundKind.ArgListOperator)
@@ -544,9 +544,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         // PERF: allowArgList is not a parameter because it is fairly uncommon case where arglists are allowed
         //       so we do not want to pass that argument to every BindExpression which is often recursive 
         //       and extra arguments contribute to the stack size.
-        protected BoundExpression BindExpressionAllowArgList(ExpressionSyntax node, BindingDiagnosticBag diagnostics)
+        protected BoundExpression BindExpressionAllowArgList(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool isForArgument = false)
         {
-            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked: false, indexed: false);
+            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked: false, indexed: false, isArgumentFor: isForArgument);
             CheckContextForPointerTypes(node, diagnostics, expr);
             return expr;
         }
@@ -564,8 +564,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private BoundExpression BindExpressionInternal(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed)
+        private BoundExpression BindExpressionInternal(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed, TypeSymbol leftHandType = null, bool isArgumentFor = false)
         {
+            if (isArgumentFor)
+                leftHandType = GetSpecialType(SpecialType.System_Object, diagnostics, node);
+
             if (IsEarlyAttributeBinder && !EarlyWellKnownAttributeBinder.CanBeValidAttributeArgument(node))
             {
                 return BadExpression(node, LookupResultKind.NotAValue);
@@ -596,7 +599,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SyntaxKind.FieldExpression:
                         return BindFieldExpression((FieldExpressionSyntax)node, diagnostics);
                     case SyntaxKind.InvocationExpression:
-                        return BindInvocationExpression((InvocationExpressionSyntax)node, diagnostics);
+                        return BindInvocationExpression((InvocationExpressionSyntax)node, diagnostics, leftHandType);
                     case SyntaxKind.ArrayInitializerExpression:
                         return BindUnexpectedArrayInitializer((InitializerExpressionSyntax)node, diagnostics, ErrorCode.ERR_ArrayInitInBadPlace);
                     case SyntaxKind.ArrayCreationExpression:
@@ -2453,9 +2456,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundExpression BindCast(CastExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
-            BoundExpression operand = this.BindValue(node.Expression, diagnostics, BindValueKind.RValue);
             TypeWithAnnotations targetTypeWithAnnotations = this.BindType(node.Type, diagnostics);
             TypeSymbol targetType = targetTypeWithAnnotations.Type;
+            BoundExpression operand = this.BindValue(node.Expression, diagnostics, BindValueKind.RValue, targetType);
 
             if (targetType.IsNullableType() &&
                 !operand.HasAnyErrors &&
@@ -3207,11 +3210,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             BoundExpression argument;
             if (allowArglist)
             {
-                argument = this.BindValueAllowArgList(argumentExpression, diagnostics, valueKind);
+                argument = this.BindValueAllowArgList(argumentExpression, diagnostics, valueKind, isArgumentFor: true);
             }
             else
             {
-                argument = this.BindValue(argumentExpression, diagnostics, valueKind);
+                argument = this.BindValue(argumentExpression, diagnostics, valueKind, BindType(argumentExpression, diagnostics).Type, isArgumentFor: true);
             }
 
             return argument;
