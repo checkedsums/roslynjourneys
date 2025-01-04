@@ -448,10 +448,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             RemoveConstraintViolations(results, template: new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo));
 
-            if ((options & Options.IsMethodGroupConversion) != 0)
-            {
-                RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0);
-            }
+            RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0, isMethodGroupConversion: (options & Options.IsMethodGroupConversion) != 0);
 
             if ((options & Options.IsFunctionPointerResolution) != 0)
             {
@@ -831,7 +828,7 @@ outerDefault:
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo,
             RefKind? returnRefKind,
             TypeSymbol returnType,
-            bool isFunctionPointerConversion) where TMember : Symbol
+            bool isFunctionPointerConversion, bool isMethodGroupConversion) where TMember : Symbol
         {
             // When the feature 'ImprovedOverloadCandidates' is enabled, then a delegate conversion overload resolution
             // rejects candidates that have the wrong return ref kind or return type.
@@ -876,6 +873,16 @@ outerDefault:
                 {
                     results[f] = result.WithResult(MemberAnalysisResult.WrongRefKind());
                 }
+                else
+                {
+                    goto Skip;
+                }
+
+                if (!isMethodGroupConversion)
+                {
+                    results.RemoveAt(f);
+                }
+Skip:;
             }
         }
 
