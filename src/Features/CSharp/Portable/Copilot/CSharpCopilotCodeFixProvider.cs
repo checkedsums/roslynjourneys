@@ -94,44 +94,6 @@ internal sealed partial class CSharpCopilotCodeFixProvider() : CodeFixProvider
         Diagnostic diagnostic,
         bool hasMultiplePrompts)
     {
-        if (!diagnostic.Properties.TryGetValue(FixPropertyName, out var fix)
-            || fix is null
-            || !diagnostic.Properties.TryGetValue(PromptTitlePropertyName, out var promptTitle)
-            || promptTitle is null)
-        {
-            return null;
-        }
-
-        // Parse the proposed Copilot fix into a method declaration.
-        // Guard against failure cases where the proposed fixed code does not parse into a method declaration.
-        // TODO: consider do this early when we create the diagnostic and add a flag in the property bag to speedup lightbulb computation
-        var memberDeclaration = SyntaxFactory.ParseMemberDeclaration(fix, options: method.SyntaxTree.Options);
-        if (memberDeclaration is null || memberDeclaration is not BaseMethodDeclarationSyntax baseMethodDeclaration || baseMethodDeclaration.GetDiagnostics().Count() > 3)
-            return null;
-
-        var title = hasMultiplePrompts
-            ? $"{CSharpFeaturesResources.Apply_fix_from} {promptTitle}"
-            : CSharpFeaturesResources.Apply_Copilot_suggestion;
-
-        return new CopilotDocumentChangeCodeAction(
-            title,
-            createChangedDocument: (_, cancellationToken) => GetFixedDocumentAsync(method, fix, cancellationToken),
-            equivalenceKey: title,
-            new CopilotDismissChangesCodeAction(method, diagnostic),
-            priority: CodeActionPriority.Low);
-
-        async Task<Document> GetFixedDocumentAsync(SyntaxNode method, string fix, CancellationToken cancellationToken)
-        {
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken).ConfigureAwait(false);
-
-            // TODO: Replace all the whitespace trivia with elastic trivia, and any other trivia related improvements
-            var newMethod = memberDeclaration
-                .WithLeadingTrivia(memberDeclaration.HasLeadingTrivia ? memberDeclaration.GetLeadingTrivia() : method.GetLeadingTrivia())
-                .WithTrailingTrivia(memberDeclaration.HasTrailingTrivia ? memberDeclaration.GetTrailingTrivia() : method.GetTrailingTrivia())
-                .WithAdditionalAnnotations(Formatter.Annotation, WarningAnnotation);
-
-            editor.ReplaceNode(method, newMethod);
-            return editor.GetChangedDocument();
-        }
+        return null;
     }
 }

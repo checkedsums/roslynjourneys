@@ -31249,11 +31249,6 @@ internal partial class ContextAwareSyntax
 
     public BaseListSyntax BaseList(SyntaxToken colonToken, CoreSyntax.SeparatedSyntaxList<BaseTypeSyntax> types)
     {
-#if DEBUG
-        if (colonToken == null) throw new ArgumentNullException(nameof(colonToken));
-        if (colonToken.Kind != SyntaxKind.ColonToken) throw new ArgumentException(nameof(colonToken));
-#endif
-
         int hash;
         var cached = CSharpSyntaxNodeCache.TryGetNode((int)SyntaxKind.BaseList, colonToken, types.Node, this.context, out hash);
         if (cached != null) return (BaseListSyntax)cached;
