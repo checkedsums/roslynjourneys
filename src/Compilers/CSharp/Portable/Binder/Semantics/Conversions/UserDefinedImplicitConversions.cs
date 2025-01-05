@@ -278,26 +278,54 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (source._sourceUserDefinedOperators is not null)
                     operators.AddRange(source._sourceUserDefinedOperators);
                 if (target._sourceUserDefinedOperators is not null)
-                    operators.AddAllButNotAgain(target._sourceUserDefinedOperators, (e1, e2) => e1 == e2);
+                    operators.AddRange(target._sourceUserDefinedOperators);
+
+Goto:;
+
+                for (var i = 0; i < operators.Count; i++)
+                {
+                    for (var j = 0; j < operators.Count; j++)
+                    {
+                        if (i == j) j++;
+
+                        if (i < operators.Count && j < operators.Count)
+                        {
+                            var b = operators[j] as SourceUserDefinedConversionSymbol;
+                            var d = operators[i] as SourceUserDefinedConversionSymbol;
+
+                            if (d?.ReturnType is null || d?.ContainingType is null)
+                                operators.RemoveAt(j);
+
+                            try
+                            {
+                                if (b?.ReturnType is null || b?.ContainingType is null ||
+                                (b.ReturnType.Equals(d.ReturnType) && b.ContainingType.ToDisplayString() == d.ContainingType.ToDisplayString()))
+                                {
+                                    operators.RemoveAt(i);
+                                    goto Goto;
+                                }
+                            }
+                            catch
+                            {
+                                operators.RemoveAt(i);
+                            }
+                        }
+                    }
+                }
 
                 foreach (MethodSymbol op in operators)
                 {
-                    SourceUserDefinedOperatorSymbolBase b = op as SourceUserDefinedOperatorSymbolBase;
-
-                    foreach (var e in u)
+                    for (var i = 0; i < u.Count; i++)
                     {
-                        var d = e.Operator as SourceUserDefinedOperatorSymbolBase;
+                        var b = u[i].Operator as SourceUserDefinedConversionSymbol;
 
-                        if (e.Operator == op || (b?.SyntaxNode?.IsEquivalentTo(d?.SyntaxNode) ?? d?.SyntaxNode.IsEquivalentTo(b?.SyntaxNode) ?? true))
+                        if (b?.ReturnType is null || b?.ContainingType is null || (b.ReturnType.Equals(op.ReturnType) && b.ContainingType.ToDisplayString() == op.ContainingType.ToDisplayString()))
                             goto Continue;
                     }
 
-                    goto Skip; Continue:
-                    {
-                        continue;
-                    }
+                    goto Skip; Continue: continue; Skip:;
 
-Skip:               // We might have a bad operator and be in an error recovery situation. Ignore it.
+                    // We might have a bad operator and be in an error recovery situation. Ignore it.
                     if (op.ReturnsVoid || op.ParameterCount != 1)
                     {
                         continue;
@@ -331,7 +359,7 @@ Skip:               // We might have a bad operator and be in an error recovery 
                                 EncompassingImplicitConversion(convertsTo, target, ref useSiteInfo);
                         }
 
-                        u.Add(UserDefinedConversionAnalysis.Normal(constrainedToTypeOpt, op, fromConversion, toConversion, convertsFrom, convertsTo));//, Delg);
+                        u.Add(UserDefinedConversionAnalysis.Normal(constrainedToTypeOpt, op, fromConversion, toConversion, convertsFrom, convertsTo));
                     }
                     else if (source is not null && source.IsNullableType() && convertsFrom.IsValidNullableTypeArgument() &&
                         (allowAnyTarget || target.CanBeAssignedNull()))
@@ -359,7 +387,7 @@ Skip:               // We might have a bad operator and be in an error recovery 
                             Conversion.Identity;
                         if (liftedFromConversion.Exists && liftedToConversion.Exists)
                         {
-                            u.Add(UserDefinedConversionAnalysis.Lifted(constrainedToTypeOpt, op, liftedFromConversion, liftedToConversion, nullableFrom, nullableTo));//, Delg);
+                            u.Add(UserDefinedConversionAnalysis.Lifted(constrainedToTypeOpt, op, liftedFromConversion, liftedToConversion, nullableFrom, nullableTo));
                         }
                     }
                 }

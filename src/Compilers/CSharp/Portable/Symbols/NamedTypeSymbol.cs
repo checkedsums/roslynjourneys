@@ -705,8 +705,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             return false;
         };
 
-        private Accessibility Accessibility;
-
         /// <summary>
         /// Get this accessibility that was declared on this symbol. For symbols that do not have
         /// accessibility declared on them, returns NotApplicable.
