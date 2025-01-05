@@ -278,25 +278,17 @@ namespace Microsoft.CodeAnalysis.CSharp
                 if (source._sourceUserDefinedOperators is not null)
                     operators.AddRange(source._sourceUserDefinedOperators);
                 if (target._sourceUserDefinedOperators is not null)
-                    operators.AddRange(target._sourceUserDefinedOperators);
+                    operators.AddAllButNotAgain(target._sourceUserDefinedOperators, (e1, e2) => e1 == e2);
 
                 foreach (MethodSymbol op in operators)
-                {/*
-                    bool Delg(UserDefinedConversionAnalysis t)
-                    {
-                        var b = t.Operator as SourceUserDefinedOperatorSymbolBase;
-                        var c = op as SourceUserDefinedOperatorSymbolBase;
-                        var cb = c?.SyntaxNode?.IsEquivalentTo(b?.SyntaxNode);
-                        return cb ?? b?.SyntaxNode?.IsEquivalentTo(c?.SyntaxNode) ?? false;
-                    }*/
-
+                {
                     SourceUserDefinedOperatorSymbolBase b = op as SourceUserDefinedOperatorSymbolBase;
 
                     foreach (var e in u)
                     {
                         var d = e.Operator as SourceUserDefinedOperatorSymbolBase;
 
-                        if (b?.SyntaxNode?.IsEquivalentTo(d?.SyntaxNode) ?? d?.SyntaxNode.IsEquivalentTo(b?.SyntaxNode) ?? false)
+                        if (e.Operator == op || (b?.SyntaxNode?.IsEquivalentTo(d?.SyntaxNode) ?? d?.SyntaxNode.IsEquivalentTo(b?.SyntaxNode) ?? true))
                             goto Continue;
                     }
 

@@ -626,6 +626,21 @@ namespace Microsoft.CodeAnalysis.PooledObjects
             }
         }
 
+        public void AddAllButNotAgain(IEnumerable<T> items, Func<T, T, bool> predicate)
+        {
+            foreach (var item in items)
+            {
+                foreach (var element in _builder)
+                {
+                    if (predicate(item, element))
+                        goto Continue;
+                }
+                goto Skip; Continue: continue; Skip:;
+
+                _builder.Add(item);
+            }
+        }
+
         public void AddRange(IEnumerable<T> items)
         {
             _builder.AddRange(items);
