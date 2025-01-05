@@ -252,7 +252,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
             _declModifiers = modifiers;
 
-            if ((_declModifiers & (DeclarationModifiers.Public | DeclarationModifiers.ProtectedInternal | DeclarationModifiers.PrivateProtected | DeclarationModifiers.Protected | DeclarationModifiers.Private)) > 0)
+            if ((_declModifiers & (DeclarationModifiers.Public | DeclarationModifiers.ProtectedInternal | DeclarationModifiers.PrivateProtected | DeclarationModifiers.Protected | DeclarationModifiers.Private)) == 0)
             {
                 _declModifiers |= DeclarationModifiers.Public;
             }
@@ -1316,7 +1316,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 foreach (var childDeclaration in declaration.Children)
                 {
                     var t = new SourceNamedTypeSymbol(this, childDeclaration, diagnostics);
-                    this.CheckMemberNameDistinctFromType(t, diagnostics);
 
                     var key = (t.Name, t.Arity, t.AssociatedSyntaxTree);
                     if (conflictDict.TryGetValue(key, out SourceNamedTypeSymbol? other))
@@ -1349,26 +1348,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             finally
             {
                 symbols.Free();
-            }
-        }
-
-        private void CheckMemberNameDistinctFromType(Symbol member, BindingDiagnosticBag diagnostics)
-        {
-            switch (this.TypeKind)
-            {
-                case TypeKind.Class:
-                case TypeKind.Struct:
-                    if (member.Name == this.Name)
-                    {
-                        diagnostics.Add(ErrorCode.ERR_MemberNameSameAsType, member.GetFirstLocation(), this.Name);
-                    }
-                    break;
-                case TypeKind.Interface:
-                    if (member.IsStatic)
-                    {
-                        goto case TypeKind.Class;
-                    }
-                    break;
             }
         }
 
@@ -1766,7 +1745,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 CheckInterfaceMembers(this.GetMembersAndInitializers().NonTypeMembers, diagnostics);
             }
 
-            CheckMemberNamesDistinctFromType(diagnostics);
             CheckMemberNameConflicts(diagnostics);
             CheckRecordMemberNames(diagnostics);
             CheckSpecialMemberErrors(diagnostics);
@@ -1873,14 +1851,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
         protected virtual void AfterMembersCompletedChecks(BindingDiagnosticBag diagnostics)
         {
-        }
-
-        private void CheckMemberNamesDistinctFromType(BindingDiagnosticBag diagnostics)
-        {
-            foreach (var member in GetMembersAndInitializers().NonTypeMembers)
-            {
-                CheckMemberNameDistinctFromType(member, diagnostics);
-            }
         }
 
         private void CheckRecordMemberNames(BindingDiagnosticBag diagnostics)
