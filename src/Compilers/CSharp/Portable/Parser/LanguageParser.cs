@@ -10359,6 +10359,11 @@ done:
 
             ExpressionSyntax? tryExpandExpression(ExpressionSyntax leftOperand, Precedence precedence)
             {
+                if (this.CurrentToken.Kind is SyntaxKind.NullKeyword)
+                {
+                    return _syntaxFactory.IsPatternExpression(leftOperand, SyntaxFactory.MissingToken(SyntaxKind.IsKeyword), _syntaxFactory.ConstantPattern(_syntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression, this.EatToken())));
+                }
+
                 // Look for operators that can follow what we've seen so far, and which are acceptable at this
                 // precedence level.  Examples include binary operator, assignment operators, range operators `..`, as
                 // well as `switch` and `with` clauses.
