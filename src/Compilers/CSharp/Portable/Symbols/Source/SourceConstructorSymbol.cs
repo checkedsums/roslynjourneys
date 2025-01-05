@@ -29,14 +29,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
              BindingDiagnosticBag diagnostics) :
              base(containingType, location, syntax, SyntaxFacts.HasYieldOperations(syntax),
                   MakeModifiersAndFlags(
-                      containingType, syntax, methodKind, syntax.Initializer?.Kind() == SyntaxKind.ThisConstructorInitializer, location, diagnostics, out bool modifierErrors, out bool report_ERR_StaticConstructorWithAccessModifiers))
+                      containingType, syntax, methodKind, syntax.Initializer?.Kind() == SyntaxKind.ThisConstructorInitializer, location, diagnostics, out bool modifierErrors))
         {
             this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
-
-            if (report_ERR_StaticConstructorWithAccessModifiers)
-            {
-                diagnostics.Add(ErrorCode.ERR_StaticConstructorWithAccessModifiers, location, this);
-            }
 
             if (syntax.Identifier.ValueText != containingType.Name)
             {
@@ -77,10 +72,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool hasThisInitializer,
             Location location,
             BindingDiagnosticBag diagnostics,
-            out bool modifierErrors,
-            out bool report_ERR_StaticConstructorWithAccessModifiers)
+            out bool modifierErrors)
         {
-            DeclarationModifiers declarationModifiers = MakeModifiers(containingType, syntax, methodKind, location, diagnostics, out modifierErrors, out report_ERR_StaticConstructorWithAccessModifiers);
+            DeclarationModifiers declarationModifiers = MakeModifiers(containingType, syntax, methodKind, location, diagnostics, out modifierErrors);
             Flags flags = MakeFlags(
                 methodKind, RefKind.None, declarationModifiers, returnsVoid: true, returnsVoidIsSet: true,
                 isExpressionBodied: syntax.IsExpressionBodied(), isExtensionMethod: false, isVarArg: syntax.IsVarArg(), isExplicitInterfaceImplementation: false,
@@ -111,8 +105,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         }
 
         private static DeclarationModifiers MakeModifiers(
-            NamedTypeSymbol containingType, ConstructorDeclarationSyntax syntax, MethodKind methodKind, Location location, BindingDiagnosticBag diagnostics,
-            out bool modifierErrors, out bool report_ERR_StaticConstructorWithAccessModifiers)
+            NamedTypeSymbol containingType, ConstructorDeclarationSyntax syntax, MethodKind methodKind, Location location, BindingDiagnosticBag diagnostics, out bool modifierErrors)
         {
             var defaultAccess = (methodKind == MethodKind.StaticConstructor) ? DeclarationModifiers.None : DeclarationModifiers.Private;
 
@@ -126,22 +119,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             bool isInterface = containingType.IsInterface;
             var mods = ModifierUtils.MakeAndCheckNonTypeMemberModifiers(isOrdinaryMethod: false, isForInterfaceMember: isInterface, syntax.Modifiers, defaultAccess, AllowedModifiers, location, diagnostics, out modifierErrors);
 
-            report_ERR_StaticConstructorWithAccessModifiers = false;
             if (methodKind == MethodKind.StaticConstructor)
             {
-                // Don't report ERR_StaticConstructorWithAccessModifiers if the ctor symbol name doesn't match the containing type name.
-                // This avoids extra unnecessary errors.
-                // There will already be a diagnostic saying Method must have a return type.
-                if ((mods & DeclarationModifiers.AccessibilityMask) != 0 &&
-                    containingType.Name == syntax.Identifier.ValueText)
-                {
-                    mods = mods & ~DeclarationModifiers.AccessibilityMask;
-                    report_ERR_StaticConstructorWithAccessModifiers = true;
-                    modifierErrors = true;
-                }
-
-                mods |= DeclarationModifiers.Private; // we mark static constructors private in the symbol table
-
                 if (isInterface)
                 {
                     ModifierUtils.ReportDefaultInterfaceImplementationModifiers(mods, DeclarationModifiers.Extern, location, diagnostics);

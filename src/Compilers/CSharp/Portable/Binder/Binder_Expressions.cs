@@ -3214,7 +3214,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             else
             {
-                argument = this.BindValue(argumentExpression, diagnostics, valueKind, BindType(argumentExpression, diagnostics).Type, isArgumentFor: true);
+                argument = this.BindValue(argumentExpression, diagnostics, valueKind, isArgumentFor: true);
             }
 
             return argument;

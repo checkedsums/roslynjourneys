@@ -108,7 +108,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_RetNoObjectRequired = 127,
         ERR_LocalDuplicate = 128,
         ERR_AssgLvalueExpected = 131,
-        ERR_StaticConstParam = 132,
+
         ERR_NotConstantExpression = 133,
         ERR_NotNullConstRefField = 134,
         // ERR_NameIllegallyOverrides = 135, // Not used in Roslyn anymore due to 'Single Meaning' relaxation changes
@@ -336,7 +336,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_CantDeriveFromSealedType = 509,
         ERR_AbstractInConcreteClass = 513,
         ERR_StaticConstructorWithExplicitConstructorCall = 514,
-        ERR_StaticConstructorWithAccessModifiers = 515,
+
         ERR_RecursiveConstructorCall = 516,
         ERR_ObjectCallingBaseConstructor = 517,
         ERR_PredefinedTypeNotFound = 518,
@@ -358,7 +358,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_InterfaceMemberNotFound = 539,
         ERR_ClassDoesntImplementInterface = 540,
         ERR_ExplicitInterfaceImplementationInNonClassOrStruct = 541,
-        ERR_MemberNameSameAsType = 542,
+
         ERR_EnumeratorOverflow = 543,
         ERR_CantOverrideNonProperty = 544,
         ERR_NoGetToOverride = 545,

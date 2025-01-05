@@ -58,14 +58,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _lazyReturnType = TypeWithAnnotations.Create(bodyBinder.GetSpecialType(SpecialType.System_Void, diagnostics, syntax));
 
             var location = this.GetFirstLocation();
-            // Don't report ERR_StaticConstParam if the ctor symbol name doesn't match the containing type name.
-            // This avoids extra unnecessary errors.
-            // There will already be a diagnostic saying Method must have a return type.
-            if (MethodKind == MethodKind.StaticConstructor && (_lazyParameters.Length != 0) &&
-                ContainingType.Name == ((ConstructorDeclarationSyntax)this.SyntaxNode).Identifier.ValueText)
-            {
-                diagnostics.Add(ErrorCode.ERR_StaticConstParam, location, this);
-            }
 
             this.CheckEffectiveAccessibility(_lazyReturnType, _lazyParameters, diagnostics);
             this.CheckFileTypeUsage(_lazyReturnType, _lazyParameters, diagnostics);

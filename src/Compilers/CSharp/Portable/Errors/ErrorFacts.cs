@@ -302,7 +302,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_RetNoObjectRequired
                 or ErrorCode.ERR_LocalDuplicate
                 or ErrorCode.ERR_AssgLvalueExpected
-                or ErrorCode.ERR_StaticConstParam
                 or ErrorCode.ERR_NotConstantExpression
                 or ErrorCode.ERR_NotNullConstRefField
                 or ErrorCode.ERR_LocalIllegallyOverrides
@@ -503,7 +502,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_CantDeriveFromSealedType
                 or ErrorCode.ERR_AbstractInConcreteClass
                 or ErrorCode.ERR_StaticConstructorWithExplicitConstructorCall
-                or ErrorCode.ERR_StaticConstructorWithAccessModifiers
                 or ErrorCode.ERR_RecursiveConstructorCall
                 or ErrorCode.ERR_ObjectCallingBaseConstructor
                 or ErrorCode.ERR_StructWithBaseConstructorCall
@@ -521,7 +519,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_InterfaceMemberNotFound
                 or ErrorCode.ERR_ClassDoesntImplementInterface
                 or ErrorCode.ERR_ExplicitInterfaceImplementationInNonClassOrStruct
-                or ErrorCode.ERR_MemberNameSameAsType
                 or ErrorCode.ERR_EnumeratorOverflow
                 or ErrorCode.ERR_CantOverrideNonProperty
                 or ErrorCode.ERR_NoGetToOverride
@@ -564,7 +561,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.WRN_DeprecatedSymbolStr
                 or ErrorCode.ERR_DeprecatedSymbolStr
                 or ErrorCode.ERR_IndexerCantHaveVoidType
-                or ErrorCode.ERR_VirtualPrivate
                 or ErrorCode.ERR_ArrayInitToNonArrayType
                 or ErrorCode.ERR_ArrayInitInBadPlace
                 or ErrorCode.ERR_MissingStructOffset

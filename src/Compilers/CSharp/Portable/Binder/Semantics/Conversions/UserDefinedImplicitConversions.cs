@@ -275,9 +275,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 var operators = ArrayBuilder<MethodSymbol>.GetInstance();
                 declaringType.AddOperators(WellKnownMemberNames.ImplicitConversionName, operators);
 
-                if (source._sourceUserDefinedOperators is not null)
+                if (source?._sourceUserDefinedOperators is not null)
                     operators.AddRange(source._sourceUserDefinedOperators);
-                if (target._sourceUserDefinedOperators is not null)
+                if (target?._sourceUserDefinedOperators is not null)
                     operators.AddRange(target._sourceUserDefinedOperators);
 
 Goto:;

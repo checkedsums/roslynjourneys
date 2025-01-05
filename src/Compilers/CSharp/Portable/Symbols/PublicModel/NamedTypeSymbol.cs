@@ -206,7 +206,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols.PublicModel
 
         protected sealed override void Accept(SymbolVisitor visitor)
         {
-            visitor.VisitNamedType(this);
+            visitor?.VisitNamedType(this);
         }
 
         protected sealed override TResult Accept<TResult>(SymbolVisitor<TResult> visitor)
