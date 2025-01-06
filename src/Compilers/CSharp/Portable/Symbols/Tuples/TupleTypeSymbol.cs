@@ -660,8 +660,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                                 if (defaultImplicitlyDeclared && !string.IsNullOrEmpty(providedName))
                                 {
-                                    var errorPositions = TupleErrorPositions;
-                                    var isError = errorPositions.IsDefault ? false : errorPositions[tupleFieldIndex];
+                                    var isError = TupleErrorPositions.Length - 1 < tupleFieldIndex || TupleErrorPositions.IsDefault ? false : TupleErrorPositions[tupleFieldIndex];
 
                                     // The name given doesn't match the default name Item8, etc.
                                     // Add a virtual field with the given name

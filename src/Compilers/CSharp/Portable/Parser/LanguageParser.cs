@@ -11323,17 +11323,19 @@ done:
                 expression = this.ParseIdentifierName(ErrorCode.ERR_MissingArgument);
             }
             else
-            {
-                // According to Language Specification, section 7.6.7 Element access
-                //      The argument-list of an element-access is not allowed to contain ref or out arguments.
-                // However, we actually do support ref indexing of indexed properties in COM interop
-                // scenarios, and when indexing an object of static type "dynamic". So we enforce
-                // that the ref/out of the argument must match the parameter when binding the argument list.
+                try
+                {
+                    // According to Language Specification, section 7.6.7 Element access
+                    //      The argument-list of an element-access is not allowed to contain ref or out arguments.
+                    // However, we actually do support ref indexing of indexed properties in COM interop
+                    // scenarios, and when indexing an object of static type "dynamic". So we enforce
+                    // that the ref/out of the argument must match the parameter when binding the argument list.
 
-                expression = refKindKeyword?.Kind == SyntaxKind.OutKeyword
-                    ? ParseExpressionOrDeclaration(ParseTypeMode.Normal, permitTupleDesignation: false)
-                    : ParseSubExpression(Precedence.Expression);
-            }
+                    expression = refKindKeyword?.Kind == SyntaxKind.OutKeyword
+                        ? ParseExpressionOrDeclaration(ParseTypeMode.Normal, permitTupleDesignation: false)
+                        : ParseSubExpression(Precedence.Expression);
+                }
+                finally { }
 
             return _syntaxFactory.Argument(nameColon, refKindKeyword, expression);
         }

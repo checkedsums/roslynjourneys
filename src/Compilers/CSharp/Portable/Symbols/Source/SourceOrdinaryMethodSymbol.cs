@@ -799,10 +799,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             {
                 diagnostics.Add(ErrorCode.ERR_PartialMethodWithOutParamMustHaveAccessMods, location, this);
             }
-            else if (this.DeclaredAccessibility == Accessibility.Private && (IsVirtual || (IsAbstract && !isExplicitInterfaceImplementationInInterface) || IsOverride))
-            {
-                diagnostics.Add(ErrorCode.ERR_VirtualPrivate, location, this);
-            }
             else if (IsOverride && (IsNew || IsVirtual))
             {
                 // A member '{0}' marked as override cannot be marked as new or virtual

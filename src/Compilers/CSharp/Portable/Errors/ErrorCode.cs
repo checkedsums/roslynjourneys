@@ -415,7 +415,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         WRN_DeprecatedSymbolStr = 618,
         ERR_DeprecatedSymbolStr = 619,
         ERR_IndexerCantHaveVoidType = 620,
-        ERR_VirtualPrivate = 621,
+
         ERR_ArrayInitToNonArrayType = 622,
         ERR_ArrayInitInBadPlace = 623,
         ERR_MissingStructOffset = 625,
